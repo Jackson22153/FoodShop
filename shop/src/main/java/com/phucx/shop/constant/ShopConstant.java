@@ -1,6 +1,6 @@
 package com.phucx.shop.constant;
 
-public class ClientConstant {
+public class ShopConstant {
     public static int PAGESIZE = 10;
 
     public static String PRODUCTSFILTER = "ProductsFilter";
