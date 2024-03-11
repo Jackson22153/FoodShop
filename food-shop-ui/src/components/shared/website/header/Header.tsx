@@ -7,8 +7,8 @@ import Search from "../../functions/search/Search";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import AppHeaderUser from "../../functions/appHeaderUser/AppHeaderUser";
 import { MouseEventHandler, useContext, useRef } from "react";
-import { userInfoContext } from "../../../stateful/homePath/home/Home";
 import { LoginUrl } from "../../../../constant/FoodShoppingApiURL";
+import userInfoContext from "../../../contexts/userInfoContext";
 
 interface Props{
     lstCategories: Category[]
@@ -24,7 +24,9 @@ function HeaderComponent(prop: Props){
     const searchInputValue = prop.searchInputValue;
     const searchResult = prop.searchResult;
     const categoriesDropdownRef = useRef<HTMLDivElement>(null);
-    const userInfo = useContext(userInfoContext);
+
+
+    const userInfo = useContext<UserInfo>(userInfoContext);
     
     const handleIsOpeningUserDropDown = (status: boolean) =>{
         prop.handleIsOpeningUserDropDown(status);

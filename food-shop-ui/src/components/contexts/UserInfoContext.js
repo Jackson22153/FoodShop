@@ -1,7 +1,8 @@
 import { createContext } from "react";
-import { userInfoContext } from "../ui/homePath/home/Home";
 
-const UserInfoContext = createContext<UserInfo>({
+import { UserInfo } from "../../model/Type";
+
+const userInfoContext = createContext<UserInfo>({
     username: "",
     isAuthenticated: false
 })
@@ -9,4 +10,4 @@ const UserInfoContext = createContext<UserInfo>({
 export const UserInfoProvider = userInfoContext.Provider;
 export const UserInfoConsumer = userInfoContext.Consumer;
 
-export default UserInfoContext;
+export default userInfoContext;
