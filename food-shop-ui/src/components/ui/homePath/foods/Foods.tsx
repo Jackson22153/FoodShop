@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Pageable, Product } from "../../../../model/Type";
-import FoodCard from "../../../stateless/function/foodCard/FoodCard";
+import FoodCard from "../../../shared/functions/foodCard/FoodCard";
 import { getProducts, getProductsByProductName, searchProducts } from "../../../../api/SearchApi";
-import PaginationSection from "../../../stateless/section/paginationSection/PaginationSection";
+import PaginationSection from "../../../shared/website/sections/paginationSection/PaginationSection";
 
 export default function FoodsComponent(){
     const [foods, setFoods] = useState([]);

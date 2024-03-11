@@ -1,7 +1,5 @@
 import './Cart.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLongArrowAltLeft } from '@fortawesome/free-solid-svg-icons';
-import CartCard from '../../../stateless/function/cartCard/CartCard';
+import CartCard from '../../../shared/functions/cartCard/CartCard';
 import { useEffect, useState } from 'react';
 import { CartProduct, Pageable } from '../../../../model/Type';
 import { getShippers } from '../../../../api/SearchApi';

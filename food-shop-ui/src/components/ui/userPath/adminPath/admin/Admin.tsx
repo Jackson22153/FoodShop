@@ -1,8 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 import AdminDashBoardComponent from '../adminDashBoard/AdminDashBoard';
-import SidebarComponent from '../../../../stateless/function/admin/sidebar/SideBar';
-import TopBarComponent from '../../../../stateless/function/admin/topbar/TopBar';
-import FooterComponent from '../../../../stateless/function/admin/footer/Footer';
+import SidebarComponent from '../../../../shared/functions/admin/sidebar/SideBar';
+import TopBarComponent from '../../../../shared/functions/admin/topbar/TopBar';
+import FooterComponent from '../../../../shared/website/footer/Footer';
 
 export default function AdminComponent(){
     return(

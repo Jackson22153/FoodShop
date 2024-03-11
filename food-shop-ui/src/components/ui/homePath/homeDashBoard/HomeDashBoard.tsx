@@ -4,9 +4,9 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { getCategories, getRecommendedProduct } from "../../../../api/SearchApi";
-import CategoriesSection from "../../../stateless/section/categoriesSection/CategoriesSection";
-import SlideSection from "../../../stateless/section/slideSection/SlideSection";
-import FoodSection from "../../../stateless/section/foodSection/FoodSection";
+import CategoriesSection from "../../../shared/website/sections/categoriesSection/CategoriesSection";
+import SlideSection from "../../../shared/website/sections/slideSection/SlideSection";
+import FoodSection from "../../../shared/website/sections/foodSection/FoodSection";
 import { onUserInput } from "../../../../service/search";
 
 

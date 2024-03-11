@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getProductsByCategory } from "../../../../api/SearchApi";
 import { Pageable, Product } from "../../../../model/Type";
-import FoodCard from "../../../stateless/function/foodCard/FoodCard";
-import PaginationSection from "../../../stateless/section/paginationSection/PaginationSection";
-import { categoriesPath } from "../../../../constant/FoodShoppingURL";
+import FoodCard from "../../../shared/functions/foodCard/FoodCard";
+import PaginationSection from "../../../shared/website/sections/paginationSection/PaginationSection";
 
 export default function CategoryComponent(){
     const {categoryName} = useParams();

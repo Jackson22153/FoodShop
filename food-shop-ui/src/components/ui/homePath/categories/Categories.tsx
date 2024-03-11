@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Category } from "../../../../model/Type"
 import { getCategories } from "../../../../api/SearchApi"
-import CategoriesDetailbox from "../../../stateless/function/categoriesDetailBox/CategoriesDetailbox"
+import CategoriesDetailbox from "../../../shared/functions/categoriesDetailBox/CategoriesDetailbox"
 
 export default function CategoriesComponent(){
     const [categories, setCategories] = useState<Category[]>([])

@@ -1,16 +1,16 @@
-import HeaderComponent from "../../../stateless/website/header/Header";
+import HeaderComponent from "../../../shared/website/header/Header";
 import { Routes, Route } from "react-router-dom";
 import './Home.css';
 // import '../../../../css/bootstrap.css';
 // import '../../../../css/responsive.css';
-import FooterComponent from "../../../stateless/website/footer/Footer";
+import FooterComponent from "../../../shared/website/footer/Footer";
 import HomeDashBoardComponent from "../homeDashBoard/HomeDashBoard";
 import FoodsComponent from "../foods/Foods";
 import ContactUsComponent from "../contact/ContactUs";
 import FoodComponent from "../food/Food";
 import CartComponent from "../cart/Cart";
 import { cartPath, categoriesPath, contactPath, foodsPath } from "../../../../constant/FoodShoppingURL";
-import React, { ChangeEventHandler, MouseEventHandler, createContext, 
+import { ChangeEventHandler, createContext, 
     useEffect, useState } 
     from "react";
 import { getCategories } from "../../../../api/SearchApi";
@@ -18,12 +18,13 @@ import { Category, Product, UserInfo } from "../../../../model/Type";
 import CategoriesComponent from "../categories/Categories";
 import CategoryComponent from "../category/Category";
 import { getUsername, isAuthenticated } from "../../../../api/AuthorizationApi";
+import { UserInfoProvider } from "../../../contexts/UserInfoContext";
 
 export const isOpeningUserDropDownContext = createContext(false);
-export const userInfoContext = createContext<UserInfo>({
-    username: "",
-    isAuthenticated: false
-})
+// export const userInfoContext = createContext<UserInfo>({
+//     username: "",
+//     isAuthenticated: false
+// })
 
 function HomeComponent(){
     const [categories, setCategories] = useState<Category[]>([]);
@@ -91,11 +92,11 @@ function HomeComponent(){
     return(
         <>
             <isOpeningUserDropDownContext.Provider value={isOpeningUserDropDown}>
-                <userInfoContext.Provider value={userInfo}>
+                <UserInfoProvider value={userInfo}>
                     <HeaderComponent lstCategories={categories} searchInputValue={searchInputValue} 
                         handleInputSearchChange={handleInputSearchChange} searchResult={searchResult}
                         handleSearchResult={handleSearchResult} handleIsOpeningUserDropDown={handleIsOpeningUserDropDown}/>
-                </userInfoContext.Provider>
+                </UserInfoProvider>
             </isOpeningUserDropDownContext.Provider>
             <div id="home-body">
                 <Routes>
