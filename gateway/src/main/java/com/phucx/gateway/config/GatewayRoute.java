@@ -16,11 +16,11 @@ public class GatewayRoute {
     public RouteLocator routeLocator(RouteLocatorBuilder builder){
         return builder.routes()
             .route(route -> route
-                .path("/client/**")
+                .path("/shop/**")
                 .filters(filter -> filter
                     .filter(tokenRelayGatewayFilterFactory.apply())
-                    .rewritePath("/client/(?<segment>.*)","/${segment}"))
-                .uri("lb://CLIENT"))
+                    .rewritePath("/shop/(?<segment>.*)","/${segment}"))
+                .uri("lb://SHOP"))
             .build();
     }
 }
