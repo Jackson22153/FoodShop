@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.phucx.shop.constant.ShopConstant;
+import com.phucx.shop.model.CurrentProductList;
 import com.phucx.shop.model.Products;
 import com.phucx.shop.model.Shippers;
 import com.phucx.shop.service.categories.CategoriesService;
@@ -106,21 +107,12 @@ public class HomeController {
 
     // products
     @GetMapping("products")
-    public ResponseEntity<MappingJacksonValue> getProducts(
+    public ResponseEntity<Page<CurrentProductList>> getProducts(
         @RequestParam(name = "page", required = false) Integer pageNumber
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
-        var productsPageable =productsService.getProducts(pageNumber, ShopConstant.PAGESIZE);
-        SimpleFilterProvider filterProvider = new SimpleFilterProvider().setFailOnUnknownId(true);
-
-        var data = jsonFilterService.filterOutAllExcept(ShopConstant.PRODUCTSFILTER, 
-            Set.of("productID", "productName", "unitPrice", "unitsInStock", "categoryID"), 
-            productsPageable, filterProvider);
-
-        data = jsonFilterService.filterOutAllExcept(ShopConstant.CATEGORIESFILTER, 
-            Set.of("categoryName"), data.getValue(), filterProvider);
-
-        return ResponseEntity.ok().body(data);
+        var productsPageable =productsService.getCurrentProductList(pageNumber, ShopConstant.PAGESIZE);
+        return ResponseEntity.ok().body(productsPageable);
     }
     
     @GetMapping("products/name")

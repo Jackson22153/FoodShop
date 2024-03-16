@@ -1,11 +1,11 @@
 
 const URL = "http://localhost:8060";
 // service
-const ClientService = `${URL}/client`;
+const ShopService = `${URL}/shop`;
 
-// client service
-const HomeUrl = `${ClientService}/home`;
-const SearchUrl = `${ClientService}/search`;
+// shop service
+const HomeUrl = `${ShopService}/home`;
+const SearchUrl = `${ShopService}/search`;
 
 // public url
 // gateway

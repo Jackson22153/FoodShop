@@ -10,7 +10,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class ClientConfig {  
+public class WebConfig {  
     @Bean
     public SecurityFilterChain dFilterChain(HttpSecurity http) throws Exception{
         http.sessionManagement(session -> session

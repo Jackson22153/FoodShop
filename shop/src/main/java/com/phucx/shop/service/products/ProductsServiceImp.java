@@ -8,8 +8,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.phucx.shop.model.CurrentProductList;
 import com.phucx.shop.model.Products;
 import com.phucx.shop.model.SalesByCategory;
+import com.phucx.shop.repository.CurrentProductListRepository;
 import com.phucx.shop.repository.ProductsRepository;
 import com.phucx.shop.service.SalesByCategory.SalesByCategoryService;
 
@@ -19,6 +21,8 @@ public class ProductsServiceImp implements ProductsService{
     private ProductsRepository productsRepository;
     @Autowired
     private SalesByCategoryService salesByCategoryService;
+    @Autowired
+    private CurrentProductListRepository currentProductListRepository;
 
     @Override
     public List<Products> getProducts() {
@@ -86,6 +90,26 @@ public class ProductsServiceImp implements ProductsService{
         Page<Products> products = productsRepository.findByProductNameLike(productPattern, page);
 
         return products;
+    }
+
+    @Override
+    public CurrentProductList getCurrentProduct(int productID) {
+        var option = currentProductListRepository.findById(productID);
+        if(option.isPresent())
+            return option.get();
+        return null;
+    }
+
+    @Override
+    public List<CurrentProductList> getCurrentProductList() {
+        var products = currentProductListRepository.findAll();
+        return products;
+    }
+
+    @Override
+    public Page<CurrentProductList> getCurrentProductList(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return currentProductListRepository.findAll(pageable);
     }
 
 }

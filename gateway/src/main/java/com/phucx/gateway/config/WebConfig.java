@@ -37,8 +37,8 @@ public class WebConfig {
 
         http.authorizeExchange(request -> request
             // .pathMatchers("/home").permitAll()
-            .pathMatchers("/client/search/**").permitAll()
-            .pathMatchers("/client/home/**").permitAll()
+            .pathMatchers("/shop/search/**").permitAll()
+            .pathMatchers("/shop/home/**").permitAll()
             .pathMatchers("/isAuthenticated").permitAll()
             .anyExchange().authenticated());
 
