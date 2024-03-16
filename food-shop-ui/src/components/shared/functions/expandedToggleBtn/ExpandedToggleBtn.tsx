@@ -13,7 +13,7 @@ export default function ExpandedToggleBtn(prop:Props){
     }
 
     return(
-        <span onClick={expandedStatusToggle} className="custom_dark-btn">
+        <span onClick={expandedStatusToggle} className=" custom_dark-btn">
             {expandedStatus? 
                 <>
                     Read More <FontAwesomeIcon icon={faArrowDown}/>

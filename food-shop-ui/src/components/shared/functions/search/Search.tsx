@@ -2,6 +2,8 @@ import { ChangeEventHandler, FormEventHandler, MouseEventHandler } from "react";
 import { onUserInput } from "../../../../service/search";
 import { Product } from "../../../../model/Type";
 import { FoodPath, SearchFoodsPath } from "../../../../constant/FoodShoppingURL";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 interface Props{
     searchInputValue: string,
@@ -59,7 +61,8 @@ export default function Search(prop: Props){
             </ul>
             <button className="input-group-text search-button btn btn-primary" 
                 id="search-addon" onClick={onClickSearch}>
-                <i className="fas fa-search"></i>
+                <i className="fa-solid fa-magnifying-glass"></i>
+                <FontAwesomeIcon icon={faMagnifyingGlass}/>
             </button>
         </div>
     );
