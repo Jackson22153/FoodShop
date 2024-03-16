@@ -1,4 +1,4 @@
-import { getClient, getSlide, getCardCategory, getFood } from "../../../../service/image";
+import { getClient, getSlide } from "../../../../service/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
@@ -7,19 +7,11 @@ import { getCategories, getRecommendedProduct } from "../../../../api/SearchApi"
 import CategoriesSection from "../../../shared/website/sections/categoriesSection/CategoriesSection";
 import SlideSection from "../../../shared/website/sections/slideSection/SlideSection";
 import FoodSection from "../../../shared/website/sections/foodSection/FoodSection";
-import { onUserInput } from "../../../../service/search";
 
 
 function HomeDashBoardComponent(){
     const slide = getSlide();
-    // category
-    const category1 = getCardCategory('cardItem1');
-    const category2 = getCardCategory('cardItem2');
-    const category3 = getCardCategory('cardItem3');
-    // food
-    const orange = getFood('orange');
-    const grapes = getFood('grapes');
-    const gauva = getFood('gauva');
+
     // client
     const client = getClient();
 

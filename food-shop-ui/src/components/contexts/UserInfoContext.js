@@ -1,8 +1,6 @@
 import { createContext } from "react";
 
-import { UserInfo } from "../../model/Type";
-
-const userInfoContext = createContext<UserInfo>({
+const userInfoContext = createContext({
     username: "",
     isAuthenticated: false
 })

@@ -6,9 +6,9 @@ import { convertNameForUrl, nonBreakingSpace } from "../../../../service/convert
 import Search from "../../functions/search/Search";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import AppHeaderUser from "../../functions/appHeaderUser/AppHeaderUser";
-import { MouseEventHandler, useContext, useRef } from "react";
+import { useContext, useRef } from "react";
 import { LoginUrl } from "../../../../constant/FoodShoppingApiURL";
-import userInfoContext from "../../../contexts/userInfoContext";
+import userInfoContext from "../../../contexts/UserInfoContext";
 
 interface Props{
     lstCategories: Category[]

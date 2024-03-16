@@ -18,7 +18,7 @@ import { Category, Product, UserInfo } from "../../../../model/Type";
 import CategoriesComponent from "../categories/Categories";
 import CategoryComponent from "../category/Category";
 import { getUsername, isAuthenticated } from "../../../../api/AuthorizationApi";
-import { UserInfoProvider } from "../../../contexts/userInfoContext";
+import { UserInfoProvider } from "../../../contexts/UserInfoContext";
 
 export const isOpeningUserDropDownContext = createContext(false);
 // export const userInfoContext = createContext<UserInfo>({

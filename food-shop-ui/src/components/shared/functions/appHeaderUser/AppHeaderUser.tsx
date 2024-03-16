@@ -1,6 +1,7 @@
 import { MouseEventHandler, useContext, useEffect, useRef } from "react";
-import { isOpeningUserDropDownContext } from "../../../stateful/homePath/home/Home";
-import { userInfoContext } from "../../../stateful/homePath/home/Home";
+import userInfoContext from "../../../contexts/UserInfoContext";
+import { isOpeningUserDropDownContext } from "../../../ui/homePath/home/Home";
+import { customerPath } from "../../../../constant/FoodShoppingURL";
 
 interface Props{
     handleIsOpeningDropdown: any,
