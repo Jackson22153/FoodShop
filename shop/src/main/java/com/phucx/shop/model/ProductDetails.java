@@ -4,13 +4,12 @@ import org.springframework.data.annotation.Immutable;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.Data;
 
-@Entity @Data
+@Data
+@Entity 
 @Immutable
-@Table(name = "Alphabetical list of products")
-public class AlphabeticalListOfProducts {
+public class ProductDetails{
     @Id
     private Integer productID;
     private String productName;
@@ -24,5 +23,5 @@ public class AlphabeticalListOfProducts {
     private Boolean discontinued;
     private String picture;
     private String categoryName;
-
+    private String companyName;
 }

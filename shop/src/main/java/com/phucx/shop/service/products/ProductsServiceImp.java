@@ -9,10 +9,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.phucx.shop.model.CurrentProductList;
+import com.phucx.shop.model.ProductDetails;
 import com.phucx.shop.model.Products;
 import com.phucx.shop.model.SalesByCategory;
 import com.phucx.shop.repository.CurrentProductListRepository;
+import com.phucx.shop.repository.ProductDetailsRepository;
 import com.phucx.shop.repository.ProductsRepository;
+import com.phucx.shop.repository.SalesByCategoryRepository;
 import com.phucx.shop.service.SalesByCategory.SalesByCategoryService;
 
 @Service
@@ -20,9 +23,11 @@ public class ProductsServiceImp implements ProductsService{
     @Autowired
     private ProductsRepository productsRepository;
     @Autowired
-    private SalesByCategoryService salesByCategoryService;
+    private SalesByCategoryRepository salesByCategoryRepository;
     @Autowired
     private CurrentProductListRepository currentProductListRepository;
+    @Autowired
+    private ProductDetailsRepository productDetailsRepository;
 
     @Override
     public List<Products> getProducts() {
@@ -68,11 +73,10 @@ public class ProductsServiceImp implements ProductsService{
     }
 
     @Override
-    public List<Products> getRecommendedProducts() {
+    public List<Products> getRecommendedProducts(int pageNumber, int pageSize) {
         List<Products> products = new ArrayList<>();
-        
-        var salesByCategory = salesByCategoryService
-            .findSalesOfProductsPerCategory(0, 3);
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        var salesByCategory = salesByCategoryRepository.findAll(page);
 
         List<SalesByCategory> salesByCategoryData = salesByCategory.getContent();
         for(SalesByCategory i: salesByCategoryData){
@@ -100,6 +104,8 @@ public class ProductsServiceImp implements ProductsService{
         return null;
     }
 
+    
+
     @Override
     public List<CurrentProductList> getCurrentProductList() {
         var products = currentProductListRepository.findAll();
@@ -110,6 +116,29 @@ public class ProductsServiceImp implements ProductsService{
     public Page<CurrentProductList> getCurrentProductList(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         return currentProductListRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<CurrentProductList> searchCurrentProducts(String productName, int pageNumber, int pageSize) {
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<CurrentProductList> products = currentProductListRepository
+            .searchCurrentProductsByProductName(productName, page);
+        return products;
+    }
+
+    @Override
+    public Page<CurrentProductList> getCurrentProductsByCategoryName(String categoryName, int pageNumber,
+            int pageSize) {
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<CurrentProductList> products = currentProductListRepository.findByCategoryName(categoryName, page);
+        return products;
+    }
+
+    @Override
+    public ProductDetails getProductDetailsByID(int productID) {
+        var option = productDetailsRepository.findById(productID);
+        if(option.isPresent()) return option.get();
+        return null;
     }
 
 }

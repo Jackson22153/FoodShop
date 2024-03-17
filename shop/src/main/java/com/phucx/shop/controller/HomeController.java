@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.phucx.shop.constant.ShopConstant;
 import com.phucx.shop.model.CurrentProductList;
+import com.phucx.shop.model.ProductDetails;
 import com.phucx.shop.model.Products;
 import com.phucx.shop.model.Shippers;
 import com.phucx.shop.service.categories.CategoriesService;
@@ -115,44 +116,17 @@ public class HomeController {
         return ResponseEntity.ok().body(productsPageable);
     }
     
-    @GetMapping("products/name")
-    public ResponseEntity<MappingJacksonValue> getProductsByName(
-        @RequestParam(name = "l") String letter,
-        @RequestParam(name = "page", required = false) Integer pageNumber
-    ){
-        if(letter.length()>2){
-            pageNumber = pageNumber!=null?pageNumber:0;
-            var productsPageable = productsService.searchProductByName(
-                letter, pageNumber, ShopConstant.PAGESIZE);
-    
-            SimpleFilterProvider filterProvider = new SimpleFilterProvider().setFailOnUnknownId(true);
-    
-            var data = jsonFilterService.filterOutAllExcept(ShopConstant.PRODUCTSFILTER, 
-                Set.of("productID", "productName", "unitPrice", "unitsInStock", "categoryID"), 
-                productsPageable, filterProvider);
-            data = jsonFilterService.filterOutAllExcept(ShopConstant.CATEGORIESFILTER, 
-                Set.of("categoryName"), data.getValue(), filterProvider);
-    
-            return ResponseEntity.ok().body(data);
-        }
-        return ResponseEntity.badRequest().body(null);
-    }
-    
     @GetMapping("products/id/{productID}")
-    public ResponseEntity<MappingJacksonValue> getProductByID(@PathVariable(name = "productID") Integer productID) {
-        var product = productsService.getProduct(productID);
-        SimpleFilterProvider filterProvider = new SimpleFilterProvider().setFailOnUnknownId(true);
-
-        var data = jsonFilterService.serializeAll(ShopConstant.PRODUCTSFILTER, product, filterProvider);
-        data = jsonFilterService.filterOutAllExcept(ShopConstant.CATEGORIESFILTER, 
-            Set.of("categoryName"), data.getValue(), filterProvider);
-        data = jsonFilterService.serializeAll(ShopConstant.SUPPLIERSFILTER, data.getValue(), filterProvider);
-        return ResponseEntity.ok().body(data);
+    public ResponseEntity<ProductDetails> getProductByID(
+        @PathVariable(name = "productID") Integer productID
+    ){
+        ProductDetails productDetails = productsService.getProductDetailsByID(productID);
+        return ResponseEntity.ok().body(productDetails);
     }
 
     @GetMapping("/products/recommended")
     public ResponseEntity<MappingJacksonValue> getRecommendedProducts(){
-        List<Products> products = productsService.getRecommendedProducts();
+        List<Products> products = productsService.getRecommendedProducts(0, 3);
         SimpleFilterProvider filterProvider = new SimpleFilterProvider().setFailOnUnknownId(true);
         var data = jsonFilterService.filterOutAllExcept(ShopConstant.PRODUCTSFILTER, 
             Set.of("productID", "productName", "unitPrice", "unitsInStock", "categoryID"), 
