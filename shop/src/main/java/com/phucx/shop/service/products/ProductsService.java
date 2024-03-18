@@ -22,6 +22,6 @@ public interface ProductsService {
     public List<Products> getProducts(String productName);
     public Page<Products> getProductsByName(int pageNumber, int pageSize, String productName);
     public Page<Products> getProductsByCategoryName(int pageNumber, int pageSize, String categoryName);
-    public List<Products> getRecommendedProducts(int pageNumber, int pageSize);
+    public List<CurrentProductList> getRecommendedProducts(int pageNumber, int pageSize);
     public Page<Products> searchProductByName(String productName, int pageNumber, int pageSize);
 }

@@ -11,12 +11,10 @@ import org.springframework.stereotype.Service;
 import com.phucx.shop.model.CurrentProductList;
 import com.phucx.shop.model.ProductDetails;
 import com.phucx.shop.model.Products;
-import com.phucx.shop.model.SalesByCategory;
 import com.phucx.shop.repository.CurrentProductListRepository;
 import com.phucx.shop.repository.ProductDetailsRepository;
 import com.phucx.shop.repository.ProductsRepository;
 import com.phucx.shop.repository.SalesByCategoryRepository;
-import com.phucx.shop.service.SalesByCategory.SalesByCategoryService;
 
 @Service
 public class ProductsServiceImp implements ProductsService{
@@ -73,17 +71,18 @@ public class ProductsServiceImp implements ProductsService{
     }
 
     @Override
-    public List<Products> getRecommendedProducts(int pageNumber, int pageSize) {
-        List<Products> products = new ArrayList<>();
+    public List<CurrentProductList> getRecommendedProducts(int pageNumber, int pageSize) {
+        List<CurrentProductList> products = new ArrayList<>();
         Pageable page = PageRequest.of(pageNumber, pageSize);
-        var salesByCategory = salesByCategoryRepository.findAll(page);
+        var salesByCategory = salesByCategoryRepository
+            .findAllByOrderByProductSalesDesc(page);
 
-        List<SalesByCategory> salesByCategoryData = salesByCategory.getContent();
-        for(SalesByCategory i: salesByCategoryData){
-            @SuppressWarnings("null")
-            var product = productsRepository.findById(i.getProductID());
-            if(product.isPresent()) products.add(product.get());
-        }
+        salesByCategory.stream().forEach(product -> {
+            CurrentProductList productList = new CurrentProductList(
+                product.getProductID(), product.getProductName(), product.getPicture(), 
+                product.getCategoryID(), product.getCategoryName());
+            products.add(productList);
+        });
         return products;
     }
 
