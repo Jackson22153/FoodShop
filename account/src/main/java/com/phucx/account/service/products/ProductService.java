@@ -4,4 +4,5 @@ import com.phucx.account.model.ProductDetails;
 
 public interface ProductService {
     public boolean updateProductDetails(ProductDetails productDetails);
+    public boolean insertProductDetails(ProductDetails productDetails);
 }

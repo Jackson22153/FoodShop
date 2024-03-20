@@ -8,12 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.account.model.ProductDetails;
-import com.phucx.account.model.Products;
-import com.phucx.account.repository.ProductDetailsRepository;
-import com.phucx.account.repository.ProductsRepository;
 import com.phucx.account.service.products.ProductService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController

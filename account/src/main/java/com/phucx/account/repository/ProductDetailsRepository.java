@@ -30,5 +30,19 @@ public interface ProductDetailsRepository extends JpaRepository<ProductDetails, 
         @Param("supplierID") Integer supplierID
     );
 
+    @Procedure(name = "insertProduct")
+    void insertProduct(
+        @Param("productName") String productName, 
+        @Param("quantityPerUnit") String quantityPerUnit, 
+        @Param("unitPrice") Double unitPrice, 
+        @Param("unitsInStock") Integer unitsInStock, 
+        @Param("unitsOnOrder") Integer unitsOnOrder, 
+        @Param("reorderLevel") Integer reorderLevel, 
+        @Param("discontinued") Boolean discontinued,
+        @Param("picture") String picture, 
+        @Param("categoryID")Integer categoryID,
+        @Param("supplierID") Integer supplierID
+    );
+
 
 }

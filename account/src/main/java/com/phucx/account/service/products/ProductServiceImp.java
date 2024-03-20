@@ -1,7 +1,6 @@
 package com.phucx.account.service.products;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.model.ProductDetails;
@@ -19,6 +18,20 @@ public class ProductServiceImp implements ProductService{
                 productDetails.getUnitPrice(), productDetails.getUnitsInStock(), productDetails.getUnitsOnOrder(), 
                 productDetails.getReorderLevel(), productDetails.getDiscontinued(), productDetails.getPicture(), 
                 productDetails.getCategoryID(), productDetails.getSupplierID());
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    @Override
+    public boolean insertProductDetails(ProductDetails productDetails) {
+        try {
+            productDetailsRepository.insertProduct(
+                productDetails.getProductName(), productDetails.getQuantityPerUnit(), productDetails.getUnitPrice(), 
+                productDetails.getUnitsInStock(), productDetails.getUnitsOnOrder(), productDetails.getReorderLevel(), 
+                productDetails.getDiscontinued(), productDetails.getPicture(), productDetails.getCategoryID(), 
+                productDetails.getSupplierID());
             return true;
         } catch (Exception e) {
             e.printStackTrace();
