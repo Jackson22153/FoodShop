@@ -21,6 +21,12 @@ public class GatewayRoute {
                     .filter(tokenRelayGatewayFilterFactory.apply())
                     .rewritePath("/shop/(?<segment>.*)","/${segment}"))
                 .uri("lb://SHOP"))
+            .route(route -> route
+                .path("/account/**")
+                .filters(filter -> filter
+                    .filter(tokenRelayGatewayFilterFactory.apply())
+                    .rewritePath("/account/(?<segment>.*)","/${segment}"))
+                .uri("lb://ACCOUNT"))
             .build();
     }
 }

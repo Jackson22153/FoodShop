@@ -40,6 +40,7 @@ public class WebConfig {
             .pathMatchers("/shop/search/**").permitAll()
             .pathMatchers("/shop/home/**").permitAll()
             .pathMatchers("/isAuthenticated").permitAll()
+            .pathMatchers("/account/**").permitAll()
             .anyExchange().authenticated());
 
         http.oauth2Login(Customizer.withDefaults())

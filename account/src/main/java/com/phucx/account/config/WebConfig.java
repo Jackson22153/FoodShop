@@ -13,7 +13,7 @@ public class WebConfig {
     @Bean
     public SecurityFilterChain dFilterChain(HttpSecurity http) throws Exception{
         http.cors(Customizer.withDefaults());
-        http.csrf(Customizer.withDefaults());
+        http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(request -> request
             .anyRequest().permitAll());
         http.oauth2ResourceServer(resource -> resource.jwt(Customizer.withDefaults()));
