@@ -19,6 +19,12 @@ import tastyFood from '../assets/images/tasty-image.png';
 
 import client from '../assets/images/client.png';
 
+import defaultImage from '../assets/images/defaultImage.png';
+
+
+export function getDefaulImage(){
+    return defaultImage;
+}
 // logo
 export function getLogo(){
     return logo;

@@ -16,7 +16,6 @@ function HomeDashBoardComponent(){
     const client = getClient();
 
     const [categories, setCategories] = useState([]);
-    const [categoriesPageNumber, setCategoriesPageNumber] = useState(0);
     const [categoryExpandedStatus, setCategoryExpandedStatus] = useState<boolean>(true);
 
     //products

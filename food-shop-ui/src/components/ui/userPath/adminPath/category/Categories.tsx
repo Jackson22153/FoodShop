@@ -2,7 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faClipboardList, faComments, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 
-export default function AdminDashBoardComponent(){
+export default function CategoriesComponent(){
     return(
         <div className="container-fluid container">
             {/* <!-- Page Heading --> */}

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Pageable, Product } from "../../../../model/Type";
 import FoodCard from "../../../shared/functions/foodCard/FoodCard";
-import { getProducts, getProductsByProductName, searchProducts } from "../../../../api/SearchApi";
+import { getProducts, getProductsByProductName } from "../../../../api/SearchApi";
 import PaginationSection from "../../../shared/website/sections/paginationSection/PaginationSection";
+import { getPageNumber } from "../../../../service/pageable";
+import { PathProvider } from "../../../contexts/PathContext";
+import { foodsPath } from "../../../../constant/FoodShoppingURL";
 
 export default function FoodsComponent(){
     const [foods, setFoods] = useState([]);
@@ -24,13 +27,13 @@ export default function FoodsComponent(){
         return searchParam;
     }
     
-    // get page
-    function getPageNumber(){
-        const pageParam = urlParams.get('page');
-        const pageNumberStr = pageParam?pageParam:'0';
-        const pageNumber = !isNaN(+pageNumberStr)?+pageNumberStr:0;
-        return pageNumber;
-    }
+    // // get page
+    // function getPageNumber(){
+    //     const pageParam = urlParams.get('page');
+    //     const pageNumberStr = pageParam?pageParam:'0';
+    //     const pageNumber = !isNaN(+pageNumberStr)?+pageNumberStr:0;
+    //     return pageNumber;
+    // }
 
     // get and handle produts without searching
     function handleProducts(pageNumber: number){
@@ -88,9 +91,11 @@ export default function FoodsComponent(){
                     <div className="card-deck">
                         {foods.length>0 && foods.map((productInfo:Product, index) =>(
                             <div className="col-md-4 col-sm-6 row-md-5 mb-3" key={index}>
-                                <FoodCard foodName={productInfo.productName} foodID={productInfo.productID}
-                                    foodImageSrc={productInfo.picture}
-                                />
+                                <PathProvider value={foodsPath}>
+                                    <FoodCard foodName={productInfo.productName} 
+                                        foodID={productInfo.productID}
+                                        foodImageSrc={productInfo.picture}/>
+                                </PathProvider>
                             </div>
                         ))}
                     </div>

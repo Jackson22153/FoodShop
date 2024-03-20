@@ -95,7 +95,8 @@ function HomeComponent(){
                 <UserInfoProvider value={userInfo}>
                     <HeaderComponent lstCategories={categories} searchInputValue={searchInputValue} 
                         handleInputSearchChange={handleInputSearchChange} searchResult={searchResult}
-                        handleSearchResult={handleSearchResult} handleIsOpeningUserDropDown={handleIsOpeningUserDropDown}/>
+                        handleIsOpeningUserDropDown={handleIsOpeningUserDropDown}
+                        handleSearchResult={handleSearchResult} />
                 </UserInfoProvider>
             </isOpeningUserDropDownContext.Provider>
             <div id="home-body">

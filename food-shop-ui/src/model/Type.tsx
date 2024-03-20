@@ -1,4 +1,5 @@
 export type Category={
+    categoryID: number,
     categoryName: string,
     description: string,
     picture: string
@@ -13,6 +14,21 @@ export type Product={
     reorderLevel: number,
     discontinued: boolean,
     picture: string
+}
+export type ProductDetails={
+    productID: number,
+    productName: string,
+    quantityPerUnit: number,
+    unitPrice: number,
+    unitsInStock: number,
+    unitsOnOrder: number,
+    reorderLevel: number,
+    discontinued: boolean,
+    picture: string
+    categoryID: number,
+    categoryName: string,
+    supplierID: number,
+    companyName: string
 }
 export type CartProduct = {
     productID: number,

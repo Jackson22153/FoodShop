@@ -1,19 +1,24 @@
-import { Route, Routes } from 'react-router-dom';
-import AdminDashBoardComponent from '../adminDashBoard/AdminDashBoard';
+import { Route, Router, Routes } from 'react-router-dom';
 import SidebarComponent from '../../../../shared/functions/admin/sidebar/SideBar';
 import TopBarComponent from '../../../../shared/functions/admin/topbar/TopBar';
 import FooterComponent from '../../../../shared/website/footer/Footer';
+import FoodsDashBoardComponent from '../food/FoodsDashboard';
+import AdminDashBoardComponent from '../adminDashBoard/AdminDashBoard';
+import FoodsComponent from '../../../homePath/foods/Foods';
+import FoodComponent from '../food/Food';
 
 export default function AdminComponent(){
     return(
         <>
-            <div id="wrapper">
+            <div id="wrapper" className='d-flex'>
                 {/* <!-- Sidebar --> */}
-                <SidebarComponent/>
+                <div className="sidebar col-md-2 px-4">
+                    <SidebarComponent/>
+                </div>
                 {/* <!-- End of Sidebar --> */}
 
                 {/* <!-- Content Wrapper --> */}
-                <div id="content-wrapper" className="d-flex flex-column">
+                <div id="content-wrapper" className="d-flex flex-column col-md-10">
 
                     {/* <!-- Main Content --> */}
                     <div id="content">
@@ -23,18 +28,21 @@ export default function AdminComponent(){
 
                         {/* <!-- Begin Page Content --> */}
                         <Routes>
-                            <Route path='*' element={<AdminDashBoardComponent/>}/>
+                            <Route path='/foods' element={<FoodsDashBoardComponent/>}/> 
+                            <Route path='/foods/:foodname' element={<FoodComponent/>}/> 
+                            <Route path='*' element={<AdminDashBoardComponent/>}/> 
                         </Routes>
+                        
                         {/* <!-- /.container-fluid --> */}
                     </div>
                     {/* <!-- End of Main Content --> */}
 
-                    {/* <!-- Footer --> */}
-                    <FooterComponent/>
-                    {/* <!-- End of Footer --> */}
                 </div>
                 {/* <!-- End of Content Wrapper --> */}
             </div>
+            {/* <!-- Footer --> */}
+            <FooterComponent/>
+            {/* <!-- End of Footer --> */}
                 {/* <!-- Scroll to Top Button--> */}
             <a className="scroll-to-top rounded" href="#page-top">
                 <i className="fas fa-angle-up"></i>
