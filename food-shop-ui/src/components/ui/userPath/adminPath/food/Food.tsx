@@ -1,7 +1,12 @@
 import { getCategories, getProductByID } from '../../../../../api/SearchApi';
-import { HtmlHTMLAttributes, MouseEventHandler, useEffect, useState } from 'react';
-import { Category, Pageable, Product, ProductDetails } from '../../../../../model/Type';
+import { MouseEventHandler, useEffect, useState } from 'react';
+import { Category, Pageable, ProductDetails } from '../../../../../model/Type';
 import { getDefaulImage } from '../../../../../service/image';
+import { updateProduct } from '../../../../../api/AdminApi';
+import AlertComponent from '../../../../shared/functions/alert/Alert';
+import { Alert, Modal } from '../../../../../model/WebType';
+import { DANGER_ALERT, SUCCESS_ALERT } from '../../../../../constant/config';
+import ModalComponent from '../../../../shared/functions/modal/Modal';
 
 export default function FoodComponent(){
     const [foodDetails, setFoodDetails] = useState<ProductDetails>({
@@ -27,6 +32,37 @@ export default function FoodComponent(){
         totalPages: 0
     });
     const [readOnly, setReadOnly] = useState(true);
+    const [alert, setAlert] = useState<Alert>({
+        message: '',
+        type: '',
+        isShowed: false
+    })
+    const [modal, setModal] = useState<Modal>({
+        message: 'Do you want to continue?',
+        title: "Confirm",
+        isShowed: false 
+    });
+
+    const updateFood : MouseEventHandler<HTMLButtonElement> = async () =>{
+        const response = await updateProduct(foodDetails);
+        try {
+            if(response.status===200){
+                setAlert({
+                    message: 'Update successfully!',
+                    type: SUCCESS_ALERT,
+                    isShowed: true
+                })
+            }
+        } catch (error) {
+            setAlert({
+                message: 'Update failed!',
+                type: DANGER_ALERT,
+                isShowed: true
+            })
+        }finally{
+            alertTrigger();
+        }
+    }
 
 
     function getFoodID(){
@@ -78,6 +114,21 @@ export default function FoodComponent(){
         initial();
     }, [])
 
+    function alertTrigger(){
+        setTimeout(()=>{
+            toggleShowAlert()
+        }, 3000);
+    }
+    function toggleShowAlert(){
+        setAlert(alert => ({...alert, isShowed: !alert.isShowed }));
+    }
+    function saveChangeButton(event: any){
+        event.preventDefault();
+        toggleConfirmModal();
+    }
+    function toggleConfirmModal(){
+        setModal(modal=>({...modal, isShowed: !modal.isShowed}));
+    }
     function initial(){
         const foodID = getFoodID();
         getAndHandleFood(foodID);
@@ -112,6 +163,15 @@ export default function FoodComponent(){
         setFoodDetails({...foodDetails, [name]: discontinuedValue});
     };
 
+    const handleImageChange = (event: any)=>{
+        const imageFile = event.target.files[0];
+        const reader = new FileReader();
+        reader.onloadend = ()=>{
+            setFoodDetails({...foodDetails, picture: reader.result as string});
+        }
+        reader.readAsDataURL(imageFile);
+    }
+
     function editProfile(event: any){
         event.preventDefault();
         setReadOnly(readOnly => !readOnly);
@@ -125,10 +185,12 @@ export default function FoodComponent(){
                     <div className="profile-img">
                         <img className='w-75 h-auto' alt=""
                             src={foodImage(foodDetails.picture)}/>
-                        <div className="file btn btn-lg btn-primary">
-                            Change Photo
-                            <input type="file" name="file"/>
-                        </div>
+                        {!readOnly &&
+                            <div className="file btn btn-lg btn-primary">
+                                Change Photo
+                                <input type="file" name="file" onChange={handleImageChange} accept='image/*'/>
+                            </div>
+                        }
                     </div>
                     <div className='col-5'>
                         <div className="form-group row">
@@ -229,7 +291,8 @@ export default function FoodComponent(){
                             <>
                                 <hr />
                                 <div className="form-group row">                 
-                                    <button className='mt-2 w-auto btn btn-primary'>
+                                    <button type='submit' className='mt-2 w-auto btn btn-primary' 
+                                        onClick={saveChangeButton}>
                                         Save Change
                                     </button>
                                 </div>
@@ -237,10 +300,19 @@ export default function FoodComponent(){
                         }
                     </div>
                     <div className="col-md-2 d-flex flex-column justify-content-start align-items-center">
-                        <button type="submit" className="profile-edit-btn btn btn-secondary" name="btnAddMore" onClick={editProfile}>
+                        <button className="profile-edit-btn btn btn-secondary" name="btnAddMore" onClick={editProfile}>
                             Edit profile
                         </button>
                     </div>
+                    {modal.isShowed &&
+                        <ModalComponent message={modal.message} title={modal.title}
+                            handleCloseButton={toggleConfirmModal} isShowed={modal.isShowed}
+                            handleConfirmButton={updateFood}/>
+
+                    }
+                    {alert.isShowed &&
+                        <AlertComponent message={alert.message} type={alert.type}/>
+                    }
                 </form>
             </div>
         </div>

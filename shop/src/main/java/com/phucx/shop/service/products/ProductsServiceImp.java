@@ -2,6 +2,9 @@ package com.phucx.shop.service.products;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -72,17 +75,22 @@ public class ProductsServiceImp implements ProductsService{
 
     @Override
     public List<CurrentProductList> getRecommendedProducts(int pageNumber, int pageSize) {
-        List<CurrentProductList> products = new ArrayList<>();
         Pageable page = PageRequest.of(pageNumber, pageSize);
         var salesByCategory = salesByCategoryRepository
             .findAllByOrderByProductSalesDesc(page);
 
-        salesByCategory.stream().forEach(product -> {
-            CurrentProductList productList = new CurrentProductList(
-                product.getProductID(), product.getProductName(), product.getPicture(), 
-                product.getCategoryID(), product.getCategoryName());
-            products.add(productList);
-        });
+        List<Integer> productIDs = salesByCategory.stream()
+            .map(product -> product.getProductID())
+            .collect(Collectors.toList());
+        List<CurrentProductList> products = currentProductListRepository
+            .findByProductILists(productIDs);
+        // salesByCategory.stream().forEach(product -> {
+        //     CurrentProductList productList = new CurrentProductList(
+        //         product.getProductID(), product.getProductName(), 
+        //         product.getPicture(), product.getCategoryID(), 
+        //         product.getCategoryName());
+        //     products.add(productList);
+        // });
         return products;
     }
 

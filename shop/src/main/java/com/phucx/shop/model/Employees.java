@@ -1,6 +1,8 @@
 package com.phucx.shop.model;
 
 import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -8,7 +10,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -71,6 +76,14 @@ public class Employees{
     
     @Column(name = "PhotoPath", nullable = true)
     private String photoPath;
+
+    @ManyToMany
+    @JoinTable(
+        name = "EmployeeTerritories",
+        joinColumns =@JoinColumn(name="EmployeeID"),
+        inverseJoinColumns = @JoinColumn(name="TerritoryID")
+    )
+    private List<Territories> territories;
 
     
 

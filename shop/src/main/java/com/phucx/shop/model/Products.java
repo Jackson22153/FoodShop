@@ -105,6 +105,5 @@ public class Products {
     @Column(name = "Discontinued", nullable = false)
     private Boolean discontinued;
 
-    @Lob()
-    private byte[] picture;
+    private String picture;
 }

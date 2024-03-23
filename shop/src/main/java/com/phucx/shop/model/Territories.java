@@ -1,9 +1,12 @@
 package com.phucx.shop.model;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
@@ -17,5 +20,8 @@ public class Territories {
     @ManyToOne
     @JoinColumn(name = "RegionID", referencedColumnName = "RegionID")
     private Region regionID;
+
+    @ManyToMany(mappedBy = "territories")
+    private List<Employees> employees;
 
 }

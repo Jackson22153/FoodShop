@@ -6,14 +6,15 @@ import { getDefaulImage } from "../../../../service/image";
 interface Props{
     foodID: number,
     foodName: string,
+    foodPrice: number,
     // foodDescription: string,
     foodImageSrc: string|undefined
 }
 export default function FoodCard(prop: Props){
     const foodID = prop.foodID
     const foodName = prop.foodName;
+    const foodPrice = prop.foodPrice;
     const foodPath = useContext(foodPathContext);
-    console.log(foodPath);
     const name = convertNameForUrl(foodName);
     const url = `${foodPath}/${name}?sp=${foodID}`;
     // const foodDescription = prop.foodDescription;
@@ -27,7 +28,7 @@ export default function FoodCard(prop: Props){
                     <h5 className="card-title">{foodName}</h5>
                     <p className="card-text">
                         {/* {foodDescription} */}
-                        $44
+                        ${foodPrice}
                     </p>
                     {/* <div>
                         <a href="" className="custom_dark-btn">

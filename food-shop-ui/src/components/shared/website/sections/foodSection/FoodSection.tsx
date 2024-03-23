@@ -23,7 +23,7 @@ export default function FoodSection(prop:Props){
                         {lstFoodProducts.length>0 && lstFoodProducts.map((productInfo:Product) =>(
                             <div className="col-md-4 col-sm-6 row-md-5 mb-3" key={productInfo.productID}>
                                 <FoodCard foodName={productInfo.productName} foodID={productInfo.productID} 
-                                    foodImageSrc={productInfo.picture}/>
+                                    foodImageSrc={productInfo.picture} foodPrice={productInfo.unitPrice}/>
                             </div>
                         ))}
                     </div>

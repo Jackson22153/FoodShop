@@ -7,6 +7,8 @@ import { getCategories, getRecommendedProduct } from "../../../../api/SearchApi"
 import CategoriesSection from "../../../shared/website/sections/categoriesSection/CategoriesSection";
 import SlideSection from "../../../shared/website/sections/slideSection/SlideSection";
 import FoodSection from "../../../shared/website/sections/foodSection/FoodSection";
+import { PathProvider } from "../../../contexts/PathContext";
+import { FoodPath, foodsPath } from "../../../../constant/FoodShoppingURL";
 
 
 function HomeDashBoardComponent(){
@@ -45,7 +47,6 @@ function HomeDashBoardComponent(){
             if(res.status===200){
                 const data = res.data;
                 setRecommendedProducts(data)
-                // console.log(data)
             }
         })
     }
@@ -60,7 +61,9 @@ function HomeDashBoardComponent(){
 
             {/* <!-- service section --> */}
             {recommendedProducts &&
-                <FoodSection lstFoodProducts={recommendedProducts}/>
+                <PathProvider value={foodsPath}>
+                    <FoodSection lstFoodProducts={recommendedProducts} sectionTitle="Recommended Foods"/>
+                </PathProvider>
             }
             {/* <!-- end service section --> */}
 

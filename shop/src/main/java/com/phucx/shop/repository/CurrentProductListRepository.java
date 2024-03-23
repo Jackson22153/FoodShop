@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.phucx.shop.model.CurrentProductList;
+import java.util.List;
+
 
 
 
@@ -19,4 +21,10 @@ public interface CurrentProductListRepository extends JpaRepository<CurrentProdu
     Page<CurrentProductList> searchCurrentProductsByProductName(String productName, Pageable page);
 
     Page<CurrentProductList> findByCategoryName(String categoryName, Pageable page);
+
+    @Query("""
+        SELECT c FROM CurrentProductList c \
+        WHERE c.productID IN ?1
+        """)
+    List<CurrentProductList> findByProductILists(List<Integer> productIDs);
 }

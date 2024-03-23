@@ -93,7 +93,7 @@ export default function FoodsComponent(){
                             <div className="col-md-4 col-sm-6 row-md-5 mb-3" key={index}>
                                 <PathProvider value={foodsPath}>
                                     <FoodCard foodName={productInfo.productName} 
-                                        foodID={productInfo.productID}
+                                        foodID={productInfo.productID} foodPrice={productInfo.unitPrice}
                                         foodImageSrc={productInfo.picture}/>
                                 </PathProvider>
                             </div>
