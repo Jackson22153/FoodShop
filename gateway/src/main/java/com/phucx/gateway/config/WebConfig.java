@@ -17,8 +17,12 @@ import org.springframework.web.server.ServerWebExchange;
 @Configuration
 @EnableWebFluxSecurity
 public class WebConfig {
-    @Autowired
-    private KeycloakLogoutHandler keycloakLogoutHandler;
+    
+    @Bean
+    public KeycloakLogoutHandler getKeycloakLogoutHandler(){
+        return new KeycloakLogoutHandler();
+    }
+
     @Bean
     public SecurityWebFilterChain dFilterChain(ServerHttpSecurity http){
         http.cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
@@ -40,11 +44,12 @@ public class WebConfig {
             .pathMatchers("/shop/search/**").permitAll()
             .pathMatchers("/shop/home/**").permitAll()
             .pathMatchers("/isAuthenticated").permitAll()
-            .pathMatchers("/account/**").permitAll()
+            .pathMatchers("/account/admin/*").permitAll()
+            .pathMatchers("/logout/*").permitAll()
             .anyExchange().authenticated());
 
         http.oauth2Login(Customizer.withDefaults())
-            .logout(logout-> logout.logoutHandler(keycloakLogoutHandler));
+            .logout(logout-> logout.logoutHandler(getKeycloakLogoutHandler()));
 
         http.formLogin(login -> login.disable());
         http.httpBasic(login -> login.disable());

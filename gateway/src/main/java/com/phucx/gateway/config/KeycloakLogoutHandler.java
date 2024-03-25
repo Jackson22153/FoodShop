@@ -13,19 +13,24 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class KeycloakLogoutHandler implements ServerLogoutHandler{
-    @Autowired
     private WebClient webClient;
 
+    @Autowired
+    public Mono<Void> setWebClient(WebClient webClient){
+        return Mono.just(this.webClient=webClient).then();
+    }
+
     @Override
-    public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {
+    public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {   
         OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+        // return logoutFromKeycloak(oidcUser);
         return logoutFromKeycloak(oidcUser);
     }
 
     
 
     private Mono<Void> logoutFromKeycloak(OidcUser oidcUser){
-        String logoutUrl = oidcUser.getIssuer() + "/protocol/openid-connect/logout";
+        String logoutUrl = oidcUser.getIssuer().toString() + "/protocol/openid-connect/logout";
         return Mono.just(logoutUrl).map(url ->{
                 UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(url)
@@ -33,7 +38,7 @@ public class KeycloakLogoutHandler implements ServerLogoutHandler{
                 return builder;
             })
             .flatMap(builder ->{
-                return webClient.get().uri(builder.toString())
+                return webClient.get().uri(builder.toUriString())
                 .retrieve().toEntity(String.class);
             }).doOnNext(response ->{
                 if(response.getStatusCode().is2xxSuccessful()){
