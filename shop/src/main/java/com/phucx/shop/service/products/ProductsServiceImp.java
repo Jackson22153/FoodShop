@@ -1,8 +1,6 @@
 package com.phucx.shop.service.products;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import com.phucx.shop.model.CurrentProductList;
 import com.phucx.shop.model.ProductDetails;
 import com.phucx.shop.model.Products;
@@ -84,13 +81,6 @@ public class ProductsServiceImp implements ProductsService{
             .collect(Collectors.toList());
         List<CurrentProductList> products = currentProductListRepository
             .findByProductILists(productIDs);
-        // salesByCategory.stream().forEach(product -> {
-        //     CurrentProductList productList = new CurrentProductList(
-        //         product.getProductID(), product.getProductName(), 
-        //         product.getPicture(), product.getCategoryID(), 
-        //         product.getCategoryName());
-        //     products.add(productList);
-        // });
         return products;
     }
 

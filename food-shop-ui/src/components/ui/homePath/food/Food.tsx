@@ -21,6 +21,7 @@ export default function FoodComponent(){
         picture: ""
     });
     const [category, setCategory] = useState<Category>({
+        categoryID: 0,
         categoryName: '',
         description: '',
         picture: ''

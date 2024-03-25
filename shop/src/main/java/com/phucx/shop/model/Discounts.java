@@ -9,7 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,7 +28,7 @@ public class Discounts {
     private LocalDateTime endDate;
     private Float discountAmount;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "ProductID", referencedColumnName = "productID")
     private Products productID;
 }

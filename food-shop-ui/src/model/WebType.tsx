@@ -6,5 +6,6 @@ export type Alert = {
 export type Modal = {
     message: string,
     title: string,
-    isShowed: boolean
+    isShowed: boolean,
+    confirmAction: ()=> void,
 }

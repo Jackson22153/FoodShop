@@ -29,4 +29,5 @@ export const CategoriesUrl = `${HomeUrl}/categories`;
 export const ShippersUrl = `${HomeUrl}/shippers`;
 // adminurl
 export const ProductAdminUrl = `${AdminUrl}/product`;
+export const DiscountAdminUrl = `${AdminUrl}/discount`
 

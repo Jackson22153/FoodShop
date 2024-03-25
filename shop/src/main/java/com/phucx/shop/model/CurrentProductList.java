@@ -21,6 +21,5 @@ public class CurrentProductList {
     private String picture;
     private Double unitPrice;
     private Float discountAmount;
-    private String companyName;
     private String categoryName;
 }

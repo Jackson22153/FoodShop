@@ -23,12 +23,22 @@ export type ProductDetails={
     unitsInStock: number,
     unitsOnOrder: number,
     reorderLevel: number,
+    discountAmount: number,
+    startDate: string,
+    endDate: string,
     discontinued: boolean,
     picture: string
     categoryID: number,
     categoryName: string,
     supplierID: number,
     companyName: string
+}
+export type Discount = {
+    discountID: number,
+    discountAmount: number,
+    startDate: string,
+    endDate: string,
+    product: Product
 }
 export type CartProduct = {
     productID: number,

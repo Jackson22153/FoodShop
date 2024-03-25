@@ -1,5 +1,7 @@
 package com.phucx.account.model;
 
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Immutable;
 
 import jakarta.persistence.Entity;
@@ -55,6 +57,12 @@ public class ProductDetails{
     private Integer reorderLevel;
     private Boolean discontinued;
     private String picture;
+
+    private Integer discountID;
+    private Float discountAmount;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+
     private String categoryName;
     private String companyName;
 }

@@ -1,12 +1,19 @@
 import { getCategories, getProductByID } from '../../../../../api/SearchApi';
-import { MouseEventHandler, useEffect, useState } from 'react';
-import { Category, Pageable, ProductDetails } from '../../../../../model/Type';
+import { useEffect, useState } from 'react';
+import { Category, Discount, Pageable, ProductDetails } from '../../../../../model/Type';
 import { getDefaulImage } from '../../../../../service/image';
-import { updateProduct } from '../../../../../api/AdminApi';
+import { updateDiscount, updateProduct } from '../../../../../api/AdminApi';
 import AlertComponent from '../../../../shared/functions/alert/Alert';
 import { Alert, Modal } from '../../../../../model/WebType';
 import { DANGER_ALERT, SUCCESS_ALERT } from '../../../../../constant/config';
 import ModalComponent from '../../../../shared/functions/modal/Modal';
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+
+
 
 export default function FoodComponent(){
     const [foodDetails, setFoodDetails] = useState<ProductDetails>({
@@ -23,6 +30,9 @@ export default function FoodComponent(){
         categoryName: '',
         supplierID: 0,
         companyName: '',
+        discountAmount: 0,
+        startDate: '',
+        endDate: ''
     });
     const [categoryList, setCategoryList] = useState<Category[]>([]);
     const [pageable, setPageable] = useState<Pageable>({
@@ -40,10 +50,32 @@ export default function FoodComponent(){
     const [modal, setModal] = useState<Modal>({
         message: 'Do you want to continue?',
         title: "Confirm",
-        isShowed: false 
+        isShowed: false,
+        confirmAction: ()=>{},
     });
+    const [discount, setDiscount] = useState<Discount>({
+        discountID: 0,
+        discountAmount: 0,
+        startDate: "",
+        endDate: "",
+        product: {
+            productID: 0,
+            productName: '',
+            quantityPerUnit: 0,
+            unitPrice: 0,
+            unitsInStock: 0,
+            unitsOnOrder: 0,
+            reorderLevel: 0,
+            discontinued: false,
+            picture: ''
+        }
+    })
+    
+    const [showDiscount, setShowDiscount] = useState(false);
 
-    const updateFood : MouseEventHandler<HTMLButtonElement> = async () =>{
+
+    const updateFood = async () =>{
+        // console.log(JSON.stringify(foodDetails))
         const response = await updateProduct(foodDetails);
         try {
             if(response.status===200){
@@ -63,7 +95,48 @@ export default function FoodComponent(){
             alertTrigger();
         }
     }
+    const updateFoodDiscount = async ()=>{
+        const data = {
+            discountAmount:foodDetails.discountAmount, 
+            startDate:foodDetails.startDate, 
+            endDate: foodDetails.endDate,
+            product:{
+                productID: foodDetails.productID
+            }
+        }
+        // console.log(data)
+        const response = await updateDiscount(data);
+        try {
+            if(response.status===200){
+                setAlert({
+                    message: 'Add dicount successfully!',
+                    type: SUCCESS_ALERT,
+                    isShowed: true
+                })
+            }
+        } catch (error) {
+            setAlert({
+                message: 'Add discount failed!',
+                type: DANGER_ALERT,
+                isShowed: true
+            })
+        }finally{
+            alertTrigger();
+        }
+    }
 
+    function hanclickSaveChangeButton(event: any){
+        event.preventDefault();
+        setModal({...modal, ['confirmAction']:updateFood})
+        toggleConfirmModal();
+    }
+
+    function handleClickCancelButton(){
+        toggleConfirmModal();
+    }
+    function handleClickConfirmButton(){
+        modal.confirmAction();
+    }
 
     function getFoodID(){
         const urlParams = new URLSearchParams(window.location.search);
@@ -103,12 +176,21 @@ export default function FoodComponent(){
                 categoryName: data.categoryName,
                 supplierID: data.supplierID,
                 companyName: data.companyName,
+                discountAmount: data.discountAmount,
+                startDate: data.startDate,
+                endDate: data.endDate
+            })
+            setDiscount({...discount,
+                discountAmount: data.discountAmount,
+                startDate: data.startDate,
+                endDate: data.endDate,
+                product: {...discount.product,
+                    productID: data.productID,
+                }
             })
             console.log(data)
         }
     }
-
-
 
     useEffect(()=>{
         initial();
@@ -122,10 +204,7 @@ export default function FoodComponent(){
     function toggleShowAlert(){
         setAlert(alert => ({...alert, isShowed: !alert.isShowed }));
     }
-    function saveChangeButton(event: any){
-        event.preventDefault();
-        toggleConfirmModal();
-    }
+
     function toggleConfirmModal(){
         setModal(modal=>({...modal, isShowed: !modal.isShowed}));
     }
@@ -175,6 +254,36 @@ export default function FoodComponent(){
     function editProfile(event: any){
         event.preventDefault();
         setReadOnly(readOnly => !readOnly);
+    }
+    
+    function handleChangeForStartDate(value: any){
+        const dateString = value.format('YYYY-MM-DDTHH:mm')
+        setFoodDetails(fooddetail => ({
+            ...fooddetail, ['startDate']: dateString
+        }))
+    }
+    function handleChangeForEndDate(value: any){
+        const dateString = value.format('YYYY-MM-DDTHH:mm')
+        setFoodDetails(fooddetail => ({
+            ...fooddetail, ['endDate']: dateString
+        }))
+    }
+    function dateConvert(date: string){
+        return dayjs(date)
+    }
+
+    function toggleDiscount(){
+        setShowDiscount(showDiscount => !showDiscount);
+    }
+    function handleClickEditDiscount(event: any){
+        event?.preventDefault()
+        toggleDiscount();
+    }
+    function handleClickAddDiscount(event:any){
+        event?.preventDefault()
+        setModal({...modal, ['confirmAction']:updateFoodDiscount})
+        toggleConfirmModal();
+
     }
       
 
@@ -287,12 +396,54 @@ export default function FoodComponent(){
                                 </select>
                             </div>
                         </div>
+                        <hr />
+                        <div className='form-group row'>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                                    <DateTimePicker readOnly={!showDiscount?true: false}
+                                        label="Discount's Start Date"
+                                        onChange={handleChangeForStartDate}
+                                        value={dateConvert(foodDetails.startDate)}
+                                    />
+                                    <DateTimePicker readOnly={!showDiscount?true: false}
+                                        label="Discount's End Date"
+                                        onChange={handleChangeForEndDate}
+                                        value={dateConvert(foodDetails.endDate)}
+                                    />
+                                </DemoContainer>
+                            </LocalizationProvider>
+                        </div>
+                        <div className="form-group row mt-2">
+                            <label htmlFor="discountAmount" className="col-sm-4 col-form-label">
+                                {'Discount\u00A0Amount'}
+                            </label>
+                            <div className="col-sm-8">
+                                <input type="number" value={foodDetails.discountAmount} readOnly={!showDiscount}
+                                    className={`${!showDiscount? 'form-control-plaintext': 'form-control'}`}  
+                                    name="discountAmount" placeholder="Discount amount" required
+                                    onChange={handleChangeForNumber}/>
+                            </div>
+                        </div>
+                        {!readOnly &&
+                            <div className='form-group row'>
+                                <button className="profile-edit-btn btn btn-secondary mt-2 col-md-5 mx-2" name="btnAddMore" 
+                                    onClick={handleClickEditDiscount}>
+                                    Edit Discount
+                                </button>
+                                <button className="profile-edit-btn btn btn-secondary mt-2 col-md-5 mx-2" name="btnAddMore"
+                                    disabled={!showDiscount}
+                                    onClick={handleClickAddDiscount}>
+                                    Add Discount
+                                </button>
+                            </div>
+                        }
+
                         {!readOnly && 
                             <>
                                 <hr />
                                 <div className="form-group row">                 
                                     <button type='submit' className='mt-2 w-auto btn btn-primary' 
-                                        onClick={saveChangeButton}>
+                                        onClick={hanclickSaveChangeButton}>
                                         Save Change
                                     </button>
                                 </div>
@@ -306,9 +457,8 @@ export default function FoodComponent(){
                     </div>
                     {modal.isShowed &&
                         <ModalComponent message={modal.message} title={modal.title}
-                            handleCloseButton={toggleConfirmModal} isShowed={modal.isShowed}
-                            handleConfirmButton={updateFood}/>
-
+                            handleCloseButton={handleClickCancelButton} isShowed={modal.isShowed}
+                            handleConfirmButton={handleClickConfirmButton}/>
                     }
                     {alert.isShowed &&
                         <AlertComponent message={alert.message} type={alert.type}/>
