@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,12 +17,13 @@ import com.phucx.gateway.constant.GatewayConstant;
 
 import reactor.core.publisher.Mono;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
 public class HomeController {
-    private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+    private ServerRedirectStrategy redirectStrategy;
+    //  = new DefaultServerRedirectStrategy();
+
 
     @GetMapping("/home")
     public Mono<String> home(){
@@ -29,7 +32,7 @@ public class HomeController {
 
     @GetMapping("/loginBE")
     public Mono<Void> login(ServerWebExchange exchange){
-        
+        redirectStrategy = new DefaultServerRedirectStrategy();
         return redirectStrategy.sendRedirect(exchange, URI.create(GatewayConstant.FoodShopUrl));
     }
 
@@ -47,5 +50,10 @@ public class HomeController {
         String username = authentication.getName();
 
         return Mono.just(username);
+    }
+
+    @GetMapping("oidcToken")
+    public Mono<String> getUserOIDCToken(@AuthenticationPrincipal OidcUser oidcUser){
+        return Mono.just(oidcUser.getIdToken().getTokenValue());
     }
 }

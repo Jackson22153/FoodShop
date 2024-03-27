@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import lombok.Data;
 import lombok.ToString;
 
@@ -35,12 +34,11 @@ public class Customers{
     private String phone;
     @Column(name = "Fax", length = 24)
     private String fax;
-    @Lob()
     @Column(name = "Photo")
-    private byte[] photo;
+    private String photo;
 
     public Customers(String customerID, String companyName, String contactName, String contactTitle, String address,
-            String city, String region, String postalCode, String country, String phone, String fax, byte[] photo) {
+            String city, String region, String postalCode, String country, String phone, String fax, String photo) {
         this.customerID = customerID;
         this.companyName = companyName;
         this.contactName = contactName;
