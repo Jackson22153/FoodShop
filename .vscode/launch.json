@@ -8,7 +8,8 @@
             "mainClass": "com.phucx.eureka.EurekaApplication",
             "projectName": "eureka",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=54126 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=eureka"
         },
         {
             "type": "java",
@@ -18,7 +19,8 @@
             "mainClass": "com.phucx.account.AccountApplication",
             "projectName": "account",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote"
         },
         {
             "type": "java",
@@ -28,7 +30,8 @@
             "mainClass": "com.phucx.gateway.GatewayApplication",
             "projectName": "gateway",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote"
         },
         {
             "type": "java",
@@ -37,6 +40,16 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "com.phucx.shop.ShopApplication",
             "projectName": "shop",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-KeycloakApplication<keycloak>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.phucx.keycloak.KeycloakApplication",
+            "projectName": "keycloak",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

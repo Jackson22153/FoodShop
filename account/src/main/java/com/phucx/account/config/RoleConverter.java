@@ -17,9 +17,9 @@ public class RoleConverter implements Converter<Jwt, Collection<GrantedAuthority
     @Override
     @Nullable
     public Collection<GrantedAuthority> convert(Jwt token) {
-        Map<String, Object> roles = (Map<String, Object>) token.getClaims().get("realm_access");
+        Map<String, Object> roles = (Map<String, Object>) token.getClaims().get(WebConfig.REALM_ACCESS_CLAIM);
         if(roles!=null){
-            List<GrantedAuthority> userRoles = ((List<String>) roles.get("roles")).stream()
+            List<GrantedAuthority> userRoles = ((List<String>) roles.get(WebConfig.ROLES_CLAIM)).stream()
                 .map(x-> new SimpleGrantedAuthority("ROLE_"+x)).collect(Collectors.toList());
             return userRoles;
         }

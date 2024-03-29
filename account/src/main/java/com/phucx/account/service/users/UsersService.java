@@ -5,5 +5,7 @@ import com.phucx.account.model.Users;
 public interface UsersService {
     public Users getUser(String username);
     public Users getUserByID(String userID);
+
+    public boolean createUser(Users user);
     
 }

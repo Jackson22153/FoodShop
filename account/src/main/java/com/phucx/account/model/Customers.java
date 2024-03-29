@@ -1,7 +1,5 @@
 package com.phucx.account.model;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -9,7 +7,6 @@ import lombok.Data;
 import lombok.ToString;
 
 @Data @Entity @ToString
-@JsonFilter("CustomersFilter")
 public class Customers{
     @Id
     @Column(name = "CustomerID", length = 36, nullable = false)
@@ -34,11 +31,11 @@ public class Customers{
     private String phone;
     @Column(name = "Fax", length = 24)
     private String fax;
-    @Column(name = "Photo")
-    private String photo;
+    @Column(name = "picture")
+    private String picture;
 
     public Customers(String customerID, String companyName, String contactName, String contactTitle, String address,
-            String city, String region, String postalCode, String country, String phone, String fax, String photo) {
+            String city, String region, String postalCode, String country, String phone, String fax, String picture) {
         this.customerID = customerID;
         this.companyName = companyName;
         this.contactName = contactName;
@@ -50,7 +47,7 @@ public class Customers{
         this.country = country;
         this.phone = phone;
         this.fax = fax;
-        this.photo = photo;
+        this.picture = picture;
     }
 
     public Customers(String customerID, String companyName, String contactName, String contactTitle, String address,

@@ -1,8 +1,5 @@
 package com.phucx.account.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,8 +8,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phucx.account.model.Categories;
 import com.phucx.account.model.Discounts;
 import com.phucx.account.model.ProductDetails;
+import com.phucx.account.model.ResponseFormat;
+import com.phucx.account.service.categories.CategoriesService;
 import com.phucx.account.service.discounts.DiscountsService;
 import com.phucx.account.service.products.ProductService;
 
@@ -24,43 +24,62 @@ public class AdminController {
     private ProductService productService;
     @Autowired
     private DiscountsService discountsService;
+    @Autowired
+    private CategoriesService categoriesService;
 
     @PostMapping("/product")
-    public ResponseEntity<Map<String, Boolean>> updateProductDetails(
+    public ResponseEntity<ResponseFormat> updateProductDetails(
         @RequestBody ProductDetails productDetails
     ){        
-        Map<String, Boolean> result = new HashMap<>();
         boolean status = productService.updateProductDetails(productDetails);
-        result.put("status", status);
-        return ResponseEntity.ok().body(result);
+        ResponseFormat data = new ResponseFormat(status);
+
+        return ResponseEntity.ok().body(data);
     }
     @PutMapping("/product")
-    public ResponseEntity<Map<String, Boolean>> insertProductDetails(
+    public ResponseEntity<ResponseFormat> insertProductDetails(
         @RequestBody ProductDetails productDetails
     ){        
-        Map<String, Boolean> result = new HashMap<>();
         boolean status = productService.insertProductDetails(productDetails);
-        result.put("status", status);
-        return ResponseEntity.ok().body(result);
+        ResponseFormat data = new ResponseFormat(status);
+
+        return ResponseEntity.ok().body(data);
     }
     // discount
     @PutMapping("/discount")
-    public ResponseEntity<Map<String, Boolean>> insertDiscount(
+    public ResponseEntity<ResponseFormat> insertDiscount(
         @RequestBody Discounts discount
     ){
         Boolean status = discountsService.insertDiscount(discount);
-        Map<String, Boolean> result = new HashMap<>();
-        result.put("status", status);
-        return ResponseEntity.ok().body(result);
+        ResponseFormat data = new ResponseFormat(status);
+
+        return ResponseEntity.ok().body(data);
     }
 
     @PostMapping("/discount")
-    public ResponseEntity<Map<String, Boolean>> updateDiscount(
+    public ResponseEntity<ResponseFormat> updateDiscount(
         @RequestBody Discounts discount
     ){
         Boolean status = discountsService.updateDiscount(discount);
-        Map<String, Boolean> result = new HashMap<>();
-        result.put("status", status);
-        return ResponseEntity.ok().body(result);
+        ResponseFormat data = new ResponseFormat(status);
+        return ResponseEntity.ok().body(data);
+    }
+
+// categories
+    @PostMapping("/category")
+    public ResponseEntity<ResponseFormat> updateCategory(
+        @RequestBody Categories category
+    ){
+        boolean check = categoriesService.updateCategory(category);
+        ResponseFormat data = new ResponseFormat(check);
+        return ResponseEntity.ok().body(data);
+    }
+    @PutMapping("/category")
+    public ResponseEntity<ResponseFormat> createCategory(
+        @RequestBody Categories category
+    ){
+        boolean check = categoriesService.createCategory(category);
+        ResponseFormat data = new ResponseFormat(check);
+        return ResponseEntity.ok().body(data);
     }
 }

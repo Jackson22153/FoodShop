@@ -1,9 +1,8 @@
-package com.phucx.shop.model;
+package com.phucx.account.model;
 
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -15,7 +14,6 @@ import lombok.ToString;
 
 @Entity @Data @ToString
 @Table(name = "Employees")
-@JsonFilter("Employees")
 public class Employees{
 
     @Id
