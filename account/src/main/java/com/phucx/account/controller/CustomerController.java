@@ -1,5 +1,7 @@
 package com.phucx.account.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -12,13 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.phucx.account.model.Customers;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.customers.CustomersService;
-import com.phucx.account.service.users.UsersService;
 
 @RestController
 @RequestMapping("customer")
 public class CustomerController {
-    @Autowired
-    private UsersService usersService;
+    private Logger logger = LoggerFactory.getLogger(CustomerController.class);
     @Autowired
     private CustomersService customersService;
     // @GetMapping("/info")
@@ -45,8 +45,6 @@ public class CustomerController {
         Authentication authentication,
         @RequestBody Customers customer
     ){
-        // String userID = authentication.getName();
-        // customer.setCustomerID(userID);
         boolean check = customersService.updateCustomerInfo(customer);
         ResponseFormat data = new ResponseFormat(check);
         return ResponseEntity.ok().body(data);

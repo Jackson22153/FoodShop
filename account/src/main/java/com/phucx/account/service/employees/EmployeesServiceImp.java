@@ -25,11 +25,11 @@ public class EmployeesServiceImp implements EmployeesService {
     }
 
 	@Override
-	public boolean createEmployee(String employeeID) {
-		var employeeOp = employeesRepository.findById(employeeID);
+	public boolean createEmployee(Employees employee) {
+		var employeeOp = employeesRepository.findById(employee.getEmployeeID());
         if(employeeOp.isEmpty()){
-            Employees employee = new Employees();
-            employee.setEmployeeID(employeeID);
+            var e = employeesRepository.save(employee);
+            if(e!=null) return true;
         }
         return false;
 	}

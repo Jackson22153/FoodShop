@@ -24,12 +24,12 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@NamedStoredProcedureQuery(name = "Users.createUser", 
-    procedureName = "createuser", parameters = {
-        @StoredProcedureParameter(name="userID", type = String.class),
-        @StoredProcedureParameter(name="username", type = String.class),
-        @StoredProcedureParameter(name="password", type = String.class),
-    })
+// @NamedStoredProcedureQuery(name = "Users.createUser", 
+//     procedureName = "createuser", parameters = {
+//         @StoredProcedureParameter(name="userID", type = String.class),
+//         @StoredProcedureParameter(name="username", type = String.class),
+//         @StoredProcedureParameter(name="password", type = String.class),
+//     })
 public class Users {
     @Id
     private String userID;

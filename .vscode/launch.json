@@ -52,6 +52,16 @@
             "projectName": "keycloak",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ConfigserverApplication<configserver>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.phucx.configserver.ConfigserverApplication",
+            "projectName": "configserver",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

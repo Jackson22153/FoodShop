@@ -62,13 +62,12 @@ public class CustomersServiceImp implements CustomersService {
     }
     
     @Override
-    public boolean createCustomer(String customerID){
+    public boolean createCustomer(Customers customer){
         try {
-            var customerOP = customersRepository.findById(customerID);
+            var customerOP = customersRepository.findById(customer.getCustomerID());
+            // System.out.println(customerOP.get());
             if(customerOP.isEmpty()){
-                Customers newCustomer = new Customers();
-                newCustomer.setCustomerID(customerID);
-                Customers c = customersRepository.save(newCustomer);
+                Customers c = customersRepository.save(customer);
                 if(c!=null) return true;
             }
         } catch (Exception e) {

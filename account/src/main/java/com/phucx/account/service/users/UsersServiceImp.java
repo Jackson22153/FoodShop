@@ -33,11 +33,13 @@ public class UsersServiceImp implements UsersService {
         try {
             String username = user.getUsername();
             String password = user.getPassword();
-            Users existedUser = getUser(username);
+            Users existedUser = this.getUser(username);
             if(existedUser==null){
                 String hashedPassword = passwordEncoder.encode(password);
-                usersRepository.createUser(user.getUserID(), username, hashedPassword);
-                return true;
+                Users newUser = new Users(user.getUserID(), username, hashedPassword);
+                Users check = usersRepository.save(newUser);
+                if(check!=null)
+                    return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
