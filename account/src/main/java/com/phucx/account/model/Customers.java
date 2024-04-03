@@ -3,6 +3,8 @@ package com.phucx.account.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 import lombok.ToString;
 
@@ -33,6 +35,10 @@ public class Customers{
     private String fax;
     @Column(name = "picture")
     private String picture;
+
+    @OneToOne
+    @JoinColumn(name = "userID")
+    private Users user;
 
     public Customers(String customerID, String companyName, String contactName, String contactTitle, String address,
             String city, String region, String postalCode, String country, String phone, String fax, String picture) {

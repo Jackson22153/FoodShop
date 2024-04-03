@@ -1,10 +1,17 @@
 package com.phucx.account.service.users;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.phucx.account.model.Roles;
+import com.phucx.account.model.UserRoles;
+import com.phucx.account.model.UserRolesUtils;
 import com.phucx.account.model.Users;
+import com.phucx.account.repository.UserRolesRepository;
 import com.phucx.account.repository.UsersRepository;
 
 @Service
@@ -13,6 +20,8 @@ public class UsersServiceImp implements UsersService {
     private UsersRepository usersRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRolesRepository userRolesRepository;
     @Override
     public Users getUser(String username) {
         Users user = usersRepository.findByUsername(username);
@@ -46,6 +55,19 @@ public class UsersServiceImp implements UsersService {
         }
         return false;
     }
-
-    
+    @Override
+    public UserRolesUtils getUserRoles(String userID) {
+        List<UserRoles> userRoles = userRolesRepository.findByUserID(userID);
+        // List<UserRoles> userRoles = userRolesService.getUserRoles(userID);
+        if(userRoles.size()>0){
+            UserRoles firstEntity = userRoles.get(0);
+            Users user = new Users(firstEntity.getUserID(), firstEntity.getUsername(), null);
+            List<Roles> roles = new ArrayList<>();
+            for (UserRoles userRole : userRoles) {
+                roles.add(new Roles(null, userRole.getRoleName()));
+            }
+            return new UserRolesUtils(user, roles);
+        }
+        return null;
+    }
 }

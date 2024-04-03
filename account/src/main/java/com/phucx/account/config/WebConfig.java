@@ -26,6 +26,10 @@ public class WebConfig {
     public final static String REALM_ACCESS_CLAIM="realm_access";
     public final static String ROLES_CLAIM="roles";
 
+    public final static String ROLE_CUSTOMER = "ROLE_CUSTOMER";
+    public final static String ROLE_EMPLOYEE = "ROLE_EMPLOYEE";
+    public final static String ROLE_ADMIN = "ROLE_ADMIN";
+
     @Bean
     public SecurityFilterChain dFilterChain(HttpSecurity http) throws Exception{
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();

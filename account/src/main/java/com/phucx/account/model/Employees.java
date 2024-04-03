@@ -62,6 +62,10 @@ public class Employees{
     @JoinColumn(name = "ReportsTo")
     private Employees reportsTo;
 
+    @OneToOne
+    @JoinColumn(name = "userID")
+    private Users user;
+
     // @ManyToMany
     // @JoinTable(
     //     name = "EmployeeTerritories",

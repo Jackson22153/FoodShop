@@ -1,21 +1,32 @@
 package com.phucx.account.service.customers;
 
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.phucx.account.controller.CustomerController;
+import com.phucx.account.model.CustomerAccounts;
+import com.phucx.account.model.CustomerUtils;
 import com.phucx.account.model.Customers;
+import com.phucx.account.repository.CustomerAccountsRepository;
 import com.phucx.account.repository.CustomersRepository;
 import com.phucx.account.service.github.GithubService;
 
 @Service
 public class CustomersServiceImp implements CustomersService {
+    private Logger logger = LoggerFactory.getLogger(CustomersServiceImp.class);
     @Autowired
     private CustomersRepository customersRepository;
     @Autowired
     private GithubService githubService;
+    @Autowired
+    private CustomerAccountsRepository customerAccountsRepository;
 
 	@Override
 	public boolean updateCustomerInfo(Customers customer) {
@@ -55,9 +66,21 @@ public class CustomersServiceImp implements CustomersService {
         return false;
 	}
 	@Override
-	public Customers getCustomerDetail(String customerID) {
-		var customerOp = customersRepository.findById(customerID);
-        if(customerOp.isPresent()) return customerOp.get();
+	public Customers getCustomerDetail(String username) {
+        CustomerAccounts customerAcc = customerAccountsRepository.findByUsername(username);
+        if(customerAcc!=null){
+            String customerID = customerAcc.getCustomerID();
+            var customerOp = customersRepository.findById(customerID);
+            if(customerOp.isPresent()) return customerOp.get();
+        }else{
+            String customerID = UUID.randomUUID().toString();
+            customerAccountsRepository.createCustomerInfo(customerID, username, username);
+            var customerOp = customersRepository.findById(customerID);
+            var customer = customerOp.get();
+            logger.info("customer: {}", customer.toString());
+            // var customerOp = customersRepository.findById(customerID);
+            // if(customerOp.isPresent()) return customerOp.get();
+        }
         return null;
     }
     

@@ -5,7 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.phucx.account.model.Employees;
 
-@PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+// @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
 public interface EmployeesService {
     public Employees getEmployeeDetail(String employeeID);
     public boolean createEmployee(Employees employee);

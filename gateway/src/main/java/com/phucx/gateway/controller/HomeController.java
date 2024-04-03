@@ -31,7 +31,8 @@ public class HomeController {
     }
 
     @GetMapping("/loginBE")
-    public Mono<Void> login(ServerWebExchange exchange){
+    public Mono<Void> login(ServerWebExchange exchange, Authentication authentication){
+        System.out.println("userID: " + authentication.getName());
         redirectStrategy = new DefaultServerRedirectStrategy();
         return redirectStrategy.sendRedirect(exchange, URI.create(GatewayConstant.FoodShopUrl));
     }
