@@ -1,12 +1,16 @@
 package com.phucx.account.service.employees;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.phucx.account.model.EmployeeAccounts;
 import com.phucx.account.model.Employees;
+import com.phucx.account.repository.EmployeeAccountsRepository;
 import com.phucx.account.repository.EmployeesRepository;
 import com.phucx.account.service.github.GithubService;
 
@@ -16,9 +20,11 @@ public class EmployeesServiceImp implements EmployeesService {
     private GithubService githubService;
     @Autowired
     private EmployeesRepository employeesRepository;
+    @Autowired
+    private EmployeeAccountsRepository employeeAccountsRepository;
 
 	@Override
-	public Employees getEmployeeDetail(String employeeID) {
+	public Employees getEmployeeDetailByID(String employeeID) {
 		var employeeOP = employeesRepository.findById(employeeID);
         if(employeeOP.isPresent()) return employeeOP.get();
         return null;
@@ -75,6 +81,21 @@ public class EmployeesServiceImp implements EmployeesService {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
         var employees = employeesRepository.findAll(pageable);
         return employees;
+	}
+
+	@Override
+	public Employees getEmployeeDetail(String username) {
+        EmployeeAccounts employeeAcc = employeeAccountsRepository.findByUsername(username);
+        if(employeeAcc!=null){
+            String employeeID = employeeAcc.getEmployeeID();
+            var employeeOp = employeesRepository.findById(employeeID);
+            if(employeeOp.isPresent()) return employeeOp.get();
+        }else{
+            String employeeID = UUID.randomUUID().toString();
+            employeeAccountsRepository.createEmployeeInfo(employeeID, username, username, username);
+            return this.getEmployeeDetailByID(employeeID);
+        }
+		return null;
 	}
     
 }

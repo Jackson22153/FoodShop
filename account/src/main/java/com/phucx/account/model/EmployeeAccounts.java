@@ -4,6 +4,9 @@ import org.springframework.data.annotation.Immutable;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedStoredProcedureQuery;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureParameter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +17,13 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@NamedStoredProcedureQuery(name = "EmployeeAccounts.createEmployeeInfo",
+    procedureName = "createEmployeeInfo", parameters = {
+        @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type=String.class),
+        @StoredProcedureParameter(name="lastName", mode = ParameterMode.IN, type=String.class),
+        @StoredProcedureParameter(name="firstName", mode = ParameterMode.IN, type=String.class),
+        @StoredProcedureParameter(name="username", mode = ParameterMode.IN, type=String.class)
+    })
 public class EmployeeAccounts {
     @Id
     private String userID;

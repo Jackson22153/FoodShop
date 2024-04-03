@@ -10,9 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.phucx.account.controller.CustomerController;
 import com.phucx.account.model.CustomerAccounts;
-import com.phucx.account.model.CustomerUtils;
 import com.phucx.account.model.Customers;
 import com.phucx.account.repository.CustomerAccountsRepository;
 import com.phucx.account.repository.CustomersRepository;
@@ -20,7 +18,7 @@ import com.phucx.account.service.github.GithubService;
 
 @Service
 public class CustomersServiceImp implements CustomersService {
-    private Logger logger = LoggerFactory.getLogger(CustomersServiceImp.class);
+    // private Logger logger = LoggerFactory.getLogger(CustomersServiceImp.class);
     @Autowired
     private CustomersRepository customersRepository;
     @Autowired
@@ -75,11 +73,7 @@ public class CustomersServiceImp implements CustomersService {
         }else{
             String customerID = UUID.randomUUID().toString();
             customerAccountsRepository.createCustomerInfo(customerID, username, username);
-            var customerOp = customersRepository.findById(customerID);
-            var customer = customerOp.get();
-            logger.info("customer: {}", customer.toString());
-            // var customerOp = customersRepository.findById(customerID);
-            // if(customerOp.isPresent()) return customerOp.get();
+            return this.getCustomerDetailByID(customerID);
         }
         return null;
     }
@@ -104,5 +98,11 @@ public class CustomersServiceImp implements CustomersService {
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<Customers> result = customersRepository.findAll(page);
 		return result;
+	}
+	@Override
+	public Customers getCustomerDetailByID(String customerID) {
+		var customerOp = customersRepository.findById(customerID);
+        if(customerOp.isPresent()) return customerOp.get();
+        return null;
 	}
 }

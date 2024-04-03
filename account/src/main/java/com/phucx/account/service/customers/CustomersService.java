@@ -5,6 +5,7 @@ import com.phucx.account.model.Customers;
 
 // @PreAuthorize("hasRole('ROLE_CUSTOMER')")
 public interface CustomersService {
+    public Customers getCustomerDetailByID(String customerID);
     public Customers getCustomerDetail(String username);
     public boolean createCustomer(Customers customer);
     public boolean updateCustomerInfo(Customers customer);
