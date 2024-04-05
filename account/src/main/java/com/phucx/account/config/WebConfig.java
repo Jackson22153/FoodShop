@@ -1,5 +1,13 @@
 package com.phucx.account.config;
 
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
@@ -13,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @EnableWebSecurity
@@ -29,6 +39,9 @@ public class WebConfig {
     public final static String ROLE_CUSTOMER = "ROLE_CUSTOMER";
     public final static String ROLE_EMPLOYEE = "ROLE_EMPLOYEE";
     public final static String ROLE_ADMIN = "ROLE_ADMIN";
+
+    public final static String ORDER_QUEUE = "order";
+    public final static String ORDER_ROUTING_KEY = "order";
 
     @Bean
     public SecurityFilterChain dFilterChain(HttpSecurity http) throws Exception{
@@ -57,4 +70,27 @@ public class WebConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public Queue orderQueue(){
+        return new Queue(ORDER_QUEUE, false);
+    }
+
+    @Bean
+    public DirectExchange orderExchange(){
+        return new DirectExchange(ORDER_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding bindingQueue(Queue orderQueue, DirectExchange orderExchange){
+        return BindingBuilder.bind(orderQueue).to(orderExchange).with(ORDER_ROUTING_KEY);
+    }
+
+    @Bean
+    public MessageConverter jsonMessageConverter(){
+        return new Jackson2JsonMessageConverter();
+    }
+    @Bean
+    public ObjectMapper objectMapper(){
+        return new ObjectMapper();
+    }
 }

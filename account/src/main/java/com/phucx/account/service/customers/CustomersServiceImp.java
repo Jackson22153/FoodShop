@@ -10,11 +10,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.phucx.account.config.WebConfig;
 import com.phucx.account.model.CustomerAccounts;
 import com.phucx.account.model.Customers;
+import com.phucx.account.model.UserOrderProducts;
 import com.phucx.account.repository.CustomerAccountsRepository;
 import com.phucx.account.repository.CustomersRepository;
 import com.phucx.account.service.github.GithubService;
+import com.phucx.account.service.messageQueue.sender.MessageSender;
 
 @Service
 public class CustomersServiceImp implements CustomersService {
@@ -25,6 +28,8 @@ public class CustomersServiceImp implements CustomersService {
     private GithubService githubService;
     @Autowired
     private CustomerAccountsRepository customerAccountsRepository;
+    @Autowired
+    private MessageSender messageSender;
 
 	@Override
 	public boolean updateCustomerInfo(Customers customer) {
@@ -105,4 +110,14 @@ public class CustomersServiceImp implements CustomersService {
         if(customerOp.isPresent()) return customerOp.get();
         return null;
 	}
+    @Override
+    public boolean placeOrder(UserOrderProducts userOrderProducts) {
+        try {
+            messageSender.send(WebConfig.ORDER_QUEUE, WebConfig.ORDER_ROUTING_KEY, userOrderProducts);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
