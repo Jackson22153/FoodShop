@@ -39,9 +39,7 @@ public class WebConfig {
     public final static String ROLE_CUSTOMER = "ROLE_CUSTOMER";
     public final static String ROLE_EMPLOYEE = "ROLE_EMPLOYEE";
     public final static String ROLE_ADMIN = "ROLE_ADMIN";
-    // message queue 
-    public final static String ORDER_QUEUE = "order";
-    public final static String ORDER_ROUTING_KEY = "order";
+
     // status notification
     public final static String FAILED_NOTIFICATION="faile";
     public final static String SUCCESSFUL_NOTIFICATION="success";
@@ -54,7 +52,8 @@ public class WebConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.cors(Customizer.withDefaults());
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/chat/**"));
+        http.headers(header -> header.frameOptions(frame -> frame.sameOrigin()));
         http.authorizeHttpRequests(request -> request
             .requestMatchers("/admin/*").permitAll()
             .requestMatchers("/customer/*").hasRole("CUSTOMER")
@@ -72,32 +71,6 @@ public class WebConfig {
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public Queue orderQueue(){
-        return new Queue(ORDER_QUEUE, false);
-    }
-
-    @Bean
-    public DirectExchange orderExchange(){
-        return new DirectExchange(ORDER_ROUTING_KEY);
-    }
-
-    @Bean
-    public Binding bindingQueue(Queue orderQueue, DirectExchange orderExchange){
-        return BindingBuilder.bind(orderQueue).to(orderExchange).with(ORDER_ROUTING_KEY);
-    }
-
-    @Bean
-    public MessageConverter jsonMessageConverter(){
-        return new Jackson2JsonMessageConverter();
-    }
-    @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setMessageConverter(jsonMessageConverter());
-        return rabbitTemplate;
     }
 
     @Bean

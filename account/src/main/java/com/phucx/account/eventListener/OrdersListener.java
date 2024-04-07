@@ -7,10 +7,10 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import com.phucx.account.model.OrderWithProducts;
-import com.phucx.account.config.WebConfig;
+import com.phucx.account.config.MessageQueueConfig;
 
 @Component
-@RabbitListener(queues = WebConfig.ORDER_QUEUE)
+@RabbitListener(queues = MessageQueueConfig.ORDER_QUEUE)
 public class OrdersListener {
     private Logger logger = LoggerFactory.getLogger(OrdersListener.class);
 

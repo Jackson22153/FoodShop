@@ -8,7 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.phucx.account.config.WebConfig;
+import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.model.CustomerAccounts;
 import com.phucx.account.model.Customers;
 import com.phucx.account.model.UserOrderProducts;
@@ -111,7 +111,7 @@ public class CustomersServiceImp implements CustomersService {
     @Override
     public boolean placeOrder(UserOrderProducts userOrderProducts) {
         try {
-            messageSender.send(WebConfig.ORDER_QUEUE, WebConfig.ORDER_ROUTING_KEY, userOrderProducts);
+            messageSender.send(MessageQueueConfig.ORDER_QUEUE, MessageQueueConfig.ORDER_ROUTING_KEY, userOrderProducts);
             return true;
         } catch (Exception e) {
             e.printStackTrace();

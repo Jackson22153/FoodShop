@@ -8,7 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.phucx.account.config.WebConfig;
+import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.model.EmployeeAccounts;
 import com.phucx.account.model.Employees;
 import com.phucx.account.model.OrderWithProducts;
@@ -107,7 +107,7 @@ public class EmployeesServiceImp implements EmployeesService {
     @Override
     public int placeOrder(OrderWithProducts order) {
         int orderID = messageSender.sendAndReceiveOrder(
-            WebConfig.ORDER_QUEUE, WebConfig.ORDER_ROUTING_KEY, order);
+            MessageQueueConfig.ORDER_QUEUE, MessageQueueConfig.ORDER_ROUTING_KEY, order);
         return orderID;
     }
 }
