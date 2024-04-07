@@ -4,20 +4,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.phucx.account.config.WebConfig;
 import com.phucx.account.model.Customers;
+import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.ResponseFormat;
-import com.phucx.account.model.UserOrderProducts;
 import com.phucx.account.service.customers.CustomersService;
-import com.phucx.account.service.messageQueue.sender.MessageSender;
+import com.phucx.account.service.users.UsersService;
 
 
 @RestController
@@ -26,14 +26,14 @@ public class CustomerController {
     private Logger logger = LoggerFactory.getLogger(CustomerController.class);
     @Autowired
     private CustomersService customersService;
+    @Autowired
+    private UsersService usersService;
 
 
     @GetMapping("info")
     public ResponseEntity<Customers> getUserInfo(Authentication authentication){
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        String userID = jwt.getSubject();
-        String username = jwt.getClaimAsString(WebConfig.PREFERRED_USERNAME);
-        logger.info("userID: {}, username: {}", userID, username);
+        String username = usersService.getUsername(authentication);
+        logger.info("username: {}", username);
         Customers customer = customersService.getCustomerDetail(username);
         return ResponseEntity.ok().body(customer);
     }
@@ -48,11 +48,19 @@ public class CustomerController {
         return ResponseEntity.ok().body(data);
     }
 
-    @PostMapping("order")
-    public ResponseEntity<ResponseFormat> placeOrder(
-        @RequestBody UserOrderProducts userOrderProducts){
-        boolean check = customersService.placeOrder(userOrderProducts);
-        return ResponseEntity.ok().body(new ResponseFormat(check));
+    @MessageMapping("/placeOrder")
+    @SendTo("/user/order")
+    public OrderWithProducts placeOrder(
+        @RequestBody OrderWithProducts order,
+        Authentication authentication
+    ){
+        logger.info("place an order: {}", order.toString());
+        String username = usersService.getUsername(authentication);
+        Customers customer = customersService.getCustomerDetail(username);
+        if(customer!=null){
+            order.setCustomerID(customer.getCustomerID());
+        }
+        return order;
     }
 
     

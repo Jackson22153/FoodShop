@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,9 +13,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import com.phucx.account.config.WebConfig;
-import com.phucx.account.service.customers.CustomersService;
-import com.phucx.account.service.employees.EmployeesService;
-import com.phucx.account.service.userRoles.UserRolesService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.GenericFilter;
 import jakarta.servlet.ServletException;
@@ -39,7 +35,6 @@ public class UserRegistrationFilter extends GenericFilter {
         if(authentication!=null){
             var token = (Jwt)authentication.getPrincipal();
             if(token!=null){
-                String userID = token.getSubject();
                 String username = token.getClaimAsString(WebConfig.PREFERRED_USERNAME);
                 List<String> roles = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)

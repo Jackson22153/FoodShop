@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import com.phucx.account.config.WebConfig;
 import com.phucx.account.model.Roles;
 import com.phucx.account.model.UserRoles;
 import com.phucx.account.model.UserRolesUtils;
@@ -69,5 +72,17 @@ public class UsersServiceImp implements UsersService {
             return new UserRolesUtils(user, roles);
         }
         return null;
+    }
+    @Override
+    public String getUsername(Authentication authentication) {
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        String username = jwt.getClaimAsString(WebConfig.PREFERRED_USERNAME);
+        return username;
+    }
+    @Override
+    public String getUserID(Authentication authentication) {
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        String userID = jwt.getSubject();
+        return userID;
     }
 }

@@ -2,7 +2,7 @@ package com.phucx.shop.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.phucx.shop.constant.ShopConstant;
+import com.phucx.shop.config.WebConfig;
 import com.phucx.shop.model.Categories;
 import com.phucx.shop.model.CurrentProductList;
 import com.phucx.shop.model.ProductDetails;
@@ -33,7 +33,7 @@ public class HomeController {
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
         Page<Categories> data = categoriesService
-            .getCategories(pageNumber, ShopConstant.PAGESIZE);
+            .getCategories(pageNumber, WebConfig.PAGESIZE);
 
         return ResponseEntity.ok().body(data);
     }
@@ -56,7 +56,7 @@ public class HomeController {
         categoryName = categoryName.replaceAll("-", "_");
 
         Page<CurrentProductList> products = productsService.getCurrentProductsByCategoryName(
-            categoryName, pageNumber, ShopConstant.PAGESIZE);
+            categoryName, pageNumber, WebConfig.PAGESIZE);
 
         return ResponseEntity.ok().body(products);
     }
@@ -68,7 +68,7 @@ public class HomeController {
         @RequestParam(name = "page", required = false) Integer pageNumber
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
-        var productsPageable =productsService.getCurrentProductList(pageNumber, ShopConstant.PAGESIZE);
+        var productsPageable =productsService.getCurrentProductList(pageNumber, WebConfig.PAGESIZE);
         return ResponseEntity.ok().body(productsPageable);
     }
     
@@ -83,7 +83,7 @@ public class HomeController {
     @GetMapping("/products/recommended")
     public ResponseEntity<List<CurrentProductList>> getRecommendedProducts(){
         List<CurrentProductList> products = productsService
-            .getRecommendedProducts(0, ShopConstant.PAGESIZE);
+            .getRecommendedProducts(0, WebConfig.PAGESIZE);
             
         return ResponseEntity.ok().body(products);
     }

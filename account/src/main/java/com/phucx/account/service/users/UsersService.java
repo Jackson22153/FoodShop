@@ -1,5 +1,7 @@
 package com.phucx.account.service.users;
 
+import org.springframework.security.core.Authentication;
+
 import com.phucx.account.model.UserRolesUtils;
 import com.phucx.account.model.Users;
 
@@ -9,5 +11,8 @@ public interface UsersService {
 
     public boolean createUser(Users user);
 
-    public UserRolesUtils getUserRoles(String userID);    
+    public UserRolesUtils getUserRoles(String userID);   
+    
+    public String getUsername(Authentication authentication);
+    public String getUserID(Authentication authentication);
 }

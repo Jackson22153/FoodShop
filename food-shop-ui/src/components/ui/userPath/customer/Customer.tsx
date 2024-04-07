@@ -1,6 +1,16 @@
+import { useEffect } from 'react';
 import './Customer.css';
+import { getCustomerInfo } from '../../../../api/AuthorizationApi';
 
 export default function CustomerComponent(){
+
+    useEffect(()=>{
+        getCustomerInfo().then((res) =>{
+            console.log(res.data)
+        })
+    }, [])
+
+
     return(
         <div className='customer-page p-4'>
             <div className="container emp-profile">

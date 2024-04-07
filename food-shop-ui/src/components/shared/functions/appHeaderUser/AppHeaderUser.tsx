@@ -2,6 +2,7 @@ import { MouseEventHandler, useContext, useEffect, useRef } from "react";
 import userInfoContext from "../../../contexts/UserInfoContext";
 import { isOpeningUserDropDownContext } from "../../../ui/homePath/home/Home";
 import { customerPath } from "../../../../constant/FoodShoppingURL";
+import { logout } from "../../../../api/AuthorizationApi";
 
 interface Props{
     handleIsOpeningDropdown: any,
@@ -34,6 +35,13 @@ export default function AppHeaderUser(prop:Props){
     const onClickUser: MouseEventHandler<any> = (_event) =>{
         handleIsOpeningUserDropDown(!isOpeningDropdown);
     }
+
+    const onClickLogout = ()=>{
+        logout().then((_res) =>{
+
+            window.location.href = "/";
+        })
+    }
     return(
         <div className="navbar-expand-lg navbar-light text-white">
             {/* <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" 
@@ -54,7 +62,7 @@ export default function AppHeaderUser(prop:Props){
                             <a className="dropdown-item" href={customerPath}>Profile</a>
                             <a className="dropdown-item" href="#">Settings</a>
                             <div className="dropdown-divider"></div>
-                            <a className="dropdown-item" href="#">Logout</a>
+                            <span className="dropdown-item" onClick={onClickLogout}>Logout</span>
                         </div>
                     </li>
                 </ul>

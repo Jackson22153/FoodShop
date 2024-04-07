@@ -31,7 +31,7 @@ function HomeComponent(){
     const [searchInputValue, setSearchInputValue] = useState('');
     const [searchResult, setSearchResult] = useState<Product[]>([]);
     const [userInfo, setUserInfo] = useState<UserInfo>({
-        username: "happy123",
+        username: "",
         isAuthenticated: false
     })
     const [isOpeningUserDropDown, setIsOpeningUserDropDown] = useState<boolean>(false);
@@ -59,15 +59,19 @@ function HomeComponent(){
 
     function initial(){
         // check authentication
+        var isAuthen = false;
         isAuthenticated().then(res =>{
             // console.log(res.data)
             const data = res.data;
-            // console.log(data)
-            setUserInfo({...userInfo, isAuthenticated: data.isAuthenticated})
+            console.log(data)
+            if(data.isAuthenticated) isAuthen=true;
+            setUserInfo({
+                username: data.username,
+                isAuthenticated: data.authenticated
+            })
             // if(res.data===200){
             // }
         })
-
 
         // get categories
         getCategories(0).then(res =>{

@@ -2,36 +2,32 @@ package com.phucx.account.service.employees;
 
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phucx.account.config.WebConfig;
 import com.phucx.account.model.EmployeeAccounts;
 import com.phucx.account.model.Employees;
-import com.phucx.account.model.UserOrderProducts;
+import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.repository.EmployeeAccountsRepository;
 import com.phucx.account.repository.EmployeesRepository;
 import com.phucx.account.service.github.GithubService;
+import com.phucx.account.service.messageQueue.sender.MessageSender;
 
 @Service
 public class EmployeesServiceImp implements EmployeesService {
-    private Logger logger = LoggerFactory.getLogger(EmployeesServiceImp.class);
+    // private Logger logger = LoggerFactory.getLogger(EmployeesServiceImp.class);
     @Autowired
     private GithubService githubService;
     @Autowired
     private EmployeesRepository employeesRepository;
     @Autowired
-    private EmployeeAccountsRepository employeeAccountsRepository;
+    private MessageSender messageSender;
     @Autowired
-    private ObjectMapper objectMapper;
+    private EmployeeAccountsRepository employeeAccountsRepository;
 
 	@Override
 	public Employees getEmployeeDetailByID(String employeeID) {
@@ -109,12 +105,9 @@ public class EmployeesServiceImp implements EmployeesService {
 	}
 
     @Override
-    @RabbitListener(queues = "#{orderQueue.name}")
-    public void receiveOrder(String order) throws JsonMappingException, JsonProcessingException {
-        logger.info("Employee has recieved : {}", order.toString());
-        UserOrderProducts userOrderProducts = objectMapper.readValue(order, UserOrderProducts.class);
-        logger.info("Order receiver: " + userOrderProducts.toString());
-        // return true;
+    public int placeOrder(OrderWithProducts order) {
+        int orderID = messageSender.sendAndReceiveOrder(
+            WebConfig.ORDER_QUEUE, WebConfig.ORDER_ROUTING_KEY, order);
+        return orderID;
     }
-    
 }

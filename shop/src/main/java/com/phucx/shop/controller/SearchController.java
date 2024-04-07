@@ -3,7 +3,7 @@ package com.phucx.shop.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.phucx.shop.constant.ShopConstant;
+import com.phucx.shop.config.WebConfig;
 import com.phucx.shop.model.CurrentProductList;
 import com.phucx.shop.service.products.ProductsService;
 
@@ -26,7 +26,7 @@ public class SearchController {
     ) {
         if(letters.length()>2){
             var productsPageable = productsService.searchCurrentProducts(
-                letters, 0, ShopConstant.PAGESIZE);
+                letters, 0, WebConfig.PAGESIZE);
 
             return ResponseEntity.ok().body(productsPageable);
         }

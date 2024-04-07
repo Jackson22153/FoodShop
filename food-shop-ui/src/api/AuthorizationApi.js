@@ -1,5 +1,14 @@
 import axios from "axios";
-import { IsAuthenticatedUrl, UsernameUrl } from "../constant/FoodShoppingApiURL";
+import { CustomerInfoUrl, IsAuthenticatedUrl, LoginUrl, LogoutUrl, UsernameUrl } from "../constant/FoodShoppingApiURL";
+
+export async function logout(){
+    return axios.post(LogoutUrl, null,{
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    })
+}
 
 export async function isAuthenticated(){
     return axios.post(IsAuthenticatedUrl, null,{
@@ -11,6 +20,15 @@ export async function isAuthenticated(){
 }
 export async function getUsername(){
     return axios.get(UsernameUrl, {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    })
+}
+
+export async function getCustomerInfo(){
+    return axios.get(CustomerInfoUrl, {
         withCredentials: true,
         headers:{
             "Content-Type": 'application/json',

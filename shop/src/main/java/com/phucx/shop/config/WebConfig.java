@@ -12,6 +12,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class WebConfig {  
+    public static int PAGESIZE = 10;
+    public final static String ORDER_QUEUE = "order";
+    public final static String ORDER_ROUTING_KEY = "order";
+
     @Bean
     public SecurityFilterChain dFilterChain(HttpSecurity http) throws Exception{
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();

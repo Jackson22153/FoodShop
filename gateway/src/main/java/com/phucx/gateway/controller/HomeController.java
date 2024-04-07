@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.phucx.gateway.constant.GatewayConstant;
+import com.phucx.gateway.model.UserAuthenticationInfo;
 
 import reactor.core.publisher.Mono;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,12 +39,16 @@ public class HomeController {
     }
 
     @PostMapping("isAuthenticated")
-    public Mono<Map<String, Boolean>> checkAuthentication(Authentication authentication){
-        Map<String, Boolean> result = new HashMap<>();
-        if(authentication!=null)
-            result.put("isAuthenticated", authentication.isAuthenticated());
-        else result.put("isAuthenticated", false);
-        return Mono.just(result);
+    public Mono<UserAuthenticationInfo> checkAuthentication(Authentication authentication){
+        return Mono.just(new UserAuthenticationInfo()).map(info ->{
+            if(authentication!=null){
+                info.setUsername(authentication.getName());
+                info.setAuthenticated(true);
+            }else{
+                info.setAuthenticated(false);
+            }
+            return info;
+        });
     }
 
     @GetMapping("user")

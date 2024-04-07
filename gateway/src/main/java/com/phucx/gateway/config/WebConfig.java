@@ -4,6 +4,7 @@ import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -16,6 +17,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 @Configuration
 @EnableWebFluxSecurity
+@ComponentScan("com.phucx.gateway.filter")
 public class WebConfig {
     
     @Bean
@@ -45,6 +47,7 @@ public class WebConfig {
             .pathMatchers("/shop/home/**").permitAll()
             .pathMatchers("/isAuthenticated").permitAll()
             .pathMatchers("/account/admin/*").permitAll()
+            .pathMatchers("/account/chat/**").permitAll()
             .anyExchange().authenticated());
 
         http.oauth2Login(Customizer.withDefaults())

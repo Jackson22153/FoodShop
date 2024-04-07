@@ -12,6 +12,7 @@ const SearchUrl = `${ShopService}/search`;
 // public url
 // gateway
 export const LoginUrl = `${URL}/loginBE`;
+export const LogoutUrl = `${URL}/logout`;
 export const UsernameUrl = `${URL}/user`;
 export const IsAuthenticatedUrl = `${URL}/isAuthenticated`;
 // product
@@ -30,4 +31,9 @@ export const ShippersUrl = `${HomeUrl}/shippers`;
 // adminurl
 export const ProductAdminUrl = `${AdminUrl}/product`;
 export const DiscountAdminUrl = `${AdminUrl}/discount`
+
+// customer
+export const CustomerUrl = `${AccountService}/customer`
+export const CustomerInfoUrl = `${CustomerUrl}/info`
+
 
