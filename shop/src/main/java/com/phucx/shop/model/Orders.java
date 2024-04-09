@@ -64,6 +64,6 @@ public class Orders {
     @Column(name = "ShipCountry", length = 15)
     private String shipCountry;
 
-    private Boolean status;
+    private String status;
 
 }

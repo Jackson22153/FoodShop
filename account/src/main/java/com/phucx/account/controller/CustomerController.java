@@ -15,9 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.account.model.Customers;
 import com.phucx.account.model.OrderWithProducts;
+import com.phucx.account.model.Orders;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.customers.CustomersService;
+import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.users.UsersService;
+
+import jakarta.ws.rs.NotFoundException;
 
 
 @RestController
@@ -28,6 +32,8 @@ public class CustomerController {
     private CustomersService customersService;
     @Autowired
     private UsersService usersService;
+    @Autowired
+    private OrderService orderService;
 
 
     @GetMapping("info")
@@ -49,18 +55,22 @@ public class CustomerController {
     }
 
     @MessageMapping("/placeOrder")
-    @SendTo("/user/order")
+    @SendTo("/topic/order")
     public OrderWithProducts placeOrder(
         @RequestBody OrderWithProducts order,
         Authentication authentication
     ){
-        logger.info("place an order: {}", order.toString());
         String username = usersService.getUsername(authentication);
         Customers customer = customersService.getCustomerDetail(username);
+        logger.info("Customer {} has placed an order: {}",username, order.toString());
         if(customer!=null){
             order.setCustomerID(customer.getCustomerID());
+            Orders pendingOrder = orderService.saveOrder(order);
+            order.setOrderID(pendingOrder.getOrderID());
+            // order.setOrderID(1234);
+            return order;
         }
-        return order;
+        throw new NotFoundException("Customer is not found");
     }
 
     

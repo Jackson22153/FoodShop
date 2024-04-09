@@ -1,5 +1,7 @@
 package com.phucx.account.service.employees;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.model.EmployeeAccounts;
 import com.phucx.account.model.Employees;
+import com.phucx.account.model.NotificationMessage;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.repository.EmployeeAccountsRepository;
 import com.phucx.account.repository.EmployeesRepository;
@@ -105,9 +108,14 @@ public class EmployeesServiceImp implements EmployeesService {
 	}
 
     @Override
-    public int placeOrder(OrderWithProducts order) {
-        int orderID = messageSender.sendAndReceiveOrder(
+    public NotificationMessage placeOrder(OrderWithProducts order) {
+        NotificationMessage response = messageSender.sendAndReceiveOrder(
             MessageQueueConfig.ORDER_QUEUE, MessageQueueConfig.ORDER_ROUTING_KEY, order);
-        return orderID;
+        return response;
+    }
+
+    @Override
+    public List<OrderWithProducts> getPendingOrders() {
+        return new ArrayList<>();
     }
 }

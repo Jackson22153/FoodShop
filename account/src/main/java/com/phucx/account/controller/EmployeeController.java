@@ -1,8 +1,12 @@
 package com.phucx.account.controller;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.account.config.WebConfig;
@@ -20,6 +25,7 @@ import com.phucx.account.model.NotificationMessage;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.employees.EmployeesService;
+import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.users.UsersService;
 
 @RestController
@@ -32,7 +38,10 @@ public class EmployeeController {
     private UsersService usersService;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private OrderService orderService;
 
+    private final int PAGE_SIZE = 10;
 
     @GetMapping("info")
     public ResponseEntity<Employees> getUserInfo(Authentication authentication){
@@ -47,57 +56,35 @@ public class EmployeeController {
         Authentication authentication,
         @RequestBody Employees employee
     ){
-        // String userID = authentication.getName();
-        // customer.setCustomerID(userID);
         boolean check = employeesService.updateEmployeeInfo(employee);
         ResponseFormat data = new ResponseFormat(check);
         return ResponseEntity.ok().body(data);
     }
 
-    @PostMapping("order")
-    public ResponseEntity<ResponseFormat> placeOrder(
-        Authentication authentication,
-        @RequestBody OrderWithProducts order
+    @GetMapping("/orders/pending")
+    public ResponseEntity<Page<OrderWithProducts>> getPendingOrders(
+        @RequestParam(name = "page", required = false) Integer page
     ){
-        logger.info(order.toString());
-        String username = usersService.getUsername(authentication);
-        Employees employees = employeesService.getEmployeeDetail(username);
-        order.setEmployeeID(employees.getEmployeeID());
-        int orderID = employeesService.placeOrder(order);
-        logger.info("employee {} has validated an order {} for customer {}", username, orderID, order.getCustomerID());
-        return ResponseEntity.ok().body(new ResponseFormat(true));
+        page = page!=null?page:0;
+        return ResponseEntity.ok().body(orderService.getPendingOrders(page, PAGE_SIZE));
     }
 
     @MessageMapping("/order.validate")
     public void validateOrder(@RequestBody OrderWithProducts order,
         Authentication authentication
     ){
-        logger.info("employee {} has placed an order", order.getEmployeeID());
-        // validate order
-        Integer orderIDResponse = sendOrder(order, authentication);
-        // 
-        NotificationMessage notificationMessage = new NotificationMessage();
-        if(orderIDResponse!=null){
-            notificationMessage.setContent("Your order has been placed successfully");
-            notificationMessage.setStatus(WebConfig.SUCCESSFUL_NOTIFICATION);
-        }else{
-            notificationMessage.setContent("Your order has been canceled");
-            notificationMessage.setStatus(WebConfig.FAILED_NOTIFICATION);
-        }
-        // websocket 
-        // sending notify message to customer whose order is placed 
-        String customerID = order.getCustomerID();
-        this.simpMessagingTemplate.convertAndSendToUser(customerID, WebSocketConfig.QUEUE_MESSAGES, 
-            notificationMessage);
-    }
-
-    private Integer sendOrder(OrderWithProducts order, Authentication authentication){
-        logger.info(order.toString());
+        logger.info("employee {} has validated an order of {}", order.getEmployeeID(), order.getCustomerID());
+        // // validate order
+        // set employeeID that validates this order
         String username = usersService.getUsername(authentication);
         Employees employees = employeesService.getEmployeeDetail(username);
         order.setEmployeeID(employees.getEmployeeID());
-        Integer orderID = employeesService.placeOrder(order);
-        logger.info("employee {} has validated an order {} for customer {}", username, orderID, order.getCustomerID());
-        return orderID;
+        // get notification after validate with database
+        NotificationMessage notificationMessage = employeesService.placeOrder(order);
+        // send notification message back to customer
+        logger.info("notification: {}", notificationMessage.toString());
+        this.simpMessagingTemplate.convertAndSendToUser(
+            order.getCustomerID(), WebSocketConfig.QUEUE_MESSAGES, 
+            notificationMessage);
     }
 }

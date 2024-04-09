@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.model.CustomerAccounts;
 import com.phucx.account.model.Customers;
-import com.phucx.account.model.UserOrderProducts;
 import com.phucx.account.repository.CustomerAccountsRepository;
 import com.phucx.account.repository.CustomersRepository;
 import com.phucx.account.service.github.GithubService;
@@ -108,14 +107,14 @@ public class CustomersServiceImp implements CustomersService {
         if(customerOp.isPresent()) return customerOp.get();
         return null;
 	}
-    @Override
-    public boolean placeOrder(UserOrderProducts userOrderProducts) {
-        try {
-            messageSender.send(MessageQueueConfig.ORDER_QUEUE, MessageQueueConfig.ORDER_ROUTING_KEY, userOrderProducts);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+    // @Override
+    // public boolean placeOrder(UserOrderProducts userOrderProducts) {
+    //     try {
+    //         messageSender.send(MessageQueueConfig.ORDER_QUEUE, MessageQueueConfig.ORDER_ROUTING_KEY, userOrderProducts);
+    //         return true;
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //         return false;
+    //     }
+    // }
 }

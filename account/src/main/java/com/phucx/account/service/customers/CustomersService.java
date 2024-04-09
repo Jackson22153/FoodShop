@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.phucx.account.model.Customers;
-import com.phucx.account.model.UserOrderProducts;
 
 @PreAuthorize("hasRole('ROLE_CUSTOMER')")
 public interface CustomersService {
@@ -13,5 +12,5 @@ public interface CustomersService {
     public boolean createCustomer(Customers customer);
     public boolean updateCustomerInfo(Customers customer);
     public Page<Customers> findAllCustomers(int pageNumber, int pageSize);
-    public boolean placeOrder(UserOrderProducts userOrderProducts);
+    // public boolean placeOrder(UserOrderProducts userOrderProducts);
 }

@@ -4,31 +4,61 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.phucx.account.model.NotificationMessage;
 import com.phucx.account.model.OrderWithProducts;
+import com.phucx.account.service.order.OrderService;
 import com.phucx.account.config.MessageQueueConfig;
+import com.phucx.account.config.WebConfig;
+import com.phucx.account.constraint.OrderStatus;
 
 @Component
 @RabbitListener(queues = MessageQueueConfig.ORDER_QUEUE)
 public class OrdersListener {
     private Logger logger = LoggerFactory.getLogger(OrdersListener.class);
-
-    // @RabbitHandler
-    // public void receiver(OrderWithProducts order){
-    //     validateOrder(order);
-    // }
+    @Autowired
+    private OrderService orderService;
 
     @RabbitHandler
-    public Integer receiver(OrderWithProducts order){
-        Integer orderID = validateOrder(order);
-        return orderID;
+    public NotificationMessage receiver(OrderWithProducts order){
+        return validateOrder(order);
     }
-
-
-    private Integer validateOrder(OrderWithProducts order){
+    // validate order product's stocks
+    private NotificationMessage validateOrder(OrderWithProducts order){
         logger.info(order.toString());
-        return 1234;
+        NotificationMessage notificationMessage = new NotificationMessage();
+        notificationMessage.setContent("Your order is not valid");
+        if(order.getEmployeeID()!=null && order.getCustomerID()!=null){
+            boolean employeeUpdateCheck = orderService.updateOrderEmployee(order.getOrderID(), order.getEmployeeID());
+            if(employeeUpdateCheck){
+                try {
+                    boolean check = orderService.validateOrder(order);
+                    if(check){
+                        notificationMessage.setContent("Your order has been placed successfully");
+                        notificationMessage.setStatus(WebConfig.SUCCESSFUL_NOTIFICATION);
+                        orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Success);
+                    }else{
+                        notificationMessage.setContent("Your order has been canceled");
+                        notificationMessage.setStatus(WebConfig.FAILED_NOTIFICATION);
+                        orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Cancel);
+                    }
+                } catch (RuntimeException e) {
+                    logger.error("Error: ", e.getMessage());
+                    notificationMessage.setContent("Dont have enough product instocks");
+                    notificationMessage.setStatus(WebConfig.FAILED_NOTIFICATION);
+                    orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Cancel);
+                }
+            } else {
+                // throw new RuntimeException("Can not update employeeID");
+                logger.info("Can not update employeeID");
+                notificationMessage.setContent("Can not update employeeID");
+                notificationMessage.setStatus(WebConfig.FAILED_NOTIFICATION);
+                orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Cancel);
+            }
+        }
+        return notificationMessage;
     }
 
 }

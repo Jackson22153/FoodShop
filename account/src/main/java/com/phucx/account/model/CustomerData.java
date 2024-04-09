@@ -8,7 +8,7 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerUtils {
+public class CustomerData {
     private String customerID;
     private String companyName;
     private String contactName;
