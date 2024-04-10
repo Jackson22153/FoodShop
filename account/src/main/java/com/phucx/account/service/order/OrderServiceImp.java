@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.phucx.account.compositeKey.OrderDetailsKey;
-import com.phucx.account.constraint.OrderStatus;
+import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.model.Employees;
 import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.OrderItem;
@@ -87,7 +87,7 @@ public class OrderServiceImp implements OrderService{
                         OrderDetailsKey key = new OrderDetailsKey(product, checkOrder);
                         
                         OrderDetails orderDetail = new OrderDetails(key, product.getUnitPrice(), 
-                            orderItem.getQuantity(), orderItem.getDiscount());
+                            orderItem.getQuantity());
                         OrderDetails newOrderDetail = orderDetailsRepository.save(orderDetail);
                         if(newOrderDetail==null) throw new RuntimeException("Error while saving orderdetail");
                     }else{
@@ -148,7 +148,7 @@ public class OrderServiceImp implements OrderService{
             List<OrderItem> orderItems = orderDetailsRepository.findByOrderID(order.getOrderID())
                 .stream().map(orderDetail ->{
                     OrderItem orderItem = new OrderItem(orderDetail.getKey().getProductID().getProductID(), 
-                        orderDetail.getQuantity(), orderDetail.getDiscount());
+                        orderDetail.getQuantity(), null);
                     return orderItem;
                 }).collect(Collectors.toList());
             orderWithProducts.setProducts(orderItems);
@@ -157,6 +157,14 @@ public class OrderServiceImp implements OrderService{
 
         Page<OrderWithProducts> resultPageable = new PageImpl<>(result, pageable, result.size());
         return resultPageable;
+    }
+
+    @Override
+    public boolean isPendingOrder(Integer orderID) {
+        if(orderID==null) throw new RuntimeException("OrderID is null");
+        return ordersRepository.findById(orderID)
+        .map(order -> order.getStatus().equals(OrderStatus.Pending))
+        .orElse(false);
     }
     
 }

@@ -1,19 +1,9 @@
 package com.phucx.account.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,9 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.socket.server.HandshakeInterceptor;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
 @EnableWebSecurity
@@ -56,12 +45,13 @@ public class WebConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.cors(Customizer.withDefaults());
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/chat/**"));
+        // http.csrf(csrf -> csrf.ignoringRequestMatchers("/chat/**"));
+        http.csrf(csrf-> csrf.disable());
         http.headers(header -> header.frameOptions(frame -> frame.sameOrigin()));
         http.authorizeHttpRequests(request -> request
-            .requestMatchers("/admin/*").permitAll()
-            .requestMatchers("/customer/*").hasRole("CUSTOMER")
-            .requestMatchers("/employee/*").hasRole("EMPLOYEE")
+            .requestMatchers("/admin/**").permitAll()
+            .requestMatchers("/customer/**").hasRole("CUSTOMER")
+            .requestMatchers("/employee/**").hasRole("EMPLOYEE")
             .anyRequest().authenticated());
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt
             .jwtAuthenticationConverter(jwtAuthenticationConverter)));
@@ -79,6 +69,8 @@ public class WebConfig {
 
     @Bean
     public ObjectMapper objectMapper(){
-        return new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper;
     }
 }

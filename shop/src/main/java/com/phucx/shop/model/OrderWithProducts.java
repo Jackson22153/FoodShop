@@ -1,10 +1,8 @@
-package com.phucx.account.model;
+package com.phucx.shop.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.phucx.account.constant.OrderStatus;
 
 import lombok.Data;
 import lombok.ToString;
@@ -27,20 +25,9 @@ public class OrderWithProducts {
     private String shipPostalCode;
     private String shipCountry;
 
-    private OrderStatus status;
-
-    public OrderWithProducts(Orders order){
-        this(order.getOrderID(), order.getCustomerID()!=null?order.getCustomerID().getCustomerID():null, 
-            order.getEmployeeID()!=null?order.getEmployeeID().getEmployeeID():null, order.getOrderDate(), 
-            order.getRequiredDate(), order.getShippedDate(), order.getShipVia(), order.getFreight(), 
-            order.getShipName(), order.getShipAddress(), order.getShipCity(), order.getShipRegion(), 
-            order.getShipPostalCode(), order.getShipCountry(), order.getStatus());
-    }
-
     public OrderWithProducts(Integer orderID, String customerID, String employeeID, LocalDateTime orderDate,
             LocalDateTime requiredDate, LocalDateTime shippedDate, Integer shipVia, Double freight, String shipName,
-            String shipAddress, String shipCity, String shipRegion, String shipPostalCode, String shipCountry,
-            OrderStatus status) {
+            String shipAddress, String shipCity, String shipRegion, String shipPostalCode, String shipCountry) {
         this();
         this.orderID = orderID;
         this.customerID = customerID;
@@ -56,13 +43,12 @@ public class OrderWithProducts {
         this.shipRegion = shipRegion;
         this.shipPostalCode = shipPostalCode;
         this.shipCountry = shipCountry;
-        this.status = status;
     }
 
     public OrderWithProducts(Integer orderID, String customerID, String employeeID, LocalDateTime orderDate,
             LocalDateTime requiredDate, LocalDateTime shippedDate, List<OrderItem> products, Integer shipVia,
             Double freight, String shipName, String shipAddress, String shipCity, String shipRegion,
-            String shipPostalCode, String shipCountry, OrderStatus status) {
+            String shipPostalCode, String shipCountry) {
         this.orderID = orderID;
         this.customerID = customerID;
         this.employeeID = employeeID;
@@ -78,7 +64,6 @@ public class OrderWithProducts {
         this.shipRegion = shipRegion;
         this.shipPostalCode = shipPostalCode;
         this.shipCountry = shipCountry;
-        this.status = status;
     }
 
     public OrderWithProducts() {

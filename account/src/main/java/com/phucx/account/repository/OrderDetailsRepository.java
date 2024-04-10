@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.phucx.account.compositeKey.OrderDetailsKey;
-import com.phucx.account.constraint.OrderStatus;
+import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.model.OrderDetails;
 
 @Repository

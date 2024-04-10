@@ -12,7 +12,7 @@ import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.service.order.OrderService;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.config.WebConfig;
-import com.phucx.account.constraint.OrderStatus;
+import com.phucx.account.constant.OrderStatus;
 
 @Component
 @RabbitListener(queues = MessageQueueConfig.ORDER_QUEUE)
@@ -27,37 +27,32 @@ public class OrdersListener {
     }
     // validate order product's stocks
     private NotificationMessage validateOrder(OrderWithProducts order){
-        logger.info(order.toString());
+        logger.info("validate order {}", order.getOrderID());
         NotificationMessage notificationMessage = new NotificationMessage();
         notificationMessage.setContent("Your order is not valid");
-        if(order.getEmployeeID()!=null && order.getCustomerID()!=null){
-            boolean employeeUpdateCheck = orderService.updateOrderEmployee(order.getOrderID(), order.getEmployeeID());
-            if(employeeUpdateCheck){
-                try {
-                    boolean check = orderService.validateOrder(order);
-                    if(check){
-                        notificationMessage.setContent("Your order has been placed successfully");
-                        notificationMessage.setStatus(WebConfig.SUCCESSFUL_NOTIFICATION);
-                        orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Success);
-                    }else{
-                        notificationMessage.setContent("Your order has been canceled");
-                        notificationMessage.setStatus(WebConfig.FAILED_NOTIFICATION);
-                        orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Cancel);
+        try {
+            if(orderService.isPendingOrder(order.getOrderID())){
+                if(order.getEmployeeID()!=null && order.getCustomerID()!=null){
+                    boolean employeeUpdateCheck = orderService.updateOrderEmployee(order.getOrderID(), order.getEmployeeID());
+                    if(employeeUpdateCheck){
+                        boolean check = orderService.validateOrder(order);
+                        if(check){
+                            notificationMessage.setContent("Your order has been placed successfully");
+                            notificationMessage.setStatus(WebConfig.SUCCESSFUL_NOTIFICATION);
+                            orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Success);
+                        }else throw new RuntimeException("Order has been cancled");
+                    } else {
+                        logger.info("Can not update employeeID");
+                        throw new RuntimeException("Can not update employeeID");
                     }
-                } catch (RuntimeException e) {
-                    logger.error("Error: ", e.getMessage());
-                    notificationMessage.setContent("Dont have enough product instocks");
-                    notificationMessage.setStatus(WebConfig.FAILED_NOTIFICATION);
-                    orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Cancel);
                 }
-            } else {
-                // throw new RuntimeException("Can not update employeeID");
-                logger.info("Can not update employeeID");
-                notificationMessage.setContent("Can not update employeeID");
-                notificationMessage.setStatus(WebConfig.FAILED_NOTIFICATION);
-                orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Cancel);
             }
-        }
+        } catch (RuntimeException e) {
+            logger.info("Error: ", e.getMessage());
+            notificationMessage.setContent("Your order has been canceled");
+            notificationMessage.setStatus(WebConfig.FAILED_NOTIFICATION);
+            orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Cancel);
+        }   
         return notificationMessage;
     }
 

@@ -22,9 +22,9 @@ public interface CurrentProductListRepository extends JpaRepository<CurrentProdu
 
     Page<CurrentProductList> findByCategoryName(String categoryName, Pageable page);
 
-    @Query("""
-        SELECT c FROM CurrentProductList c \
-        WHERE c.productID IN ?1
-        """)
-    List<CurrentProductList> findByProductILists(List<Integer> productIDs);
+    // @Query("""
+    //     SELECT c FROM CurrentProductList c \
+    //     WHERE c.productID IN ?1
+    //     """)
+    // List<CurrentProductList> findByProductILists(List<Integer> productIDs);
 }

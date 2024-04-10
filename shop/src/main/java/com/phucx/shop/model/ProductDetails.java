@@ -1,5 +1,6 @@
 package com.phucx.shop.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.springframework.data.annotation.Immutable;
 
@@ -22,8 +23,8 @@ public class ProductDetails{
     private Integer unitsOnOrder;
     private Integer reorderLevel;
 
-    private Integer discountID;
-    private Float discountAmount;
+    private String discountID;
+    private BigDecimal discountPercent;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 

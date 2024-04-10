@@ -2,10 +2,9 @@ package com.phucx.account.model;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.phucx.account.constraint.OrderStatus;
+import com.phucx.account.constant.OrderStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -73,7 +72,6 @@ public class Orders {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    // private String status;
 
     public Orders(Customers customerID, Employees employeeID, LocalDateTime orderDate, LocalDateTime requiredDate,
             LocalDateTime shippedDate, Integer shipVia, Double freight, String shipName, String shipAddress,

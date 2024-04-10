@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.model.Categories;
-import com.phucx.account.model.Discounts;
+import com.phucx.account.model.Discount;
+import com.phucx.account.model.DiscountWithProduct;
 import com.phucx.account.model.ProductDetails;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.categories.CategoriesService;
-import com.phucx.account.service.discounts.DiscountsService;
+import com.phucx.account.service.discounts.DiscountService;
 import com.phucx.account.service.products.ProductService;
 
 
@@ -23,7 +25,7 @@ public class AdminController {
     @Autowired
     private ProductService productService;
     @Autowired
-    private DiscountsService discountsService;
+    private DiscountService discountsService;
     @Autowired
     private CategoriesService categoriesService;
 
@@ -48,9 +50,10 @@ public class AdminController {
     // discount
     @PutMapping("/discount")
     public ResponseEntity<ResponseFormat> insertDiscount(
-        @RequestBody Discounts discount
-    ){
-        Boolean status = discountsService.insertDiscount(discount);
+        @RequestBody DiscountWithProduct discount
+    ) throws InvalidDiscountException, RuntimeException{
+        Discount newDiscount = discountsService.insertDiscount(discount);
+        boolean status = newDiscount!=null?true:false;
         ResponseFormat data = new ResponseFormat(status);
 
         return ResponseEntity.ok().body(data);
@@ -58,10 +61,19 @@ public class AdminController {
 
     @PostMapping("/discount")
     public ResponseEntity<ResponseFormat> updateDiscount(
-        @RequestBody Discounts discount
-    ){
+        @RequestBody Discount discount
+    ) throws InvalidDiscountException{
         Boolean status = discountsService.updateDiscount(discount);
         ResponseFormat data = new ResponseFormat(status);
+        return ResponseEntity.ok().body(data);
+    }
+
+    @PostMapping("/discount/status")
+    public ResponseEntity<ResponseFormat> updateDiscountStatus(
+        @RequestBody Discount discount
+    ) throws InvalidDiscountException{
+        Boolean check = discountsService.updateDiscountStatus(discount);
+        ResponseFormat data = new ResponseFormat(check);
         return ResponseEntity.ok().body(data);
     }
 

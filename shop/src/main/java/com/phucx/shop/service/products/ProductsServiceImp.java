@@ -79,8 +79,7 @@ public class ProductsServiceImp implements ProductsService{
         List<Integer> productIDs = salesByCategory.stream()
             .map(product -> product.getProductID())
             .collect(Collectors.toList());
-        List<CurrentProductList> products = currentProductListRepository
-            .findByProductILists(productIDs);
+        List<CurrentProductList> products = currentProductListRepository.findAllById(productIDs);
         return products;
     }
 

@@ -1,5 +1,6 @@
 package com.phucx.account.service.customers;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,13 +9,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.phucx.account.config.MessageQueueConfig;
+import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.model.CustomerAccounts;
 import com.phucx.account.model.Customers;
+import com.phucx.account.model.OrderItem;
+import com.phucx.account.model.OrderWithProducts;
+import com.phucx.account.model.Orders;
 import com.phucx.account.repository.CustomerAccountsRepository;
 import com.phucx.account.repository.CustomersRepository;
+import com.phucx.account.service.discounts.DiscountService;
 import com.phucx.account.service.github.GithubService;
-import com.phucx.account.service.messageQueue.sender.MessageSender;
+import com.phucx.account.service.order.OrderService;
+
+import jakarta.ws.rs.NotFoundException;
 
 @Service
 public class CustomersServiceImp implements CustomersService {
@@ -26,7 +33,9 @@ public class CustomersServiceImp implements CustomersService {
     @Autowired
     private CustomerAccountsRepository customerAccountsRepository;
     @Autowired
-    private MessageSender messageSender;
+    private OrderService orderService;
+    @Autowired
+    private DiscountService discountService;
 
 	@Override
 	public boolean updateCustomerInfo(Customers customer) {
@@ -84,7 +93,6 @@ public class CustomersServiceImp implements CustomersService {
     public boolean createCustomer(Customers customer){
         try {
             var customerOP = customersRepository.findById(customer.getCustomerID());
-            // System.out.println(customerOP.get());
             if(customerOP.isEmpty()){
                 Customers c = customersRepository.save(customer);
                 if(c!=null) return true;
@@ -107,14 +115,23 @@ public class CustomersServiceImp implements CustomersService {
         if(customerOp.isPresent()) return customerOp.get();
         return null;
 	}
-    // @Override
-    // public boolean placeOrder(UserOrderProducts userOrderProducts) {
-    //     try {
-    //         messageSender.send(MessageQueueConfig.ORDER_QUEUE, MessageQueueConfig.ORDER_ROUTING_KEY, userOrderProducts);
-    //         return true;
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         return false;
-    //     }
-    // }
+    @Override
+    public OrderWithProducts placeOrder(OrderWithProducts order) throws InvalidDiscountException {
+        if(order.getCustomerID()!=null){
+            LocalDateTime currenDateTime = LocalDateTime.now();
+            order.setOrderDate(currenDateTime);
+            // validate discount of product
+            for(OrderItem orderItem: order.getProducts()){
+                boolean isValid = discountService.validateDiscount(orderItem);
+                if(!isValid){
+                    throw new InvalidDiscountException("Discount is not valid");
+                }
+            }
+            // save order
+            Orders pendingOrder = orderService.saveOrder(order);
+            order.setOrderID(pendingOrder.getOrderID());
+            return order;
+        }
+        throw new NotFoundException("Customer is not found");
+    }
 }

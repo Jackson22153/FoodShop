@@ -1,5 +1,7 @@
 package com.phucx.gateway.filter;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -17,7 +19,7 @@ public class RequestHeaderFilter implements GlobalFilter{
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return Mono.fromRunnable(()->{
-            logger.info("RequestHeaderFilter");
+            logger.info("RequestHeaderFilter, id: {}", UUID.randomUUID().toString());
         }).then(chain.filter(exchange));
     }
     

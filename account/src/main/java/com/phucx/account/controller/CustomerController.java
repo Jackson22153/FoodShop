@@ -13,12 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.model.Customers;
 import com.phucx.account.model.OrderWithProducts;
-import com.phucx.account.model.Orders;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.customers.CustomersService;
-import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.users.UsersService;
 
 import jakarta.ws.rs.NotFoundException;
@@ -32,9 +31,6 @@ public class CustomerController {
     private CustomersService customersService;
     @Autowired
     private UsersService usersService;
-    @Autowired
-    private OrderService orderService;
-
 
     @GetMapping("info")
     public ResponseEntity<Customers> getUserInfo(Authentication authentication){
@@ -57,18 +53,16 @@ public class CustomerController {
     @MessageMapping("/placeOrder")
     @SendTo("/topic/order")
     public OrderWithProducts placeOrder(
-        @RequestBody OrderWithProducts order,
-        Authentication authentication
-    ){
+        Authentication authentication,
+        @RequestBody OrderWithProducts order
+    ) throws InvalidDiscountException{
+
         String username = usersService.getUsername(authentication);
         Customers customer = customersService.getCustomerDetail(username);
         logger.info("Customer {} has placed an order: {}",username, order.toString());
         if(customer!=null){
             order.setCustomerID(customer.getCustomerID());
-            Orders pendingOrder = orderService.saveOrder(order);
-            order.setOrderID(pendingOrder.getOrderID());
-            // order.setOrderID(1234);
-            return order;
+            return customersService.placeOrder(order);
         }
         throw new NotFoundException("Customer is not found");
     }

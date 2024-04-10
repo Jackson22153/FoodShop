@@ -1,12 +1,9 @@
 package com.phucx.account.controller;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -18,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.phucx.account.config.WebConfig;
 import com.phucx.account.config.WebSocketConfig;
+import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.Employees;
 import com.phucx.account.model.NotificationMessage;
 import com.phucx.account.model.OrderWithProducts;
@@ -40,8 +37,6 @@ public class EmployeeController {
     private SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
     private OrderService orderService;
-
-    private final int PAGE_SIZE = 10;
 
     @GetMapping("info")
     public ResponseEntity<Employees> getUserInfo(Authentication authentication){
@@ -66,7 +61,7 @@ public class EmployeeController {
         @RequestParam(name = "page", required = false) Integer page
     ){
         page = page!=null?page:0;
-        return ResponseEntity.ok().body(orderService.getPendingOrders(page, PAGE_SIZE));
+        return ResponseEntity.ok().body(orderService.getPendingOrders(page, WebConstant.PAGE_SIZE));
     }
 
     @MessageMapping("/order.validate")

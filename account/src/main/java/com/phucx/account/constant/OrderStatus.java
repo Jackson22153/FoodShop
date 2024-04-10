@@ -1,4 +1,4 @@
-package com.phucx.account.constraint;
+package com.phucx.account.constant;
 
 public enum OrderStatus {
     Pending,
