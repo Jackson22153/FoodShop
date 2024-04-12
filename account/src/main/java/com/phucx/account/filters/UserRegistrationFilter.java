@@ -27,7 +27,7 @@ public class UserRegistrationFilter extends GenericFilter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
             throws IOException, ServletException {
-        logger.info("UserRegistrationFilter id:{}", UUID.randomUUID().toString());
+        logger.info("UserRegistrationFilter");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication!=null){
             if(authentication.getPrincipal() instanceof Jwt){

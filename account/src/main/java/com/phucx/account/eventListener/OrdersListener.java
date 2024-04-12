@@ -35,7 +35,7 @@ public class OrdersListener {
                 if(order.getEmployeeID()!=null && order.getCustomerID()!=null){
                     boolean employeeUpdateCheck = orderService.updateOrderEmployee(order.getOrderID(), order.getEmployeeID());
                     if(employeeUpdateCheck){
-                        boolean check = orderService.validateOrder(order);
+                        boolean check = orderService.validateAndProcessOrder(order);
                         if(check){
                             notificationMessage.setContent("Your order has been placed successfully");
                             notificationMessage.setStatus(WebConfig.SUCCESSFUL_NOTIFICATION);

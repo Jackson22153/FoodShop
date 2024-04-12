@@ -14,14 +14,14 @@ import com.phucx.account.model.OrderDetails;
 public interface OrderDetailsRepository extends JpaRepository<OrderDetails, OrderDetailsKey>{
     @Query("""
         SELECT od FROM OrderDetails od \
-        WHERE od.key.orderID.orderID=?1 AND \
-            od.key.orderID.status=?2  
+        WHERE od.key.order.orderID=?1 AND \
+            od.key.order.status=?2  
         """)
     List<OrderDetails> findByOrderStatus(Integer orderID, OrderStatus status);
 
     @Query("""
         SELECT od FROM OrderDetails od \
-        WHERE od.key.orderID.orderID=?1
+        WHERE od.key.order.orderID=?1
         """)
     List<OrderDetails> findByOrderID(Integer orderID);
 }

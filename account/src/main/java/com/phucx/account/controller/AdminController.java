@@ -61,7 +61,7 @@ public class AdminController {
 
     @PostMapping("/discount")
     public ResponseEntity<ResponseFormat> updateDiscount(
-        @RequestBody Discount discount
+        @RequestBody DiscountWithProduct discount
     ) throws InvalidDiscountException{
         Boolean status = discountsService.updateDiscount(discount);
         ResponseFormat data = new ResponseFormat(status);

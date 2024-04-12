@@ -1,11 +1,11 @@
 package com.phucx.account.constant;
 
-public enum DiscountType {
+public enum DiscountTypeConst {
     Code("code"),
-    Percentage_based("percentage_based");
+    Percentage_based("percentage-based");
 
     private String value;
-    DiscountType(String value){
+    DiscountTypeConst(String value){
         this.value = value;
     }
     public String getValue(){

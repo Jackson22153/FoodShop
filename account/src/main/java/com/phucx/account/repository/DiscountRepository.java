@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.phucx.account.constant.DiscountType;
 import com.phucx.account.model.Discount;
+import com.phucx.account.model.DiscountType;
 
 
 @Repository

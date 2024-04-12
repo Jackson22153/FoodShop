@@ -1,8 +1,11 @@
 package com.phucx.account.service.customers;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,14 +13,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.exception.InvalidDiscountException;
+import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.CustomerAccounts;
 import com.phucx.account.model.Customers;
 import com.phucx.account.model.OrderItem;
+import com.phucx.account.model.OrderItemDiscount;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.Orders;
 import com.phucx.account.repository.CustomerAccountsRepository;
 import com.phucx.account.repository.CustomersRepository;
-import com.phucx.account.service.discounts.DiscountService;
 import com.phucx.account.service.github.GithubService;
 import com.phucx.account.service.order.OrderService;
 
@@ -25,7 +29,7 @@ import jakarta.ws.rs.NotFoundException;
 
 @Service
 public class CustomersServiceImp implements CustomersService {
-    // private Logger logger = LoggerFactory.getLogger(CustomersServiceImp.class);
+    private Logger logger = LoggerFactory.getLogger(CustomersServiceImp.class);
     @Autowired
     private CustomersRepository customersRepository;
     @Autowired
@@ -34,8 +38,6 @@ public class CustomersServiceImp implements CustomersService {
     private CustomerAccountsRepository customerAccountsRepository;
     @Autowired
     private OrderService orderService;
-    @Autowired
-    private DiscountService discountService;
 
 	@Override
 	public boolean updateCustomerInfo(Customers customer) {
@@ -116,19 +118,35 @@ public class CustomersServiceImp implements CustomersService {
         return null;
 	}
     @Override
-    public OrderWithProducts placeOrder(OrderWithProducts order) throws InvalidDiscountException {
+    public OrderWithProducts placeOrder(OrderWithProducts order) 
+        throws InvalidDiscountException, NotFoundException, RuntimeException, SQLException, InvalidOrderException 
+    {
         if(order.getCustomerID()!=null){
             LocalDateTime currenDateTime = LocalDateTime.now();
+            logger.info("Current datetime: {}", currenDateTime);
+
             order.setOrderDate(currenDateTime);
-            // validate discount of product
-            for(OrderItem orderItem: order.getProducts()){
-                boolean isValid = discountService.validateDiscount(orderItem);
-                if(!isValid){
-                    throw new InvalidDiscountException("Discount is not valid");
+            // // validate discount of product
+            // for(OrderItem orderItem: order.getProducts()){
+
+            //     boolean isValid = discountService.validateDiscount(orderItem);
+            //     if(!isValid){
+            //         throw new InvalidDiscountException("Discount is not valid");
+            //     }
+            // }
+            // set applieddate for discount;
+            for (OrderItem product : order.getProducts()) {
+                for(OrderItemDiscount discount : product.getDiscounts()){
+                    discount.setAppliedDate(currenDateTime);
                 }
             }
+
+
+            // validate order
+            boolean isValidOrder = orderService.validateOrder(order);
+            if(!isValidOrder) throw new InvalidOrderException("Order is not valid");
             // save order
-            Orders pendingOrder = orderService.saveOrder(order);
+            Orders pendingOrder = orderService.saveFullOrder(order);
             order.setOrderID(pendingOrder.getOrderID());
             return order;
         }

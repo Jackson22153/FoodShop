@@ -20,8 +20,8 @@ public class OrderDetailsDiscountsID {
         @JoinColumn(name = "productID"),
         @JoinColumn(name = "orderID")
     })
-    private OrderDetails orderDetailID;
+    private OrderDetails orderDetail;
     @ManyToOne
     @JoinColumn(name = "discountID")
-    private Discount discountID;
+    private Discount discount;
 }

@@ -6,12 +6,10 @@ import java.time.LocalDateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.phucx.account.constant.DiscountType;
-
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,7 +25,9 @@ public class Discount {
     @Id
     private String discountID;
     private BigDecimal discountPercent;
-    @Enumerated(EnumType.STRING)
+    // @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "discountTypeID")
     private DiscountType discountType;
     private String discountCode;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

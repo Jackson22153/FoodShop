@@ -16,9 +16,9 @@ import lombok.NoArgsConstructor;
 public class OrderDetailsKey {
     @ManyToOne
     @JoinColumn(name = "ProductID")
-    private Products productID;
+    private Products product;
     
     @ManyToOne
     @JoinColumn(name = "OrderID")
-    private Orders orderID;
+    private Orders order;
 }
