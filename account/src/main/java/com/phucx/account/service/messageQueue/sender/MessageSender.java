@@ -8,4 +8,6 @@ public interface MessageSender {
     public void send(String exchange, String routingKey, OrderWithProducts order);
 
     public NotificationMessage sendAndReceiveOrder(String exchange, String routingKey, OrderWithProducts order);
+
+    public void sendMessageToUser(String userID, NotificationMessage notificationMessage);
 }

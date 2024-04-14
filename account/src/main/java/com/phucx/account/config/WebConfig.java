@@ -34,8 +34,8 @@ public class WebConfig {
     public final static String ROLE_ADMIN = "ROLE_ADMIN";
 
     // status notification
-    public final static String FAILED_NOTIFICATION="faile";
-    public final static String SUCCESSFUL_NOTIFICATION="success";
+    // public final static String FAILED_NOTIFICATION="fail";
+    // public final static String SUCCESSFUL_NOTIFICATION="success";
 
     @Bean
     public SecurityFilterChain dFilterChain(HttpSecurity http) throws Exception{

@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.phucx.account.config.WebSocketConfig;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.Employees;
 import com.phucx.account.model.NotificationMessage;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.employees.EmployeesService;
+import com.phucx.account.service.messageQueue.sender.MessageSender;
 import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.users.UsersService;
 
@@ -37,6 +37,8 @@ public class EmployeeController {
     private SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private MessageSender messageSender;
 
     @GetMapping("info")
     public ResponseEntity<Employees> getUserInfo(Authentication authentication){
@@ -68,18 +70,25 @@ public class EmployeeController {
     public void validateOrder(@RequestBody OrderWithProducts order,
         Authentication authentication
     ){
-        logger.info("employee {} has validated an order of {}", order.getEmployeeID(), order.getCustomerID());
         // // validate order
         // set employeeID that validates this order
         String username = usersService.getUsername(authentication);
         Employees employees = employeesService.getEmployeeDetail(username);
         order.setEmployeeID(employees.getEmployeeID());
+
+        logger.info("employee {} has validated an order of customer {}", 
+            order.getEmployeeID(), order.getCustomerID());
         // get notification after validate with database
         NotificationMessage notificationMessage = employeesService.placeOrder(order);
+        
         // send notification message back to customer
+        // get recipientID to send to a specific user
+        String recipientID = usersService.getUserIdOfCustomerID(order.getCustomerID());
+        logger.info("recipientID: {}", recipientID);
         logger.info("notification: {}", notificationMessage.toString());
-        this.simpMessagingTemplate.convertAndSendToUser(
-            order.getCustomerID(), WebSocketConfig.QUEUE_MESSAGES, 
-            notificationMessage);
+        messageSender.sendMessageToUser(recipientID, notificationMessage);
+        // this.simpMessagingTemplate.convertAndSendToUser(
+        //     order.getCustomerID(), WebSocketConfig.QUEUE_MESSAGES, 
+        //     notificationMessage);
     }
 }

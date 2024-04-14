@@ -90,7 +90,7 @@ public class CustomerController {
         String username = usersService.getUsername(authentication);
         Customers customer = customersService.getCustomerDetail(username);
         NotificationMessage notificationMessage = new NotificationMessage(
-            "Error during processing order", Notification.CANCEL.name());
+            "Error during processing order", Notification.CANCEL);
         simpMessagingTemplate.convertAndSendToUser(customer.getCustomerID(), 
             WebSocketConfig.QUEUE_MESSAGES, notificationMessage);
     }
@@ -99,7 +99,7 @@ public class CustomerController {
         String username = usersService.getUsername(authentication);
         Customers customer = customersService.getCustomerDetail(username);
         NotificationMessage notificationMessage = new NotificationMessage(
-            "Invalid discount", Notification.CANCEL.name());
+            "Invalid discount", Notification.CANCEL);
         simpMessagingTemplate.convertAndSendToUser(customer.getCustomerID(), 
             WebSocketConfig.QUEUE_MESSAGES, notificationMessage);
     }
@@ -109,7 +109,7 @@ public class CustomerController {
         String username = usersService.getUsername(authentication);
         Customers customer = customersService.getCustomerDetail(username);
         NotificationMessage notificationMessage = new NotificationMessage(
-            "Invalid order", Notification.CANCEL.name());
+            "Invalid order", Notification.CANCEL);
         simpMessagingTemplate.convertAndSendToUser(customer.getCustomerID(), 
             WebSocketConfig.QUEUE_MESSAGES, notificationMessage);
     }

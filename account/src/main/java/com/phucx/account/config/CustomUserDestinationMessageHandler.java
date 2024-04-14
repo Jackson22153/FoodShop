@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.SubscribableChannel;
-import org.springframework.messaging.simp.stomp.StompBrokerRelayMessageHandler;
-import org.springframework.messaging.simp.user.DefaultUserDestinationResolver;
 import org.springframework.messaging.simp.user.UserDestinationMessageHandler;
 import org.springframework.messaging.simp.user.UserDestinationResolver;
 
@@ -33,7 +31,7 @@ public class CustomUserDestinationMessageHandler extends UserDestinationMessageH
             logger.info("SessionIds {}", result.getSessionIds());
             logger.info("subscibeDestion {}", result.getSubscribeDestination());
         } catch (Exception e) {
-            // TODO: handle exception
+            logger.error("Error: {}", e.getMessage());
         }
     }
   

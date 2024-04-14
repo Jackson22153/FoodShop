@@ -11,7 +11,7 @@ import com.phucx.account.model.NotificationMessage;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.service.order.OrderService;
 import com.phucx.account.config.MessageQueueConfig;
-import com.phucx.account.config.WebConfig;
+import com.phucx.account.constant.Notification;
 import com.phucx.account.constant.OrderStatus;
 
 @Component
@@ -38,7 +38,7 @@ public class OrdersListener {
                         boolean check = orderService.validateAndProcessOrder(order);
                         if(check){
                             notificationMessage.setContent("Your order has been placed successfully");
-                            notificationMessage.setStatus(WebConfig.SUCCESSFUL_NOTIFICATION);
+                            notificationMessage.setStatus(Notification.SUCCESS);
                             orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Success);
                         }else throw new RuntimeException("Order has been cancled");
                     } else {
@@ -48,9 +48,9 @@ public class OrdersListener {
                 }
             }
         } catch (RuntimeException e) {
-            logger.info("Error: ", e.getMessage());
+            logger.info("Error: {}", e.getMessage());
             notificationMessage.setContent("Your order has been canceled");
-            notificationMessage.setStatus(WebConfig.FAILED_NOTIFICATION);
+            notificationMessage.setStatus(Notification.FAIL);
             orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Cancel);
         }   
         return notificationMessage;

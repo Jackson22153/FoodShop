@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.phucx.account.model.CustomerAccounts;
+import java.util.Optional;
+
 
 
 @Repository
@@ -19,4 +21,6 @@ public interface CustomerAccountsRepository extends JpaRepository<CustomerAccoun
     @Procedure(name = "createCustomerInfo")
     public void createCustomerInfo(@Param("customerID") String customerID, 
         @Param("contactName") String contactName, @Param("username") String username);
+    
+    Optional<CustomerAccounts> findByCustomerID(String customerID);
 }

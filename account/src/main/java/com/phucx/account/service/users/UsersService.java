@@ -15,4 +15,7 @@ public interface UsersService {
     
     public String getUsername(Authentication authentication);
     public String getUserID(Authentication authentication);
+
+    public String getUserIdOfCustomerID(String customerID);
+    public String getUserIdOfEmployeeID(String employeeID);
 }

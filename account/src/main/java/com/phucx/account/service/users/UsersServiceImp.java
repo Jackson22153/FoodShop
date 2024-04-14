@@ -10,12 +10,18 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.config.WebConfig;
+import com.phucx.account.model.CustomerAccounts;
+import com.phucx.account.model.EmployeeAccounts;
 import com.phucx.account.model.Roles;
 import com.phucx.account.model.UserRoles;
 import com.phucx.account.model.UserRolesUtils;
 import com.phucx.account.model.Users;
+import com.phucx.account.repository.CustomerAccountsRepository;
+import com.phucx.account.repository.EmployeeAccountsRepository;
 import com.phucx.account.repository.UserRolesRepository;
 import com.phucx.account.repository.UsersRepository;
+
+import jakarta.ws.rs.NotFoundException;
 
 @Service
 public class UsersServiceImp implements UsersService {
@@ -25,6 +31,10 @@ public class UsersServiceImp implements UsersService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRolesRepository userRolesRepository;
+    @Autowired
+    private CustomerAccountsRepository customerAccountsRepository;
+    @Autowired
+    private EmployeeAccountsRepository employeeAccountsRepository;
     @Override
     public Users getUser(String username) {
         Users user = usersRepository.findByUsername(username);
@@ -84,5 +94,17 @@ public class UsersServiceImp implements UsersService {
         Jwt jwt = (Jwt) authentication.getPrincipal();
         String userID = jwt.getSubject();
         return userID;
+    }
+    @Override
+    public String getUserIdOfCustomerID(String customerID) {
+        CustomerAccounts customerAccounts = customerAccountsRepository.findByCustomerID(customerID)
+            .orElseThrow(()-> new NotFoundException("Customer "+customerID+" does not found"));
+        return customerAccounts.getUserID();
+    }
+    @Override
+    public String getUserIdOfEmployeeID(String employeeID) {
+        EmployeeAccounts employeeAccounts = employeeAccountsRepository.findByEmployeeID(employeeID)
+            .orElseThrow(()-> new NotFoundException("Employee "+ employeeID +" does not found"));
+        return employeeAccounts.getEmployeeID();
     }
 }
