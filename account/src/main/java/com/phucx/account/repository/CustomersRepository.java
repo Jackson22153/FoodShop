@@ -2,14 +2,8 @@ package com.phucx.account.repository;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.phucx.account.model.Customers;
-
-import jakarta.validation.constraints.Size;
 
 @Repository
 public interface CustomersRepository extends JpaRepository<Customers, String>{
@@ -27,18 +21,18 @@ public interface CustomersRepository extends JpaRepository<Customers, String>{
     //     """)
     // Page<Customers> findByLetter(@Size(max = 40) String letter, Pageable page);
 
-    @Modifying
-    @Transactional
-    @Query("""
-        UPDATE Customers \
-        SET companyName=?1, contactName=?2, contactTitle=?3, address=?4, \
-            city=?5, region=?6, postalCode=?7, country=?8, phone=?9, fax=?10, picture=?11 \
-        WHERE customerID=?12\
-        """)
-    Integer updateCustomer(@Size(max = 40) String companyName,
-        @Size(max = 30) String contactName,@Size(max = 30) String contactTitle,
-        @Size(max = 60) String address,@Size(max = 15) String city,@Size(max = 15) String region,
-        @Size(max = 10) String postalCode,@Size(max = 15) String country,@Size(max = 24) String phone,
-        @Size(max = 24) String fax,@Size(max = 256) String picture, @Size(min = 36, max = 36) String customerID);
+    // @Modifying
+    // @Transactional
+    // @Query("""
+    //     UPDATE Customers \
+    //     SET companyName=?1, contactName=?2, contactTitle=?3, address=?4, \
+    //         city=?5, region=?6, postalCode=?7, country=?8, phone=?9, fax=?10, picture=?11 \
+    //     WHERE customerID=?12\
+    //     """)
+    // Integer updateCustomer(@Size(max = 40) String companyName,
+    //     @Size(max = 30) String contactName,@Size(max = 30) String contactTitle,
+    //     @Size(max = 60) String address,@Size(max = 15) String city,@Size(max = 15) String region,
+    //     @Size(max = 10) String postalCode,@Size(max = 15) String country,@Size(max = 24) String phone,
+    //     @Size(max = 24) String fax,@Size(max = 256) String picture, @Size(min = 36, max = 36) String customerID);
 
 }

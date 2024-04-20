@@ -1,5 +1,6 @@
 package com.phucx.shop.service.products;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,11 +77,12 @@ public class ProductsServiceImp implements ProductsService{
         var salesByCategory = salesByCategoryRepository
             .findAllByOrderByProductSalesDesc(page);
 
-        List<Integer> productIDs = salesByCategory.stream()
-            .map(product -> product.getProductID())
-            .collect(Collectors.toList());
-        List<CurrentProductList> products = currentProductListRepository.findAllById(productIDs);
-        return products;
+        // List<Integer> productIDs = salesByCategory.stream()
+        //     .map(product -> product.getProductID())
+        //     .collect(Collectors.toList());
+        // List<CurrentProductList> products = currentProductListRepository.findAllById(productIDs);
+        // return products;
+        return new ArrayList<>();
     }
 
     @Override

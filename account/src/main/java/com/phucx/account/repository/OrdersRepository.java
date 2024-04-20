@@ -26,7 +26,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Integer>{
     @Modifying
     @Transactional
     @Query("""
-        UPDATE Orders SET employeeID.employeeID=?2 WHERE orderID=?1    
+        UPDATE Orders SET employee.employeeID=?2 WHERE orderID=?1    
         """)
     public Integer updateOrderEmployeeID(Integer orderID, String employeeID);
     
@@ -34,5 +34,10 @@ public interface OrdersRepository extends JpaRepository<Orders, Integer>{
         SELECT o FROM Orders o WHERE o.status=?1    
         """)
     Page<Orders> findByStatus(OrderStatus status, Pageable pageable);
+
+    @Query("""
+        SELECT o FROM Orders o WHERE o.customer.customerID=?1
+        """)
+    Page<Orders> findByCustomerID(String customerID, Pageable page);
     
 } 

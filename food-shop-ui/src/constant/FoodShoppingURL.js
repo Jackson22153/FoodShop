@@ -9,10 +9,18 @@ export const cartPath = `${homePath}/cart`;
 export const contactPath = `${homePath}/contact`;
 export const userPath = `${homePath}/user`;
 export const customerPath = `${userPath}/customer`;
+export const employeePath = `${userPath}/employee`;
 export const adminPath = `${userPath}/admin`;
-// admin path
-export const foodsAdminPath = `${adminPath}/foods`
 
+export const foodsAdminPath = `${adminPath}/foods`
+// customerPath
+export const customerInfo = `${customerPath}/info`
+export const customerOrder = `${customerPath}/order`
+export const customerNotification = `${customerPath}/notification`
+// employeePath
+export const employeeInfo = `${employeePath}/info`
+export const employeeOrder = `${employeePath}/order`
+export const employeeNotification = `${employeePath}/notification`
 
 // product
 export function SearchFoodsPath(search){

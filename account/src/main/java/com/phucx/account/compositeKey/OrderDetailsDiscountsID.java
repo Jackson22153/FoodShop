@@ -17,11 +17,11 @@ import lombok.NoArgsConstructor;
 public class OrderDetailsDiscountsID {
     @ManyToOne
     @JoinColumns({
-        @JoinColumn(name = "productID"),
-        @JoinColumn(name = "orderID")
+        @JoinColumn(name = "ProductID", referencedColumnName = "ProductID"),
+        @JoinColumn(name = "OrderID", referencedColumnName = "OrderID")
     })
     private OrderDetails orderDetail;
     @ManyToOne
-    @JoinColumn(name = "discountID")
+    @JoinColumn(name = "DiscountID", referencedColumnName = "DiscountID")
     private Discount discount;
 }

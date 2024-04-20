@@ -27,11 +27,10 @@ public interface EmployeesRepository extends JpaRepository<Employees, String>{
     @Query("""
             UPDATE Employees \
             SET firstName=?1, lastName=?2, birthDate=?3, address=?4, \
-                city=?5, region=?6, country=?7, homePhone=?8, photo=?9 \
-            WHERE employeeID=?10\
+                city=?5, homePhone=?6, photo=?7 \
+            WHERE employeeID=?8\
             """)
-    Integer updateEmployee(@Size(max = 10)String firstName,@Size(max = 20) String lastName, 
-        LocalDate birthDate, @Size(max = 60)String address,@Size(max = 15) String city,
-        @Size(max = 15) String region,@Size(max = 15) String country,@Size(max = 24)String homePhone,
-        String photo,@Size(min = 36, max = 36) String employeeID);
+    Integer updateEmployee(@Size(max = 10)String firstName, @Size(max = 20) String lastName, 
+        LocalDate birthDate, @Size(max = 200)String address,@Size(max = 50) String city,
+        @Size(max = 24)String homePhone, String photo, @Size(min = 36, max = 36) String employeeID);
 }

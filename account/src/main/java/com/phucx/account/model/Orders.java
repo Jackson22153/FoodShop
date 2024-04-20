@@ -30,11 +30,11 @@ public class Orders {
 
     @ManyToOne
     @JoinColumn(name = "CustomerID", nullable = true)
-    private Customers customerID;
+    private Customers customer;
 
     @ManyToOne
     @JoinColumn(name = "EmployeeID", nullable = true)
-    private Employees employeeID;
+    private Employees employee;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "OrderDate")
@@ -55,29 +55,29 @@ public class Orders {
     @Column(name = "ShipName", length = 40)
     private String shipName;
 
-    @Column(name = "ShipAddress", length = 60)
+    @Column(name = "ShipAddress", length = 200)
     private String shipAddress;
 
-    @Column(name = "ShipCity", length = 15)
+    @Column(name = "ShipCity", length = 50)
     private String shipCity;
 
-    @Column(name = "ShipRegion", length = 15)
-    private String shipRegion;
+    // @Column(name = "ShipRegion", length = 15)
+    // private String shipRegion;
 
-    @Column(name = "ShipPostalCode", length = 10)
-    private String shipPostalCode;
+    // @Column(name = "ShipPostalCode", length = 10)
+    // private String shipPostalCode;
 
-    @Column(name = "ShipCountry", length = 15)
-    private String shipCountry;
+    // @Column(name = "ShipCountry", length = 15)
+    // private String shipCountry;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    public Orders(Customers customerID, Employees employeeID, LocalDateTime orderDate, LocalDateTime requiredDate,
+    public Orders(Customers customer, Employees employee, LocalDateTime orderDate, LocalDateTime requiredDate,
             LocalDateTime shippedDate, Integer shipVia, Double freight, String shipName, String shipAddress,
-            String shipCity, String shipRegion, String shipPostalCode, String shipCountry, OrderStatus status) {
-        this.customerID = customerID;
-        this.employeeID = employeeID;
+            String shipCity, OrderStatus status) {
+        this.customer = customer;
+        this.employee = employee;
         this.orderDate = orderDate;
         this.requiredDate = requiredDate;
         this.shippedDate = shippedDate;
@@ -86,9 +86,6 @@ public class Orders {
         this.shipName = shipName;
         this.shipAddress = shipAddress;
         this.shipCity = shipCity;
-        this.shipRegion = shipRegion;
-        this.shipPostalCode = shipPostalCode;
-        this.shipCountry = shipCountry;
         this.status = status;
     }
 

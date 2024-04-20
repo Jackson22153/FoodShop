@@ -20,6 +20,7 @@ import tastyFood from '../assets/images/tasty-image.png';
 import client from '../assets/images/client.png';
 
 import defaultImage from '../assets/images/defaultImage.png';
+import defaultUserImage from '../assets/images/defaultUser.jpg'
 
 
 export function getDefaulImage(){
@@ -67,4 +68,12 @@ export function getClient(){
 // slide
 export function getSlide(){
     return slideImage;
+}
+
+export function displayUserImage(picture){
+    return picture?picture: defaultUserImage
+    // return defaultUserImage
+}
+export function displayProductImage(picture){
+    return picture?picture: defaultImage
 }

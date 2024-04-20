@@ -10,9 +10,12 @@ import org.springframework.stereotype.Component;
 import com.phucx.account.model.NotificationMessage;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.service.order.OrderService;
+import com.phucx.account.annotations.LoggerAspect;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.constant.Notification;
 import com.phucx.account.constant.OrderStatus;
+import com.phucx.account.exception.InvalidDiscountException;
+import com.phucx.account.exception.InvalidOrderException;
 
 @Component
 @RabbitListener(queues = MessageQueueConfig.ORDER_QUEUE)
@@ -25,6 +28,8 @@ public class OrdersListener {
     public NotificationMessage receiver(OrderWithProducts order){
         return validateOrder(order);
     }
+    
+    @LoggerAspect
     // validate order product's stocks
     private NotificationMessage validateOrder(OrderWithProducts order){
         logger.info("validate order {}", order.getOrderID());
@@ -39,7 +44,7 @@ public class OrdersListener {
                         if(check){
                             notificationMessage.setContent("Your order has been placed successfully");
                             notificationMessage.setStatus(Notification.SUCCESS);
-                            orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Success);
+                            orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Successful);
                         }else throw new RuntimeException("Order has been cancled");
                     } else {
                         logger.info("Can not update employeeID");
@@ -51,8 +56,18 @@ public class OrdersListener {
             logger.info("Error: {}", e.getMessage());
             notificationMessage.setContent("Your order has been canceled");
             notificationMessage.setStatus(Notification.FAIL);
-            orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Cancel);
-        }   
+            orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Canceled);
+        } catch (InvalidDiscountException e){
+            logger.info("Error: Discount is invalid {}", e.getMessage());
+            notificationMessage.setContent("Your order has been canceled");
+            notificationMessage.setStatus(Notification.FAIL);
+            orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Canceled);
+        } catch(InvalidOrderException e){
+            logger.info("Error: Order is invalid {}", e.getMessage());
+            notificationMessage.setContent("Your order has been canceled");
+            notificationMessage.setStatus(Notification.FAIL);
+            orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Canceled);
+        }
         return notificationMessage;
     }
 

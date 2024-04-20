@@ -1,11 +1,8 @@
 package com.phucx.shop.model;
 
 import java.math.BigDecimal;
-import java.util.Date;
-
+import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -20,10 +17,10 @@ import lombok.ToString;
 @Table(name = "Discounts")
 public class Discount {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     private String discountID;
     private BigDecimal discountPercent;
-    private String discountTypeID;
-    private Date startDate;
-    private Date endDate;
+    private Integer discountTypeID;
+    private String discountCode;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
 }

@@ -30,5 +30,7 @@ import lombok.ToString;
 public class OrderDetailsDiscounts {
     @EmbeddedId
     private OrderDetailsDiscountsID id;
+    private Integer discountPercent;
     private LocalDateTime appliedDate;
+
 }

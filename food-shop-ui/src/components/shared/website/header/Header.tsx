@@ -1,14 +1,15 @@
 import { getLogo } from "../../../../service/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { cartPath, categoriesPath, foodsPath } from "../../../../constant/FoodShoppingURL";
+import { cartPath, categoriesPath, customerPath, foodsPath } from "../../../../constant/FoodShoppingURL";
 import { Category, Product, UserInfo } from "../../../../model/Type";
 import { convertNameForUrl, nonBreakingSpace } from "../../../../service/convertStr";
 import Search from "../../functions/search/Search";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
-import AppHeaderUser from "../../functions/appHeaderUser/AppHeaderUser";
-import { useContext, useRef } from "react";
+import { useContext } from "react";
 import { LoginUrl } from "../../../../constant/FoodShoppingApiURL";
 import userInfoContext from "../../../contexts/UserInfoContext";
+import { logout } from "../../../../api/AuthorizationApi";
+import { isOpeningUserDropDownContext } from "../../../ui/homePath/home/Home";
 
 interface Props{
     lstCategories: Category[]
@@ -23,21 +24,18 @@ function HeaderComponent(prop: Props){
     const lstCategories = prop.lstCategories;
     const searchInputValue = prop.searchInputValue;
     const searchResult = prop.searchResult;
-    const categoriesDropdownRef = useRef<HTMLDivElement>(null);
-
-
+    const isOpeningDropdown = useContext(isOpeningUserDropDownContext);
     const userInfo = useContext<UserInfo>(userInfoContext);
-    
-    const handleIsOpeningUserDropDown = (status: boolean) =>{
-        prop.handleIsOpeningUserDropDown(status);
+
+    const onClickIsOpenDropdown = ()=>{
+        prop.handleIsOpeningUserDropDown(!isOpeningDropdown);
     }
 
-    function onMouseEnterCategories(){
-        console.log("vailoz")
-        const categoryDropdown = categoriesDropdownRef.current;
-        if(categoryDropdown){
-            categoryDropdown.classList.toggle('show');
-        }
+    const onClickLogout = ()=>{
+        logout().then((_res) =>{
+
+            window.location.href = "/";
+        })
     }
     
 
@@ -51,20 +49,37 @@ function HeaderComponent(prop: Props){
 
 					<div className="right-topbar">
 
-                        {!userInfo.isAuthenticated ?
-                            <>
-                                <a href="" className="left-topbar-item">
-                                    Sing up
-                                </a>
-
-                                <a href={LoginUrl} className="left-topbar-item">
-                                    Log in
-                                </a>
-                            </>:
-                            <>
-                                <AppHeaderUser handleIsOpeningDropdown={handleIsOpeningUserDropDown}/>
-                            </>
-
+                        {userInfo.isAuthenticated ?
+                            <div className="navbar-expand-lg navbar-light text-white">
+                                <div className="collapse navbar-collapse" id="navbarNavDropdown">
+                                    <ul className="navbar-nav ml-auto">
+                                        <li className="nav-item dropdown">
+                                            <span className="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" 
+                                                data-toggle="dropdown" aria-haspopup={isOpeningDropdown} aria-expanded={isOpeningDropdown} 
+                                                onClick={onClickIsOpenDropdown}>
+                                                {userInfo.username}
+                                            </span>
+                                            {isOpeningDropdown &&
+                                                <div id="appheader-user" className={`dropdown-menu show`} 
+                                                    aria-labelledby="navbarDropdownMenuLink">
+                                                    <a className="dropdown-item cursor-pointer" href={customerPath}>Profile</a>
+                                                    <a className="dropdown-item cursor-pointer" href="#">Settings</a>
+                                                    <div className="dropdown-divider"></div>
+                                                    <span className="dropdown-item cursor-pointer" onClick={onClickLogout}>Logout</span>
+                                                </div>
+                                            }
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>:
+                            <ul className="nav-fill nav">
+                                <li className="nav-item">
+                                    <a href="" className="text-light nav-link">Sing up</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a href={LoginUrl} className="text-light nav-link">Log in</a>
+                                </li>
+                            </ul>
                         }
 					</div>
 				</div>
@@ -106,9 +121,6 @@ function HeaderComponent(prop: Props){
                                         </div>
                                     </div>
                                 </li>
-                                {/* <li className="nav-item">
-                                    <a className="nav-link" href={contactPath}>Contact us</a>
-                                </li> */}
                             </ul>
                             <form className="form-inline my-2 my-lg-0 ml-0 ml-lg-4 mb-3 mb-lg-0 search-form">
                                 <Search searchInputValue={searchInputValue} searchResult={searchResult}
@@ -122,15 +134,9 @@ function HeaderComponent(prop: Props){
                             </a>
                         </div>
                     </div>
-
-                    {/* <button type="button" className="btn btn-outline-primary">login</button> */}
                 </nav>
             </div>
         </header>
     )
 }
 export default HeaderComponent;
-
-function MutableRefObject<T>(arg0: null) {
-    throw new Error("Function not implemented.");
-}

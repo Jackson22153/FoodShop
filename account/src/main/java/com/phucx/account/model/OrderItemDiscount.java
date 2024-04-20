@@ -2,6 +2,8 @@ package com.phucx.account.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class OrderItemDiscount {
     private String discountID;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime appliedDate;
     // private String discountType;
 }

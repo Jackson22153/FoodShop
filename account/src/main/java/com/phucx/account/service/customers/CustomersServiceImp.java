@@ -12,20 +12,26 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.CustomerAccounts;
+import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.Customers;
+import com.phucx.account.model.InvoiceDTO;
+import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderItem;
 import com.phucx.account.model.OrderItemDiscount;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.Orders;
 import com.phucx.account.repository.CustomerAccountsRepository;
+import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.repository.CustomersRepository;
 import com.phucx.account.service.github.GithubService;
 import com.phucx.account.service.order.OrderService;
 
 import jakarta.ws.rs.NotFoundException;
+
 
 @Service
 public class CustomersServiceImp implements CustomersService {
@@ -38,57 +44,79 @@ public class CustomersServiceImp implements CustomersService {
     private CustomerAccountsRepository customerAccountsRepository;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private CustomerDetailRepository customerDetailRepository;
 
 	@Override
-	public boolean updateCustomerInfo(Customers customer) {
+	public boolean updateCustomerInfo(CustomerDetail customer) {
+        // return false;
+        logger.info("updateCustomerInfo({})", customer.toString());
         try {
-            var fetchedCustomerOp = customersRepository
-                .findById(customer.getCustomerID());  
-            if(fetchedCustomerOp.isPresent()){
-                String picture = customer.getPicture();
-                Customers fetchedCustomer = fetchedCustomerOp.get();
-                if(picture!=null){
-                    if(fetchedCustomer.getPicture()==null){
-                        picture = githubService.uploadImage(picture);
-                    }else{
-                        int comparedPicture =fetchedCustomer.getPicture()
-                            .compareToIgnoreCase(picture);
-                        if(comparedPicture!=0){
-                            picture = githubService.uploadImage(picture);
-                        }else if(comparedPicture==0){
-                            picture = fetchedCustomer.getPicture();
-                        }
-                    }
-                }
-                Integer check = customersRepository.updateCustomer(customer.getCompanyName(), 
-                    customer.getContactName(), customer.getContactTitle(), 
-                    customer.getAddress(), customer.getCity(), customer.getRegion(), 
-                    customer.getPostalCode(), customer.getCountry(), customer.getPhone(), 
-                    customer.getFax(), picture, customer.getCustomerID());
-
-                if (check>0) {
-                    return true;
-                }
-            }
-
+            Customers fetchedCustomer = customersRepository.findById(customer.getCustomerID())
+                .orElseThrow(()->new NotFoundException("Customer " + customer.getCustomerID() + " does not found"));
+            // Boolean result = false;
+            Boolean result = customerDetailRepository.updateCustomerInfo(fetchedCustomer.getCustomerID(), customer.getEmail(),
+                customer.getContactName(), customer.getAddress(), customer.getCity(), customer.getPhone(),
+                customer.getPicture());
+                logger.info("Result: {}", result);
+            return result;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn(e.getMessage());
+            return false;
         }
-        return false;
+
+
+        // try {
+        //     var fetchedCustomerOp = customersRepository
+        //         .findById(customer.getCustomerID());  
+        //     if(fetchedCustomerOp.isPresent()){
+        //         String picture = customer.getPicture();
+        //         Customers fetchedCustomer = fetchedCustomerOp.get();
+        //         if(picture!=null){
+        //             if(fetchedCustomer.getPicture()==null){
+        //                 picture = githubService.uploadImage(picture);
+        //             }else{
+        //                 int comparedPicture =fetchedCustomer.getPicture()
+        //                     .compareToIgnoreCase(picture);
+        //                 if(comparedPicture!=0){
+        //                     picture = githubService.uploadImage(picture);
+        //                 }else if(comparedPicture==0){
+        //                     picture = fetchedCustomer.getPicture();
+        //                 }
+        //             }
+        //         }
+        //         Integer check = customersRepository.updateCustomer(customer.getCompanyName(), 
+        //             customer.getContactName(), customer.getContactTitle(), 
+        //             customer.getAddress(), customer.getCity(), customer.getRegion(), 
+        //             customer.getPostalCode(), customer.getCountry(), customer.getPhone(), 
+        //             customer.getFax(), picture, customer.getCustomerID());
+
+        //         if (check>0) {
+        //             return true;
+        //         }
+        //     }
+
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
+        // return false;
 	}
 	@Override
-	public Customers getCustomerDetail(String username) {
+	public CustomerDetail getCustomerDetail(String username) {
         CustomerAccounts customerAcc = customerAccountsRepository.findByUsername(username);
         if(customerAcc!=null){
             String customerID = customerAcc.getCustomerID();
-            var customerOp = customersRepository.findById(customerID);
-            if(customerOp.isPresent()) return customerOp.get();
+            CustomerDetail customer = customerDetailRepository.findById(customerID)
+                .orElseThrow(()-> new NotFoundException("CustomerID: " + customerID + " does not found"));
+            return customer;
         }else{
             String customerID = UUID.randomUUID().toString();
             customerAccountsRepository.createCustomerInfo(customerID, username, username);
-            return this.getCustomerDetailByID(customerID);
+            CustomerDetail customer = customerDetailRepository.findById(customerID)
+                .orElseThrow(()-> new NotFoundException("CustomerID: " + customerID + " does not found"));
+            return customer;
+            // return this.getCustomerDetailByID(customerID);
         }
-        return null;
     }
     
     @Override
@@ -123,17 +151,7 @@ public class CustomersServiceImp implements CustomersService {
     {
         if(order.getCustomerID()!=null){
             LocalDateTime currenDateTime = LocalDateTime.now();
-            logger.info("Current datetime: {}", currenDateTime);
-
             order.setOrderDate(currenDateTime);
-            // // validate discount of product
-            // for(OrderItem orderItem: order.getProducts()){
-
-            //     boolean isValid = discountService.validateDiscount(orderItem);
-            //     if(!isValid){
-            //         throw new InvalidDiscountException("Discount is not valid");
-            //     }
-            // }
             // set applieddate for discount;
             for (OrderItem product : order.getProducts()) {
                 for(OrderItemDiscount discount : product.getDiscounts()){
@@ -151,5 +169,30 @@ public class CustomersServiceImp implements CustomersService {
             return order;
         }
         throw new NotFoundException("Customer is not found");
+    }
+    
+    @Override
+    public Customers getCustomerByUsername(String username) {
+        CustomerAccounts customerAccount = customerAccountsRepository.findByUsername(username);
+        if(customerAccount!=null){
+            String customerID = customerAccount.getCustomerID();
+            Customers customer = customersRepository.findById(customerID)
+                .orElseThrow(()-> new NotFoundException("Customer: " + customerID + " does not found"));
+            return customer;
+        }else throw new NotFoundException(username + "does not found");
+    }
+    @Override
+    public Page<OrderDetailsDTO> findOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus) {
+        Page<OrderDetailsDTO> orders = null;
+        if(orderStatus.equals(OrderStatus.All)) {
+            orders = orderService.getOrders(pageNumber, pageSize, customerID);
+        }else {
+            orders = orderService.getOrders(pageNumber, pageSize, customerID, orderStatus);
+        }
+        return orders;
+    }
+    @Override
+    public InvoiceDTO findOrderDetail(int orderID, String customerID) throws InvalidOrderException {
+        return orderService.getOrderDetail(orderID, customerID);
     }
 }

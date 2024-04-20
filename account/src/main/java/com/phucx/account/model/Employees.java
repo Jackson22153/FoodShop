@@ -29,8 +29,8 @@ public class Employees{
     @Column(name = "Title", length = 30)
     private String title;
 
-    @Column(name = "TitleOfCourtesy", length = 25)
-    private String titleOfCourtesy;
+    // @Column(name = "TitleOfCourtesy", length = 25)
+    // private String titleOfCourtesy;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "BirthDate")
@@ -39,17 +39,17 @@ public class Employees{
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "HireDate")
     private LocalDate hireDate;
-    @Column(name = "Address", length = 60)
+    @Column(name = "Address", length = 200)
     private String address;
-    @Column(name = "City", length = 15)
+    @Column(name = "City", length = 50)
     private String city;
-    @Column(name = "Region", length = 15)
-    private String region;
+    // @Column(name = "Region", length = 15)
+    // private String region;
 
-    @Column(name = "PostalCode", length = 10)
-    private String postalCode;
-    @Column(name = "Country", length = 15)
-    private String country;
+    // @Column(name = "PostalCode", length = 10)
+    // private String postalCode;
+    // @Column(name = "Country", length = 15)
+    // private String country;
 
     @Column(name = "HomePhone", length = 24)
     private String homePhone;
@@ -76,21 +76,17 @@ public class Employees{
 
     
 
-    public Employees(String employeeID, String lastName, String firstName, String title, String titleOfCourtesy,
-            LocalDate birthDate, LocalDate hireDate, String address, String city, String region, String postalCode,
-            String country, String homePhone, String photo, String notes, Employees reportsTo) {
+    public Employees(String employeeID, String lastName, String firstName, String title,
+            LocalDate birthDate, LocalDate hireDate, String address, String city, String homePhone, 
+            String photo, String notes, Employees reportsTo) {
         this.employeeID = employeeID;
         this.lastName = lastName;
         this.firstName = firstName;
         this.title = title;
-        this.titleOfCourtesy = titleOfCourtesy;
         this.birthDate = birthDate;
         this.hireDate = hireDate;
         this.address = address;
         this.city = city;
-        this.region = region;
-        this.postalCode = postalCode;
-        this.country = country;
         this.homePhone = homePhone;
         this.photo = photo;
         this.notes = notes;

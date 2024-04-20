@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.phucx.account.constant.OrderStatus;
 
 import lombok.Data;
@@ -14,8 +15,11 @@ public class OrderWithProducts {
     private Integer orderID;
     private String customerID;
     private String employeeID;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime requiredDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime shippedDate;
     private List<OrderItem> products;
     private Integer shipVia;
@@ -23,24 +27,19 @@ public class OrderWithProducts {
     private String shipName;
     private String shipAddress;
     private String shipCity;
-    private String shipRegion;
-    private String shipPostalCode;
-    private String shipCountry;
 
     private OrderStatus status;
 
     public OrderWithProducts(Orders order){
-        this(order.getOrderID(), order.getCustomerID()!=null?order.getCustomerID().getCustomerID():null, 
-            order.getEmployeeID()!=null?order.getEmployeeID().getEmployeeID():null, order.getOrderDate(), 
+        this(order.getOrderID(), order.getCustomer()!=null?order.getCustomer().getCustomerID():null, 
+            order.getEmployee()!=null?order.getEmployee().getEmployeeID():null, order.getOrderDate(), 
             order.getRequiredDate(), order.getShippedDate(), order.getShipVia(), order.getFreight(), 
-            order.getShipName(), order.getShipAddress(), order.getShipCity(), order.getShipRegion(), 
-            order.getShipPostalCode(), order.getShipCountry(), order.getStatus());
+            order.getShipName(), order.getShipAddress(), order.getShipCity(), order.getStatus());
     }
 
     public OrderWithProducts(Integer orderID, String customerID, String employeeID, LocalDateTime orderDate,
             LocalDateTime requiredDate, LocalDateTime shippedDate, Integer shipVia, Double freight, String shipName,
-            String shipAddress, String shipCity, String shipRegion, String shipPostalCode, String shipCountry,
-            OrderStatus status) {
+            String shipAddress, String shipCity, OrderStatus status) {
         this();
         this.orderID = orderID;
         this.customerID = customerID;
@@ -53,16 +52,12 @@ public class OrderWithProducts {
         this.shipName = shipName;
         this.shipAddress = shipAddress;
         this.shipCity = shipCity;
-        this.shipRegion = shipRegion;
-        this.shipPostalCode = shipPostalCode;
-        this.shipCountry = shipCountry;
         this.status = status;
     }
 
     public OrderWithProducts(Integer orderID, String customerID, String employeeID, LocalDateTime orderDate,
             LocalDateTime requiredDate, LocalDateTime shippedDate, List<OrderItem> products, Integer shipVia,
-            Double freight, String shipName, String shipAddress, String shipCity, String shipRegion,
-            String shipPostalCode, String shipCountry, OrderStatus status) {
+            Double freight, String shipName, String shipAddress, String shipCity, OrderStatus status) {
         this.orderID = orderID;
         this.customerID = customerID;
         this.employeeID = employeeID;
@@ -75,9 +70,6 @@ public class OrderWithProducts {
         this.shipName = shipName;
         this.shipAddress = shipAddress;
         this.shipCity = shipCity;
-        this.shipRegion = shipRegion;
-        this.shipPostalCode = shipPostalCode;
-        this.shipCountry = shipCountry;
         this.status = status;
     }
 

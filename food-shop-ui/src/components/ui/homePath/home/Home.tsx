@@ -63,7 +63,7 @@ function HomeComponent(){
         isAuthenticated().then(res =>{
             // console.log(res.data)
             const data = res.data;
-            console.log(data)
+            // console.log(data)
             if(data.isAuthenticated) isAuthen=true;
             setUserInfo({
                 username: data.username,

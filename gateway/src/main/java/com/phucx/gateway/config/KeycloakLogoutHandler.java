@@ -9,8 +9,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Component
 public class KeycloakLogoutHandler implements ServerLogoutHandler{
     private WebClient webClient;
@@ -42,9 +44,11 @@ public class KeycloakLogoutHandler implements ServerLogoutHandler{
                 .retrieve().toEntity(String.class);
             }).doOnNext(response ->{
                 if(response.getStatusCode().is2xxSuccessful()){
-                    System.out.println("Logout successfully");
+                    log.info("Logout successfully");
+                    // System.out.println("Logout successfully");
                 }else {
-                    System.out.println("Logout failed");
+                    log.error("Logout failed");
+                    // System.out.println("Logout failed");
                 }
             })
             .then();

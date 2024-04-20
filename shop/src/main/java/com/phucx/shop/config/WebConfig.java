@@ -27,6 +27,7 @@ public class WebConfig {
         http.authorizeHttpRequests(request -> request
             .requestMatchers("/home/**").permitAll()
             .requestMatchers("/search/**").permitAll()
+            .requestMatchers("/actuator/**").permitAll()
             .anyRequest().authenticated());
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt
             .jwtAuthenticationConverter(jwtAuthenticationConverter)));

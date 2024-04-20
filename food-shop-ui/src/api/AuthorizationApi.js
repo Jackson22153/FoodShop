@@ -26,12 +26,3 @@ export async function getUsername(){
         }
     })
 }
-
-export async function getCustomerInfo(){
-    return axios.get(CustomerInfoUrl, {
-        withCredentials: true,
-        headers:{
-            "Content-Type": 'application/json',
-        }
-    })
-}

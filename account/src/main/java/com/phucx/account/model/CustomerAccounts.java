@@ -30,5 +30,5 @@ public class CustomerAccounts {
     private String email;
     private String customerID;
     private String contactName;
-    private String companyName;
+    // private String companyName;
 }

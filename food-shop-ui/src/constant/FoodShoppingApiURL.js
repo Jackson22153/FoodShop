@@ -33,7 +33,12 @@ export const ProductAdminUrl = `${AdminUrl}/product`;
 export const DiscountAdminUrl = `${AdminUrl}/discount`
 
 // customer
-export const CustomerUrl = `${AccountService}/customer`
-export const CustomerInfoUrl = `${CustomerUrl}/info`
-
+export const CustomerUrl = `${AccountService}/customer`;
+export const CustomerInfoUrl = `${CustomerUrl}/info`;
+export const CustomerOrdersUrl = `${CustomerUrl}/orders`;
+// employee
+export const EmployeeUrl = `${AccountService}/employee`;
+export const EmployeeInfoUrl = `${EmployeeUrl}/info`;
+export const EmployeeOrdersUrl = `${EmployeeUrl}/orders`;
+export const EmployeePendingOrdersUrl = `${EmployeeOrdersUrl}/pending`;
 

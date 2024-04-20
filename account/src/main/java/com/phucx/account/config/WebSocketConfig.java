@@ -3,6 +3,7 @@ package com.phucx.account.config;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -28,6 +29,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public static String QUEUE_MESSAGES = "/queue/messages";
     public static String SIMP_USER = "simpUser";
 
+    @Value("${spring.rabbitmq.username}")
+    private String rabbitmqAdminUsername;
+    @Value("${spring.rabbitmq.password}")
+    private String rabbitmqAdminPassword;
+    @Value("${spring.rabbitmq.host}")
+    private String rabbitmqHost;
+ 
+
     // private Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
 
     @Override
@@ -40,8 +49,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
         registry.enableStompBrokerRelay("/queue/", "/topic", "/exchange")
-            .setRelayHost("localhost").setRelayPort(61613)
-            .setSystemLogin("admin").setSystemPasscode("123")
+            .setRelayHost(rabbitmqHost).setRelayPort(61613)
+            .setSystemLogin(rabbitmqAdminUsername).setSystemPasscode(rabbitmqAdminPassword)
             .setClientLogin("client").setClientPasscode("123");
         registry.setUserDestinationPrefix("/user");
         // registry.enableSimpleBroker("/user", "/topic");    

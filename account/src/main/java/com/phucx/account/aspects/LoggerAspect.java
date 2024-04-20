@@ -1,0 +1,42 @@
+package com.phucx.account.aspects;
+
+import java.time.Duration;
+import java.time.Instant;
+
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Order(1)
+@Aspect
+@Component
+public class LoggerAspect {
+    @Around("execution(* com.phucx.account.service.*.*.*(..))")
+    public Object log(ProceedingJoinPoint joinPoint) throws Throwable{
+        log.info(joinPoint.getSignature().toString() + " method has been invoked");
+        Instant startTime = Instant.now();
+        Object result = joinPoint.proceed();
+        Instant endTime = Instant.now();
+        Long durationMilis = Duration.between(startTime, endTime).toMillis();
+        log.info("Time took: " + durationMilis +" ms to execute");
+        log.info(joinPoint.getSignature().toString() + " has ended");
+        return result;
+    }
+
+    @Around("@annotation(com.phucx.account.annotations.LoggerAspect)")
+    public Object logAnnotation(ProceedingJoinPoint joinPoint) throws Throwable{
+        log.info(joinPoint.getSignature().toString() + " method has been invoked");
+        Instant startTime = Instant.now();
+        Object result = joinPoint.proceed();
+        Instant endTime = Instant.now();
+        Long durationMilis = Duration.between(startTime, endTime).toMillis();
+        log.info("Time took: " + durationMilis +" ms to execute");
+        log.info(joinPoint.getSignature().toString() + " has ended");
+        return result;
+    }
+}

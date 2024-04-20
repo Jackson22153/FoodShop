@@ -2,13 +2,11 @@ import { Pageable } from "../../../../../model/Type";
 
 interface Props{
     pageable: Pageable
-    // navigatePage: (page:number) => string
 }
 export default function PaginationSection(prop: Props){
     const url = new URL(window.location.href);
     const searchParam = new URLSearchParams(url.search);
-    // searchParam.set("sp", '12');
-    
+
     const totalPages = prop.pageable.totalPages;
     var currentPage = prop.pageable.number;
     
@@ -17,14 +15,13 @@ export default function PaginationSection(prop: Props){
         
         const navigateUrl = url.pathname+'?' + searchParam;
         return navigateUrl;
-        // return prop.navigatePage(pageNumber);
     }
     function previousPage(){
         const page = currentPage - 1 >= 0?currentPage-1: 0;
         return navigatePage(page)    
     }
     function nextPage(){
-        const page = currentPage + 1 < 7?currentPage+1: totalPages-1;
+        const page = currentPage + 1 < totalPages?currentPage+1: totalPages-1;
         return navigatePage(page);
     }
 
@@ -53,7 +50,7 @@ export default function PaginationSection(prop: Props){
 
 
     return(
-        <nav aria-label="Page navigation example" className="d-flex justify-content-center mb-3">
+        <div aria-label="Page navigation example" className="d-flex justify-content-center mb-3">
             <ul className="pagination">
                 <li className="page-item">
                     <a className="page-link" href={previousPage()} aria-label="Previous">
@@ -93,6 +90,6 @@ export default function PaginationSection(prop: Props){
                     </a>
                 </li>
             </ul>
-        </nav>
+        </div>
     );
 }

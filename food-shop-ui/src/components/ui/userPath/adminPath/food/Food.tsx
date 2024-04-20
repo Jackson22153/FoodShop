@@ -5,7 +5,7 @@ import { getDefaulImage } from '../../../../../service/image';
 import { updateDiscount, updateProduct } from '../../../../../api/AdminApi';
 import AlertComponent from '../../../../shared/functions/alert/Alert';
 import { Alert, Modal } from '../../../../../model/WebType';
-import { DANGER_ALERT, SUCCESS_ALERT } from '../../../../../constant/config';
+import { ALERT_TYPE } from '../../../../../constant/config';
 import ModalComponent from '../../../../shared/functions/modal/Modal';
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
@@ -81,14 +81,14 @@ export default function FoodComponent(){
             if(response.status===200){
                 setAlert({
                     message: 'Update successfully!',
-                    type: SUCCESS_ALERT,
+                    type: ALERT_TYPE.SUCCESS,
                     isShowed: true
                 })
             }
         } catch (error) {
             setAlert({
                 message: 'Update failed!',
-                type: DANGER_ALERT,
+                type: ALERT_TYPE.DANGER,
                 isShowed: true
             })
         }finally{
@@ -110,14 +110,14 @@ export default function FoodComponent(){
             if(response.status===200){
                 setAlert({
                     message: 'Add dicount successfully!',
-                    type: SUCCESS_ALERT,
+                    type: ALERT_TYPE.SUCCESS,
                     isShowed: true
                 })
             }
         } catch (error) {
             setAlert({
                 message: 'Add discount failed!',
-                type: DANGER_ALERT,
+                type: ALERT_TYPE.DANGER,
                 isShowed: true
             })
         }finally{

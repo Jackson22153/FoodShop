@@ -19,7 +19,7 @@ public class RequestHeaderFilter implements GlobalFilter{
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return Mono.fromRunnable(()->{
-            logger.info("RequestHeaderFilter, id: {}", UUID.randomUUID().toString());
+            logger.info("RequestHeaderFilter");
         }).then(chain.filter(exchange));
     }
     

@@ -61,16 +61,14 @@ export type Supplier = {
     homePage: string
 }
 export type Customer={
-    companyName: string,
+    customerID: string,
     contactName: string,
-    contactTitle: string,
     address: string,
     city: string,
-    region: string,
-    postalCode: string,
-    country: string,
     phone: string,
-    fax: string
+    picture: string,
+    email: string,
+    username: string
 }
 export type Pageable = {
     first: boolean,
@@ -79,7 +77,69 @@ export type Pageable = {
     totalPages: number
 
 }
+export type Order = {
+    orderID: string,
+    products: OrderProduct[],
+    totalPrice: number,
+    status: string
+}
+export type OrderProduct = {
+    productID: number,
+    productName: string,
+    unitPrice: number,
+    quantity: number,
+    discount: number,
+    extendedPrice: number,
+    picture: string
+}
+export type OrderInfo = {
+    orderID: number,
+    orderDate: string,
+    requiredDate: string,
+    shippedDate: string,
+    customerID: string,
+    freight: number,
+    salesPerson: string,
+    shipAddress: string,
+    shipCity: string,
+    shipName: string,
+    shipperName: String,
+    status: string,
+    totalPrice: number
+    products: ProductWithDiscount[]
+}
+export type ProductWithDiscount = {
+    productID: number,
+    productName: string,
+    quantity: number,
+    totalDiscount: number,
+    unitPrice: number,
+    picture: string,
+    extendedPrice: number,
+    discounts: DiscountBriefInfo[]
+}
+export type DiscountBriefInfo = {
+    discountID: string,
+    discountPercent: number,
+    discountType: string
+}
+export type Employee = {
+    employeeID: string,
+    firstName: string,
+    lastName: string,
+    birthDate: string,
+    hireDate: string,
+    homePhone: string,
+    address: string,
+    city: string,
+    photo: string,
+    reportsTo: string,
+    title: string,
+    email: string,
+    username: string
+}
 export type UserInfo = {
+    userID: string,
     username: string,
     isAuthenticated: boolean
 }

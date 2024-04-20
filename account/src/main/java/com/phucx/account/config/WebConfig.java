@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,10 +19,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
 @EnableWebSecurity
+@EnableAspectJAutoProxy
 @ComponentScans(value = {
     @ComponentScan("com.phucx.account.config"),
     @ComponentScan("com.phucx.account.filters"),
-    @ComponentScan("com.phucx.account.eventListener")
+    @ComponentScan("com.phucx.account.eventListener"),
+    @ComponentScan("com.phucx.account.aspect")
 })
 public class WebConfig {
     // token
@@ -52,6 +55,7 @@ public class WebConfig {
             .requestMatchers("/admin/**").permitAll()
             .requestMatchers("/customer/**").hasRole("CUSTOMER")
             .requestMatchers("/employee/**").hasRole("EMPLOYEE")
+            .requestMatchers("/actuator/**").permitAll()
             .anyRequest().authenticated());
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt
             .jwtAuthenticationConverter(jwtAuthenticationConverter)));

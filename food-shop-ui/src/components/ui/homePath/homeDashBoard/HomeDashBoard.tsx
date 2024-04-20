@@ -1,7 +1,4 @@
-import { getClient, getSlide } from "../../../../service/image";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { getSlide } from "../../../../service/image";
 import { useEffect, useState } from "react";
 import { getCategories, getRecommendedProduct } from "../../../../api/SearchApi";
 import CategoriesSection from "../../../shared/website/sections/categoriesSection/CategoriesSection";
@@ -13,9 +10,6 @@ import { foodsPath } from "../../../../constant/FoodShoppingURL";
 
 function HomeDashBoardComponent(){
     const slide = getSlide();
-
-    // client
-    const client = getClient();
 
     const [categories, setCategories] = useState([]);
     const [categoryExpandedStatus, setCategoryExpandedStatus] = useState<boolean>(true);
@@ -78,9 +72,9 @@ function HomeDashBoardComponent(){
             {/* <!-- tasty section --> */}
             <section className="tasty_section">
                 <div className="container_fluid">
-                <h2>
-                    Very tasty fruits
-                </h2>
+                    <h2>
+                        Very tasty fruits
+                    </h2>
                 </div>
             </section>
 
@@ -88,7 +82,7 @@ function HomeDashBoardComponent(){
 
             {/* <!-- client section --> */}
 
-            <section className="client_section layout_padding">
+            {/* <section className="client_section layout_padding">
                 <div className="container">
                 <h2 className="custom_heading">Testimonial</h2>
                 <p className="custom_heading-text">
@@ -172,46 +166,42 @@ function HomeDashBoardComponent(){
                     </div>
                 </div>
                 </div>
-            </section>
+            </section> */}
 
             {/* <!-- end client section --> */}
 
             {/* <!-- contact section --> */}
             <section className="contact_section layout_padding">
                 <div className="container">
-                <h2 className="font-weight-bold">
-                    Contact Us
-                </h2>
-                <div className="row">
-                    <div className="col-md-8 mr-auto">
-                    <form action="">
-                        <div className="contact_form-container">
-                        <div>
-                            <div>
-                            <input type="text" placeholder="Name"/>
-                            </div>
-                            <div>
-                            <input type="text" placeholder="Phone Number"/>
-                            </div>
-                            <div>
-                            <input type="email" placeholder="Email"/>
-                            </div>
+                    <h2 className="font-weight-bold">
+                        Contact Us
+                    </h2>
+                    <div className="row">
+                        <div className="col-md-8 mr-auto">
+                            <form className="contact_form-container" action="">
+                                <div className="form-group">
+                                    <input type="text" className="form-control" id="name-contact"placeholder="Name"/>
+                                </div>
 
-                            <div className="mt-5">
-                            <input type="text" placeholder="Message"/>
-                            </div>
-                            <div className="mt-5">
-                            <button type="submit">
-                                send
-                            </button>
-                            </div>
+                                <div className="form-group">
+                                    <input type="tel" className="form-control" id="phone-contact" placeholder="Phone number"/>
+                                </div>
+
+                                <div className="form-group">
+                                    <input type="email" className="form-control" id="email-contact" placeholder="Email"/>
+                                </div>
+                                <div className="mt-5"></div>
+                                <div className="form-group">
+                                    <input type="email" className="form-control" id="message-contact" placeholder="Message"/>
+                                </div>
+                                <div className="mt-5"></div>
+
+                                <button type="submit" className="btn">
+                                    Send
+                                </button>
+                            </form>
                         </div>
-
-                        </div>
-
-                    </form>
                     </div>
-                </div>
                 </div>
             </section>
             {/* <!-- end contact section --> */}
