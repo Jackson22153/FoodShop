@@ -22,10 +22,10 @@ public interface CustomersService {
     public CustomerDetail getCustomerDetail(String username);
     public boolean createCustomer(Customers customer);
     public boolean updateCustomerInfo(CustomerDetail customer);
-    public Page<Customers> findAllCustomers(int pageNumber, int pageSize);
+    public Page<Customers> getAllCustomers(int pageNumber, int pageSize);
 
-    public Page<OrderDetailsDTO> findOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus);
-    public InvoiceDTO findOrderDetail(int orderID, String customerID) throws InvalidOrderException;
+    public Page<OrderDetailsDTO> getOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus);
+    public InvoiceDTO getInvoice(int orderID, String customerID) throws InvalidOrderException;
     
     public OrderWithProducts placeOrder(OrderWithProducts order) 
         throws InvalidDiscountException, NotFoundException, RuntimeException, SQLException,  InvalidOrderException ;

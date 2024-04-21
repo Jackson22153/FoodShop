@@ -1,24 +1,32 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
-import { getCustomerInvoice } from "../../../../../api/UserApi";
-import { OrderInfo } from "../../../../../model/Type";
+import { OrderWithProduct } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/image";
+import { getPendingOrder } from "../../../../../api/EmployeeApi";
+import dayjs from "dayjs";
 
-export default function UserOrderComponent(){
+export default function EmployeePendingOrderComponent(){
     const { orderId } = useParams();
-    const [orderInfo, setOrderInfo] = useState<OrderInfo>();
+    const [orderInfo, setOrderInfo] = useState<OrderWithProduct>();
 
     useEffect(()=>{
-        fetchedInvoice();
+        fetchOrder()
     }, [])
 
-    const fetchedInvoice = async ()=>{
-        const res = await getCustomerInvoice(orderId);
+    const fetchOrder = async ()=>{
+        const res = await getPendingOrder(orderId);
         if(res.status===200){
             const data = res.data;
-            // console.log(data);
+            console.log(data);
             setOrderInfo(data);
         }
+    }
+
+    const onClickConfirmButton = ()=>{
+
+    }
+    const onClickCancelButton = ()=>{
+
     }
 
     return(
@@ -29,16 +37,13 @@ export default function UserOrderComponent(){
                         <div className="text-uppercase">
                             <p>Order detail</p>
                         </div>
-                        <div className="h4">{orderInfo.orderDate}</div>
+                        <div className="h4">{dayjs(orderInfo.orderDate).toString()}</div>
                         <div className="pt-1">
                             {orderInfo.shippedDate?
                                 <p>Order #{orderInfo.orderID} was delivered on <b className="text-dark"> {orderInfo.shippedDate}</b></p>:
                                 <p>Order #{orderInfo.orderID} is <b className="text-dark"> {orderInfo.status}</b></p>
                             }
                         </div>
-                        {/* <div className="btn close text-white">
-                            &times;
-                        </div> */}
                     </div>
                     <div className="bg-white rounded-bottom-5 px-3 px-md-5 pb-4">
                         <div className="table-responsive">
@@ -114,37 +119,24 @@ export default function UserOrderComponent(){
                             <div className="col-md-6 py-3">
                                 <div className="d-flex flex-column align-items start">
                                     <div>
-                                        <b>Employee</b>
-                                        <p className="text-justify pt-2">{orderInfo.salesPerson}</p>
+                                        <b>Customer</b>
+                                        {/* <p className="text-justify pt-2">{orderInfo.customerID}</p> */}
+                                        <p className="text-justify pt-2">{orderInfo.contactName}</p>
                                     </div>
                                     <div className="d-flex justify-content-start align-items-center pb-4 pl-3 border-bottom"/>
                                     <div className= 'py-3'>
                                         <b>Ship</b>
                                         <p className="text-justify pt-2">{orderInfo.shipperName}</p>
-                                        {/* <p className='text-justify'>{orderInfo.phone}</p> */}
+                                        <p className='text-justify'>{orderInfo.shipperPhone}</p>
                                     </div>
                                 </div>
-                                {/* {employee &&
-                                    <div className="d-flex flex-column align-items start">
-                                        <div>
-                                            <b>Employee</b>
-                                            <p className="text-justify pt-2">{employee.lastName} {employee.firstName}</p>
-                                        </div>
-                                        <div className="d-flex justify-content-start align-items-center pb-4 pl-3 border-bottom"/>
-                                        <div className= 'py-3'>
-                                            <b>Ship</b>
-                                            <p className="text-justify pt-2">{ship.companyName}</p>
-                                            <p className='text-justify'>{ship.phone}</p>
-                                        </div>
-                                    </div>
-                                } */}
                             </div>
                             <div className="col-md-6 py-3">
                                 <div className="d-flex flex-column align-items start">
                                     <b>Shipping Address</b>
                                     <p className="text-justify pt-2">{orderInfo.shipName}, {orderInfo.shipAddress}</p>
                                     <p className="text-justify">{orderInfo.shipCity}</p>
-                                    <p className="text-justify">Phone: {orderInfo.phone}</p>
+                                    <p className="text-justify"><b>Phone:</b> {orderInfo.phone}</p>
                                 </div>
                             </div>
                         </div>
@@ -158,6 +150,10 @@ export default function UserOrderComponent(){
                             <div>
                                 Total: <b> ${orderInfo.totalPrice}</b>
                             </div>
+                        </div>
+                        <div className="d-flex justify-content-end">
+                            <button className="btn mx-1 btn-primary" onClick={onClickCancelButton}>Cancel</button>
+                            <button className="btn mx-1 btn-primary" onClick={onClickConfirmButton}>Confirm</button>
                         </div>
                     </div>
                 </div>

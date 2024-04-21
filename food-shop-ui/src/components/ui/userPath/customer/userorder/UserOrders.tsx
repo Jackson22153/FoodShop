@@ -5,6 +5,7 @@ import { ORDER_STATUS } from "../../../../../constant/config";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
 import { getPageNumber } from "../../../../../service/pageable";
 import { customerOrder } from "../../../../../constant/FoodShoppingURL";
+import { displayProductImage } from "../../../../../service/image";
 
 export default function UserOrdersComponent(){
     const [listOrders, setListOrders] = useState<Order[]>([])
@@ -95,7 +96,8 @@ export default function UserOrdersComponent(){
                                     {order.products && order.products.map((product: OrderProduct) =>(
                                         <li className="card d-flex flex-row my-md-1 my-sm-2" key={`${order.orderID}&${product.productID}`}>
                                             <div className="col-md-2 p-2">
-                                                <img className="order-img-thumbnail card-img-top rounded float-left" src={product.picture} alt="Card image cap"/>
+                                                <img className="order-img-thumbnail card-img-top rounded float-left" 
+                                                    src={displayProductImage(product.picture)} alt="Card image cap"/>
                                             </div>
                                             <div className="card-body d-flex flex-row justify-content-between">
                                                 <div className="col-md-3">

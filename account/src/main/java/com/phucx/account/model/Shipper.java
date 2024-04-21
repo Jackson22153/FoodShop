@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,8 @@ import lombok.NoArgsConstructor;
 @Data @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Shippers {
+@Table(name = "Shippers")
+public class Shipper {
     @Id
     @GeneratedValue(generator = "native", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "native", strategy = "native")

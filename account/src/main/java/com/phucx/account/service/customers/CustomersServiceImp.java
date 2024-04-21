@@ -23,7 +23,7 @@ import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderItem;
 import com.phucx.account.model.OrderItemDiscount;
 import com.phucx.account.model.OrderWithProducts;
-import com.phucx.account.model.Orders;
+import com.phucx.account.model.Order;
 import com.phucx.account.repository.CustomerAccountsRepository;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.repository.CustomersRepository;
@@ -134,7 +134,7 @@ public class CustomersServiceImp implements CustomersService {
     }
 	
     @Override
-	public Page<Customers> findAllCustomers(int pageNumber, int pageSize) {
+	public Page<Customers> getAllCustomers(int pageNumber, int pageSize) {
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<Customers> result = customersRepository.findAll(page);
 		return result;
@@ -164,7 +164,7 @@ public class CustomersServiceImp implements CustomersService {
             boolean isValidOrder = orderService.validateOrder(order);
             if(!isValidOrder) throw new InvalidOrderException("Order is not valid");
             // save order
-            Orders pendingOrder = orderService.saveFullOrder(order);
+            Order pendingOrder = orderService.saveFullOrder(order);
             order.setOrderID(pendingOrder.getOrderID());
             return order;
         }
@@ -182,17 +182,17 @@ public class CustomersServiceImp implements CustomersService {
         }else throw new NotFoundException(username + "does not found");
     }
     @Override
-    public Page<OrderDetailsDTO> findOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus) {
+    public Page<OrderDetailsDTO> getOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus) {
         Page<OrderDetailsDTO> orders = null;
         if(orderStatus.equals(OrderStatus.All)) {
-            orders = orderService.getOrders(pageNumber, pageSize, customerID);
+            orders = orderService.getCustomerOrders(pageNumber, pageSize, customerID);
         }else {
-            orders = orderService.getOrders(pageNumber, pageSize, customerID, orderStatus);
+            orders = orderService.getCustomerOrders(pageNumber, pageSize, customerID, orderStatus);
         }
         return orders;
     }
     @Override
-    public InvoiceDTO findOrderDetail(int orderID, String customerID) throws InvalidOrderException {
-        return orderService.getOrderDetail(orderID, customerID);
+    public InvoiceDTO getInvoice(int orderID, String customerID) throws InvalidOrderException {
+        return orderService.getCustomerInvoice(orderID, customerID);
     }
 }

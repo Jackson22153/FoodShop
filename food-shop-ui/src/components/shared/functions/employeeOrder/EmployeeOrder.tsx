@@ -1,46 +1,29 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"
-import { getCustomerInvoice } from "../../../../../api/UserApi";
-import { OrderInfo } from "../../../../../model/Type";
-import { displayProductImage } from "../../../../../service/image";
+import dayjs from "dayjs";
+import { OrderWithProduct } from "../../../../model/Type";
+import { displayProductImage } from "../../../../service/image";
 
-export default function UserOrderComponent(){
-    const { orderId } = useParams();
-    const [orderInfo, setOrderInfo] = useState<OrderInfo>();
-
-    useEffect(()=>{
-        fetchedInvoice();
-    }, [])
-
-    const fetchedInvoice = async ()=>{
-        const res = await getCustomerInvoice(orderId);
-        if(res.status===200){
-            const data = res.data;
-            // console.log(data);
-            setOrderInfo(data);
-        }
-    }
-
+interface Prop{
+    orderInfo: OrderWithProduct
+}
+export default function EmployeeOrder(prop: Prop){
+    const orderInfo = prop.orderInfo;
     return(
         <div id="order-bill-container">
             {orderInfo &&
-                <div className="box-shadow-default rounded-5 col-sm-12 col-md-10 mx-auto col-lg-7">
-                    <div className="d-flex flex-column justify-content-center align-items-center position-relative pt-3 rounded-top-5" id="order-heading">
+                <>
+                    <div className="d-flex flex-column justify-content-center align-items-center position-relative pt-3 rounded-top-5 col-sm-12 col-md-10 mx-auto col-lg-7" id="order-heading">
                         <div className="text-uppercase">
                             <p>Order detail</p>
                         </div>
-                        <div className="h4">{orderInfo.orderDate}</div>
+                        <div className="h4">{dayjs(orderInfo.orderDate).toString()}</div>
                         <div className="pt-1">
                             {orderInfo.shippedDate?
                                 <p>Order #{orderInfo.orderID} was delivered on <b className="text-dark"> {orderInfo.shippedDate}</b></p>:
                                 <p>Order #{orderInfo.orderID} is <b className="text-dark"> {orderInfo.status}</b></p>
                             }
                         </div>
-                        {/* <div className="btn close text-white">
-                            &times;
-                        </div> */}
                     </div>
-                    <div className="bg-white rounded-bottom-5 px-3 px-md-5 pb-4">
+                    <div className="bg-white rounded-bottom-5 px-3 px-md-5 pb-4 col-sm-12 col-md-10 mx-auto col-lg-7">
                         <div className="table-responsive">
                             <table className="table table-borderless">
                                 <thead>
@@ -104,7 +87,7 @@ export default function UserOrderComponent(){
                         </div>
                         <div className="d-flex justify-content-start align-items-center pl-3 py-3 mb-4 border-bottom">
                             <div className="text-muted">
-                                Today's Total
+                                Total
                             </div>
                             <div className="ml-auto h5 font-weight-bold">
                                 ${orderInfo.totalPrice + orderInfo.freight}
@@ -115,7 +98,7 @@ export default function UserOrderComponent(){
                                 <div className="d-flex flex-column align-items start">
                                     <div>
                                         <b>Employee</b>
-                                        <p className="text-justify pt-2">{orderInfo.salesPerson}</p>
+                                        <p className="text-justify pt-2">EmployeeID: {orderInfo.employeeID}</p>
                                     </div>
                                     <div className="d-flex justify-content-start align-items-center pb-4 pl-3 border-bottom"/>
                                     <div className= 'py-3'>
@@ -124,27 +107,12 @@ export default function UserOrderComponent(){
                                         {/* <p className='text-justify'>{orderInfo.phone}</p> */}
                                     </div>
                                 </div>
-                                {/* {employee &&
-                                    <div className="d-flex flex-column align-items start">
-                                        <div>
-                                            <b>Employee</b>
-                                            <p className="text-justify pt-2">{employee.lastName} {employee.firstName}</p>
-                                        </div>
-                                        <div className="d-flex justify-content-start align-items-center pb-4 pl-3 border-bottom"/>
-                                        <div className= 'py-3'>
-                                            <b>Ship</b>
-                                            <p className="text-justify pt-2">{ship.companyName}</p>
-                                            <p className='text-justify'>{ship.phone}</p>
-                                        </div>
-                                    </div>
-                                } */}
                             </div>
                             <div className="col-md-6 py-3">
                                 <div className="d-flex flex-column align-items start">
                                     <b>Shipping Address</b>
                                     <p className="text-justify pt-2">{orderInfo.shipName}, {orderInfo.shipAddress}</p>
                                     <p className="text-justify">{orderInfo.shipCity}</p>
-                                    <p className="text-justify">Phone: {orderInfo.phone}</p>
                                 </div>
                             </div>
                         </div>
@@ -153,15 +121,16 @@ export default function UserOrderComponent(){
                             <div>
                                 <b>#{orderInfo.orderID}</b>
                             </div>
-                            <div>{orderInfo.orderDate}</div>
+                            <div>{dayjs(orderInfo.orderDate).toString()}</div>
                             <div>Status: {orderInfo.status}</div>
                             <div>
                                 Total: <b> ${orderInfo.totalPrice}</b>
                             </div>
                         </div>
                     </div>
-                </div>
+                </>
             }
         </div>
-    )
+    );
+
 }

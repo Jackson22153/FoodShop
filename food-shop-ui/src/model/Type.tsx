@@ -104,9 +104,47 @@ export type OrderInfo = {
     shipCity: string,
     shipName: string,
     shipperName: String,
+    phone: string,
     status: string,
     totalPrice: number
     products: ProductWithDiscount[]
+}
+export type OrderWithProduct = {
+    orderID: number,
+    orderDate: string,
+    requiredDate: string,
+    shippedDate: string,
+    customerID: string,
+    contactName: string,
+    employeeID: string,
+    salesPerson: string,
+    freight: number,
+    shipName: string,
+    shipAddress: string,
+    shipCity: string,
+    shipVia: number,
+    shipperName: string,
+    shipperPhone: string,
+    phone: string,
+    status: string,
+    totalPrice: number
+    products: ProductWithDiscount[]
+}
+export type OrderItem = {
+    productID: number,
+    productName: string,
+    quantity: number,
+    picture: string,
+    unitPrice: number,
+    extendedPrice: number,
+    discounts: DiscountInfo[]
+}
+export type DiscountInfo = {
+    discountID: string,
+    discountPercent: number,
+    discountCode: string,
+    discountType: string,
+    appliedDate: string
 }
 export type ProductWithDiscount = {
     productID: number,

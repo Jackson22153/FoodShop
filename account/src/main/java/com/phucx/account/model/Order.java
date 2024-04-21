@@ -15,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,8 @@ import lombok.ToString;
 @Data @Entity @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Orders {
+@Table(name = "Orders")
+public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     private Integer orderID;
@@ -48,7 +50,9 @@ public class Orders {
     @Column(name = "ShippedDate")
     private LocalDateTime shippedDate;
 
-    private Integer shipVia;
+    @ManyToOne
+    @JoinColumn(name = "ShipVia", referencedColumnName = "ShipperID")
+    private Shipper shipVia;
 
     private Double freight;
 
@@ -61,21 +65,14 @@ public class Orders {
     @Column(name = "ShipCity", length = 50)
     private String shipCity;
 
-    // @Column(name = "ShipRegion", length = 15)
-    // private String shipRegion;
-
-    // @Column(name = "ShipPostalCode", length = 10)
-    // private String shipPostalCode;
-
-    // @Column(name = "ShipCountry", length = 15)
-    // private String shipCountry;
+    private String phone;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    public Orders(Customers customer, Employees employee, LocalDateTime orderDate, LocalDateTime requiredDate,
-            LocalDateTime shippedDate, Integer shipVia, Double freight, String shipName, String shipAddress,
-            String shipCity, OrderStatus status) {
+    public Order(Customers customer, Employees employee, LocalDateTime orderDate, LocalDateTime requiredDate,
+            LocalDateTime shippedDate, Shipper shipVia, Double freight, String shipName, String shipAddress,
+            String shipCity, String phone, OrderStatus status) {
         this.customer = customer;
         this.employee = employee;
         this.orderDate = orderDate;
@@ -86,6 +83,7 @@ public class Orders {
         this.shipName = shipName;
         this.shipAddress = shipAddress;
         this.shipCity = shipCity;
+        this.phone = phone;
         this.status = status;
     }
 

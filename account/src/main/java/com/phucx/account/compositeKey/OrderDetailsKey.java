@@ -1,6 +1,6 @@
 package com.phucx.account.compositeKey;
 
-import com.phucx.account.model.Orders;
+import com.phucx.account.model.Order;
 import com.phucx.account.model.Products;
 
 import jakarta.persistence.Embeddable;
@@ -20,5 +20,5 @@ public class OrderDetailsKey {
     
     @ManyToOne
     @JoinColumn(name = "OrderID")
-    private Orders order;
+    private Order order;
 }

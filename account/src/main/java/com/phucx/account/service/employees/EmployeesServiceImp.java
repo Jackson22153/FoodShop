@@ -1,20 +1,23 @@
 package com.phucx.account.service.employees;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.config.MessageQueueConfig;
+import com.phucx.account.constant.OrderStatus;
+import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.EmployeeAccounts;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.Employees;
 import com.phucx.account.model.NotificationMessage;
+import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.repository.EmployeeAccountsRepository;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
@@ -74,33 +77,6 @@ public class EmployeesServiceImp implements EmployeesService {
                 employee.getCity(), employee.getHomePhone(), employee.getPhoto());   
 
             return status;
-            // var fetchedEmployeeOp = employeesRepository
-            //     .findById(employee.getEmployeeID());
-            // if(fetchedEmployeeOp.isPresent()){
-            //     Employees fetchedEmployee = fetchedEmployeeOp.get();
-            //     String picture = employee.getPhoto();
-            //     if(picture!=null){
-            //         if(fetchedEmployee.getPhoto()==null){
-            //             picture = githubService.uploadImage(picture);
-            //         }else{
-            //             int comparedPicture =fetchedEmployee.getPhoto()
-            //                 .compareToIgnoreCase(picture);
-            //             if(comparedPicture!=0){
-            //                 picture = githubService.uploadImage(picture);
-            //             }else if(comparedPicture==0){
-            //                 picture = fetchedEmployee.getPhoto();
-            //             }
-            //         }
-            //     }
-            //     Integer check = employeesRepository.updateEmployee(
-            //         employee.getFirstName(), employee.getLastName(),
-            //         employee.getBirthDate(), employee.getAddress(), 
-            //         employee.getCity(), employee.getHomePhone(), picture, 
-            //         employee.getEmployeeID());
-            //     if(check>0){
-            //         return true;
-            //     }
-            // }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -108,7 +84,7 @@ public class EmployeesServiceImp implements EmployeesService {
 	}
 
 	@Override
-	public Page<Employees> findAllEmployees(int pageNumber, int pageSize) {
+	public Page<Employees> getAllEmployees(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
         var employees = employeesRepository.findAll(pageable);
         return employees;
@@ -139,8 +115,30 @@ public class EmployeesServiceImp implements EmployeesService {
     }
 
     @Override
-    public Page<OrderWithProducts> getPendingOrders(int pageNumber, int pageSize) {
-        Page<OrderWithProducts> pendingOrders = orderService.getPendingOrders(pageNumber, pageSize);
+    public Page<OrderDetailsDTO> getOrders(int pageNumber, int pageSize, String employeeID, OrderStatus status) {
+        Page<OrderDetailsDTO> pendingOrders = new PageImpl<>(new ArrayList<>());
+        if(status.equals(OrderStatus.All)){
+            pendingOrders = orderService.getEmployeeOrders(pageNumber, pageSize, employeeID);
+        }else {
+            pendingOrders = orderService.getEmployeeOrders(pageNumber, pageSize, employeeID, status);
+        }
         return pendingOrders;
+    }
+
+    @Override
+    public Page<OrderDetailsDTO> getPendingOrders(int pageNumber, int pageSize) {
+        return orderService.getPendingOrders(pageNumber, pageSize);
+    }
+
+    @Override
+    public OrderWithProducts getOrderDetail(Integer orderID, String employeeID) throws InvalidOrderException {
+        OrderWithProducts order = orderService.getEmployeeOrderDetail(orderID, employeeID);
+        log.info("order: {}", order.toString());
+        return order;
+    }
+
+    @Override
+    public OrderWithProducts getPendingOrderDetail(int orderID) throws InvalidOrderException {
+        return orderService.getPendingOrderDetail(orderID);
     }
 }

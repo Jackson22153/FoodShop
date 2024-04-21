@@ -14,17 +14,42 @@ import com.phucx.account.model.OrderDetailsExtendedStatus;
 public interface OrderDetailsExtendedStatusRepository extends JpaRepository<OrderDetailsExtendedStatus, OrderDetailsExtendedID>{
     @Query("""
         SELECT ode \
-        FROM Orders o JOIN OrderDetailsExtendedStatus ode ON o.orderID=ode.orderID \
+        FROM Order o JOIN OrderDetailsExtendedStatus ode ON o.orderID=ode.orderID \
         WHERE o.customer.customerID=?1 \
         ORDER BY o.orderID DESC
             """)
     Page<OrderDetailsExtendedStatus> findAllByCustomerIDOrderByDesc(String customerID, Pageable pageable);
     @Query("""
         SELECT ode \
-        FROM Orders o JOIN OrderDetailsExtendedStatus ode ON o.orderID=ode.orderID \
+        FROM Order o JOIN OrderDetailsExtendedStatus ode ON o.orderID=ode.orderID \
+        WHERE o.employee.employeeID=?1 \
+        ORDER BY o.orderID DESC
+            """)
+    Page<OrderDetailsExtendedStatus> findAllByEmployeeIDOrderByDesc(String employeeID, Pageable pageable);
+    @Query("""
+        SELECT ode \
+        FROM Order o JOIN OrderDetailsExtendedStatus ode ON o.orderID=ode.orderID \
         WHERE o.customer.customerID=?1 AND o.status=?2 \
         ORDER BY o.orderID DESC
             """)
     Page<OrderDetailsExtendedStatus> findAllByCustomerIDAndStatusOrderByDesc(
         String customerID, OrderStatus status, Pageable pageable);
+
+    @Query("""
+        SELECT ode \
+        FROM Order o JOIN OrderDetailsExtendedStatus ode ON o.orderID=ode.orderID \
+        WHERE o.employee.employeeID=?1 AND o.status=?2 \
+        ORDER BY o.orderID DESC
+            """)
+    Page<OrderDetailsExtendedStatus> findAllByEmployeeIDAndStatusOrderByDesc(
+        String employeeID, OrderStatus status, Pageable pageable);
+
+    @Query("""
+        SELECT ode \
+        FROM Order o JOIN OrderDetailsExtendedStatus ode ON o.orderID=ode.orderID \
+        WHERE o.status=?1 \
+        ORDER BY o.orderID DESC
+            """)
+    Page<OrderDetailsExtendedStatus> findAllByStatusOrderByDesc(OrderStatus status, Pageable pageable);
+
 }

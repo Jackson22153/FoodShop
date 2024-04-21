@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
 import { getCustomerInvoice } from "../../../../../api/UserApi";
-import { OrderInfo } from "../../../../../model/Type";
+import { OrderInfo, OrderWithProduct } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/image";
+import { getOrderDetail } from "../../../../../api/EmployeeApi";
+import dayjs from "dayjs";
 
 export default function EmployeeOrderComponent(){
     const { orderId } = useParams();
-    const [orderInfo, setOrderInfo] = useState<OrderInfo>();
+    const [orderInfo, setOrderInfo] = useState<OrderWithProduct>();
 
     useEffect(()=>{
-        fetchedInvoice();
+        fetchOrder()
     }, [])
 
-    const fetchedInvoice = async ()=>{
-        const res = await getCustomerInvoice(orderId);
+    const fetchOrder = async ()=>{
+        const res = await getOrderDetail(orderId);
         if(res.status===200){
             const data = res.data;
             console.log(data);
@@ -24,15 +26,15 @@ export default function EmployeeOrderComponent(){
     return(
         <div id="order-bill-container">
             {orderInfo &&
-                <>
-                    <div className="d-flex flex-column justify-content-center align-items-center position-relative pt-3 rounded-top-5 col-sm-12 col-md-10 mx-auto col-lg-7" id="order-heading">
+                <div className="box-shadow-default rounded-5 col-sm-12 col-md-10 mx-auto col-lg-7">
+                    <div className="d-flex flex-column justify-content-center align-items-center position-relative pt-3 rounded-top-5" id="order-heading">
                         <div className="text-uppercase">
                             <p>Order detail</p>
                         </div>
-                        <div className="h4">{orderInfo.orderDate}</div>
+                        <div className="h4">{dayjs(orderInfo.orderDate).toString()}</div>
                         <div className="pt-1">
                             {orderInfo.shippedDate?
-                                <p>Order #{orderInfo.orderID} was delivered on <b className="text-dark"> {orderInfo.shippedDate}</b></p>:
+                                <p>Order #{orderInfo.orderID} was delivered on <b className="text-dark"> {dayjs(orderInfo.shippedDate).toString()}</b></p>:
                                 <p>Order #{orderInfo.orderID} is <b className="text-dark"> {orderInfo.status}</b></p>
                             }
                         </div>
@@ -40,7 +42,7 @@ export default function EmployeeOrderComponent(){
                             &times;
                         </div> */}
                     </div>
-                    <div className="bg-white rounded-bottom-5 px-3 px-md-5 pb-4 col-sm-12 col-md-10 mx-auto col-lg-7">
+                    <div className="bg-white rounded-bottom-5 px-3 px-md-5 pb-4">
                         <div className="table-responsive">
                             <table className="table table-borderless">
                                 <thead>
@@ -121,7 +123,7 @@ export default function EmployeeOrderComponent(){
                                     <div className= 'py-3'>
                                         <b>Ship</b>
                                         <p className="text-justify pt-2">{orderInfo.shipperName}</p>
-                                        {/* <p className='text-justify'>{orderInfo.phone}</p> */}
+                                        <p className='text-justify'>{orderInfo.shipperPhone}</p>
                                     </div>
                                 </div>
                                 {/* {employee &&
@@ -144,6 +146,7 @@ export default function EmployeeOrderComponent(){
                                     <b>Shipping Address</b>
                                     <p className="text-justify pt-2">{orderInfo.shipName}, {orderInfo.shipAddress}</p>
                                     <p className="text-justify">{orderInfo.shipCity}</p>
+                                    <p className="text-justify"><b>Phone:</b> {orderInfo.phone}</p>
                                 </div>
                             </div>
                         </div>
@@ -159,7 +162,7 @@ export default function EmployeeOrderComponent(){
                             </div>
                         </div>
                     </div>
-                </>
+                </div>
             }
         </div>
     )

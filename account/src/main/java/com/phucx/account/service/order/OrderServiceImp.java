@@ -22,6 +22,7 @@ import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.exception.InvalidOrderException;
+import com.phucx.account.model.Customers;
 import com.phucx.account.model.Discount;
 import com.phucx.account.model.DiscountBreifInfo;
 import com.phucx.account.model.Employees;
@@ -34,10 +35,11 @@ import com.phucx.account.model.OrderDetailsExtendedStatus;
 import com.phucx.account.model.OrderItem;
 import com.phucx.account.model.OrderItemDiscount;
 import com.phucx.account.model.OrderWithProducts;
-import com.phucx.account.model.Orders;
+import com.phucx.account.model.Order;
 import com.phucx.account.model.ProductDTO;
 import com.phucx.account.model.ProductWithBriefDiscount;
 import com.phucx.account.model.Products;
+import com.phucx.account.model.Shipper;
 import com.phucx.account.repository.CustomersRepository;
 import com.phucx.account.repository.EmployeesRepository;
 import com.phucx.account.repository.InvoicesRepository;
@@ -90,10 +92,10 @@ public class OrderServiceImp implements OrderService{
 
     @Override
     @Transactional
-    public Orders saveFullOrder(OrderWithProducts order) 
+    public Order saveFullOrder(OrderWithProducts order) 
         throws NotFoundException, SQLException, RuntimeException, InvalidDiscountException{
 
-        Orders newOrder = this.saveOrder(order);
+        Order newOrder = this.saveOrder(order);
         // save orderdetails
         List<OrderItem> orderItems = order.getProducts();
         for(OrderItem orderItem : orderItems) {
@@ -106,29 +108,24 @@ public class OrderServiceImp implements OrderService{
         return newOrder;
     }
     // save order
-    private Orders saveOrder(OrderWithProducts order) throws SQLException, RuntimeException, NotFoundException{
-        var customerOp = customersRepository.findById(order.getCustomerID());
-        Employees employee = null;
-        if(order.getEmployeeID()!=null){
-            var employeeOp = employeesRepository.findById(order.getEmployeeID());
-            if(employeeOp.isPresent()) employee = employeeOp.get();
-        }
-        var shipOp = shipperRepository.findById(order.getShipVia());
-        if(customerOp.isPresent() && shipOp.isPresent()){
-            // save order
-            Orders newOrder = new Orders(customerOp.get(), employee, 
-                order.getOrderDate(), order.getRequiredDate(), order.getShippedDate(), 
-                order.getShipVia(), order.getFreight(), order.getShipName(), 
-                order.getShipAddress(), order.getShipCity(), OrderStatus.Pending);
-
-            Orders checkOrder = ordersRepository.saveAndFlush(newOrder);
-            if(checkOrder==null) throw new RuntimeException("Error while saving order");
-            return checkOrder;
-        }
-        else throw new NotFoundException("Order missing");
+    private Order saveOrder(OrderWithProducts order) throws SQLException, RuntimeException, NotFoundException{
+        // fetch order's information
+        Customers customer = customersRepository.findById(order.getCustomerID())
+            .orElseThrow(()-> new NotFoundException("Customer " + order.getCustomerID()+" does not found"));
+        Employees employee = employeesRepository.findById(order.getEmployeeID()).orElse(null);
+        Shipper shipper = shipperRepository.findById(order.getShipVia())
+            .orElseThrow(()-> new NotFoundException("Shipper " + order.getShipVia()+ " does not found"));
+        // save order
+        Order newOrder = new Order(customer, employee, order.getOrderDate(), order.getRequiredDate(), 
+            order.getShippedDate(), shipper, order.getFreight(), order.getShipName(), order.getShipAddress(), 
+            order.getShipCity(), order.getPhone(), OrderStatus.Pending);
+    
+        Order checkOrder = ordersRepository.saveAndFlush(newOrder);
+        if(checkOrder==null) throw new RuntimeException("Error while saving order");
+        return checkOrder;
     }
     // save orderDetails
-    private OrderDetails saveOrderDetails(OrderItem orderItem, Orders order) 
+    private OrderDetails saveOrderDetails(OrderItem orderItem, Order order) 
         throws RuntimeException, NotFoundException, SQLException{
         logger.info("saveOrderDetails OrderItem:{}", orderItem.toString());
         var productOp = productsRepository.findById(orderItem.getProductID());
@@ -222,20 +219,34 @@ public class OrderServiceImp implements OrderService{
         return false;
     }
     @Override
-    public Page<OrderWithProducts> getPendingOrders(int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        // convert order and orderDetails data from database into OrderwithProduct as viewe data
-        Page<Orders> ordersPageable = ordersRepository.findByStatus(OrderStatus.Pending, pageable);
-        logger.info("order: {}", ordersPageable.toString());
-        List<Orders> orders =  ordersPageable.getContent();
+    public Page<OrderDetailsDTO> getEmployeeOrders(Integer pageNumber, Integer pageSize, String employeeID, OrderStatus orderStatus) {
+        // logger.info("getEmployeeOrders(pageNumber={}, pageSize={})", pageNumber, pageSize);
+        // Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        // // convert order and orderDetails data from database into OrderwithProduct as viewe data
+        // Page<Orders> ordersPageable = ordersRepository.findByStatusAndEmployeeID(status, employeeID, pageable);
+        // logger.info("order: {}", ordersPageable.toString());
+        // List<Orders> orders =  ordersPageable.getContent();
 
-        List<OrderWithProducts> result = orders.stream().map(order ->{
-            logger.info("orderID: {}", order.getOrderID());
-            return this.getOrderDetail(order);
-        }).collect(Collectors.toList());
+        // List<OrderWithProducts> result = orders.stream().map(order ->{
+        //     logger.info("orderID: {}", order.getOrderID());
+        //     return this.getOrderDetail(order);
+        // }).collect(Collectors.toList());
 
-        Page<OrderWithProducts> resultPageable = new PageImpl<>(result, pageable, result.size());
-        return resultPageable;
+        // Page<OrderWithProducts> resultPageable = new PageImpl<>(result, pageable, result.size());
+        // return resultPageable;
+
+        logger.info("getEmployeeOrders(pageNumber={}, pageSize={}, employeeID={}, orderStatus={})", 
+            pageNumber, pageSize, employeeID, orderStatus);
+        // get orders 
+        Pageable page = PageRequest.of(pageNumber, pageSize);   
+        Page<OrderDetailsExtendedStatus> orders = orderDetailsExtendedStatusRepository
+            .findAllByEmployeeIDAndStatusOrderByDesc(employeeID, orderStatus, page);
+
+        // convert OrderDetailsExtendedStatus to OrderDetailsDTO
+        List<OrderDetailsDTO> orderDTOs = convertOrders(orders.getContent());
+
+        Page<OrderDetailsDTO> result = new PageImpl<>(orderDTOs, orders.getPageable(), orders.getTotalElements());
+        return result;
     }
 
     @Override
@@ -276,7 +287,7 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public InvoiceDTO getOrderDetail(int orderID, String customerID) throws InvalidOrderException {
+    public InvoiceDTO getCustomerInvoice(int orderID, String customerID) throws InvalidOrderException {
         logger.info("getOrderDetail(orderID={}, customerID={})", orderID, customerID);
         // fetch invoice
         List<Invoice> fetchedInvoices = invoicesRepository.findByOrderIDAndCustomerIDOrderByProductIDAsc(orderID, customerID);
@@ -318,37 +329,66 @@ public class OrderServiceImp implements OrderService{
     }
 
     // convert orderDetail
-    private OrderWithProducts getOrderDetail(Orders order){
-        OrderWithProducts orderWithProducts = new OrderWithProducts(order);
-        List<OrderItem> orderItems = orderDetailsRepository.findByOrderID(order.getOrderID())
-            .stream().map(orderDetail ->{
-                Integer orderID = orderDetail.getKey().getOrder().getOrderID();
-                Integer productID = orderDetail.getKey().getProduct().getProductID();
-                logger.info("orderID: {}, productID: {}", orderID, productID);
-                List<OrderDetailsDiscounts> orderDetailsDiscounts = orderDetailsDiscountsRepository
-                    .findByOrderDetail(orderID, productID);
+    private OrderWithProducts getOrderDetail(Order order){
+        Customers customer = order.getCustomer();
+        Shipper shipper = order.getShipVia();
+        Employees employee = order.getEmployee();
+        OrderWithProducts orderWithProducts = new OrderWithProducts(
+            order.getOrderID(), customer.getCustomerID(), customer.getContactName(), 
+            employee!=null?employee.getEmployeeID():null, employee!=null?
+            employee.getFirstName() + " " + employee.getLastName():null, order.getOrderDate(), 
+            order.getRequiredDate(), order.getShippedDate(), shipper.getShipperID(), 
+            shipper.getCompanyName(), shipper.getPhone(), order.getFreight(), 
+            order.getShipName(), order.getShipAddress(), order.getShipCity(), order.getPhone(), 
+            order.getStatus());
 
-                logger.info("orderDetailsDiscounts: {}", orderDetailsDiscounts.toString());
-                List<OrderItemDiscount> discounts = orderDetailsDiscounts.stream()
-                    .map(orderDetailsDiscount ->{
-                        OrderItemDiscount discount = new OrderItemDiscount(
-                            orderDetailsDiscount.getId().getDiscount().getDiscountID(), 
-                            orderDetailsDiscount.getAppliedDate());
-                        return discount;
-                    }).collect(Collectors.toList());
-                OrderItem orderItem = new OrderItem(
-                    orderDetail.getKey().getProduct().getProductID(), 
-                    orderDetail.getQuantity(), 
-                    discounts);
-                return orderItem;
-            }).collect(Collectors.toList());
-        orderWithProducts.setProducts(orderItems);
+        List<OrderDetails> orderDetails = orderDetailsRepository.findByOrderID(order.getOrderID());
+        // calculate totalprice of an order
+        Double totalPrice = Double.valueOf(0);
+        for(OrderDetails orderDetail: orderDetails){
+            // create a product for order
+            OrderItem orderItem = new OrderItem(
+                orderDetail.getKey().getProduct().getProductID(),
+                orderDetail.getKey().getProduct().getProductName(),
+                orderDetail.getQuantity(), 
+                orderDetail.getKey().getProduct().getPicture(), 
+                orderDetail.getUnitPrice());
+            Integer totalDiscount = Integer.valueOf(0);
+            // fetch product'discounts
+            Integer orderID = orderDetail.getKey().getOrder().getOrderID();
+            Integer productID = orderDetail.getKey().getProduct().getProductID();
+            List<OrderDetailsDiscounts> orderDetailsDiscounts = orderDetailsDiscountsRepository
+                .findByOrderDetail(orderID, productID);
+            // add discount
+            List<OrderItemDiscount> discounts = new ArrayList<>();
+            for(OrderDetailsDiscounts orderDetailsDiscount: orderDetailsDiscounts){
+                OrderItemDiscount discount = new OrderItemDiscount(
+                    orderDetailsDiscount.getId().getDiscount().getDiscountID(), 
+                    orderDetailsDiscount.getAppliedDate(), 
+                    orderDetailsDiscount.getDiscountPercent(), 
+                    orderDetailsDiscount.getId().getDiscount().getDiscountType().getDiscountType());
+                // add total discounts
+                totalDiscount +=orderDetailsDiscount.getDiscountPercent();
+                discounts.add(discount);
+            }
+  
+            // add discounts and price of each product
+            orderItem.setDiscounts(discounts);
+            Double extendedPrice = (Double.valueOf(orderDetail.getQuantity()) * orderDetail.getUnitPrice())*(1- Double.valueOf(totalDiscount) /100) ;
+            totalPrice+=extendedPrice;
+            // logger.info("totalPrice {}", totalPrice);
+            orderItem.setExtendedPrice(extendedPrice);
+            // add product to order
+            orderWithProducts.getProducts().add(orderItem);
+        }
+        orderWithProducts.setTotalPrice(totalPrice);
+        logger.info("OrderWithProducts: {}", orderWithProducts.toString());
         return orderWithProducts;
     }
 
     @Override
-    public Page<OrderDetailsDTO> getOrders(Integer pageNumber, Integer pageSize, String customerID, OrderStatus orderStatus) {
-        logger.info("getOrders(pageNumber={}, pageSize={}, customerID={}, orderStatus={})", 
+    public Page<OrderDetailsDTO> getCustomerOrders(Integer pageNumber, Integer pageSize, String customerID, OrderStatus orderStatus) {
+        logger.info("getCustomerOrders(pageNumber={}, pageSize={}, customerID={}, orderStatus={})", 
             pageNumber, pageSize, customerID, orderStatus);
         // get orders 
         Pageable page = PageRequest.of(pageNumber, pageSize);   
@@ -363,7 +403,8 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public Page<OrderDetailsDTO> getOrders(Integer pageNumber, Integer pageSize, String customerID) {
+    public Page<OrderDetailsDTO> getCustomerOrders(Integer pageNumber, Integer pageSize, String customerID) {
+        logger.info("getCustomerOrders(pageNumber={}, pageSize={}, customerID={})", pageNumber, pageSize, customerID);
         // get orders 
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<OrderDetailsExtendedStatus> orders = orderDetailsExtendedStatusRepository
@@ -392,6 +433,52 @@ public class OrderServiceImp implements OrderService{
         }
 
         return orderDTOs;
+    }
+
+    @Override
+    public Page<OrderDetailsDTO> getPendingOrders(int pageNumber, int pageSize) {
+        logger.info("getPendingOrders(pageNumber={}, pageSize={})", pageNumber, pageSize);
+        // get orders 
+        Pageable page = PageRequest.of(pageNumber, pageSize);   
+        Page<OrderDetailsExtendedStatus> orders = orderDetailsExtendedStatusRepository
+            .findAllByStatusOrderByDesc(OrderStatus.Pending, page);
+
+        // convert OrderDetailsExtendedStatus to OrderDetailsDTO
+        List<OrderDetailsDTO> orderDTOs = convertOrders(orders.getContent());
+
+        Page<OrderDetailsDTO> result = new PageImpl<>(orderDTOs, orders.getPageable(), orders.getTotalElements());
+        return result;
+    }
+
+    @Override
+    public OrderWithProducts getEmployeeOrderDetail(int orderID, String employeeID) throws InvalidOrderException {
+        logger.info("getEmployeeOrderDetail(orderID={}, EmployeeID={})", orderID, employeeID);
+        Order order = ordersRepository.findByEmployeeIDAndOrderID(employeeID, orderID)
+            .orElseThrow(()-> new InvalidOrderException("Order " + orderID + " is invalid"));
+        logger.info("order: {}", order);
+        OrderWithProducts convertedOrder = this.getOrderDetail(order);
+        return convertedOrder;
+    }
+
+    @Override
+    public OrderWithProducts getPendingOrderDetail(int orderID) throws InvalidOrderException{
+        logger.info("getPendingOrderDetail(orderID={})", orderID);
+        Order order = ordersRepository.findByStatusAndOrderID(OrderStatus.Pending, orderID)
+            .orElseThrow(()-> new InvalidOrderException("Order " + orderID + " is invalid"));
+        OrderWithProducts convertedOrder = this.getOrderDetail(order);
+        return convertedOrder;
+    }
+
+    @Override
+    public Page<OrderDetailsDTO> getEmployeeOrders(Integer pageNumber, Integer pageSize, String employeeID) {
+        logger.info("getEmployeeOrders(pageNumber={}, pageSize={}, customerID={})", pageNumber, pageSize, employeeID);
+        // get orders 
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<OrderDetailsExtendedStatus> orders = orderDetailsExtendedStatusRepository
+            .findAllByEmployeeIDOrderByDesc(employeeID, page);
+        // convert orders
+        List<OrderDetailsDTO> orderDTOs = this.convertOrders(orders.getContent());  
+        return new PageImpl<>(orderDTOs, orders.getPageable(), orders.getTotalElements());
     }
     
 }

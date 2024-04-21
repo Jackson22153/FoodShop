@@ -20,6 +20,7 @@ export const customerNotification = `${customerPath}/notification`
 // employeePath
 export const employeeInfo = `${employeePath}/info`
 export const employeeOrder = `${employeePath}/order`
+export const employeePendingOrder = `${employeeOrder}/pending`
 export const employeeNotification = `${employeePath}/notification`
 
 // product

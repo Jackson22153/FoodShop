@@ -22,6 +22,7 @@ public class InvoiceDTO {
     private String shipName;
     private String shipAddress;
     private String shipCity;
+    private String phone;
     
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderDate;

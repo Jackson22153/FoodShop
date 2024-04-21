@@ -52,7 +52,7 @@ public class CustomerController {
     private SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
     private DiscountService discountService;
-
+    // GET CUSTOMER'S INFOMATION
     @GetMapping("info")
     public ResponseEntity<CustomerDetail> getUserInfo(Authentication authentication){
         String username = usersService.getUsername(authentication);
@@ -60,7 +60,7 @@ public class CustomerController {
         CustomerDetail customer = customersService.getCustomerDetail(username);
         return ResponseEntity.ok().body(customer);
     }
-
+    // UPDATE CUSTOMER'S INFOMATION
     @PostMapping("info")
     public ResponseEntity<ResponseFormat> updateUserInfo(
         Authentication authentication,
@@ -77,17 +77,17 @@ public class CustomerController {
         Boolean status = discountService.validateDiscountsOfProduct(orderItem);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
-    // get order detail of customer
+    // get INVOICE of customer
     @GetMapping("/orders/{orderID}")
     public ResponseEntity<InvoiceDTO> getOrderDetail(
         @PathVariable Integer orderID, Authentication authentication
     ) throws InvalidOrderException{    
         String username = usersService.getUsername(authentication);
         Customers customer = customersService.getCustomerByUsername(username);
-        InvoiceDTO order = customersService.findOrderDetail(orderID, customer.getCustomerID());
+        InvoiceDTO order = customersService.getInvoice(orderID, customer.getCustomerID());
         return ResponseEntity.ok().body(order);
     }
-
+    // GET ALL ORDERS OF CUSTOMER
     @GetMapping("/orders")
     public ResponseEntity<Page<OrderDetailsDTO>> getOrders(
         @RequestParam(name = "page", required = false) Integer pageNumber,
@@ -104,14 +104,14 @@ public class CustomerController {
         }else {
             status = OrderStatus.fromString(orderStatus.toUpperCase());
         }
-        Page<OrderDetailsDTO> orders = customersService.findOrders(
+        Page<OrderDetailsDTO> orders = customersService.getOrders(
             pageNumber, WebConstant.PAGE_SIZE, 
             customer.getCustomerID(), 
             status);
         return ResponseEntity.ok().body(orders);
     }
 
-    // message
+    // ENDPOINT TO PLACE AN ORDER
     @LoggerAspect
     @MessageMapping("/placeOrder")
     @SendTo("/topic/order")
@@ -127,7 +127,7 @@ public class CustomerController {
         throw new NotFoundException("Customer is not found");
     }
 
-
+    // HANDLE MESSAGE EXCEPTION
     @MessageExceptionHandler(value = SQLException.class)
     public void handleSqlMessageException(Authentication authentication){
         String username = usersService.getUsername(authentication);

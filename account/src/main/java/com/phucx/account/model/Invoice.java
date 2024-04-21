@@ -30,6 +30,7 @@ public class Invoice {
     private String shipName;
     private String shipAddress;
     private String shipCity;
+    private String phone;
     
     private String customerID;
     private String salesperson;

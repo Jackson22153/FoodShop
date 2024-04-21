@@ -9,6 +9,7 @@ import EmployeeInfomationComponent from './employeeinfomation/EmployeeInfomation
 import EmployeeOrdersComponent from './employeeorder/EmployeeOrders';
 import EmployeeOrderComponent from './employeeorder/EmployeeOrder';
 import EmployeeNotificationComponent from './notification/EmployeeNotification';
+import EmployeePendingOrderComponent from './employeeorder/EmployeePendingOrder';
 
 export default function EmployeeComponent(){
     // const [customerInfo, setCustomerInfo] = useState<Customer>();
@@ -107,6 +108,7 @@ export default function EmployeeComponent(){
                         <Route path='info' element={<EmployeeInfomationComponent/>}></Route>
                         <Route path='order' element={<EmployeeOrdersComponent/>}></Route>
                         <Route path='order/:orderId' element={<EmployeeOrderComponent/>}></Route>
+                        <Route path='order/pending/:orderId' element={<EmployeePendingOrderComponent/>} ></Route>
                         <Route path='notification' element={<EmployeeNotificationComponent/>}></Route>
                     </Routes>
                 </div>  
