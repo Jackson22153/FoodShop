@@ -36,6 +36,7 @@ import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.customers.CustomersService;
 import com.phucx.account.service.discounts.DiscountService;
+import com.phucx.account.service.messageQueue.sender.MessageSender;
 import com.phucx.account.service.users.UsersService;
 import jakarta.ws.rs.NotFoundException;
 
@@ -50,6 +51,8 @@ public class CustomerController {
     private UsersService usersService;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private MessageSender messageSender;
     @Autowired
     private DiscountService discountService;
     // GET CUSTOMER'S INFOMATION
@@ -122,7 +125,16 @@ public class CustomerController {
         logger.info("Customer {} has placed an order: {}",username, order.toString());
         if(customer!=null){
             order.setCustomerID(customer.getCustomerID());
-            return customersService.placeOrder(order);
+            OrderWithProducts createdOrder = customersService.placeOrder(order);
+            if(createdOrder !=null){
+                // notificate back to user
+                String userID = customer.getUser().getUserID();
+                NotificationMessage notification = new NotificationMessage(
+                    "Your order have been placed successfully", Notification.SUCCESS); 
+                messageSender.sendMessageToUser(userID, notification);
+                return createdOrder;
+            }
+            throw new RuntimeException("Error when placing an order");
         }
         throw new NotFoundException("Customer is not found");
     }
@@ -157,4 +169,24 @@ public class CustomerController {
         simpMessagingTemplate.convertAndSendToUser(customer.getCustomerID(), 
             WebSocketConfig.QUEUE_MESSAGES, notificationMessage);
     }
+
+    @MessageExceptionHandler(value = RuntimeException.class)
+    public void handleRuntimeMessageException(Authentication authentication, Exception exception){
+        String username = usersService.getUsername(authentication);
+        Customers customer = customersService.getCustomerByUsername(username);
+        NotificationMessage notificationMessage = new NotificationMessage(
+            exception.getMessage(), Notification.ERROR);
+        simpMessagingTemplate.convertAndSendToUser(customer.getCustomerID(), 
+            WebSocketConfig.QUEUE_MESSAGES, notificationMessage);
+    }
+
+    // @MessageExceptionHandler(value = Exception.class)
+    // public void handleUndefinedMessageException(Authentication authentication){
+    //     String username = usersService.getUsername(authentication);
+    //     Customers customer = customersService.getCustomerByUsername(username);
+    //     NotificationMessage notificationMessage = new NotificationMessage(
+    //         "Invalid order", Notification.CANCEL);
+    //     simpMessagingTemplate.convertAndSendToUser(customer.getCustomerID(), 
+    //         WebSocketConfig.QUEUE_MESSAGES, notificationMessage);
+    // }
 }

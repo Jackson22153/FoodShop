@@ -19,7 +19,6 @@ public class GatewayRoute {
                 .path("/shop/**")
                 .filters(filter -> filter
                     .filter(tokenRelayGatewayFilterFactory.apply())
-                    .removeRequestHeader("Cookie")
                     .rewritePath("/shop/(?<segment>.*)","/${segment}"))
                 .uri("lb://SHOP"))
             .route(route -> route

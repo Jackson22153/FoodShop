@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
-import { getCustomerInvoice } from "../../../../../api/UserApi";
-import { OrderInfo, OrderWithProduct } from "../../../../../model/Type";
+import { OrderWithProduct } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/image";
 import { getOrderDetail } from "../../../../../api/EmployeeApi";
 import dayjs from "dayjs";

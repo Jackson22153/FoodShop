@@ -33,7 +33,7 @@ public class HomeController {
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
         Page<Categories> data = categoriesService
-            .getCategories(pageNumber, WebConfig.PAGESIZE);
+            .getCategories(pageNumber, WebConfig.PAGE_SIZE);
 
         return ResponseEntity.ok().body(data);
     }
@@ -52,11 +52,9 @@ public class HomeController {
         @RequestParam(name = "page", required=false) Integer pageNumber
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
-
         categoryName = categoryName.replaceAll("-", "_");
-
         Page<CurrentProductList> products = productsService.getCurrentProductsByCategoryName(
-            categoryName, pageNumber, WebConfig.PAGESIZE);
+            categoryName, pageNumber, WebConfig.PAGE_SIZE);
 
         return ResponseEntity.ok().body(products);
     }
@@ -68,7 +66,7 @@ public class HomeController {
         @RequestParam(name = "page", required = false) Integer pageNumber
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
-        var productsPageable =productsService.getCurrentProductList(pageNumber, WebConfig.PAGESIZE);
+        var productsPageable =productsService.getCurrentProductList(pageNumber, WebConfig.PAGE_SIZE);
         return ResponseEntity.ok().body(productsPageable);
     }
     
@@ -83,7 +81,7 @@ public class HomeController {
     @GetMapping("/products/recommended")
     public ResponseEntity<List<CurrentProductList>> getRecommendedProducts(){
         List<CurrentProductList> products = productsService
-            .getRecommendedProducts(0, WebConfig.PAGESIZE);
+            .getRecommendedProducts(0, WebConfig.PAGE_SIZE);
             
         return ResponseEntity.ok().body(products);
     }

@@ -1,6 +1,8 @@
 package com.phucx.shop.repository;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,5 +46,5 @@ public interface ProductsRepository extends JpaRepository<Products, Integer> {
               """)
        Page<Products> findByProductNameLike(String productName, Pageable page);
 
-       Products findByProductIDAndDiscontinued(Integer productID, Boolean discontinued);
+       Optional<Products> findByProductIDAndDiscontinued(Integer productID, Boolean discontinued);
 }

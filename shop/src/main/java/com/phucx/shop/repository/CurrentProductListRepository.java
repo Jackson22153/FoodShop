@@ -1,5 +1,7 @@
 package com.phucx.shop.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,9 +23,10 @@ public interface CurrentProductListRepository extends JpaRepository<CurrentProdu
 
     Page<CurrentProductList> findByCategoryName(String categoryName, Pageable page);
 
-    // @Query("""
-    //     SELECT c FROM CurrentProductList c \
-    //     WHERE c.productID IN ?1
-    //     """)
-    // List<CurrentProductList> findByProductILists(List<Integer> productIDs);
+    @Query("""
+        SELECT c FROM CurrentProductList c \
+        WHERE c.productID IN ?1 \
+        ORDER BY c.productID Asc
+            """)
+    List<CurrentProductList> findAllByProductIDOrderByProductIDAsc(List<Integer> productIDs);
 }

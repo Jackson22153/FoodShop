@@ -42,10 +42,10 @@ export type Discount = {
 }
 export type CartProduct = {
     productID: number,
-    productName: string,
-    discount: number,
     quantity: number
 }
+
+
 export type Supplier = {
     supplierID: number,
     companyName: string,
@@ -149,9 +149,11 @@ export type DiscountInfo = {
 export type ProductWithDiscount = {
     productID: number,
     productName: string,
+    categoryName: string,
     quantity: number,
     totalDiscount: number,
     unitPrice: number,
+    unitsInStock: number,
     picture: string,
     extendedPrice: number,
     discounts: DiscountBriefInfo[]

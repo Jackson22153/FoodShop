@@ -2,8 +2,6 @@ package com.phucx.gateway.config;
 
 import java.util.Collections;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -11,9 +9,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
 import org.springframework.security.web.server.csrf.CsrfToken;
-import org.springframework.security.web.server.csrf.XorServerCsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -25,10 +21,14 @@ import reactor.core.publisher.Mono;
 @EnableWebFluxSecurity
 @ComponentScan("com.phucx.gateway.filter")
 public class WebConfig {
-    private Logger logger = LoggerFactory.getLogger(WebConfig.class);
     @Bean
     public KeycloakLogoutHandler getKeycloakLogoutHandler(){
         return new KeycloakLogoutHandler();
+    }
+
+    @Bean
+    public KeycloakLogoutSuccessfulHandler keycloakLogoutSuccessfulHandler(){
+        return new KeycloakLogoutSuccessfulHandler();
     }
 
     @Bean
@@ -76,7 +76,9 @@ public class WebConfig {
             .anyExchange().authenticated());
 
         http.oauth2Login(Customizer.withDefaults())
-            .logout(logout-> logout.logoutHandler(getKeycloakLogoutHandler()));
+            .logout(logout-> logout
+                .logoutHandler(getKeycloakLogoutHandler())
+                .logoutSuccessHandler(keycloakLogoutSuccessfulHandler()));
 
         http.formLogin(login -> login.disable());
         http.httpBasic(login -> login.disable());
@@ -93,8 +95,7 @@ public class WebConfig {
         return (exchange, chain)->{
             Mono<CsrfToken> csrfToken = exchange.getAttribute(CsrfToken.class.getName());
             if(csrfToken!=null){
-                return csrfToken
-                .doOnSuccess(token -> {}).then(chain.filter(exchange));
+                return csrfToken.doOnSuccess(token -> {}).then(chain.filter(exchange));
             } return chain.filter(exchange);
         };
     }

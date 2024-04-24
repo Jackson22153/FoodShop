@@ -31,11 +31,11 @@ public class Order {
     private Integer orderID;
 
     @ManyToOne
-    @JoinColumn(name = "CustomerID", nullable = true)
+    @JoinColumn(name = "CustomerID")
     private Customers customer;
 
     @ManyToOne
-    @JoinColumn(name = "EmployeeID", nullable = true)
+    @JoinColumn(name = "EmployeeID")
     private Employees employee;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

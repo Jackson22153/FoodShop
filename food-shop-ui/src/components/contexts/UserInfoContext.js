@@ -1,6 +1,7 @@
 import { createContext } from "react";
 
 const userInfoContext = createContext({
+    userID: '',
     username: "",
     isAuthenticated: false
 })

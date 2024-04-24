@@ -26,7 +26,7 @@ public class SearchController {
     ) {
         if(letters.length()>2){
             var productsPageable = productsService.searchCurrentProducts(
-                letters, 0, WebConfig.PAGESIZE);
+                letters, 0, WebConfig.PAGE_SIZE);
 
             return ResponseEntity.ok().body(productsPageable);
         }

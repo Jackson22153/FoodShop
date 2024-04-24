@@ -81,7 +81,7 @@ body {
     height: auto;
   }
   
-  .header_section {
+  .header-section {
     background-color: #f7f7f7;
     position: fixed;
     top: 0;
@@ -90,12 +90,12 @@ body {
     z-index: 1;
   }
   
-  .header_section .container-fluid {
+  .header-section .container-fluid {
     padding-right: 25px;
     padding-left: 25px;
   }
   
-  .header_section .nav_container {
+  .header-section .nav_container {
     margin: 0 auto;
   }
   

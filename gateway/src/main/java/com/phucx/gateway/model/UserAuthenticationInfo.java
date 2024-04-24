@@ -9,6 +9,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserAuthenticationInfo {
+    private String userID;
     private String username;
     private boolean isAuthenticated;
 }

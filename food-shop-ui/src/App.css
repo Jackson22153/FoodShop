@@ -11,6 +11,13 @@
   box-sizing: border-box;
 }
 
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -38,6 +45,26 @@
   50% {opacity: 1;}
   100% {opacity: 0;}
 }
+.product-quanlity-input{
+  width: 50px !important;
+  text-align: center !important;
+}
+
+.cart-link::before{
+  content: "";
+  border: 1px solid rgb(235, 235, 240);
+  height: 20px;
+  position: absolute;
+  left: 10px;
+}
+.cart-badge{
+  position: absolute !important;
+  top: -8px !important;
+}
+
+
+
+
 .alert{
   animation-name: fade;
   animation-duration: 3s;

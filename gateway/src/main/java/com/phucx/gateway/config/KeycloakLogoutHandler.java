@@ -26,7 +26,8 @@ public class KeycloakLogoutHandler implements ServerLogoutHandler{
     public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {   
         OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
         // return logoutFromKeycloak(oidcUser);
-        return logoutFromKeycloak(oidcUser);
+        return logoutFromKeycloak(oidcUser)
+            .then();
     }
 
     

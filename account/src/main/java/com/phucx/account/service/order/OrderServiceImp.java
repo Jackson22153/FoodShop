@@ -109,10 +109,14 @@ public class OrderServiceImp implements OrderService{
     }
     // save order
     private Order saveOrder(OrderWithProducts order) throws SQLException, RuntimeException, NotFoundException{
+        logger.info("saveOrder({})", order);
         // fetch order's information
         Customers customer = customersRepository.findById(order.getCustomerID())
             .orElseThrow(()-> new NotFoundException("Customer " + order.getCustomerID()+" does not found"));
-        Employees employee = employeesRepository.findById(order.getEmployeeID()).orElse(null);
+        Employees employee = null;
+        if(order.getEmployeeID()!=null){
+            employee = employeesRepository.findById(order.getEmployeeID()).orElse(null);
+        }
         Shipper shipper = shipperRepository.findById(order.getShipVia())
             .orElseThrow(()-> new NotFoundException("Shipper " + order.getShipVia()+ " does not found"));
         // save order
@@ -120,6 +124,10 @@ public class OrderServiceImp implements OrderService{
             order.getShippedDate(), shipper, order.getFreight(), order.getShipName(), order.getShipAddress(), 
             order.getShipCity(), order.getPhone(), OrderStatus.Pending);
     
+        logger.info("customer: {}", customer);
+        logger.info("Shipper: {}", shipper);
+        logger.info("employee: {}", employee);
+
         Order checkOrder = ordersRepository.saveAndFlush(newOrder);
         if(checkOrder==null) throw new RuntimeException("Error while saving order");
         return checkOrder;
@@ -171,7 +179,7 @@ public class OrderServiceImp implements OrderService{
            discount.getDiscountID(), 
            orderItemDiscount.getAppliedDate());
 
-        if(result){
+        if(!result){
             throw new RuntimeException("Can not apply discount to this product");
         }
     }

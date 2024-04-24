@@ -1,4 +1,4 @@
-package com.phucx.shop.service.SalesByCategory;
+package com.phucx.shop.service.salesByCategory;
 
 import org.springframework.data.domain.Page;
 

@@ -40,7 +40,7 @@ function HeaderComponent(prop: Props){
     
 
     return(
-        <header className="header_section">
+        <header className="header-section bg-white">
             <div className="topbar">
 				<div className="content-topbar container h-100">
 					<div className="left-topbar">
@@ -53,10 +53,9 @@ function HeaderComponent(prop: Props){
                             <div className="navbar-expand-lg navbar-light text-white">
                                 <div className="collapse navbar-collapse" id="navbarNavDropdown">
                                     <ul className="navbar-nav ml-auto">
-                                        <li className="nav-item dropdown">
+                                        <li className="nav-item dropdown" onMouseEnter={onClickIsOpenDropdown} onMouseLeave={onClickIsOpenDropdown}>
                                             <span className="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" 
-                                                data-toggle="dropdown" aria-haspopup={isOpeningDropdown} aria-expanded={isOpeningDropdown} 
-                                                onClick={onClickIsOpenDropdown}>
+                                                data-toggle="dropdown" aria-haspopup={isOpeningDropdown} aria-expanded={isOpeningDropdown} >
                                                 {userInfo.username}
                                             </span>
                                             {isOpeningDropdown &&
@@ -128,9 +127,10 @@ function HeaderComponent(prop: Props){
                                     handleSearchResult={prop.handleSearchResult}/>
                             </form>
                         </div>
-                        <div className="cart_btn-container ml-0 ml-lg-4 d-flex justify-content-center">
-                            <a className="cart-link" href={cartPath}>
+                        <div className=" ml-0 ml-lg-4 d-flex justify-content-center  position-relative d-flex align-items-center">
+                            <a className="btn btn-light ms-3 cart-icon cart-link" href={cartPath}>
                                 <FontAwesomeIcon icon={faCartShopping}/>
+                                {/* <span className="cart-badge badge rounded-pill badge-notification bg-danger">9</span> */}
                             </a>
                         </div>
                     </div>

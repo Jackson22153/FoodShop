@@ -31,6 +31,7 @@ function HomeComponent(){
     const [searchInputValue, setSearchInputValue] = useState('');
     const [searchResult, setSearchResult] = useState<Product[]>([]);
     const [userInfo, setUserInfo] = useState<UserInfo>({
+        userID: "",
         username: "",
         isAuthenticated: false
     })
@@ -66,6 +67,7 @@ function HomeComponent(){
             // console.log(data)
             if(data.isAuthenticated) isAuthen=true;
             setUserInfo({
+                userID: data.userID,
                 username: data.username,
                 isAuthenticated: data.authenticated
             })

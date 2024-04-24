@@ -1,7 +1,5 @@
 package com.phucx.shop.model;
 
-import java.math.BigDecimal;
-
 import org.springframework.data.annotation.Immutable;
 
 import jakarta.persistence.Entity;
@@ -22,7 +20,8 @@ public class CurrentProductList {
     private String productName;
     private String picture;
     private Double unitPrice;
+    private Integer unitsInStock;
     private String discountID;
-    private BigDecimal discountPercent;
+    private Integer discountPercent;
     private String categoryName;
 }
