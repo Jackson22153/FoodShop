@@ -25,7 +25,7 @@ export default function CategoriesSection(prop: Props){
                     the majority have
                 </p>
 
-                {lstCategories.length>0 && lstCategories.map((category)=>(
+                {lstCategories.map((category)=>(
                     <div className="row layout_padding2" key={category.categoryName}>
                         <CategoriesDetailbox categoryTitle={category.categoryName}
                             categoryDetail={category.description}

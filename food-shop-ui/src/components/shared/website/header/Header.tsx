@@ -1,16 +1,17 @@
 import { getLogo } from "../../../../service/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { cartPath, categoriesPath, customerPath, foodsPath } from "../../../../constant/FoodShoppingURL";
-import { Category, Product, UserInfo } from "../../../../model/Type";
-import { convertNameForUrl, nonBreakingSpace } from "../../../../service/convertStr";
+import { Category, Product } from "../../../../model/Type";
+import { convertNameForUrl, nonBreakingSpace } from "../../../../service/convert";
 import Search from "../../functions/search/Search";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
-import { useContext } from "react";
+import { memo, useContext } from "react";
 import { LoginUrl } from "../../../../constant/FoodShoppingApiURL";
-import userInfoContext from "../../../contexts/UserInfoContext";
 import { logout } from "../../../../api/AuthorizationApi";
 import { isOpeningUserDropDownContext } from "../../../ui/homePath/home/Home";
-
+import numberOfCartProductsContext from "../../../contexts/NumberOfCartProductsContext";
+import userInfoContext from "../../../contexts/UserInfoContext";
+ 
 interface Props{
     lstCategories: Category[]
     searchInputValue: string,
@@ -19,23 +20,27 @@ interface Props{
     handleIsOpeningUserDropDown: any,
     handleInputSearchChange: any,
 }
-function HeaderComponent(prop: Props){
+const HeaderComponent = memo(function HeaderComponent(prop: Props){
     const logo = getLogo();
     const lstCategories = prop.lstCategories;
     const searchInputValue = prop.searchInputValue;
     const searchResult = prop.searchResult;
     const isOpeningDropdown = useContext(isOpeningUserDropDownContext);
-    const userInfo = useContext<UserInfo>(userInfoContext);
+
+
+
+    const  userInfo  = useContext(userInfoContext);
+    const { numberOfCartProducts } = useContext(numberOfCartProductsContext);
 
     const onClickIsOpenDropdown = ()=>{
         prop.handleIsOpeningUserDropDown(!isOpeningDropdown);
     }
 
-    const onClickLogout = ()=>{
-        logout().then((_res) =>{
-
+    const onClickLogout = async ()=>{
+        const res = await logout();
+        if(res.status===200){
             window.location.href = "/";
-        })
+        }
     }
     
 
@@ -48,7 +53,6 @@ function HeaderComponent(prop: Props){
 					</div>
 
 					<div className="right-topbar">
-
                         {userInfo.isAuthenticated ?
                             <div className="navbar-expand-lg navbar-light text-white">
                                 <div className="collapse navbar-collapse" id="navbarNavDropdown">
@@ -73,7 +77,7 @@ function HeaderComponent(prop: Props){
                             </div>:
                             <ul className="nav-fill nav">
                                 <li className="nav-item">
-                                    <a href="" className="text-light nav-link">Sing up</a>
+                                    <a href="#" className="text-light nav-link">Sing up</a>
                                 </li>
                                 <li className="nav-item">
                                     <a href={LoginUrl} className="text-light nav-link">Log in</a>
@@ -85,7 +89,7 @@ function HeaderComponent(prop: Props){
 			</div>
             <div className="container">
                 <nav className="navbar navbar-expand-lg custom_nav-container pt-3">
-                    <a className="navbar-brand" href="index">
+                    <a className="navbar-brand" href="/">
                         <img src={logo} alt="" /><span>
                             Tropiko
                         </span>
@@ -130,7 +134,11 @@ function HeaderComponent(prop: Props){
                         <div className=" ml-0 ml-lg-4 d-flex justify-content-center  position-relative d-flex align-items-center">
                             <a className="btn btn-light ms-3 cart-icon cart-link" href={cartPath}>
                                 <FontAwesomeIcon icon={faCartShopping}/>
-                                {/* <span className="cart-badge badge rounded-pill badge-notification bg-danger">9</span> */}
+                                {numberOfCartProducts>0 &&
+                                    <span className="cart-badge badge rounded-pill badge-notification bg-danger">
+                                        {numberOfCartProducts}
+                                    </span>
+                                }
                             </a>
                         </div>
                     </div>
@@ -138,5 +146,5 @@ function HeaderComponent(prop: Props){
             </div>
         </header>
     )
-}
+});
 export default HeaderComponent;

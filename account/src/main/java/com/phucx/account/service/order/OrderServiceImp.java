@@ -1,5 +1,6 @@
 package com.phucx.account.service.order;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -42,13 +43,14 @@ import com.phucx.account.model.Products;
 import com.phucx.account.model.Shipper;
 import com.phucx.account.repository.CustomersRepository;
 import com.phucx.account.repository.EmployeesRepository;
-import com.phucx.account.repository.InvoicesRepository;
+import com.phucx.account.repository.InvoiceRepository;
 import com.phucx.account.repository.OrderDetailsDiscountsRepository;
 import com.phucx.account.repository.OrderDetailsExtendedStatusRepository;
 import com.phucx.account.repository.OrderDetailsRepository;
 import com.phucx.account.repository.OrdersRepository;
 import com.phucx.account.repository.ProductsRepository;
 import com.phucx.account.repository.ShipperRepository;
+import com.phucx.account.service.bigdecimal.BigDecimalService;
 import com.phucx.account.service.discounts.DiscountService;
 
 import jakarta.ws.rs.NotFoundException;
@@ -78,7 +80,9 @@ public class OrderServiceImp implements OrderService{
     @Autowired
     private ShipperRepository shipperRepository;
     @Autowired
-    private InvoicesRepository invoicesRepository;
+    private InvoiceRepository invoiceRepository;
+    @Autowired
+    private BigDecimalService bigDecimalService;
 
     @Override
     public boolean updateOrderStatus(Integer orderID, OrderStatus status) {
@@ -121,13 +125,9 @@ public class OrderServiceImp implements OrderService{
             .orElseThrow(()-> new NotFoundException("Shipper " + order.getShipVia()+ " does not found"));
         // save order
         Order newOrder = new Order(customer, employee, order.getOrderDate(), order.getRequiredDate(), 
-            order.getShippedDate(), shipper, order.getFreight(), order.getShipName(), order.getShipAddress(), 
-            order.getShipCity(), order.getPhone(), OrderStatus.Pending);
-    
-        logger.info("customer: {}", customer);
-        logger.info("Shipper: {}", shipper);
-        logger.info("employee: {}", employee);
-
+            order.getShippedDate(), shipper, bigDecimalService.formatter(order.getFreight()), 
+            order.getShipName(), order.getShipAddress(),  order.getShipCity(), order.getPhone(), 
+            OrderStatus.Pending);
         Order checkOrder = ordersRepository.saveAndFlush(newOrder);
         if(checkOrder==null) throw new RuntimeException("Error while saving order");
         return checkOrder;
@@ -142,7 +142,7 @@ public class OrderServiceImp implements OrderService{
             OrderDetailsKey key = new OrderDetailsKey(product, order);
             
             OrderDetails orderDetail = new OrderDetails(
-                key, product.getUnitPrice(), 
+                key, bigDecimalService.formatter(product.getUnitPrice()), 
                 orderItem.getQuantity());
             OrderDetails newOrderDetail = orderDetailsRepository.saveAndFlush(orderDetail);
             if(newOrderDetail==null) throw new RuntimeException("Error while saving orderdetail for order: "+ order.getOrderID());
@@ -158,8 +158,6 @@ public class OrderServiceImp implements OrderService{
         logger.info("saveOrderDetailsDiscounts: orderItemDiscount:{}, orderDetail:{}", 
             orderItemDiscount.toString(), orderDetail.toString());
         Discount discount = discountService.getDiscount(orderItemDiscount.getDiscountID());
-        // Discount discount = discountRepository.findById(orderItemDiscount.getDiscountID())
-        //     .orElseThrow(() -> new InvalidDiscountException("Discount "+orderItemDiscount.getDiscountID()+" does not found"));
         OrderDetailsKey orderDetailsID = orderDetail.getKey();
 
         // set applied date for discount
@@ -228,21 +226,6 @@ public class OrderServiceImp implements OrderService{
     }
     @Override
     public Page<OrderDetailsDTO> getEmployeeOrders(Integer pageNumber, Integer pageSize, String employeeID, OrderStatus orderStatus) {
-        // logger.info("getEmployeeOrders(pageNumber={}, pageSize={})", pageNumber, pageSize);
-        // Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        // // convert order and orderDetails data from database into OrderwithProduct as viewe data
-        // Page<Orders> ordersPageable = ordersRepository.findByStatusAndEmployeeID(status, employeeID, pageable);
-        // logger.info("order: {}", ordersPageable.toString());
-        // List<Orders> orders =  ordersPageable.getContent();
-
-        // List<OrderWithProducts> result = orders.stream().map(order ->{
-        //     logger.info("orderID: {}", order.getOrderID());
-        //     return this.getOrderDetail(order);
-        // }).collect(Collectors.toList());
-
-        // Page<OrderWithProducts> resultPageable = new PageImpl<>(result, pageable, result.size());
-        // return resultPageable;
-
         logger.info("getEmployeeOrders(pageNumber={}, pageSize={}, employeeID={}, orderStatus={})", 
             pageNumber, pageSize, employeeID, orderStatus);
         // get orders 
@@ -298,7 +281,7 @@ public class OrderServiceImp implements OrderService{
     public InvoiceDTO getCustomerInvoice(int orderID, String customerID) throws InvalidOrderException {
         logger.info("getOrderDetail(orderID={}, customerID={})", orderID, customerID);
         // fetch invoice
-        List<Invoice> fetchedInvoices = invoicesRepository.findByOrderIDAndCustomerIDOrderByProductIDAsc(orderID, customerID);
+        List<Invoice> fetchedInvoices = invoiceRepository.findByOrderIDAndCustomerIDOrderByProductIDAsc(orderID, customerID);
         if(fetchedInvoices==null || fetchedInvoices.isEmpty()) 
             throw new InvalidOrderException("Order " + orderID + " does not found");
 
@@ -319,7 +302,7 @@ public class OrderServiceImp implements OrderService{
                     tempInvoice.getProductID(), tempInvoice.getProductName(), tempInvoice.getUnitPrice(), 
                     tempInvoice.getQuantity(), tempInvoice.getPicture(), tempInvoice.getExtendedPrice());
                 // set totalprice for invoice
-                invoiceDTO.setTotalPrice(tempInvoice.getExtendedPrice()+invoiceDTO.getTotalPrice());
+                invoiceDTO.setTotalPrice(tempInvoice.getExtendedPrice().add(invoiceDTO.getTotalPrice()));
                 products.add(productWithBriefDiscount);
             }
             // add new discount for product
@@ -351,8 +334,6 @@ public class OrderServiceImp implements OrderService{
             order.getStatus());
 
         List<OrderDetails> orderDetails = orderDetailsRepository.findByOrderID(order.getOrderID());
-        // calculate totalprice of an order
-        Double totalPrice = Double.valueOf(0);
         for(OrderDetails orderDetail: orderDetails){
             // create a product for order
             OrderItem orderItem = new OrderItem(
@@ -382,14 +363,18 @@ public class OrderServiceImp implements OrderService{
   
             // add discounts and price of each product
             orderItem.setDiscounts(discounts);
-            Double extendedPrice = (Double.valueOf(orderDetail.getQuantity()) * orderDetail.getUnitPrice())*(1- Double.valueOf(totalDiscount) /100) ;
-            totalPrice+=extendedPrice;
+            BigDecimal productDiscount = BigDecimal.valueOf(1- Double.valueOf(totalDiscount) /100);
+            
+            BigDecimal extendedPrice = BigDecimal.valueOf(orderDetail.getQuantity())
+                .multiply(orderDetail.getUnitPrice())
+                .multiply(productDiscount);
+
+            orderWithProducts.setTotalPrice(orderWithProducts.getTotalPrice().add(extendedPrice));
             // logger.info("totalPrice {}", totalPrice);
             orderItem.setExtendedPrice(extendedPrice);
             // add product to order
             orderWithProducts.getProducts().add(orderItem);
         }
-        orderWithProducts.setTotalPrice(totalPrice);
         logger.info("OrderWithProducts: {}", orderWithProducts.toString());
         return orderWithProducts;
     }
@@ -437,7 +422,7 @@ public class OrderServiceImp implements OrderService{
                 order.getUnitPrice(), order.getQuantity(), order.getDiscount(), order.getExtendedPrice(),
                 order.getPicture());
             orderDTOs.get(orderDTOs.size()-1).getProducts().add(productDTO);
-            orderDTOs.get(orderDTOs.size()-1).setTotalPrice(orderDTOs.get(orderDTOs.size()-1).getTotalPrice()+order.getExtendedPrice());
+            orderDTOs.get(orderDTOs.size()-1).setTotalPrice(orderDTOs.get(orderDTOs.size()-1).getTotalPrice().add(order.getExtendedPrice()));
         }
 
         return orderDTOs;

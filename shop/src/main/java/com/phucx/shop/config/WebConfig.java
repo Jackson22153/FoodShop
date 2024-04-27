@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 })
 public class WebConfig {  
     public static int PAGE_SIZE = 10;
+    public static int RECOMMENDED_PAGE_SIZE = 4;
     public final static String PREFERRED_USERNAME="preferred_username";
 
     public final static String ORDER_QUEUE = "order";

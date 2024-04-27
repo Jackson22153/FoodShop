@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { displayProductImage } from "../../../../service/image";
 import { ProductWithDiscount } from "../../../../model/Type";
+import { ceilRound } from "../../../../service/convert";
 interface Props{
     number: number,
     product: ProductWithDiscount,
@@ -40,7 +41,9 @@ export default function CartCard(prop: Props){
         product.discounts.forEach((discount) => {
             totalDiscount+=discount.discountPercent;
         });
-        return product.unitPrice*product.quantity*(1-totalDiscount/100);
+        const discountPercent = (1-totalDiscount/100);
+        const price = product.unitPrice*product.quantity*discountPercent
+        return ceilRound(price);
     }
     return(
         <>

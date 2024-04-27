@@ -9,6 +9,6 @@ import java.util.List;
 
 
 @Repository
-public interface InvoicesRepository extends JpaRepository<Invoice, OrderDetailsExtendedID>{
+public interface InvoiceRepository extends JpaRepository<Invoice, OrderDetailsExtendedID>{
     List<Invoice> findByOrderIDAndCustomerIDOrderByProductIDAsc(Integer orderID, String customerID);
 }

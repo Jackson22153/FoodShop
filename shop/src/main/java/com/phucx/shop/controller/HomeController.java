@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.phucx.shop.config.WebConfig;
 import com.phucx.shop.model.Categories;
 import com.phucx.shop.model.CurrentProductList;
-import com.phucx.shop.model.ProductDetails;
+import com.phucx.shop.model.CurrentSalesProduct;
 import com.phucx.shop.service.categories.CategoriesService;
 import com.phucx.shop.service.products.ProductsService;
 import java.util.List;
@@ -52,9 +52,8 @@ public class HomeController {
         @RequestParam(name = "page", required=false) Integer pageNumber
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
-        categoryName = categoryName.replaceAll("-", "_");
-        Page<CurrentProductList> products = productsService.getCurrentProductsByCategoryName(
-            categoryName, pageNumber, WebConfig.PAGE_SIZE);
+        Page<CurrentProductList> products = productsService
+            .getCurrentProductsByCategoryName(categoryName, pageNumber, WebConfig.PAGE_SIZE);
 
         return ResponseEntity.ok().body(products);
     }
@@ -71,10 +70,10 @@ public class HomeController {
     }
     
     @GetMapping("products/id/{productID}")
-    public ResponseEntity<ProductDetails> getProductByID(
+    public ResponseEntity<CurrentSalesProduct> getProductByID(
         @PathVariable(name = "productID") Integer productID
     ){
-        ProductDetails productDetails = productsService.getProductDetailsByID(productID);
+        CurrentSalesProduct productDetails = productsService.getCurrentSalesProductsByID(productID);
         return ResponseEntity.ok().body(productDetails);
     }
 

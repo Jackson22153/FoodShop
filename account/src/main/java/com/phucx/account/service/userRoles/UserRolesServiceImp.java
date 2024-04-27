@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.phucx.account.model.Roles;
 import com.phucx.account.model.UserRoles;
-import com.phucx.account.model.Users;
+import com.phucx.account.model.User;
 import com.phucx.account.repository.RolesRepository;
 import com.phucx.account.repository.UserRolesRepository;
-import com.phucx.account.repository.UsersRepository;
+import com.phucx.account.repository.UserRepository;
 
 @Service
 public class UserRolesServiceImp implements UserRolesService{
@@ -20,7 +20,7 @@ public class UserRolesServiceImp implements UserRolesService{
     @Autowired
     private RolesRepository rolesRepository;
     @Autowired
-    private UsersRepository usersRepository;
+    private UserRepository userRepository;
 	@Override
 	public List<UserRoles> getUserRoles(String userID) {
 		List<UserRoles> userRoles = userRolesRepository.findByUserID(userID);
@@ -30,7 +30,7 @@ public class UserRolesServiceImp implements UserRolesService{
 	@Override
 	public boolean assignUserRole(String username, String roleName) {
         Roles role = rolesRepository.findByRoleName(roleName);
-        Users user = usersRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username);
         if(role!=null && user!=null){
             userRolesRepository.assignUserRole(username, roleName);
             return true;

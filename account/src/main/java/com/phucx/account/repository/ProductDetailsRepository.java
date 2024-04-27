@@ -1,5 +1,7 @@
 package com.phucx.account.repository;
 
+import java.math.BigDecimal;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
@@ -16,7 +18,7 @@ public interface ProductDetailsRepository extends JpaRepository<ProductDetails, 
         @Param("productId") Integer productID, 
         @Param("productName") String productName, 
         @Param("quantityPerUnit") String quantityPerUnit, 
-        @Param("unitPrice") Double unitPrice, 
+        @Param("unitPrice") BigDecimal unitPrice, 
         @Param("unitsInStock") Integer unitsInStock, 
         @Param("unitsOnOrder") Integer unitsOnOrder, 
         @Param("reorderLevel") Integer reorderLevel, 
@@ -30,7 +32,7 @@ public interface ProductDetailsRepository extends JpaRepository<ProductDetails, 
     void insertProduct(
         @Param("productName") String productName, 
         @Param("quantityPerUnit") String quantityPerUnit, 
-        @Param("unitPrice") Double unitPrice, 
+        @Param("unitPrice") BigDecimal unitPrice, 
         @Param("unitsInStock") Integer unitsInStock, 
         @Param("unitsOnOrder") Integer unitsOnOrder, 
         @Param("reorderLevel") Integer reorderLevel, 

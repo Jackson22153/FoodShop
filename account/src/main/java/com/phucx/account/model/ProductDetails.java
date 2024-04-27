@@ -1,5 +1,6 @@
 package com.phucx.account.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Immutable;
@@ -21,7 +22,7 @@ import lombok.Data;
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "productId", type = Integer.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "productName", type = String.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "quantityPerUnit", type = String.class),
-        @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitPrice", type = Double.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitPrice", type = BigDecimal.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitsInStock", type = Integer.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitsOnOrder", type = Integer.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "reorderLevel", type = Integer.class),
@@ -34,7 +35,7 @@ import lombok.Data;
     procedureName = "insertProduct", parameters = {
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "productName", type = String.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "quantityPerUnit", type = String.class),
-        @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitPrice", type = Double.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitPrice", type = BigDecimal.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitsInStock", type = Integer.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitsOnOrder", type = Integer.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "reorderLevel", type = Integer.class),
@@ -51,7 +52,7 @@ public class ProductDetails{
     private Integer supplierID;
     private Integer categoryID;
     private String quantityPerUnit;
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     private Integer unitsInStock;
     private Integer unitsOnOrder;
     private Integer reorderLevel;

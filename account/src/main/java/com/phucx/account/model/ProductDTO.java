@@ -1,5 +1,7 @@
 package com.phucx.account.model;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,9 +14,9 @@ import lombok.ToString;
 public class ProductDTO {
     private Integer productID;
     private String productName;
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     private Integer quantity;
     private Integer discount;
-    private Double extendedPrice;
+    private BigDecimal extendedPrice;
     private String picture;
 }

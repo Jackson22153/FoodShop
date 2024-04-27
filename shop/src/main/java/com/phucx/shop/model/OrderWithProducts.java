@@ -1,5 +1,6 @@
 package com.phucx.shop.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,18 +23,18 @@ public class OrderWithProducts {
 
     private Integer shipVia;
 
-    private Double freight;
+    private BigDecimal freight;
     private String shipName;
     private String shipAddress;
     private String shipCity;
     private String phone;
-    private Double totalPrice;
+    private BigDecimal totalPrice;
 
 
 
     public OrderWithProducts(Integer orderID, LocalDateTime orderDate, 
             LocalDateTime requiredDate, LocalDateTime shippedDate,
-            Integer shipVia, Double freight, String shipName,
+            Integer shipVia, BigDecimal freight, String shipName,
             String shipAddress, String shipCity, String phone) {
         this();
         this.orderID = orderID;
@@ -68,8 +69,8 @@ public class OrderWithProducts {
 
     public OrderWithProducts(Integer orderID, LocalDateTime orderDate, 
             LocalDateTime requiredDate, LocalDateTime shippedDate,
-            Integer shipVia, Double freight, String shipName,
-            String shipAddress, String shipCity, String phone, Double totalPrice) {
+            Integer shipVia, BigDecimal freight, String shipName,
+            String shipAddress, String shipCity, String phone, BigDecimal totalPrice) {
         this();
         this.orderID = orderID;
         this.orderDate = orderDate;
@@ -87,8 +88,8 @@ public class OrderWithProducts {
 
     public OrderWithProducts(Integer orderID, LocalDateTime orderDate, 
             LocalDateTime requiredDate, LocalDateTime shippedDate, List<OrderItem> products, 
-            Integer shipVia, Double freight, String shipName, String shipAddress, String shipCity, 
-            String phone, Double totalPrice) {
+            Integer shipVia, BigDecimal freight, String shipName, String shipAddress, String shipCity, 
+            String phone, BigDecimal totalPrice) {
         this.orderID = orderID;
         this.orderDate = orderDate;
         this.requiredDate = requiredDate;
@@ -105,7 +106,7 @@ public class OrderWithProducts {
 
     public OrderWithProducts() {
         this.products = new ArrayList<>();
-        this.totalPrice=Double.valueOf(0);
-        this.freight = Double.valueOf(0);
+        this.totalPrice=BigDecimal.valueOf(0);
+        this.freight = BigDecimal.valueOf(0);
     }
 }

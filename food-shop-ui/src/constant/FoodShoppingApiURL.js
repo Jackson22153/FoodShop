@@ -18,6 +18,7 @@ export const UsernameUrl = `${URL}/user`;
 export const IsAuthenticatedUrl = `${URL}/isAuthenticated`;
 // product
 export const SearchProductsUrl = `${SearchUrl}/products`;
+export const RecommendedProductsByCategoryUrl = `${SearchUrl}/recommended`;
 export const ProductsUrl = `${HomeUrl}/products`;
 export const ProductsByNameUrl = `${ProductsUrl}/name`
 export const ProductsByIdUrl = `${ProductsUrl}/id`
@@ -44,11 +45,12 @@ export const EmployeePendingOrdersUrl = `${EmployeeOrdersUrl}/pending`;
 // cart
 export const CartUrl = `${ShopService}/cart`;
 export const CartProductsUrl = `${CartUrl}/products`;
+export const NumberOfCartProductsUrl = `${CartProductsUrl}/number`;
 // websocket
 export const AccountWSUrl = `${AccountService}/chat`;
 // shop service ws
 export const ShopWSUrl = `${ShopService}/chat`;
-export const CartWsUrl = `${AppPrefixDestinationUrl}/cart.addItem`;
+export const AddItemTOCartWsUrl = `${AppPrefixDestinationUrl}/cart.addItem`;
 // user queue cart
 export const QUEUE_CART = '/user/queue/cart';
 

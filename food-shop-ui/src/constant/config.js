@@ -10,6 +10,7 @@ export const ORDER_STATUS = {
     CANCELED: 'canceled',
     ALL: 'all'
 }
+export const CART_COOKIE = 'cart';
 // export const SUCCESS_ALERT = 'success'; 
 // export const DANGER_ALERT = 'danger'; 
 // export const PRIMARY_ALERT = 'primary'; 

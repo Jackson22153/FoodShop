@@ -1,15 +1,15 @@
-package com.phucx.account.service.users;
+package com.phucx.account.service.user;
 
 import org.springframework.security.core.Authentication;
 
 import com.phucx.account.model.UserRolesUtils;
-import com.phucx.account.model.Users;
+import com.phucx.account.model.User;
 
-public interface UsersService {
-    public Users getUser(String username);
-    public Users getUserByID(String userID);
+public interface UserService {
+    public User getUser(String username);
+    public User getUserByID(String userID);
 
-    public boolean createUser(Users user);
+    public boolean createUser(User user);
 
     public UserRolesUtils getUserRoles(String userID);   
     

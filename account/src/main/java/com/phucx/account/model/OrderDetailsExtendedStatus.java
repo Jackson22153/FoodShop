@@ -1,5 +1,7 @@
 package com.phucx.account.model;
 
+import java.math.BigDecimal;
+
 import org.springframework.data.annotation.Immutable;
 
 import com.phucx.account.compositeKey.OrderDetailsExtendedID;
@@ -30,11 +32,11 @@ public class OrderDetailsExtendedStatus {
     @Id
     private Integer productID;
     private String productName;
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     private Integer quantity;
     private Integer discount;
     private String picture;
-    private Double extendedPrice;
+    private BigDecimal extendedPrice;
     @Enumerated(EnumType.STRING)
     private OrderStatus status; 
 }

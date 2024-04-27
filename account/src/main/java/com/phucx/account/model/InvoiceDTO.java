@@ -1,5 +1,6 @@
 package com.phucx.account.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,15 +33,15 @@ public class InvoiceDTO {
     private LocalDateTime shippedDate;
     private String shipperName;
 
-    private Double totalPrice;
-    private Double freight;
+    private BigDecimal totalPrice;
+    private BigDecimal freight;
     private OrderStatus status;
     
 
 
     public InvoiceDTO(Integer orderID, String customerID, String salesPerson, String shipName, 
         String shipAddress, String shipCity, LocalDateTime orderDate, LocalDateTime requiredDate,
-        LocalDateTime shippedDate, String shipperName, Double freight, OrderStatus status) {
+        LocalDateTime shippedDate, String shipperName, BigDecimal freight, OrderStatus status) {
 
         this();
         this.orderID = orderID;
@@ -62,7 +63,7 @@ public class InvoiceDTO {
     public InvoiceDTO(Integer orderID, List<ProductWithBriefDiscount> products, String customerID, 
             String salesPerson, String shipName, String shipAddress, String shipCity,LocalDateTime orderDate, 
             LocalDateTime requiredDate, LocalDateTime shippedDate, String shipperName, 
-            Double totalPrice, Double freight, OrderStatus status) {
+            BigDecimal totalPrice, BigDecimal freight, OrderStatus status) {
         this.orderID = orderID;
         this.products = products;
         this.customerID = customerID;
@@ -83,6 +84,6 @@ public class InvoiceDTO {
 
     public InvoiceDTO() {
         this.products = new ArrayList<>();
-        this.totalPrice = Double.valueOf(0);
+        this.totalPrice = BigDecimal.valueOf(0);
     }
 }

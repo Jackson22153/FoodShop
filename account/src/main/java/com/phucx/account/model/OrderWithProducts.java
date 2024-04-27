@@ -1,5 +1,6 @@
 package com.phucx.account.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,19 +33,19 @@ public class OrderWithProducts {
     private String shipperName;
     private String shipperPhone;
 
-    private Double freight;
+    private BigDecimal freight;
     private String shipName;
     private String shipAddress;
     private String shipCity;
     private String phone;
-    private Double totalPrice;
+    private BigDecimal totalPrice;
     private OrderStatus status;
 
 
 
     public OrderWithProducts(Integer orderID, String customerID, String contactName, String employeeID,
             String salesPerson, LocalDateTime orderDate, LocalDateTime requiredDate, LocalDateTime shippedDate,
-            Integer shipVia, String shipperName, String shipperPhone, Double freight, String shipName,
+            Integer shipVia, String shipperName, String shipperPhone, BigDecimal freight, String shipName,
             String shipAddress, String shipCity, String phone, OrderStatus status) {
         this();
         this.orderID = orderID;
@@ -93,8 +94,8 @@ public class OrderWithProducts {
 
     public OrderWithProducts(Integer orderID, String customerID, String contactName, String employeeID,
             String salesPerson, LocalDateTime orderDate, LocalDateTime requiredDate, LocalDateTime shippedDate,
-            Integer shipVia, String shipperName, String shipperPhone, Double freight, String shipName,
-            String shipAddress, String shipCity, String phone, Double totalPrice, OrderStatus status) {
+            Integer shipVia, String shipperName, String shipperPhone, BigDecimal freight, String shipName,
+            String shipAddress, String shipCity, String phone, BigDecimal totalPrice, OrderStatus status) {
         this();
         this.orderID = orderID;
         this.customerID = customerID;
@@ -119,8 +120,8 @@ public class OrderWithProducts {
 
     public OrderWithProducts(Integer orderID, String customerID, String contactName, String employeeID,
             String salesPerson, LocalDateTime orderDate, LocalDateTime requiredDate, LocalDateTime shippedDate,
-            List<OrderItem> products, Integer shipVia, String shipperName, String shipperPhone, Double freight,
-            String shipName, String shipAddress, String shipCity, String phone, Double totalPrice, OrderStatus status) {
+            List<OrderItem> products, Integer shipVia, String shipperName, String shipperPhone, BigDecimal freight,
+            String shipName, String shipAddress, String shipCity, String phone, BigDecimal totalPrice, OrderStatus status) {
         this.orderID = orderID;
         this.customerID = customerID;
         this.contactName = contactName;
@@ -142,21 +143,9 @@ public class OrderWithProducts {
         this.status = status;
     }
 
-
-    // public OrderWithProducts(Order order){
-    //     this(order.getOrderID(), order.getCustomer()!=null?order.getCustomer().getCustomerID():null, 
-    //         order.getCustomer().getContactName(), order.getEmployee()!=null?order.getEmployee().getEmployeeID():null, 
-    //         order.getEmployee().getFirstName() + " " + order.getEmployee().getLastName(), order.getOrderDate(), 
-    //         order.getRequiredDate(), order.getShippedDate(), order.getShipVia().getShipperID(), 
-    //         order.getShipVia().getCompanyName(), order.getShipVia().getPhone(), order.getFreight(), 
-    //         order.getShipName(), order.getShipAddress(), order.getShipCity(), order.getPhone(), 
-    //         order.getStatus());
-    // }
-
-
     public OrderWithProducts() {
         this.products = new ArrayList<>();
-        this.totalPrice=Double.valueOf(0);
-        this.freight = Double.valueOf(0);
+        this.totalPrice=BigDecimal.valueOf(0);
+        this.freight = BigDecimal.valueOf(0);
     }
 }

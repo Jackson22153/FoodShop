@@ -1,24 +1,18 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect } from "react"
 import { Category } from "../../../../model/Type"
-import { getCategories } from "../../../../api/SearchApi"
 import CategoriesDetailbox from "../../../shared/functions/categoriesDetailBox/CategoriesDetailbox"
+import CategoriesContext from "../../../contexts/CategoriesContext"
 
 export default function CategoriesComponent(){
-    const [categories, setCategories] = useState<Category[]>([])
+    const categories = useContext<Category[]>(CategoriesContext)
 
     useEffect(()=>{
-        initial();
+        // initial();
     }, []);
 
-    function initial(){
-        getCategories(0).then(res =>{
-            if(res.status===200){
-                const data = res.data;
-                setCategories(data.content);
-                // console.log(res.data);
-            }
-        })
-    }
+    // function initial(){
+
+    // }
 
     return(
         <>

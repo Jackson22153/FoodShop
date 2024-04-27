@@ -37,7 +37,8 @@ import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.customers.CustomersService;
 import com.phucx.account.service.discounts.DiscountService;
 import com.phucx.account.service.messageQueue.sender.MessageSender;
-import com.phucx.account.service.users.UsersService;
+import com.phucx.account.service.user.UserService;
+
 import jakarta.ws.rs.NotFoundException;
 
 
@@ -48,7 +49,7 @@ public class CustomerController {
     @Autowired
     private CustomersService customersService;
     @Autowired
-    private UsersService usersService;
+    private UserService userService;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
@@ -58,7 +59,7 @@ public class CustomerController {
     // GET CUSTOMER'S INFOMATION
     @GetMapping("info")
     public ResponseEntity<CustomerDetail> getUserInfo(Authentication authentication){
-        String username = usersService.getUsername(authentication);
+        String username = userService.getUsername(authentication);
         logger.info("username: {}", username);
         CustomerDetail customer = customersService.getCustomerDetail(username);
         return ResponseEntity.ok().body(customer);
@@ -85,7 +86,7 @@ public class CustomerController {
     public ResponseEntity<InvoiceDTO> getOrderDetail(
         @PathVariable Integer orderID, Authentication authentication
     ) throws InvalidOrderException{    
-        String username = usersService.getUsername(authentication);
+        String username = userService.getUsername(authentication);
         Customers customer = customersService.getCustomerByUsername(username);
         InvoiceDTO order = customersService.getInvoice(orderID, customer.getCustomerID());
         return ResponseEntity.ok().body(order);
@@ -99,7 +100,7 @@ public class CustomerController {
     ){    
         logger.info("OrderStatus: {}", orderStatus);
         pageNumber = pageNumber!=null?pageNumber:0;
-        String username = usersService.getUsername(authentication);
+        String username = userService.getUsername(authentication);
         Customers customer = customersService.getCustomerByUsername(username);
         OrderStatus status = null;
         if(orderStatus==null){
@@ -120,7 +121,7 @@ public class CustomerController {
     @SendTo("/topic/order")
     public OrderWithProducts placeOrder(Authentication authentication, @RequestBody OrderWithProducts order
     ) throws InvalidDiscountException, NotFoundException, RuntimeException, SQLException, InvalidOrderException{
-        String username = usersService.getUsername(authentication);
+        String username = userService.getUsername(authentication);
         Customers customer = customersService.getCustomerByUsername(username);
         logger.info("Customer {} has placed an order: {}",username, order.toString());
         if(customer!=null){
@@ -142,7 +143,7 @@ public class CustomerController {
     // HANDLE MESSAGE EXCEPTION
     @MessageExceptionHandler(value = SQLException.class)
     public void handleSqlMessageException(Authentication authentication){
-        String username = usersService.getUsername(authentication);
+        String username = userService.getUsername(authentication);
         Customers customer = customersService.getCustomerByUsername(username);
         NotificationMessage notificationMessage = new NotificationMessage(
             "Error during processing order", Notification.CANCEL);
@@ -151,7 +152,7 @@ public class CustomerController {
     }
     @MessageExceptionHandler(value = InvalidDiscountException.class)
     public void handleInvalidDiscountMessageException(Authentication authentication, Exception exception){
-        String username = usersService.getUsername(authentication);
+        String username = userService.getUsername(authentication);
         Customers customer = customersService.getCustomerByUsername(username);
         logger.info(exception.getMessage());
         NotificationMessage notificationMessage = new NotificationMessage(
@@ -162,7 +163,7 @@ public class CustomerController {
 
     @MessageExceptionHandler(value = InvalidOrderException.class)
     public void handleInvalidOrderMessageException(Authentication authentication){
-        String username = usersService.getUsername(authentication);
+        String username = userService.getUsername(authentication);
         Customers customer = customersService.getCustomerByUsername(username);
         NotificationMessage notificationMessage = new NotificationMessage(
             "Invalid order", Notification.CANCEL);
@@ -172,7 +173,7 @@ public class CustomerController {
 
     @MessageExceptionHandler(value = RuntimeException.class)
     public void handleRuntimeMessageException(Authentication authentication, Exception exception){
-        String username = usersService.getUsername(authentication);
+        String username = userService.getUsername(authentication);
         Customers customer = customersService.getCustomerByUsername(username);
         NotificationMessage notificationMessage = new NotificationMessage(
             exception.getMessage(), Notification.ERROR);
@@ -182,7 +183,7 @@ public class CustomerController {
 
     // @MessageExceptionHandler(value = Exception.class)
     // public void handleUndefinedMessageException(Authentication authentication){
-    //     String username = usersService.getUsername(authentication);
+    //     String username = userService.getUsername(authentication);
     //     Customers customer = customersService.getCustomerByUsername(username);
     //     NotificationMessage notificationMessage = new NotificationMessage(
     //         "Invalid order", Notification.CANCEL);

@@ -19,6 +19,15 @@ export function deleteProductToCart(productID){
     });
 }
 
+export function getNumberOfCartProducts(){
+    return axios.get(`${CartUrl}/${productID}`, {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+}
+
 export function getProductsFromCart(){
     return axios.get(CartProductsUrl, {
         withCredentials: true,

@@ -1,35 +1,57 @@
 import { useContext } from "react";
-import { convertNameForUrl } from "../../../../service/convertStr";
+import { ceilRound, convertNameForUrl } from "../../../../service/convert";
 import foodPathContext from "../../../contexts/PathContext";
-import { getDefaulImage } from "../../../../service/image";
+import { displayProductImage } from "../../../../service/image";
+import { CurrentProduct } from "../../../../model/Type";
 
 interface Props{
-    foodID: number,
-    foodName: string,
-    foodPrice: number,
-    // foodDescription: string,
-    foodImageSrc: string|undefined
+    foodInfo: CurrentProduct
 }
 export default function FoodCard(prop: Props){
-    const foodID = prop.foodID
-    const foodName = prop.foodName;
-    const foodPrice = prop.foodPrice;
+    const foodInfo = prop.foodInfo;
+    const foodID = foodInfo.productID
+    const foodName = foodInfo.productName;
+    const foodPrice = foodInfo.unitPrice;
     const foodPath = useContext(foodPathContext);
     const name = convertNameForUrl(foodName);
     const url = `${foodPath}/${name}?sp=${foodID}`;
-    // const foodDescription = prop.foodDescription;
-    const foodImageSrc = prop.foodImageSrc ? prop.foodImageSrc: getDefaulImage();
+    // const foodDescription = foodInfo.foodDescription;
+    const foodImageSrc = foodInfo.picture;
 
     return(
-        <div className="card" style={{height:"100%"}}>
+        <div className="card position-relative" style={{height:"100%"}}>
             <a href={url}>
-                <img className="card-img-top w-100" src={foodImageSrc} alt="Card image cap" />
-                <div className="card-body">
+                {foodInfo.discountID!=null && foodInfo.discountPercent>0 &&
+                    <div className="position-absolute mt-5">
+                        <span className="badge rounded-pill badge-discount bg-danger ">
+                            -{foodInfo.discountPercent}%
+                        </span>
+                    </div>
+                }
+                <img className="card-img-top w-100" src={displayProductImage(foodImageSrc)} alt="Card image cap" />
+                <div className="card-body pt-0">
+                    <span className="w-100 d-block text-body-tertiary">
+                        {foodInfo.categoryName}
+                    </span>
                     <h5 className="card-title">{foodName}</h5>
-                    <p className="card-text">
-                        {/* {foodDescription} */}
-                        ${foodPrice}
-                    </p>
+                    <span className="card-text w-100 d-block">
+                        <ins className="mx-3">
+                            <span>
+                                <b>
+                                    <span>$</span>
+                                    {ceilRound(foodPrice*(1-foodInfo.discountPercent/100))}
+                                </b> 
+                            </span>
+                        </ins>
+                        {foodInfo.discountID!= null &&
+                            <del className="text-body-secondary">
+                                <span>
+                                    <span>$</span>
+                                    {foodPrice}
+                                </span>
+                            </del>
+                        }
+                    </span>
                     {/* <div>
                         <a href="" className="custom_dark-btn">
                             Buy Now

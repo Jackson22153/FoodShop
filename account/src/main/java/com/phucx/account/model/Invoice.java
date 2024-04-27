@@ -1,5 +1,6 @@
 package com.phucx.account.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Immutable;
@@ -42,10 +43,10 @@ public class Invoice {
 
     private String productName;
     private String picture;
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     private Integer quantity;
-    private Double extendedPrice;
-    private Double freight;
+    private BigDecimal extendedPrice;
+    private BigDecimal freight;
     
     private String discountID;
     private Integer discountPercent;

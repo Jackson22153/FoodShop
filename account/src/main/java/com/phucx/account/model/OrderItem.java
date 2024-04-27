@@ -1,5 +1,6 @@
 package com.phucx.account.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,12 +14,12 @@ public class OrderItem {
     private Integer quantity;
     private List<OrderItemDiscount> discounts;
     private String picture;
-    private Double unitPrice;
-    private Double extendedPrice;
+    private BigDecimal unitPrice;
+    private BigDecimal extendedPrice;
 
 
 
-    public OrderItem(Integer productID, String productName, Integer quantity, String picture, Double unitPrice) {
+    public OrderItem(Integer productID, String productName, Integer quantity, String picture, BigDecimal unitPrice) {
         this.productName=productName;
         this.productID = productID;
         this.quantity = quantity;
@@ -29,7 +30,7 @@ public class OrderItem {
 
 
     public OrderItem(Integer productID, String productName, Integer quantity, List<OrderItemDiscount> discounts, String picture,
-            Double unitPrice, Double extendedPrice) {
+            BigDecimal unitPrice, BigDecimal extendedPrice) {
         this.productName = productName;
         this.productID = productID;
         this.quantity = quantity;
@@ -43,6 +44,6 @@ public class OrderItem {
 
     public OrderItem() {
         this.discounts = new ArrayList<>();
-        this.extendedPrice = Double.valueOf(0);
+        this.extendedPrice = BigDecimal.valueOf(0);
     }
 }

@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.shop.model.CartCookie;
 import com.phucx.shop.service.messageQueue.MessageQueueService;
-import com.phucx.shop.service.user.UserService;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -17,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MessageController {
     @Autowired
     private MessageQueueService messageQueueService;
-    @Autowired
-    private UserService userService;
 
     @MessageMapping("/cart.addItem")
     public void cartItemNotification(@RequestBody CartCookie encodedCartJson, Authentication authentication

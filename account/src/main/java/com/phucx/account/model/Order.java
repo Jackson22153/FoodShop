@@ -1,5 +1,6 @@
 package com.phucx.account.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -54,7 +55,7 @@ public class Order {
     @JoinColumn(name = "ShipVia", referencedColumnName = "ShipperID")
     private Shipper shipVia;
 
-    private Double freight;
+    private BigDecimal freight;
 
     @Column(name = "ShipName", length = 40)
     private String shipName;
@@ -71,7 +72,7 @@ public class Order {
     private OrderStatus status;
 
     public Order(Customers customer, Employees employee, LocalDateTime orderDate, LocalDateTime requiredDate,
-            LocalDateTime shippedDate, Shipper shipVia, Double freight, String shipName, String shipAddress,
+            LocalDateTime shippedDate, Shipper shipVia, BigDecimal freight, String shipName, String shipAddress,
             String shipCity, String phone, OrderStatus status) {
         this.customer = customer;
         this.employee = employee;

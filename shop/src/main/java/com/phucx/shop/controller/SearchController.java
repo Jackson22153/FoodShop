@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
@@ -30,8 +31,20 @@ public class SearchController {
 
             return ResponseEntity.ok().body(productsPageable);
         }
-        return ResponseEntity.badRequest().body(null);
+        return ResponseEntity.badRequest().build();
     }    
 
+    @GetMapping("recommended/{categoryName}")
+    public ResponseEntity<Page<CurrentProductList>> getRecommendedProductByCategory(
+        @PathVariable(name = "categoryName") String categoryName,
+        @RequestParam(name = "productID") Integer productID,
+        @RequestParam(name = "page", required = false) Integer pageNumber
+    ){
+        pageNumber = pageNumber!=null?pageNumber:0;
+        Page<CurrentProductList> products = productsService.getRecommendedProductsByCategory(
+            productID, categoryName, pageNumber, WebConfig.RECOMMENDED_PAGE_SIZE);
+
+        return ResponseEntity.ok().body(products);
+    }
 
 }

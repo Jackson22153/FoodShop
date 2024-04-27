@@ -42,5 +42,5 @@ public class Customers{
 
     @OneToOne
     @JoinColumn(name = "userID")
-    private Users user;
+    private User user;
 }

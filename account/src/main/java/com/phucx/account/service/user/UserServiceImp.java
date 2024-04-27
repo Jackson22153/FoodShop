@@ -1,4 +1,4 @@
-package com.phucx.account.service.users;
+package com.phucx.account.service.user;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,18 +15,18 @@ import com.phucx.account.model.EmployeeAccounts;
 import com.phucx.account.model.Roles;
 import com.phucx.account.model.UserRoles;
 import com.phucx.account.model.UserRolesUtils;
-import com.phucx.account.model.Users;
+import com.phucx.account.model.User;
 import com.phucx.account.repository.CustomerAccountsRepository;
 import com.phucx.account.repository.EmployeeAccountsRepository;
 import com.phucx.account.repository.UserRolesRepository;
-import com.phucx.account.repository.UsersRepository;
+import com.phucx.account.repository.UserRepository;
 
 import jakarta.ws.rs.NotFoundException;
 
 @Service
-public class UsersServiceImp implements UsersService {
+public class UserServiceImp implements UserService {
     @Autowired
-    private UsersRepository usersRepository;
+    private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -36,30 +36,30 @@ public class UsersServiceImp implements UsersService {
     @Autowired
     private EmployeeAccountsRepository employeeAccountsRepository;
     @Override
-    public Users getUser(String username) {
-        Users user = usersRepository.findByUsername(username);
+    public User getUser(String username) {
+        User user = userRepository.findByUsername(username);
         if(user!=null){
             return user;
         }
         return null;
     }
     @Override
-    public Users getUserByID(String userID) {
-        var opUser = usersRepository.findById(userID);
+    public User getUserByID(String userID) {
+        var opUser = userRepository.findById(userID);
         if(opUser.isPresent())
             return opUser.get();
         else return null;
     }
     @Override
-    public boolean createUser(Users user) {
+    public boolean createUser(User user) {
         try {
             String username = user.getUsername();
             String password = user.getPassword();
-            Users existedUser = this.getUser(username);
+            User existedUser = this.getUser(username);
             if(existedUser==null){
                 String hashedPassword = passwordEncoder.encode(password);
-                Users newUser = new Users(user.getUserID(), username, hashedPassword);
-                Users check = usersRepository.save(newUser);
+                User newUser = new User(user.getUserID(), username, hashedPassword);
+                User check = userRepository.save(newUser);
                 if(check!=null)
                     return true;
             }
@@ -74,7 +74,7 @@ public class UsersServiceImp implements UsersService {
         // List<UserRoles> userRoles = userRolesService.getUserRoles(userID);
         if(userRoles.size()>0){
             UserRoles firstEntity = userRoles.get(0);
-            Users user = new Users(firstEntity.getUserID(), firstEntity.getUsername(), null);
+            User user = new User(firstEntity.getUserID(), firstEntity.getUsername(), null);
             List<Roles> roles = new ArrayList<>();
             for (UserRoles userRole : userRoles) {
                 roles.add(new Roles(null, userRole.getRoleName()));

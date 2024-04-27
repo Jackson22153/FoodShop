@@ -10,9 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 
 import com.phucx.shop.config.WebSocketConfig;
-import com.phucx.shop.model.NotificationCartCookie;
-import com.phucx.shop.service.cookie.CookieService;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

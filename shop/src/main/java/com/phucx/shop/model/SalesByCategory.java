@@ -1,6 +1,7 @@
 package com.phucx.shop.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import org.springframework.data.annotation.Immutable;
 
@@ -19,7 +20,5 @@ public class SalesByCategory implements Serializable{
     private Integer categoryID;
     private String categoryName;
     private String productName;
-    private Double productSales;
-    private String picture;
-
+    private BigDecimal productSales;
 }

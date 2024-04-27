@@ -18,13 +18,13 @@ public class ProductDetails{
     private Integer supplierID;
     private Integer categoryID;
     private String quantityPerUnit;
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     private Integer unitsInStock;
     private Integer unitsOnOrder;
     private Integer reorderLevel;
 
     private String discountID;
-    private BigDecimal discountPercent;
+    private Integer discountPercent;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
@@ -32,4 +32,5 @@ public class ProductDetails{
     private String picture;
     private String categoryName;
     private String companyName;
+    private String description;
 }

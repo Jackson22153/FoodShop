@@ -4,6 +4,34 @@ export type Category={
     description: string,
     picture: string
 }
+export type CurrentProduct = {
+    productID: number,
+    productName: string, 
+    picture: string, 
+    unitPrice: number, 
+    unitsInStock: string,
+    discountID: string,
+    discountPercent: number,
+    categoryName: string
+}
+export type CurrentProductDetail = {
+    productID: number,
+    productName: string, 
+    picture: string, 
+    unitPrice: number, 
+    unitsInStock: number,
+    quantityPerUnit: string,
+    description: string,
+
+    discountID: string,
+    discountPercent: number,
+
+    categoryID: number,
+    categoryName: string,
+    companyName: string,
+    supplierID: string
+
+}
 export type Product={
     productID: number,
     productName: string,
@@ -13,7 +41,8 @@ export type Product={
     unitsOnOrder: number,
     reorderLevel: number,
     discontinued: boolean,
-    picture: string
+    picture: string,
+    description: string
 }
 export type ProductDetails={
     productID: number,
@@ -27,7 +56,8 @@ export type ProductDetails={
     startDate: string,
     endDate: string,
     discontinued: boolean,
-    picture: string
+    picture: string,
+    description: string
     categoryID: number,
     categoryName: string,
     supplierID: number,

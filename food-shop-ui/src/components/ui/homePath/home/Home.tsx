@@ -10,39 +10,31 @@ import ContactUsComponent from "../contact/ContactUs";
 import FoodComponent from "../food/Food";
 import CartComponent from "../cart/Cart";
 import { cartPath, categoriesPath, contactPath, foodsPath } from "../../../../constant/FoodShoppingURL";
-import { ChangeEventHandler, createContext, 
-    useEffect, useState } 
-    from "react";
+import { ChangeEventHandler, createContext, useEffect, useState } from "react";
+import { useCookies } from 'react-cookie';
 import { getCategories } from "../../../../api/SearchApi";
-import { Category, Product, UserInfo } from "../../../../model/Type";
+import { Category, Product } from "../../../../model/Type";
 import CategoriesComponent from "../categories/Categories";
 import CategoryComponent from "../category/Category";
-import { getUsername, isAuthenticated } from "../../../../api/AuthorizationApi";
-import { UserInfoProvider } from "../../../contexts/UserInfoContext";
+import { NumberOfCartProductsProvider } from "../../../contexts/NumberOfCartProductsContext";
+import { getNumberOfCartProducts } from "../../../../service/cookie";
+import { CategoriesProvider } from "../../../contexts/CategoriesContext";
 
 export const isOpeningUserDropDownContext = createContext(false);
-// export const userInfoContext = createContext<UserInfo>({
-//     username: "",
-//     isAuthenticated: false
-// })
-
 function HomeComponent(){
+    const [cartCookie] = useCookies(['cart']);
     const [categories, setCategories] = useState<Category[]>([]);
     const [searchInputValue, setSearchInputValue] = useState('');
     const [searchResult, setSearchResult] = useState<Product[]>([]);
-    const [userInfo, setUserInfo] = useState<UserInfo>({
-        userID: "",
-        username: "",
-        isAuthenticated: false
-    })
+    const [numberOfCartProducts, setNumberOfCartProducts] = useState(0);
+
+    
     const [isOpeningUserDropDown, setIsOpeningUserDropDown] = useState<boolean>(false);
 
 
 
     useEffect(()=>{
         initial();
-
-        
     }, []);
 
     const handleIsOpeningUserDropDown = (status:boolean)=>{
@@ -59,65 +51,51 @@ function HomeComponent(){
     }
 
     function initial(){
-        // check authentication
-        var isAuthen = false;
-        isAuthenticated().then(res =>{
-            // console.log(res.data)
-            const data = res.data;
-            // console.log(data)
-            if(data.isAuthenticated) isAuthen=true;
-            setUserInfo({
-                userID: data.userID,
-                username: data.username,
-                isAuthenticated: data.authenticated
-            })
-            // if(res.data===200){
-            // }
-        })
-
         // get categories
-        getCategories(0).then(res =>{
-            if(res.status===200){
-                const data = res.data;
-                setCategories(data.content);
-            }
-        });
+        fetchCategories();
+        // get numberOfCartProducts
+        fetchedNumberOfCartProducts();
+    }
 
-        // checkauthenticated
-        if(userInfo.isAuthenticated){
-            // get username
-            getUsername().then(res =>{
-                if(res.status===200){
-                    const data = res.data;
-                    console.log(data)
-                }
-            })
+
+
+    const fetchedNumberOfCartProducts = ()=>{
+        const numberOfCartProducts = getNumberOfCartProducts(cartCookie.cart)
+        setNumberOfCartProducts(numberOfCartProducts);
+    }
+
+    const fetchCategories = async ()=>{
+        const res = await getCategories(0)
+        if(res.status===200){
+            const data = res.data;
+            setCategories(data.content);
         }
     }
 
     return(
-        <>
+        <NumberOfCartProductsProvider value={{ numberOfCartProducts, setNumberOfCartProducts }}>
             <isOpeningUserDropDownContext.Provider value={isOpeningUserDropDown}>
-                <UserInfoProvider value={userInfo}>
-                    <HeaderComponent lstCategories={categories} searchInputValue={searchInputValue} 
-                        handleInputSearchChange={handleInputSearchChange} searchResult={searchResult}
-                        handleIsOpeningUserDropDown={handleIsOpeningUserDropDown}
-                        handleSearchResult={handleSearchResult} />
-                </UserInfoProvider>
+                <HeaderComponent lstCategories={categories} searchInputValue={searchInputValue} 
+                    handleInputSearchChange={handleInputSearchChange} searchResult={searchResult}
+                    handleIsOpeningUserDropDown={handleIsOpeningUserDropDown}
+                    handleSearchResult={handleSearchResult} />
             </isOpeningUserDropDownContext.Provider>
-            <div id="home-body">
-                <Routes>
-                    <Route path="*" element={<HomeDashBoardComponent/>}/>
-                    <Route path={categoriesPath} element={<CategoriesComponent/>}/>
-                    <Route path={`${categoriesPath}/:categoryName`} element={<CategoryComponent/>}/>
-                    <Route path={foodsPath} element={<FoodsComponent/>}/>
-                    <Route path={contactPath} element={<ContactUsComponent/>}/>
-                    <Route path={`${foodsPath}/:foodName`} element={<FoodComponent/>}/>
-                    <Route path={cartPath} element={<CartComponent/>}/>
-                </Routes>
-            </div>
+
+            <CategoriesProvider value={categories}>
+                <div id="home-body">
+                    <Routes>
+                        <Route path="*" element={<HomeDashBoardComponent/>}/>
+                        <Route path={categoriesPath} element={<CategoriesComponent/>}/>
+                        <Route path={`${categoriesPath}/:categoryName`} element={<CategoryComponent/>}/>
+                        <Route path={foodsPath} element={<FoodsComponent/>}/>
+                        <Route path={contactPath} element={<ContactUsComponent/>}/>
+                        <Route path={`${foodsPath}/:foodName`} element={<FoodComponent/>}/>
+                        <Route path={cartPath} element={<CartComponent/>}/>
+                    </Routes>
+                </div>
+            </CategoriesProvider>
             <FooterComponent/>
-        </>
+        </NumberOfCartProductsProvider>
     )
 }
 export default HomeComponent;

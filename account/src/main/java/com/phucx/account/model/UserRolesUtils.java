@@ -11,6 +11,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRolesUtils {
-    private Users user;
+    private User user;
     private List<Roles> roles;
 }

@@ -3,6 +3,7 @@ import CartCard from '../../../shared/functions/cartCard/CartCard';
 import { useEffect, useState } from 'react';
 import { CartProduct, OrderInfo, ProductWithDiscount } from '../../../../model/Type';
 import { addProductToCart, deleteProductToCart, getProductsFromCart } from '../../../../api/CartApi';
+import { ceilRound } from '../../../../service/convert';
 
 export default function CartComponent(){
     const [order, setOrder] = useState<OrderInfo>();
@@ -162,7 +163,7 @@ export default function CartComponent(){
 
                                                     <div className="d-flex justify-content-between mb-4">
                                                         <h5 className="text-uppercase">items {totalItems}</h5>
-                                                        <h5>$ {totalPrice}</h5>
+                                                        <h5>$ {ceilRound(totalPrice)}</h5>
                                                     </div>
 
                                                     <h5 className="text-uppercase mb-3">Shipping</h5>
@@ -189,9 +190,8 @@ export default function CartComponent(){
 
                                                     <div className="d-flex justify-content-between mb-5">
                                                         <h5 className="text-uppercase">Total price</h5>
-                                                        <h5>$ {totalPrice + order.freight}</h5>
+                                                        <h5>$ {ceilRound(totalPrice + order.freight)}</h5>
                                                     </div>
-
                                                     <button type="button" className="btn btn-dark btn-block btn-lg"
                                                         disabled={order.products.length>0?false:true}
                                                         data-mdb-ripple-color="dark">Order</button>

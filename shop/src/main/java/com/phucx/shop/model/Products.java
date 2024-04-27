@@ -1,5 +1,7 @@
 package com.phucx.shop.model;
 
+import java.math.BigDecimal;
+
 import org.hibernate.annotations.GenericGenerator;
 
 import jakarta.persistence.Column;
@@ -39,7 +41,7 @@ public class Products {
     private String quantityPerUnit;
 
     @Column(name = "UnitPrice")
-    private double unitPrice;
+    private BigDecimal unitPrice;
 
     @Column(name = "UnitsInStock")
     private Integer unitsInStock;
@@ -54,4 +56,6 @@ public class Products {
     private Boolean discontinued;
 
     private String picture;
+
+    private String description;
 }

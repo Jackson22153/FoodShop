@@ -283,23 +283,23 @@ body {
   
   
   /* service section */
-  .service_section .card .card-img-top {
+  .foods-section .card .card-img-top {
     width: 50px;
     margin: 0 auto 5px auto;
   }
   
-  .service_section .card {
+  .foods-section .card {
     text-align: center;
     box-sizing: border-box;
     position: relative;
   }
   
-  .service_section .card .card-title {
+  .foods-section .card .card-title {
     color: #fc5d35;
   
   }
   
-  .service_section .card::after {
+  .foods-section .card::after {
     content: "";
     position: absolute;
     width: 100%;
@@ -307,7 +307,7 @@ body {
     background-color: transparent;
   }
   
-  .service_section .card:hover {
+  .foods-section .card:hover {
     cursor: pointer;
     border: none;
     border-radius: 0;
@@ -317,7 +317,7 @@ body {
   
   }
   
-  .service_section .card:hover::after {
+  .foods-section .card:hover::after {
     background-color: #fc5d35;
   }
   

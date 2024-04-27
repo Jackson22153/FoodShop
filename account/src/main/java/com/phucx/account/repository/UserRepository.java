@@ -2,12 +2,12 @@ package com.phucx.account.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import com.phucx.account.model.Users;
+import com.phucx.account.model.User;
 
 
 @Repository
-public interface UsersRepository extends JpaRepository<Users, String>{
-    public Users findByUsername(String username);
+public interface UserRepository extends JpaRepository<User, String>{
+    public User findByUsername(String username);
 
 
     // @Modifying

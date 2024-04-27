@@ -1,3 +1,5 @@
+import { UserInfo } from "./Type";
+
 export type Alert = {
     message: string,
     type: string,
@@ -8,4 +10,12 @@ export type Modal = {
     title: string,
     isShowed: boolean,
     confirmAction: ()=> void,
+}
+export type CartContextType = {
+    numberOfCartProducts: number;
+    setNumberOfCartProducts: (value: number) => void;
+}
+export type UserInfoContext = {
+    userInfo: UserInfo,
+    setUserInfo: (userInfo: UserInfo) => void;
 }

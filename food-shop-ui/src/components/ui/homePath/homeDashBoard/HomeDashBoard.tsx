@@ -1,21 +1,22 @@
 import { getSlide } from "../../../../service/image";
-import { useEffect, useState } from "react";
-import { getCategories, getRecommendedProduct } from "../../../../api/SearchApi";
+import { useContext, useEffect, useState } from "react";
+import { getRecommendedProduct } from "../../../../api/SearchApi";
 import CategoriesSection from "../../../shared/website/sections/categoriesSection/CategoriesSection";
 import SlideSection from "../../../shared/website/sections/slideSection/SlideSection";
 import FoodSection from "../../../shared/website/sections/foodSection/FoodSection";
 import { PathProvider } from "../../../contexts/PathContext";
 import { foodsPath } from "../../../../constant/FoodShoppingURL";
+import CategoriesContext from "../../../contexts/CategoriesContext";
+import { Category, CurrentProduct } from "../../../../model/Type";
 
 
 function HomeDashBoardComponent(){
     const slide = getSlide();
 
-    const [categories, setCategories] = useState([]);
+    const categories = useContext<Category[]>(CategoriesContext);
     const [categoryExpandedStatus, setCategoryExpandedStatus] = useState<boolean>(true);
-
     //products
-    const [recommendedProducts, setRecommendedProducts] = useState([]);
+    const [recommendedProducts, setRecommendedProducts] = useState<CurrentProduct[]>([]);
 
     useEffect(()=>{
         initial()
@@ -26,23 +27,16 @@ function HomeDashBoardComponent(){
     }
 
     function initial(){
-        // onUserInput('vailoz')
-        // categories
-        getCategories(0).then(res => {
-            if(res.status===200){
-                const data = res.data;
-                setCategories(data.content);
-                // console.log(data)
-            }
-        })
-
         // recommended products
-        getRecommendedProduct().then(res =>{
-            if(res.status===200){
-                const data = res.data;
-                setRecommendedProducts(data)
-            }
-        })
+        fetchRecommendedProducts();
+    }
+
+    const fetchRecommendedProducts = async ()=>{ 
+        const res = await getRecommendedProduct();
+        if(res.status===200){
+            const data = res.data;
+            setRecommendedProducts(data);
+        }
     }
 
     return(

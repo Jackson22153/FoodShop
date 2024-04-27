@@ -1,5 +1,6 @@
 package com.phucx.shop.service.cookie;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.shop.constant.CookieConstant;
 import com.phucx.shop.constant.ProductStatus;
 import com.phucx.shop.model.CartOrderItem;
+import com.phucx.shop.model.CartProductsCookie;
 import com.phucx.shop.model.CurrentProductList;
 import com.phucx.shop.model.Customer;
 import com.phucx.shop.model.OrderItem;
@@ -29,10 +31,10 @@ import com.phucx.shop.model.OrderWithProducts;
 import com.phucx.shop.model.Products;
 import com.phucx.shop.repository.CurrentProductListRepository;
 import com.phucx.shop.repository.ProductsRepository;
+import com.phucx.shop.service.bigdecimal.BigDecimalService;
 import com.phucx.shop.service.customers.CustomerService;
 import com.phucx.shop.service.messageQueue.MessageQueueService;
 import com.phucx.shop.service.user.UserService;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.NotFoundException;
@@ -53,7 +55,8 @@ public class CookieServiceImp implements CookieService{
     private CustomerService customerService;
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private BigDecimalService bigDecimalService;
     @Override
     public void updateCookie(String encodedCartJson, CartOrderItem orderProduct, HttpServletResponse response) 
         throws JsonMappingException, JsonProcessingException, NotFoundException, InsufficientResourcesException {
@@ -170,7 +173,7 @@ public class CookieServiceImp implements CookieService{
         order.setShipAddress(customer.getAddress());
         order.setShipCity(customer.getCity());
         order.setPhone(customer.getPhone());
-
+        // convert 
         for (int i=0;i<products.size();i++) {
             CartOrderItem product = products.get(i);
             CurrentProductList fetchedProduct = null;
@@ -194,13 +197,14 @@ public class CookieServiceImp implements CookieService{
                 item.getDiscounts().add(discount);
                 // calculate extended price
                 Double productDiscount = 1- Double.valueOf(fetchedProduct.getDiscountPercent())/100;
-                Double extendedPrice = Double.valueOf(product.getQuantity())*item.getUnitPrice()*productDiscount;
+                BigDecimal price = BigDecimal.valueOf(product.getQuantity()).multiply(item.getUnitPrice());
+                BigDecimal extendedPrice = price.multiply(BigDecimal.valueOf(productDiscount));
                 // log.info("discount: {}", (extendedPrice));
-                item.setExtendedPrice(extendedPrice);
+                item.setExtendedPrice(bigDecimalService.formatter(extendedPrice));
                 // add product
                 order.getProducts().add(item);
-                // calculate total price of order
-                order.setTotalPrice(order.getTotalPrice()+extendedPrice);
+                // calculate total price of order 
+                order.setTotalPrice(bigDecimalService.formatter(order.getTotalPrice().add(extendedPrice)));
             }
         }
         return order;
@@ -216,6 +220,12 @@ public class CookieServiceImp implements CookieService{
             return listProducts;
         }   
         return new ArrayList<>();
+    }
+    @Override
+    public CartProductsCookie getNumberOfProducts(String encodedCartJson) throws JsonMappingException, JsonProcessingException {
+        int numberOfCartItems = this.getListProducts(encodedCartJson).size();
+        CartProductsCookie cartProductsCookie = new CartProductsCookie(numberOfCartItems);
+        return cartProductsCookie;
     }
     
 }

@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.phucx.shop.model.CartOrderItem;
+import com.phucx.shop.model.CartProductsCookie;
 import com.phucx.shop.model.OrderWithProducts;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,6 +22,7 @@ public interface CookieService {
         throws JsonMappingException, JsonProcessingException, NotFoundException;
     public void updateCookie(String encodedCartJson, CartOrderItem orderProduct, HttpServletResponse response) 
         throws JsonMappingException, JsonProcessingException, NotFoundException, InsufficientResourcesException;
+    public CartProductsCookie getNumberOfProducts(String encodedCartJson) throws JsonMappingException, JsonProcessingException;
     public List<CartOrderItem> getListProducts(String encodedCartJson)    
         throws JsonMappingException, JsonProcessingException;
 }

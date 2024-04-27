@@ -64,7 +64,7 @@ public class Employees{
 
     @OneToOne
     @JoinColumn(name = "userID")
-    private Users user;
+    private User user;
 
     // @ManyToMany
     // @JoinTable(

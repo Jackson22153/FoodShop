@@ -13,11 +13,11 @@ public class WebSocketSeccurityConfig {
     @Bean
     public AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder builder){
         builder
-            .anyMessage().permitAll();
-            // .nullDestMatcher().authenticated()
+            .anyMessage().permitAll()
+            .nullDestMatcher().authenticated()
             // .simpDestMatchers("/app/placeOrder").hasRole("CUSTOMER")
             // .simpDestMatchers("/app/order.validate").hasRole("EMPLOYEE")
-            // .simpSubscribeDestMatchers("/user/**").hasRole("CUSTOMER")
+            .simpSubscribeDestMatchers("/user/**").hasRole("CUSTOMER");
             // .simpSubscribeDestMatchers("/topic/order/**").hasRole("EMPLOYEE")
             // .anyMessage().denyAll();
         return builder.build();

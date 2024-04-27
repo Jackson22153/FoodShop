@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.phucx.shop.constant.CookieConstant;
 import com.phucx.shop.model.CartOrderItem;
+import com.phucx.shop.model.CartProductsCookie;
 import com.phucx.shop.model.OrderWithProducts;
 import com.phucx.shop.service.cookie.CookieService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -53,5 +54,14 @@ public class CartController {
     ) throws JsonMappingException, NotFoundException, JsonProcessingException{
         OrderWithProducts order = cookieService.getOrder(cartJson, authentication);
         return ResponseEntity.ok().body(order);
+    }
+
+    @GetMapping("/products/number")
+    public ResponseEntity<CartProductsCookie> getNumberOfOrderItems(
+        @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson,
+        Authentication authentication
+    ) throws JsonMappingException, NotFoundException, JsonProcessingException{
+        CartProductsCookie cartProductsCookie = cookieService.getNumberOfProducts(cartJson);
+        return ResponseEntity.ok().body(cartProductsCookie);
     }
 }

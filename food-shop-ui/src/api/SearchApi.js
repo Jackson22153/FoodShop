@@ -1,7 +1,7 @@
 import axios from "axios";
 import { 
     CategoriesUrl, ProductsByCategories, ProductsByIdUrl, 
-    ProductsByNameUrl, ProductsUrl, RecommendedProductsUrl, 
+    ProductsByNameUrl, ProductsUrl, RecommendedProductsByCategoryUrl, RecommendedProductsUrl, 
     SearchProductsUrl, 
     ShippersUrl
 } 
@@ -53,6 +53,11 @@ export async function getProductByID(productID){
 }
 export async function getRecommendedProduct(){
     return axios.get(`${RecommendedProductsUrl}`,{
+        'Content-Type': 'application/json',
+    })
+}
+export async function getRecommendedProductsByCategory(categoryName, productID, page){
+    return axios.get(`${RecommendedProductsByCategoryUrl}/${categoryName}?page=${page}&productID=${productID}`,{
         'Content-Type': 'application/json',
     })
 }

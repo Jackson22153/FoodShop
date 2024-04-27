@@ -1,26 +1,28 @@
 import '../../../../init'
 
 import './Food.css'
-import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
-import { getProductByID } from '../../../../api/SearchApi';
-import { CartProduct, Category, Product, Supplier } from '../../../../model/Type';
+import { ChangeEventHandler, useEffect, useRef, useState, useContext } from 'react';
+import { getProductByID, getRecommendedProduct, getRecommendedProductsByCategory } from '../../../../api/SearchApi';
+import { CartProduct, CurrentProduct, CurrentProductDetail } from '../../../../model/Type';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { addProductToCart } from '../../../../api/CartApi';
 import { displayProductImage } from '../../../../service/image';
 import SockJS from 'sockjs-client';
-import { Stomp, CompatClient, Client } from '@stomp/stompjs';
-import { CartWsUrl, QUEUE_CART, ShopWSUrl } from '../../../../constant/FoodShoppingApiURL';
+import { Stomp, CompatClient } from '@stomp/stompjs';
+import { QUEUE_CART, ShopWSUrl } from '../../../../constant/FoodShoppingApiURL';
+import numberOfCartProductsContext from '../../../contexts/NumberOfCartProductsContext';
+import { ceilRound } from '../../../../service/convert';
+import { FoodPath, foodsPath } from '../../../../constant/FoodShoppingURL';
 
 export default function FoodComponent(){
     const urlParams = new URLSearchParams(window.location.search);
     // const {foodName} = useParams();
     // const cre = "https://mdbootstrap.com/snippets/standard/mdbootstrap/4852176?view=project"
-    const [foodInfo, setFoodInfo] = useState<Product>();
-    const [category, setCategory] = useState<Category>()
-    const [supplier, setSupplier] = useState<Supplier>();
-    let tempStompClient: CompatClient | undefined;
+    const [foodInfo, setFoodInfo] = useState<CurrentProductDetail>();
+    const [similarFoods, setSimilarFoods] = useState<CurrentProduct[]>([]);
     const stompClient = useRef<CompatClient | null>(null);
+    const { setNumberOfCartProducts } = useContext(numberOfCartProductsContext);
     const [cartProduct, setCartProduct] = useState<CartProduct>({
         productID: 0,
         quantity: 1
@@ -32,9 +34,7 @@ export default function FoodComponent(){
     }, []);
 
     const connectCustomer = ()=>{
-        Client
-        const sock = new SockJS(ShopWSUrl);
-        stompClient.current = Stomp.over(sock);
+        stompClient.current = Stomp.over(()=> new SockJS(ShopWSUrl));
         stompClient.current.connect({}, onShopConnectCustomer, stompFailureCallback);
         // setStompClient(stompClient);
     }
@@ -45,32 +45,22 @@ export default function FoodComponent(){
             stompClient.current.subscribe(QUEUE_CART, onPrivateShopCartMessageReceived, {
               'auto-delete': 'true'
             });
+            stompClient.current.reconnect_delay=1000
         }
         // /c02bafd6-0082-4b9f-b232-342471eae90b
       }
     async function onPrivateShopCartMessageReceived(payload: any) {
         // console.log('Message received', payload);
         const message = JSON.parse(payload.body);
-        const numberOfCartProducts = message.numberOfCartProducts;
-        console.log(message)
-    }
-    function onError(error: any) {
-        console.log('Could not connect to WebSocket server. Please refresh this page to try again!', error);
+        setNumberOfCartProducts(message);
+        // console.log(message)
     }
 
-    const onClickCartNotification = (encodedCartJson: string)=>{
-        if(stompClient.current){
-          const body = {
-            cart: encodedCartJson
-          }
-          stompClient.current.send(CartWsUrl, {}, JSON.stringify(body))
-        }
-    }
 
     var stompFailureCallback = function (error: any) {
         console.log('STOMP: ' + error);
-        setTimeout(onShopConnectCustomer, 10000);
-        console.log('STOMP: Reconecting in 10 seconds');
+        // setTimeout(onShopConnectCustomer, 10000);
+        // console.log('STOMP: Reconecting in 10 seconds');
     };
     
 
@@ -101,22 +91,15 @@ export default function FoodComponent(){
     }
 
     async function onClickAddToCart(){
-        // console.log(cartProduct);
-        // onClickCartNotification();
         const res = await addProductToCart(cartProduct);
         if(res.status===200){
-            // const encodedCartJson = cookies.cart;
-            // console.log(encodedCartJson)
-            // onClickCartNotification(encodedCartJson);
-            // console.log("add item to cart")
+
         }
     }
 
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         const quantity = +event.target.value;
-        // console.log(event.target.value);
         setCartProduct({...cartProduct, quantity: quantity});
-
       };
 
 
@@ -128,35 +111,51 @@ export default function FoodComponent(){
         }
     }
 
+    async function fetchSimilarProducts(productID: string, categoryName: string, page: number){
+        const res = await getRecommendedProductsByCategory(categoryName, productID, page);
+        if(res.status===200){
+            const data = res.data;
+            console.log(data);
+            setSimilarFoods(data.content);
+        }
+    }
+
     async function fetchProduct(productID: string){
         const res = await getProductByID(productID)
         if(res.status===200){
             const data = res.data;
-            // console.log(res.data);
+            console.log(res.data);
             setCartProduct({
                 ...cartProduct,
                 productID: data.productID,
                 quantity: 1,
             })
             setFoodInfo(data);
-            setCategory(data.categoryID);
-            setSupplier(data.supplierID);
+
+            fetchSimilarProducts(data.productID, data.categoryName, 0);
         }
     }
 
 
+
     return(
         <>
-            {foodInfo && category && supplier &&
+            {foodInfo &&
                 <>
                     <section className="py-5">
                         <div className="container">
                             <div className="row gx-5">
-                                <aside className="col-lg-6">
-                                    <div className="border rounded-4 mb-3 d-flex justify-content-center">
-                                            <img style={{maxWidth: "100%", maxHeight: "100vh", margin: "auto"}} className="rounded-4 fit" src={displayProductImage(foodInfo.picture)} />
-                                        {/* <a data-fslightbox="mygalley" className="rounded-4" target="_blank" data-type="image" href="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big.webp">
-                                        </a> */}
+                                <aside className="col-lg-5">
+                                    <div className="rounded-4 mb-3 img-large position-relative w-100">
+                                        {foodInfo.discountID!=null && foodInfo.discountPercent>0 &&
+                                            <div className="position-absolute mt-5">
+                                                <span className="badge rounded-pill badge-discount bg-danger ">
+                                                    -{foodInfo.discountPercent}%
+                                                </span>
+                                            </div>
+                                        }
+                                        <img style={{maxWidth: "100%", margin: "auto"}} 
+                                            className="rounded-4 fit" src={displayProductImage(foodInfo.picture)} />
                                     </div>
                                     {/* <div className="d-flex justify-content-center mb-3">
                                         <a data-fslightbox="mygalley" className="border mx-1 item-thumb rounded-2" target="_blank" data-type="image" href="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big1.webp">
@@ -178,8 +177,8 @@ export default function FoodComponent(){
                                     {/* <!-- thumbs-wrap.// --> */}
                                     {/* <!-- gallery-wrap .end// --> */}
                                 </aside>
-                                <main className="col-lg-6">
-                                    <div className="ps-lg-3">
+                                <main className="col-lg-7">
+                                    <div className="ps-lg-3 h-100">
                                         <h4 className="title text-dark">
                                             {foodInfo.productName}
                                         </h4>
@@ -203,26 +202,46 @@ export default function FoodComponent(){
                                         </div>
 
                                         <div className="mb-3">
-                                            <span className="h5">{`$${foodInfo.unitPrice}`}</span>
+                                            {/* <span className="h5">{`$${foodInfo.unitPrice}`}</span> */}
+                                            <ins>
+                                                <span className='h5'>
+                                                    <b>
+                                                        <span>$</span>
+                                                        {ceilRound(foodInfo.unitPrice*(1-foodInfo.discountPercent/100))}
+                                                    </b> 
+                                                </span>
+                                            </ins>
+                                            {foodInfo.discountID!= null &&
+                                                <del className="text-body-secondary ms-3">
+                                                    <span>
+                                                        <span>$</span>
+                                                        {foodInfo.unitPrice}
+                                                    </span>
+                                                </del>
+                                            }
                                             <span className="text-muted">/per {foodInfo.quantityPerUnit}</span>
                                         </div>
 
                                         <p>
+                                            <b>Category: </b>
+                                            {foodInfo.categoryName}
+                                        </p>
+                                        {/* <p>
                                             Modern look and quality demo item is a streetwear-inspired collection that continues to break away from the conventions of mainstream fashion. Made in Italy, these black and brown clothing low-top shirts for
                                             men.
-                                        </p>
+                                        </p> */}
 
-                                        <div className="row">
+                                        {/* <div className="row">
                                             <dt className="col-3">Category:</dt>
-                                            <dd className="col-9">{category.categoryName}</dd>
+                                            <dd className="col-9">{foodInfo.categoryName}</dd>
 
                                             <dt className="col-3">Supplier:</dt>
                                             <dd className="col-9">{supplier.companyName}</dd>
-                                        </div>
+                                        </div> */}
 
                                         <hr />
 
-                                        <div className="row mb-4">
+                                        <div className="row">
                                             {/* <div className="col-md-4 col-6">
                                                 <label className="mb-2">Size</label>
                                                 <select className="form-select border border-secondary" style={{height: "35px"}}>
@@ -234,7 +253,7 @@ export default function FoodComponent(){
                                             {/* <!-- col.// --> */}
                                             <div className="col-md-4 col-6 mb-3">
                                                 <label className="mb-2 d-block">Quantity</label>
-                                                <div className="input-group mb-3" style={{width: "170px"}}>
+                                                <div className="input-group mb-3 z-0" style={{width: "170px"}}>
                                                     <button className="btn btn-white border border-secondary px-3" 
                                                         type="button" id="button-addon1" data-mdb-ripple-color="dark"
                                                         onClick={handleClickMinusBtn}>
@@ -250,6 +269,9 @@ export default function FoodComponent(){
                                                     </button>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div className="row mb-4">
+                                            <p className="col-12"><b>Price: ${ceilRound(foodInfo.unitPrice*(1-foodInfo.discountPercent/100)*cartProduct.quantity)}</b></p>
                                         </div>
                                         <a href="#" className="btn btn-warning shadow-0"> Buy now </a>
                                         <button className="btn btn-primary shadow-0 mx-2" onClick={onClickAddToCart}> 
@@ -282,11 +304,19 @@ export default function FoodComponent(){
                                                 <a className="nav-link d-flex align-items-center justify-content-center w-100" id="ex1-tab-4" data-mdb-toggle="pill" href="#ex1-pills-4" role="tab" aria-controls="ex1-pills-4" aria-selected="false">Seller profile</a>
                                             </li>
                                         </ul> */}
+
+                                        <ul className="nav nav-tabs p-0 mb-3 cursor-pointer" role="tablist">
+                                            <li className="nav-item" role="presentation">
+                                                <span className="nav-link text-dark active"
+                                                    id="all-order-tab" role="tab">Description</span>
+                                            </li>
+                                        </ul>
                                         {/* <!-- Pills navs --> */}
 
                                         {/* <!-- Pills content --> */}
-                                        <div className="tab-content" id="ex1-content">
-                                            <div className="tab-pane fade show active" id="ex1-pills-1" role="tabpanel" aria-labelledby="ex1-tab-1">
+                                        <div className="tab-content" id="product-content">
+                                            {foodInfo.description}
+                                            {/* <div className="tab-pane fade show active" id="product-pills-1" role="tabpanel" aria-labelledby="product-tab-1">
                                                 <p>
                                                     With supporting text below as a natural lead-in to additional content. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
                                                     enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
@@ -309,7 +339,7 @@ export default function FoodComponent(){
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                {/* <table className="table border mt-3 mb-2">
+                                                <table className="table border mt-3 mb-2">
                                                     <tr>
                                                     <th className="py-2">Display:</th>
                                                     <td className="py-2">13.3-inch LED-backlit display with IPS</td>
@@ -330,81 +360,128 @@ export default function FoodComponent(){
                                                     <th className="py-2">Graphics</th>
                                                     <td className="py-2">Intel Iris Plus Graphics 640</td>
                                                     </tr>
-                                                </table> */}
+                                                </table>
                                             </div>
-                                            <div className="tab-pane fade mb-2" id="ex1-pills-2" role="tabpanel" aria-labelledby="ex1-tab-2">
+                                            <div className="tab-pane fade mb-2" id="product-pills-2" role="tabpanel" aria-labelledby="product-tab-2">
                                                 Tab content or sample information now <br />
                                                 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
                                                 aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
                                                 officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
                                                 nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
                                             </div>
-                                            <div className="tab-pane fade mb-2" id="ex1-pills-3" role="tabpanel" aria-labelledby="ex1-tab-3">
+                                            <div className="tab-pane fade mb-2" id="product-pills-3" role="tabpanel" aria-labelledby="product-tab-3">
                                                 Another tab content or sample information now <br />
                                                 Dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
                                                 commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
                                                 mollit anim id est laborum.
                                             </div>
-                                            <div className="tab-pane fade mb-2" id="ex1-pills-4" role="tabpanel" aria-labelledby="ex1-tab-4">
+                                            <div className="tab-pane fade mb-2" id="product-pills-4" role="tabpanel" aria-labelledby="product-tab-4">
                                                 Some other tab content or sample information now <br />
                                                 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
                                                 aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
                                                 officia deserunt mollit anim id est laborum.
-                                            </div>
+                                            </div> */}
                                         </div>
                                         {/* <!-- Pills content --> */}
                                     </div>
                                 </div>
-                                <div className="col-lg-4">
+                                <div className="col-lg-4" id='similar-foods-container'>
                                     <div className="px-0 border rounded-2 shadow-0">
                                         <div className="card">
                                             <div className="card-body">
-                                            <h5 className="card-title">Similar items</h5>
-                                            <div className="d-flex mb-3">
-                                                <a href="#" className="me-3">
-                                                <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/8.webp" style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
-                                                </a>
-                                                <div className="info">
-                                                <a href="#" className="nav-link mb-1">
-                                                    Rucksack Backpack Large <br />
-                                                    Line Mounts
-                                                </a>
-                                                <strong className="text-dark"> $38.90</strong>
-                                                </div>
-                                            </div>
+                                                <h5 className="card-title">Similar products</h5>
 
-                                            <div className="d-flex mb-3">
-                                                <a href="#" className="me-3">
-                                                <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/9.webp" style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
-                                                </a>
-                                                <div className="info">
-                                                <a href="#" className="nav-link mb-1">
-                                                    Summer New Men's Denim <br />
-                                                    Jeans Shorts
-                                                </a>
-                                                <strong className="text-dark"> $29.50</strong>
-                                                </div>
-                                            </div>
+                                                {similarFoods.map((food) =>(
+                                                    <div className="d-flex mb-3" key={food.productID}>
+                                                        <a href={`${foodsPath}/${food.productName}?sp=${food.productID}`} className="me-3">
+                                                            <img src={displayProductImage(food.picture)} style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
+                                                        </a>
+                                                        <div className="cart-text w-100">
+                                                            <div className="info">
+                                                                <div className='col-md-2'>
 
-                                            <div className="d-flex mb-3">
-                                                <a href="#" className="me-3">
-                                                <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/10.webp" style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
-                                                </a>
-                                                <div className="info">
-                                                <a href="#" className="nav-link mb-1"> T-shirts with multiple colors, for men and lady </a>
-                                                <strong className="text-dark"> $120.00</strong>
-                                                </div>
-                                            </div>
+                                                                </div>
+                                                                <a href={`${foodsPath}/${food.productName}?sp=${food.productID}`} className="nav-link mb-1">
+                                                                    {food.productName}
+                                                                </a>
+                                                                {/* <strong className="text-dark"> $38.90</strong> */}
 
-                                            <div className="d-flex">
-                                                <a href="#" className="me-3">
-                                                <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/11.webp" style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
-                                                </a>
-                                                <div className="info">
-                                                <a href="#" className="nav-link mb-1"> Blazer Suit Dress Jacket for Men, Blue color </a>
-                                                <strong className="text-dark"> $339.90</strong>
+                                                                <div className='d-flex'>
+                                                                    {food.discountID!= null && food.discountPercent>0 &&
+                                                                        <del className="text-body-secondary me-2">
+                                                                            <span>
+                                                                                <span>$</span>
+                                                                                {food.unitPrice}
+                                                                            </span>
+                                                                        </del>
+                                                                    }
+                                                                    <ins>
+                                                                        <span>
+                                                                            <b>
+                                                                                <span>$</span>
+                                                                                {ceilRound(food.unitPrice*(1-food.discountPercent/100))}
+                                                                            </b> 
+                                                                        </span>
+                                                                    </ins>
+
+
+                                                                    {food.discountID!=null && food.discountPercent>0 &&
+                                                                        <div className="sale-tag discount text-white d-flex justify-content-center align-items-center small-ele ms-4">
+                                                                            -{food.discountPercent}%
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))
+
+                                                }
+                                                {/* <div className="d-flex mb-3">
+                                                    <a href="#" className="me-3">
+                                                    <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/8.webp" style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
+                                                    </a>
+                                                    <div className="info">
+                                                    <a href="#" className="nav-link mb-1">
+                                                        Rucksack Backpack Large <br />
+                                                        Line Mounts
+                                                    </a>
+                                                    <strong className="text-dark"> $38.90</strong>
+                                                    </div>
                                                 </div>
-                                            </div>
+
+                                                <div className="d-flex mb-3">
+                                                    <a href="#" className="me-3">
+                                                    <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/9.webp" style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
+                                                    </a>
+                                                    <div className="info">
+                                                    <a href="#" className="nav-link mb-1">
+                                                        Summer New Men's Denim <br />
+                                                        Jeans Shorts
+                                                    </a>
+                                                    <strong className="text-dark"> $29.50</strong>
+                                                    </div>
+                                                </div>
+
+                                                <div className="d-flex mb-3">
+                                                    <a href="#" className="me-3">
+                                                    <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/10.webp" style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
+                                                    </a>
+                                                    <div className="info">
+                                                    <a href="#" className="nav-link mb-1"> T-shirts with multiple colors, for men and lady </a>
+                                                    <strong className="text-dark"> $120.00</strong>
+                                                    </div>
+                                                </div>
+
+                                                <div className="d-flex">
+                                                    <a href="#" className="me-3">
+                                                    <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/11.webp" style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
+                                                    </a>
+                                                    <div className="info">
+                                                    <a href="#" className="nav-link mb-1"> Blazer Suit Dress Jacket for Men, Blue color </a>
+                                                    <strong className="text-dark"> $339.90</strong>
+                                                    </div>
+                                                </div> */}
                                             </div>
                                         </div>
                                     </div>

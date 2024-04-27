@@ -1,5 +1,5 @@
 import { categoriesPath } from "../../../../constant/FoodShoppingURL";
-import { convertNameForUrl } from "../../../../service/convertStr";
+import { convertNameForUrl } from "../../../../service/convert";
 import { displayProductImage } from "../../../../service/image";
 
 interface Props{

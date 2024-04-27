@@ -1,5 +1,7 @@
 package com.phucx.account.model;
 
+import java.math.BigDecimal;
+
 import com.phucx.account.compositeKey.OrderDetailsKey;
 
 import jakarta.persistence.Column;
@@ -16,13 +18,13 @@ public class OrderDetails {
     private OrderDetailsKey key;
     
     @Column(name = "UnitPrice")
-    private double unitPrice;
+    private BigDecimal unitPrice;
     @Column(name = "Quantity")
     private Integer quantity;
 
     public OrderDetails() {
     }
-    public OrderDetails(OrderDetailsKey key, double unitPrice, Integer quantity) {
+    public OrderDetails(OrderDetailsKey key, BigDecimal unitPrice, Integer quantity) {
         this.key = key;
         this.unitPrice = unitPrice;
         this.quantity = quantity;

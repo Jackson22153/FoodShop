@@ -1,5 +1,6 @@
 package com.phucx.account.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,16 +13,16 @@ import lombok.ToString;
 public class OrderDetailsDTO {
     private Integer orderID;
     private List<ProductDTO> products;
-    private Double totalPrice;
+    private BigDecimal totalPrice;
     private OrderStatus status;
 
-    public OrderDetailsDTO(Integer orderID, Double totalPrice, OrderStatus status) {
+    public OrderDetailsDTO(Integer orderID, BigDecimal totalPrice, OrderStatus status) {
         this.products = new ArrayList<>();
         this.orderID = orderID;
         this.totalPrice = totalPrice;
         this.status = status;
     }
-    public OrderDetailsDTO(Integer orderID, List<ProductDTO> products, Double totalPrice, OrderStatus status) {
+    public OrderDetailsDTO(Integer orderID, List<ProductDTO> products, BigDecimal totalPrice, OrderStatus status) {
         this.orderID = orderID;
         this.products = products;
         this.totalPrice = totalPrice;
@@ -29,6 +30,6 @@ public class OrderDetailsDTO {
     }
     public OrderDetailsDTO() {
         this.products = new ArrayList<>();
-        this.totalPrice = Double.valueOf(0);
+        this.totalPrice = BigDecimal.valueOf(0);
     }
 }

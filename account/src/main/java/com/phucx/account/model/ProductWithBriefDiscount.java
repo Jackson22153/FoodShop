@@ -1,5 +1,6 @@
 package com.phucx.account.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,15 +11,15 @@ import lombok.ToString;
 public class ProductWithBriefDiscount {
     private Integer productID;
     private String productName;
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     private Integer quantity;
     private String picture;
     private List<DiscountBreifInfo> discounts;
     private Integer totalDiscount;
-    private Double extendedPrice;
+    private BigDecimal extendedPrice;
     
-    public ProductWithBriefDiscount(Integer productID, String productName, Double unitPrice, Integer quantity,
-            String picture, List<DiscountBreifInfo> discounts, Integer totalDiscount, Double extendedPrice) {
+    public ProductWithBriefDiscount(Integer productID, String productName, BigDecimal unitPrice, Integer quantity,
+            String picture, List<DiscountBreifInfo> discounts, Integer totalDiscount, BigDecimal extendedPrice) {
         this.productID = productID;
         this.productName = productName;
         this.unitPrice = unitPrice;
@@ -29,8 +30,8 @@ public class ProductWithBriefDiscount {
         this.extendedPrice = extendedPrice;
     }
 
-    public ProductWithBriefDiscount(Integer productID, String productName, Double unitPrice, Integer quantity,
-            String picture, Double extendedPrice) {
+    public ProductWithBriefDiscount(Integer productID, String productName, BigDecimal unitPrice, Integer quantity,
+            String picture, BigDecimal extendedPrice) {
         this();
         this.productID = productID;
         this.productName = productName;
