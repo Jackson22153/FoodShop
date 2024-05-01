@@ -33,11 +33,11 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "CustomerID")
-    private Customers customer;
+    private Customer customer;
 
     @ManyToOne
     @JoinColumn(name = "EmployeeID")
-    private Employees employee;
+    private Employee employee;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "OrderDate")
@@ -71,7 +71,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    public Order(Customers customer, Employees employee, LocalDateTime orderDate, LocalDateTime requiredDate,
+    public Order(Customer customer, Employee employee, LocalDateTime orderDate, LocalDateTime requiredDate,
             LocalDateTime shippedDate, Shipper shipVia, BigDecimal freight, String shipName, String shipAddress,
             String shipCity, String phone, OrderStatus status) {
         this.customer = customer;

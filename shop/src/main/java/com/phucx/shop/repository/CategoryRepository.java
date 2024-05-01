@@ -2,16 +2,11 @@ package com.phucx.shop.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import com.phucx.shop.model.Categories;
+import com.phucx.shop.model.Category;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Categories, Integer> {
+public interface CategoryRepository extends JpaRepository<Category, Integer> {
     
-    Categories findByCategoryName(String categoryName);
-    // @Query("SELECT c FROM Categories c WHERE c.categoryID= ?1")
-    // Categories findByID(int categoryID);
-
-    // @Query("SELECT c FROM Categories c WHERE c.categoryName= ?1")
-    // Categories findByName(@Size(max = 15) String categoryName);
+    Category findByCategoryName(String categoryName);
     
 }

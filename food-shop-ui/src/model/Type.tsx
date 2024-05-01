@@ -94,7 +94,6 @@ export type CartProduct = {
     quantity: number
 }
 
-
 export type Supplier = {
     supplierID: number,
     companyName: string,

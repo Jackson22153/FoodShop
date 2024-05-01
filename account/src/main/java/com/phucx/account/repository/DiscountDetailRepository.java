@@ -18,7 +18,7 @@ import jakarta.transaction.Transactional;
 public interface DiscountDetailRepository extends JpaRepository<DiscountDetail, String>{
     @Query("""
         SELECT d \
-        FROM DiscountDetail d JOIN ProductsDiscounts pd ON d.discountID=pd.discount.discountID \
+        FROM DiscountDetail d JOIN ProductDiscount pd ON d.discountID=pd.discount.discountID \
         WHERE pd.product.productID=?1
             """)
     Page<DiscountDetail> findByProductID(int productID, Pageable pageable);

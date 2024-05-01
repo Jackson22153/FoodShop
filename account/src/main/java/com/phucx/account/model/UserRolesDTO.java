@@ -12,5 +12,5 @@ import lombok.ToString;
 @NoArgsConstructor
 public class UserRolesDTO {
     private User user;
-    private List<Roles> roles;
+    private List<Role> roles;
 }

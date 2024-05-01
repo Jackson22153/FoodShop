@@ -23,10 +23,10 @@ import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.exception.InvalidOrderException;
-import com.phucx.account.model.Customers;
+import com.phucx.account.model.Customer;
 import com.phucx.account.model.Discount;
 import com.phucx.account.model.DiscountBreifInfo;
-import com.phucx.account.model.Employees;
+import com.phucx.account.model.Employee;
 import com.phucx.account.model.Invoice;
 import com.phucx.account.model.InvoiceDTO;
 import com.phucx.account.model.OrderDetails;
@@ -39,19 +39,19 @@ import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.Order;
 import com.phucx.account.model.ProductDTO;
 import com.phucx.account.model.ProductWithBriefDiscount;
-import com.phucx.account.model.Products;
+import com.phucx.account.model.Product;
 import com.phucx.account.model.Shipper;
-import com.phucx.account.repository.CustomersRepository;
-import com.phucx.account.repository.EmployeesRepository;
+import com.phucx.account.repository.CustomerRepository;
+import com.phucx.account.repository.EmployeeRepository;
 import com.phucx.account.repository.InvoiceRepository;
 import com.phucx.account.repository.OrderDetailsDiscountsRepository;
 import com.phucx.account.repository.OrderDetailsExtendedStatusRepository;
 import com.phucx.account.repository.OrderDetailsRepository;
 import com.phucx.account.repository.OrdersRepository;
-import com.phucx.account.repository.ProductsRepository;
+import com.phucx.account.repository.ProductRepository;
 import com.phucx.account.repository.ShipperRepository;
 import com.phucx.account.service.bigdecimal.BigDecimalService;
-import com.phucx.account.service.discounts.DiscountService;
+import com.phucx.account.service.discount.DiscountService;
 
 import jakarta.ws.rs.NotFoundException;
 
@@ -72,11 +72,11 @@ public class OrderServiceImp implements OrderService{
     @Autowired
     private DiscountService discountService;
     @Autowired
-    private ProductsRepository productsRepository;
+    private ProductRepository productRepository;
     @Autowired
-    private CustomersRepository customersRepository;
+    private CustomerRepository customerRepository;
     @Autowired
-    private EmployeesRepository employeesRepository;
+    private EmployeeRepository employeeRepository;
     @Autowired
     private ShipperRepository shipperRepository;
     @Autowired
@@ -115,11 +115,11 @@ public class OrderServiceImp implements OrderService{
     private Order saveOrder(OrderWithProducts order) throws SQLException, RuntimeException, NotFoundException{
         logger.info("saveOrder({})", order);
         // fetch order's information
-        Customers customer = customersRepository.findById(order.getCustomerID())
+        Customer customer = customerRepository.findById(order.getCustomerID())
             .orElseThrow(()-> new NotFoundException("Customer " + order.getCustomerID()+" does not found"));
-        Employees employee = null;
+        Employee employee = null;
         if(order.getEmployeeID()!=null){
-            employee = employeesRepository.findById(order.getEmployeeID()).orElse(null);
+            employee = employeeRepository.findById(order.getEmployeeID()).orElse(null);
         }
         Shipper shipper = shipperRepository.findById(order.getShipVia())
             .orElseThrow(()-> new NotFoundException("Shipper " + order.getShipVia()+ " does not found"));
@@ -136,9 +136,9 @@ public class OrderServiceImp implements OrderService{
     private OrderDetails saveOrderDetails(OrderItem orderItem, Order order) 
         throws RuntimeException, NotFoundException, SQLException{
         logger.info("saveOrderDetails OrderItem:{}", orderItem.toString());
-        var productOp = productsRepository.findById(orderItem.getProductID());
+        var productOp = productRepository.findById(orderItem.getProductID());
         if(productOp.isPresent()){
-            Products product = productOp.get();
+            Product product = productOp.get();
             OrderDetailsKey key = new OrderDetailsKey(product, order);
             
             OrderDetails orderDetail = new OrderDetails(
@@ -191,10 +191,10 @@ public class OrderServiceImp implements OrderService{
             Collections.sort(order.getProducts(), Comparator.comparingInt(OrderItem::getProductID));
             List<Integer> productIds = products.stream()
                 .map(item -> item.getProductID()).collect(Collectors.toList());
-            List<Products> fetchedProducts = productsRepository.findAllByIdAscending(productIds);
+            List<Product> fetchedProducts = productRepository.findAllByIdAscending(productIds);
             // validate and update product inStock with order product quantity
             for(int i = 0 ;i<products.size();i++){
-                Products product = fetchedProducts.get(i);
+                Product product = fetchedProducts.get(i);
                 // validate discount of product
                 Boolean isValidDiscount = discountService.validateDiscountsOfProduct(products.get(i));
                 if(!isValidDiscount){
@@ -208,7 +208,7 @@ public class OrderServiceImp implements OrderService{
                         " does not have enough stocks in inventory");
                 }
                 // update product instocks
-                Integer check = productsRepository.updateProductInStocks(
+                Integer check = productRepository.updateProductInStocks(
                     product.getProductID(), 
                     inStocks-orderQuantity);
                 if(check<=0) throw new RuntimeException("Can not update product in stocks");
@@ -252,13 +252,13 @@ public class OrderServiceImp implements OrderService{
     public boolean validateOrder(OrderWithProducts order) throws InvalidDiscountException {
         try {
             String customerID = order.getCustomerID();
-            customersRepository.findById(customerID)
+            customerRepository.findById(customerID)
                 .orElseThrow(()-> new NotFoundException("Customer not found"));
             List<OrderItem> products = order.getProducts();
 
             
             for (OrderItem product : products) {
-                productsRepository.findById(product.getProductID())
+                productRepository.findById(product.getProductID())
                     .orElseThrow(()-> new NotFoundException("Product "+ product.getProductID()+" does not found"));
 
                 Integer numberOfDiscounts = product.getDiscounts().size();
@@ -321,9 +321,9 @@ public class OrderServiceImp implements OrderService{
 
     // convert orderDetail
     private OrderWithProducts getOrderDetail(Order order){
-        Customers customer = order.getCustomer();
+        Customer customer = order.getCustomer();
         Shipper shipper = order.getShipVia();
-        Employees employee = order.getEmployee();
+        Employee employee = order.getEmployee();
         OrderWithProducts orderWithProducts = new OrderWithProducts(
             order.getOrderID(), customer.getCustomerID(), customer.getContactName(), 
             employee!=null?employee.getEmployeeID():null, employee!=null?

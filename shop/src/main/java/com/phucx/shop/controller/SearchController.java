@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.shop.config.WebConfig;
 import com.phucx.shop.model.CurrentProductList;
-import com.phucx.shop.service.products.ProductsService;
+import com.phucx.shop.service.products.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("search")
 public class SearchController {
     @Autowired
-    private ProductsService productsService;
+    private ProductService productService;
 
     @GetMapping("products")
     public ResponseEntity<Page<CurrentProductList>> searchProductsByName(
         @RequestParam(name = "l") String letters
     ) {
         if(letters.length()>2){
-            var productsPageable = productsService.searchCurrentProducts(
+            var productsPageable = productService.searchCurrentProducts(
                 letters, 0, WebConfig.PAGE_SIZE);
 
             return ResponseEntity.ok().body(productsPageable);
@@ -41,7 +41,7 @@ public class SearchController {
         @RequestParam(name = "page", required = false) Integer pageNumber
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
-        Page<CurrentProductList> products = productsService.getRecommendedProductsByCategory(
+        Page<CurrentProductList> products = productService.getRecommendedProductsByCategory(
             productID, categoryName, pageNumber, WebConfig.RECOMMENDED_PAGE_SIZE);
 
         return ResponseEntity.ok().body(products);

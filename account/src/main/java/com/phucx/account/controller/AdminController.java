@@ -14,21 +14,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.InvalidDiscountException;
-import com.phucx.account.model.Categories;
+import com.phucx.account.model.Category;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.Discount;
 import com.phucx.account.model.DiscountDetail;
 import com.phucx.account.model.DiscountType;
 import com.phucx.account.model.DiscountWithProduct;
 import com.phucx.account.model.EmployeeAccount;
+import com.phucx.account.model.Employee;
 import com.phucx.account.model.ProductDetails;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.model.UserRole;
-import com.phucx.account.service.categories.CategoriesService;
-import com.phucx.account.service.customers.CustomersService;
-import com.phucx.account.service.discounts.DiscountService;
-import com.phucx.account.service.employees.EmployeesService;
-import com.phucx.account.service.products.ProductService;
+import com.phucx.account.service.category.CategoryService;
+import com.phucx.account.service.customer.CustomerService;
+import com.phucx.account.service.discount.DiscountService;
+import com.phucx.account.service.employee.EmployeeService;
+import com.phucx.account.service.product.ProductService;
 import com.phucx.account.service.user.UserService;
 
 
@@ -40,11 +41,11 @@ public class AdminController {
     @Autowired
     private DiscountService discountsService;
     @Autowired
-    private CategoriesService categoriesService;
+    private CategoryService categoryService;
     @Autowired
-    private CustomersService customersService;
+    private CustomerService customerService;
     @Autowired
-    private EmployeesService employeeService;
+    private EmployeeService employeeService;
     @Autowired
     private UserService userService;
 
@@ -144,11 +145,11 @@ public class AdminController {
     ){        
         pageNumber = pageNumber!=null?pageNumber:0;
         Page<CustomerAccount> customers = null;
-        if(customerID!=null) customers = customersService.searchCustomersByCustomerID(customerID, pageNumber, WebConstant.PAGE_SIZE);
-        else if(contactName!=null) customers = customersService.searchCustomersByContactName(contactName, pageNumber, WebConstant.PAGE_SIZE);
-        else if(username!=null) customers = customersService.searchCustomersByUsername(username, pageNumber, WebConstant.PAGE_SIZE);
-        else if(email!=null) customers = customersService.searchCustomersByEmail(email, pageNumber, WebConstant.PAGE_SIZE);
-        else customers = customersService.getAllCustomers(pageNumber, WebConstant.PAGE_SIZE);
+        if(customerID!=null) customers = customerService.searchCustomersByCustomerID(customerID, pageNumber, WebConstant.PAGE_SIZE);
+        else if(contactName!=null) customers = customerService.searchCustomersByContactName(contactName, pageNumber, WebConstant.PAGE_SIZE);
+        else if(username!=null) customers = customerService.searchCustomersByUsername(username, pageNumber, WebConstant.PAGE_SIZE);
+        else if(email!=null) customers = customerService.searchCustomersByEmail(email, pageNumber, WebConstant.PAGE_SIZE);
+        else customers = customerService.getAllCustomers(pageNumber, WebConstant.PAGE_SIZE);
         return ResponseEntity.ok().body(customers);
     }
 // employees
@@ -171,6 +172,10 @@ public class AdminController {
         else employees = employeeService.getAllEmployees(pageNumber, WebConstant.PAGE_SIZE);
         return ResponseEntity.ok().body(employees);
     }
+
+    public ResponseEntity<Employee> getEmployeeDetail(){
+        return ResponseEntity.ok().body(null);
+    }
 // users
     @GetMapping("/users")
     public ResponseEntity<Page<UserRole>> getUsers(
@@ -190,20 +195,20 @@ public class AdminController {
         return ResponseEntity.ok().body(users);
     }
 
-// categories
+// category
     @PostMapping("/category")
     public ResponseEntity<ResponseFormat> updateCategory(
-        @RequestBody Categories category
+        @RequestBody Category category
     ){
-        boolean check = categoriesService.updateCategory(category);
+        boolean check = categoryService.updateCategory(category);
         ResponseFormat data = new ResponseFormat(check);
         return ResponseEntity.ok().body(data);
     }
     @PutMapping("/category")
     public ResponseEntity<ResponseFormat> createCategory(
-        @RequestBody Categories category
+        @RequestBody Category category
     ){
-        boolean check = categoriesService.createCategory(category);
+        boolean check = categoryService.createCategory(category);
         ResponseFormat data = new ResponseFormat(check);
         return ResponseEntity.ok().body(data);
     }

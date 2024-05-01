@@ -9,36 +9,8 @@ import dayjs, { Dayjs } from "dayjs";
 
 
 export default function EmployeeInfomationComponent(){
-    const [employeeInfo, setEmployeeInfo] = useState<Employee>({
-        employeeID: '',
-        firstName: '',
-        lastName: '',
-        birthDate: '',
-        hireDate: '',
-        homePhone: '',
-        address: '',
-        city: '',
-        photo: '',
-        reportsTo: '',
-        title: '',
-        email: '',
-        username: ''
-    });
-    const [employeeInfoAlter, setEmployeeInfoAlter] = useState<Employee>({
-        employeeID: '',
-        firstName: '',
-        lastName: '',
-        birthDate: '',
-        hireDate: '',
-        homePhone: '',
-        address: '',
-        city: '',
-        photo: '',
-        reportsTo: '',
-        title: '',
-        email: '',
-        username: ''
-    })
+    const [employeeInfo, setEmployeeInfo] = useState<Employee>();
+    const [employeeInfoAlter, setEmployeeInfoAlter] = useState<Employee>()
     const [editable, setEditable] = useState(true)
 
     useEffect(()=>{
@@ -73,17 +45,19 @@ export default function EmployeeInfomationComponent(){
     }
 
     const onChangeEmployeeInfoBirthDate = (birthDate:Dayjs|null)=>{
-        if(birthDate){
+        if(birthDate && employeeInfoAlter){
             // console.log(birthDate.format("YYYY-MM-DD"));
             const birthDateStr = birthDate.format("YYYY-MM-DD");
             setEmployeeInfoAlter({...employeeInfoAlter, birthDate: birthDateStr})
         }
     }
     const onChangeEmployeeInfo :ChangeEventHandler<HTMLInputElement> = (event)=>{
-        const name = event.target.name;
-        const value = event.target.value;
-        // console.log(`name: ${name}, value:${value}`)
-        setEmployeeInfoAlter({...employeeInfoAlter, [name]:value})
+        if(employeeInfoAlter){
+            const name = event.target.name;
+            const value = event.target.value;
+            // console.log(`name: ${name}, value:${value}`)
+            setEmployeeInfoAlter({...employeeInfoAlter, [name]:value})
+        }
     }
 
     const onClickEditInfo = ()=>{
@@ -92,32 +66,34 @@ export default function EmployeeInfomationComponent(){
 
     const onClickUpdate = async (event: FormEvent)=>{
         event.preventDefault();
-        // console.log(employeeInfo)
-        const employee = {
-            employeeID: employeeInfoAlter.employeeID,
-            firstName: employeeInfoAlter.firstName || employeeInfo.firstName,
-            lastName: employeeInfoAlter.lastName || employeeInfo.lastName,
-            birthDate: employeeInfoAlter.birthDate || null,
-            homePhone: employeeInfoAlter.homePhone || null,
-            address: employeeInfoAlter.address || null,
-            city: employeeInfoAlter.city || null,
-            photo: employeeInfoAlter.photo || null,
-            email: employeeInfoAlter.email || employeeInfo.lastName,
-            username: employeeInfoAlter.username || employeeInfo.lastName
-        };
-        // console.log(employee)
-        const res = await updateEmployeeInfo(employee);
-        if(res.status===200){
-            const data = res.data;
-            const message = `Your data have been updated ${data.status?'successfully': 'failed'}`
-            alert(message);
-            window.location.reload();
+        if(employeeInfoAlter && employeeInfo){
+            // console.log(employeeInfo)
+            const employee = {
+                employeeID: employeeInfoAlter.employeeID,
+                firstName: employeeInfoAlter.firstName || employeeInfo.firstName,
+                lastName: employeeInfoAlter.lastName || employeeInfo.lastName,
+                birthDate: employeeInfoAlter.birthDate || null,
+                homePhone: employeeInfoAlter.homePhone || null,
+                address: employeeInfoAlter.address || null,
+                city: employeeInfoAlter.city || null,
+                photo: employeeInfoAlter.photo || null,
+                email: employeeInfoAlter.email || employeeInfo.lastName,
+                username: employeeInfoAlter.username || employeeInfo.lastName
+            };
+            // console.log(employee)
+            const res = await updateEmployeeInfo(employee);
+            if(res.status===200){
+                const data = res.data;
+                const message = `Your data have been updated ${data.status?'successfully': 'failed'}`
+                alert(message);
+                window.location.reload();
+            }
         }
     }
 
     return(
         <div className="container emp-profile box-shadow-default">
-            {employeeInfo &&
+            {employeeInfo && employeeInfoAlter &&
                 <div className="row">
                     <div className="col-md-4">
                         <div className="profile-img">

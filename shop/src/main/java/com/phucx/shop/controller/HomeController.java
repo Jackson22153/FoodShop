@@ -3,11 +3,11 @@ package com.phucx.shop.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.shop.config.WebConfig;
-import com.phucx.shop.model.Categories;
+import com.phucx.shop.model.Category;
 import com.phucx.shop.model.CurrentProductList;
 import com.phucx.shop.model.CurrentSalesProduct;
-import com.phucx.shop.service.categories.CategoriesService;
-import com.phucx.shop.service.products.ProductsService;
+import com.phucx.shop.service.category.CategoryService;
+import com.phucx.shop.service.products.ProductService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,35 +22,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("home")
 public class HomeController {
     @Autowired
-    private CategoriesService categoriesService;
+    private CategoryService categoryService;
     @Autowired
-    private ProductsService productsService;
+    private ProductService productService;
 
-    // categories
+    // Category
     @GetMapping("categories")
-    public ResponseEntity<Page<Categories>> getCategories(
+    public ResponseEntity<Page<Category>> getCategories(
         @RequestParam(name = "page", required = false) Integer pageNumber
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
-        Page<Categories> data = categoriesService
+        Page<Category> data = categoryService
             .getCategories(pageNumber, WebConfig.PAGE_SIZE);
 
         return ResponseEntity.ok().body(data);
     }
 
     @GetMapping("categories/name/{categoryName}")
-    public ResponseEntity<Categories> getCategory(
+    public ResponseEntity<Category> getCategory(
         @PathVariable(name = "categoryName") String categoryName
     ){
-        Categories data = categoriesService.getCategory(categoryName);
+        Category data = categoryService.getCategory(categoryName);
         return ResponseEntity.ok().body(data);
     }
 
     @GetMapping("categories/id/{categoryID}")
-    public ResponseEntity<Categories> getCategoryByID(
+    public ResponseEntity<Category> getCategoryByID(
         @PathVariable(name = "categoryID") Integer categoryID
     ){
-        Categories data = categoriesService.getCategory(categoryID);
+        Category data = categoryService.getCategory(categoryID);
         return ResponseEntity.ok().body(data);
     }
 
@@ -60,7 +60,7 @@ public class HomeController {
         @RequestParam(name = "page", required=false) Integer pageNumber
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
-        Page<CurrentProductList> products = productsService
+        Page<CurrentProductList> products = productService
             .getCurrentProductsByCategoryName(categoryName, pageNumber, WebConfig.PAGE_SIZE);
 
         return ResponseEntity.ok().body(products);
@@ -73,7 +73,7 @@ public class HomeController {
         @RequestParam(name = "page", required = false) Integer pageNumber
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
-        var productsPageable =productsService.getCurrentProductList(pageNumber, WebConfig.PAGE_SIZE);
+        var productsPageable =productService.getCurrentProductList(pageNumber, WebConfig.PAGE_SIZE);
         return ResponseEntity.ok().body(productsPageable);
     }
     
@@ -81,13 +81,13 @@ public class HomeController {
     public ResponseEntity<CurrentSalesProduct> getProductByID(
         @PathVariable(name = "productID") Integer productID
     ){
-        CurrentSalesProduct productDetails = productsService.getCurrentSalesProductsByID(productID);
+        CurrentSalesProduct productDetails = productService.getCurrentSalesProductsByID(productID);
         return ResponseEntity.ok().body(productDetails);
     }
 
     @GetMapping("/products/recommended")
     public ResponseEntity<List<CurrentProductList>> getRecommendedProducts(){
-        List<CurrentProductList> products = productsService
+        List<CurrentProductList> products = productService
             .getRecommendedProducts(0, WebConfig.PAGE_SIZE);
             
         return ResponseEntity.ok().body(products);

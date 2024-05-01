@@ -28,9 +28,9 @@ import com.phucx.shop.model.Customer;
 import com.phucx.shop.model.OrderItem;
 import com.phucx.shop.model.OrderItemDiscount;
 import com.phucx.shop.model.OrderWithProducts;
-import com.phucx.shop.model.Products;
+import com.phucx.shop.model.Product;
 import com.phucx.shop.repository.CurrentProductListRepository;
-import com.phucx.shop.repository.ProductsRepository;
+import com.phucx.shop.repository.ProductRepository;
 import com.phucx.shop.service.bigdecimal.BigDecimalService;
 import com.phucx.shop.service.customers.CustomerService;
 import com.phucx.shop.service.messageQueue.MessageQueueService;
@@ -48,7 +48,7 @@ public class CookieServiceImp implements CookieService{
     @Autowired
     private MessageQueueService messageQueueService;
     @Autowired
-    private ProductsRepository productsRepository;
+    private ProductRepository productRepository;
     @Autowired
     private CurrentProductListRepository currentProductListRepository;
     @Autowired
@@ -69,7 +69,7 @@ public class CookieServiceImp implements CookieService{
                 String cartJson = this.decodeCookie(encodedCartJson);
                 items = objectMapper.readValue(cartJson, typeRef);
             }
-            Products product = productsRepository.findByProductIDAndDiscontinued(
+            Product product = productRepository.findByProductIDAndDiscontinued(
                 orderProduct.getProductID(), ProductStatus.Coninuted.getStatus())
                 .orElseThrow(()-> new NotFoundException("Product " + orderProduct.getProductID() +" does not found"));
 

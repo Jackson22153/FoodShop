@@ -96,7 +96,7 @@ export default function UserInfomationComponent(){
                             </div>
 
                             <div className="row ">
-                                <form action="">
+                                <form action="post">
                                     <div className="form-row row">
                                         <div className="col-md-4 mb-3">
                                             <label  htmlFor="contact-name-customer">Contact Name</label>

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import com.phucx.account.config.WebConfig;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.EmployeeAccount;
-import com.phucx.account.model.Roles;
+import com.phucx.account.model.Role;
 import com.phucx.account.model.UserRole;
 import com.phucx.account.model.UserRolesDTO;
 import com.phucx.account.model.User;
@@ -78,9 +78,9 @@ public class UserServiceImp implements UserService {
         if(userRoles!=null && userRoles.size()>0){
             UserRole firstEntity = userRoles.get(0);
             User user = new User(firstEntity.getUserID(), firstEntity.getUsername(), null);
-            List<Roles> roles = new ArrayList<>();
+            List<Role> roles = new ArrayList<>();
             for (UserRole userRole : userRoles) {
-                roles.add(new Roles(null, userRole.getRoleName()));
+                roles.add(new Role(null, userRole.getRoleName()));
             }
             return new UserRolesDTO(user, roles);
         }

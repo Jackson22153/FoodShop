@@ -1,7 +1,7 @@
 package com.phucx.account.compositeKey;
 
 import com.phucx.account.model.Order;
-import com.phucx.account.model.Products;
+import com.phucx.account.model.Product;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class OrderDetailsKey {
     @ManyToOne
     @JoinColumn(name = "ProductID")
-    private Products product;
+    private Product product;
     
     @ManyToOne
     @JoinColumn(name = "OrderID")

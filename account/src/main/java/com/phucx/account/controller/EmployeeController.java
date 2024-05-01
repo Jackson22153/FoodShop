@@ -24,7 +24,7 @@ import com.phucx.account.model.NotificationMessage;
 import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.ResponseFormat;
-import com.phucx.account.service.employees.EmployeesService;
+import com.phucx.account.service.employee.EmployeeService;
 import com.phucx.account.service.messageQueue.sender.MessageSender;
 import com.phucx.account.service.user.UserService;
 
@@ -33,7 +33,7 @@ import com.phucx.account.service.user.UserService;
 public class EmployeeController {
     private Logger logger = LoggerFactory.getLogger(EmployeeController.class);
     @Autowired
-    private EmployeesService employeesService;
+    private EmployeeService employeeService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -43,7 +43,7 @@ public class EmployeeController {
     public ResponseEntity<EmployeeDetail> getUserInfo(Authentication authentication){
         String username = userService.getUsername(authentication);
         logger.info("username: {}", username);
-        EmployeeDetail employee = employeesService.getEmployeeDetail(username);
+        EmployeeDetail employee = employeeService.getEmployeeDetail(username);
         return ResponseEntity.ok().body(employee);
     }
     // UPDATE EMPLOYEE'S INFORMATION
@@ -52,7 +52,7 @@ public class EmployeeController {
         Authentication authentication,
         @RequestBody EmployeeDetail employee
     ){
-        Boolean status = employeesService.updateEmployeeInfo(employee);
+        Boolean status = employeeService.updateEmployeeInfo(employee);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
     // GET ALL ORDERS WHICH EMPLOYEE HAS APPROVED
@@ -65,7 +65,7 @@ public class EmployeeController {
         logger.info("OrderStatus: {}", orderStatus);
         pageNumber = pageNumber!=null?pageNumber:0;
         String username = userService.getUsername(authentication);
-        EmployeeDetail employee = employeesService.getEmployeeDetail(username);
+        EmployeeDetail employee = employeeService.getEmployeeDetail(username);
         // get order's status
         OrderStatus status = null;
         if(orderStatus==null){
@@ -74,7 +74,7 @@ public class EmployeeController {
             status = OrderStatus.fromString(orderStatus.toUpperCase());
         }
         // get orders
-        Page<OrderDetailsDTO> orders = employeesService.getOrders(
+        Page<OrderDetailsDTO> orders = employeeService.getOrders(
             pageNumber, WebConstant.PAGE_SIZE, employee.getEmployeeID(), status);
         return ResponseEntity.ok().body(orders);
     }
@@ -86,7 +86,7 @@ public class EmployeeController {
         Authentication authentication
     ){
         page = page!=null?page:0;
-        Page<OrderDetailsDTO> orders = employeesService.getPendingOrders(page, WebConstant.PAGE_SIZE);
+        Page<OrderDetailsDTO> orders = employeeService.getPendingOrders(page, WebConstant.PAGE_SIZE);
         return ResponseEntity.ok().body(orders);
     }
     
@@ -96,7 +96,7 @@ public class EmployeeController {
         @PathVariable(name = "orderID") Integer orderID,
         Authentication authentication
     ) throws InvalidOrderException{
-        OrderWithProducts orders = employeesService.getPendingOrderDetail(orderID);
+        OrderWithProducts orders = employeeService.getPendingOrderDetail(orderID);
         return ResponseEntity.ok().body(orders);
     }
     
@@ -105,8 +105,8 @@ public class EmployeeController {
     public ResponseEntity<OrderWithProducts> getOrderDetail(@PathVariable Integer orderID, Authentication authentication) 
     throws InvalidOrderException{
         String username = userService.getUsername(authentication);
-        EmployeeDetail employee = employeesService.getEmployeeDetail(username);
-        OrderWithProducts order = employeesService.getOrderDetail(orderID, employee.getEmployeeID());
+        EmployeeDetail employee = employeeService.getEmployeeDetail(username);
+        OrderWithProducts order = employeeService.getOrderDetail(orderID, employee.getEmployeeID());
         return ResponseEntity.ok().body(order);
     }
     
@@ -119,13 +119,13 @@ public class EmployeeController {
         // // validate order
         // set employeeID that validates this order
         String username = userService.getUsername(authentication);
-        EmployeeDetail employee = employeesService.getEmployeeDetail(username);
+        EmployeeDetail employee = employeeService.getEmployeeDetail(username);
         order.setEmployeeID(employee.getEmployeeID());
 
         logger.info("employee {} has validated an order of customer {}", 
             order.getEmployeeID(), order.getCustomerID());
         // get notification after validate with database
-        NotificationMessage notificationMessage = employeesService.placeOrder(order);
+        NotificationMessage notificationMessage = employeeService.placeOrder(order);
         
         // send notification message back to customer
         // get recipientID to send to a specific user

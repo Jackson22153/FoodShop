@@ -18,17 +18,6 @@ import com.phucx.account.model.DiscountType;
 
 @Repository
 public interface DiscountRepository extends JpaRepository<Discount, String>{
-    // @Modifying
-    // @Transactional
-    // @Procedure(name = "insertDiscount")
-    // public void insertDiscount(BigDecimal discountPercent, LocalDateTime startDate, LocalDateTime endDate, Integer productID);
-
-    // @Modifying
-    // @Transactional
-    // @Procedure(name = "updateDiscount")
-    // public Integer updateDiscount(BigDecimal discountPercent, LocalDateTime startDate, LocalDateTime endDate, Integer productID);
-
-
     @Modifying
     @Transactional
     @Query("""
@@ -38,7 +27,7 @@ public interface DiscountRepository extends JpaRepository<Discount, String>{
 
     @Query("""
         SELECT d \
-        FROM ProductsDiscounts pd JOIN Discount d ON pd.discount.discountID=d.discountID \
+        FROM ProductDiscount pd JOIN Discount d ON pd.discount.discountID=d.discountID \
         WHERE d.discountID=?1 AND pd.product.productID=?2
         """)
     Optional<Discount> findByDiscountIDAndProductID(String discountID, Integer productID);
@@ -54,7 +43,7 @@ public interface DiscountRepository extends JpaRepository<Discount, String>{
 
     @Query("""
         SELECT d \
-        FROM Discount d JOIN ProductsDiscounts pd ON d.discountID=pd.discount.discountID \
+        FROM Discount d JOIN ProductDiscount pd ON d.discountID=pd.discount.discountID \
         WHERE pd.product.productID=?1
             """)
     Page<Discount> findByProductID(int productID, Pageable pageable);
