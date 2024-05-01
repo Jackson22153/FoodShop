@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.exception.InvalidOrderException;
-import com.phucx.account.model.CustomerAccounts;
+import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.Customers;
 import com.phucx.account.model.InvoiceDTO;
@@ -24,7 +24,7 @@ import com.phucx.account.model.OrderItem;
 import com.phucx.account.model.OrderItemDiscount;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.Order;
-import com.phucx.account.repository.CustomerAccountsRepository;
+import com.phucx.account.repository.CustomerAccountRepository;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.repository.CustomersRepository;
 import com.phucx.account.service.github.GithubService;
@@ -41,7 +41,7 @@ public class CustomersServiceImp implements CustomersService {
     @Autowired
     private GithubService githubService;
     @Autowired
-    private CustomerAccountsRepository customerAccountsRepository;
+    private CustomerAccountRepository customerAccountRepository;
     @Autowired
     private OrderService orderService;
     @Autowired
@@ -103,7 +103,7 @@ public class CustomersServiceImp implements CustomersService {
 	}
 	@Override
 	public CustomerDetail getCustomerDetail(String username) {
-        CustomerAccounts customerAcc = customerAccountsRepository.findByUsername(username);
+        CustomerAccount customerAcc = customerAccountRepository.findByUsername(username);
         if(customerAcc!=null){
             String customerID = customerAcc.getCustomerID();
             CustomerDetail customer = customerDetailRepository.findById(customerID)
@@ -111,7 +111,7 @@ public class CustomersServiceImp implements CustomersService {
             return customer;
         }else{
             String customerID = UUID.randomUUID().toString();
-            customerAccountsRepository.createCustomerInfo(customerID, username, username);
+            customerAccountRepository.createCustomerInfo(customerID, username, username);
             CustomerDetail customer = customerDetailRepository.findById(customerID)
                 .orElseThrow(()-> new NotFoundException("CustomerID: " + customerID + " does not found"));
             return customer;
@@ -134,9 +134,9 @@ public class CustomersServiceImp implements CustomersService {
     }
 	
     @Override
-	public Page<Customers> getAllCustomers(int pageNumber, int pageSize) {
+	public Page<CustomerAccount> getAllCustomers(int pageNumber, int pageSize) {
         Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<Customers> result = customersRepository.findAll(page);
+        Page<CustomerAccount> result = customerAccountRepository.findAll(page);
 		return result;
 	}
 	@Override
@@ -173,7 +173,7 @@ public class CustomersServiceImp implements CustomersService {
     
     @Override
     public Customers getCustomerByUsername(String username) {
-        CustomerAccounts customerAccount = customerAccountsRepository.findByUsername(username);
+        CustomerAccount customerAccount = customerAccountRepository.findByUsername(username);
         if(customerAccount!=null){
             String customerID = customerAccount.getCustomerID();
             Customers customer = customersRepository.findById(customerID)
@@ -194,5 +194,33 @@ public class CustomersServiceImp implements CustomersService {
     @Override
     public InvoiceDTO getInvoice(int orderID, String customerID) throws InvalidOrderException {
         return orderService.getCustomerInvoice(orderID, customerID);
+    }
+    @Override
+    public Page<CustomerAccount> searchCustomersByCustomerID(String customerID, int pageNumber, int pageSize) {
+        String searchParam = "%" + customerID +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<CustomerAccount> customers = customerAccountRepository.findByCustomerIDLike(searchParam, page);
+        return customers;
+    }
+    @Override
+    public Page<CustomerAccount> searchCustomersByContactName(String contactName, int pageNumber, int pageSize) {
+        String searchParam = "%" + contactName +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<CustomerAccount> customers = customerAccountRepository.findByContactNameLike(searchParam, page);
+        return customers;
+    }
+    @Override
+    public Page<CustomerAccount> searchCustomersByUsername(String username, int pageNumber, int pageSize) {
+        String searchParam = "%" + username +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<CustomerAccount> customers = customerAccountRepository.findByUsernameLike(searchParam, page);
+        return customers;
+    }
+    @Override
+    public Page<CustomerAccount> searchCustomersByEmail(String email, int pageNumber, int pageSize) {
+        String searchParam = "%" + email +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<CustomerAccount> customers = customerAccountRepository.findByEmailLike(searchParam, page);
+        return customers;
     }
 }

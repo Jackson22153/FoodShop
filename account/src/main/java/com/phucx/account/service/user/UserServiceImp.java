@@ -4,21 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.config.WebConfig;
-import com.phucx.account.model.CustomerAccounts;
-import com.phucx.account.model.EmployeeAccounts;
+import com.phucx.account.model.CustomerAccount;
+import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.Roles;
-import com.phucx.account.model.UserRoles;
-import com.phucx.account.model.UserRolesUtils;
+import com.phucx.account.model.UserRole;
+import com.phucx.account.model.UserRolesDTO;
 import com.phucx.account.model.User;
-import com.phucx.account.repository.CustomerAccountsRepository;
-import com.phucx.account.repository.EmployeeAccountsRepository;
-import com.phucx.account.repository.UserRolesRepository;
+import com.phucx.account.repository.CustomerAccountRepository;
+import com.phucx.account.repository.EmployeeAccountRepository;
+import com.phucx.account.repository.UserRoleRepository;
 import com.phucx.account.repository.UserRepository;
 
 import jakarta.ws.rs.NotFoundException;
@@ -30,11 +33,11 @@ public class UserServiceImp implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private UserRolesRepository userRolesRepository;
+    private UserRoleRepository userRoleRepository;
     @Autowired
-    private CustomerAccountsRepository customerAccountsRepository;
+    private CustomerAccountRepository customerAccountRepository;
     @Autowired
-    private EmployeeAccountsRepository employeeAccountsRepository;
+    private EmployeeAccountRepository employeeAccountRepository;
     @Override
     public User getUser(String username) {
         User user = userRepository.findByUsername(username);
@@ -69,17 +72,17 @@ public class UserServiceImp implements UserService {
         return false;
     }
     @Override
-    public UserRolesUtils getUserRoles(String userID) {
-        List<UserRoles> userRoles = userRolesRepository.findByUserID(userID);
-        // List<UserRoles> userRoles = userRolesService.getUserRoles(userID);
-        if(userRoles.size()>0){
-            UserRoles firstEntity = userRoles.get(0);
+    public UserRolesDTO getUserRoles(String userID) {
+        List<UserRole> userRoles = userRoleRepository.findByUserID(userID);
+        // List<UserRole> userRole = userRoleService.getUserRole(userID);
+        if(userRoles!=null && userRoles.size()>0){
+            UserRole firstEntity = userRoles.get(0);
             User user = new User(firstEntity.getUserID(), firstEntity.getUsername(), null);
             List<Roles> roles = new ArrayList<>();
-            for (UserRoles userRole : userRoles) {
+            for (UserRole userRole : userRoles) {
                 roles.add(new Roles(null, userRole.getRoleName()));
             }
-            return new UserRolesUtils(user, roles);
+            return new UserRolesDTO(user, roles);
         }
         return null;
     }
@@ -97,14 +100,47 @@ public class UserServiceImp implements UserService {
     }
     @Override
     public String getUserIdOfCustomerID(String customerID) {
-        CustomerAccounts customerAccounts = customerAccountsRepository.findByCustomerID(customerID)
+        CustomerAccount customerAccount = customerAccountRepository.findByCustomerID(customerID)
             .orElseThrow(()-> new NotFoundException("Customer "+customerID+" does not found"));
-        return customerAccounts.getUserID();
+        return customerAccount.getUserID();
     }
     @Override
     public String getUserIdOfEmployeeID(String employeeID) {
-        EmployeeAccounts employeeAccounts = employeeAccountsRepository.findByEmployeeID(employeeID)
+        EmployeeAccount employeeAccount = employeeAccountRepository.findByEmployeeID(employeeID)
             .orElseThrow(()-> new NotFoundException("Employee "+ employeeID +" does not found"));
-        return employeeAccounts.getEmployeeID();
+        return employeeAccount.getEmployeeID();
+    }
+    @Override
+    public Page<UserRole> getAllUserRoles(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return userRoleRepository.findAll(pageable);
+    }
+    @Override
+    public Page<UserRole> searchUsersByUserID(String userID, int pageNumber, int pageSize) {
+        String searchParam = "%" + userID +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<UserRole> users = userRoleRepository.findByUserIDLike(searchParam, page);
+        return users;
+    }
+    @Override
+    public Page<UserRole> searchUsersByRoleName(String roleName, int pageNumber, int pageSize) {
+        String searchParam = "%" + roleName +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<UserRole> users = userRoleRepository.findByRoleNameLike(searchParam, page);
+        return users;
+    }
+    @Override
+    public Page<UserRole> searchUsersByUsername(String username, int pageNumber, int pageSize) {
+        String searchParam = "%" + username +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<UserRole> users = userRoleRepository.findByUsernameLike(searchParam, page);
+        return users;
+    }
+    @Override
+    public Page<UserRole> searchUsersByEmail(String email, int pageNumber, int pageSize) {
+        String searchParam = "%" + email +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<UserRole> users = userRoleRepository.findByEmailLike(searchParam, page);
+        return users;
     }
 }

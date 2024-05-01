@@ -1,6 +1,5 @@
 package com.phucx.account.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,7 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class DiscountWithProduct{
     private String discountID;
-    private BigDecimal discountPercent;
+    private Integer discountPercent;
     private String discountType;
     private String discountCode;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

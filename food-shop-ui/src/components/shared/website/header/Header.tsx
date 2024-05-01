@@ -66,7 +66,7 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
                                                 <div id="appheader-user" className={`dropdown-menu show`} 
                                                     aria-labelledby="navbarDropdownMenuLink">
                                                     <a className="dropdown-item cursor-pointer" href={customerPath}>Profile</a>
-                                                    <a className="dropdown-item cursor-pointer" href="#">Settings</a>
+                                                    {/* <a className="dropdown-item cursor-pointer" href="#">Settings</a> */}
                                                     <div className="dropdown-divider"></div>
                                                     <span className="dropdown-item cursor-pointer" onClick={onClickLogout}>Logout</span>
                                                 </div>

@@ -28,6 +28,19 @@ public class LoggerAspect {
         return result;
     }
 
+    @Around("execution(* com.phucx.account.controller.ExceptionController.*(..))")
+    public Object exceptionLoggerAspect(ProceedingJoinPoint joinPoint) throws Throwable{
+
+        for(Object ex: joinPoint.getArgs()){
+            if(ex instanceof Exception){
+                Exception exception = (Exception) ex;
+                log.warn(joinPoint.getSignature().toString() + " has an Error: " + exception.getMessage());
+            }
+        }
+
+        return joinPoint.proceed();
+    }
+
     @Around("@annotation(com.phucx.account.annotations.LoggerAspect)")
     public Object logAnnotation(ProceedingJoinPoint joinPoint) throws Throwable{
         log.info(joinPoint.getSignature().toString() + " method has been invoked");

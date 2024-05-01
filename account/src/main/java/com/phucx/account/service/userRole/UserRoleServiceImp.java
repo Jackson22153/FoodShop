@@ -1,4 +1,4 @@
-package com.phucx.account.service.userRoles;
+package com.phucx.account.service.userRole;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,24 +7,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.model.Roles;
-import com.phucx.account.model.UserRoles;
+import com.phucx.account.model.UserRole;
 import com.phucx.account.model.User;
 import com.phucx.account.repository.RolesRepository;
-import com.phucx.account.repository.UserRolesRepository;
+import com.phucx.account.repository.UserRoleRepository;
 import com.phucx.account.repository.UserRepository;
 
 @Service
-public class UserRolesServiceImp implements UserRolesService{
+public class UserRoleServiceImp implements UserRoleService{
     @Autowired
-    private UserRolesRepository userRolesRepository;
+    private UserRoleRepository userRoleRepository;
     @Autowired
     private RolesRepository rolesRepository;
     @Autowired
     private UserRepository userRepository;
 	@Override
-	public List<UserRoles> getUserRoles(String userID) {
-		List<UserRoles> userRoles = userRolesRepository.findByUserID(userID);
-        if(userRoles!=null) return userRoles;
+	public List<UserRole> getUserRole(String userID) {
+		List<UserRole> userRole = userRoleRepository.findByUserID(userID);
+        if(userRole!=null) return userRole;
         return new ArrayList<>();
 	}
 	@Override
@@ -32,7 +32,7 @@ public class UserRolesServiceImp implements UserRolesService{
         Roles role = rolesRepository.findByRoleName(roleName);
         User user = userRepository.findByUsername(username);
         if(role!=null && user!=null){
-            userRolesRepository.assignUserRole(username, roleName);
+            userRoleRepository.assignUserRole(username, roleName);
             return true;
         }
         return false;

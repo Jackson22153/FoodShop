@@ -18,7 +18,7 @@ public class Categories {
     @Id
     @GeneratedValue(generator = "native", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "native", strategy = "native")
-    @Column(name = "CategoryID", nullable = false)
+    @Column(name = "CategoryID")
     private Integer categoryID;
     @Column(name = "CategoryName", length = 15, nullable = false)
     private String categoryName;

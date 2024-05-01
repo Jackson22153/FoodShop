@@ -39,12 +39,5 @@ public interface ProductsRepository extends JpaRepository<Products, Integer> {
               """)
        Page<Products> findByCategoryNameLike(String categoryName, Pageable page);
 
-       @Query("""
-              SELECT p \
-              FROM Products p \
-              WHERE p.productName Like ?1       
-              """)
-       Page<Products> findByProductNameLike(String productName, Pageable page);
-
        Optional<Products> findByProductIDAndDiscontinued(Integer productID, Boolean discontinued);
 }

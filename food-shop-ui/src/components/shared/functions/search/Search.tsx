@@ -4,6 +4,7 @@ import { Product } from "../../../../model/Type";
 import { FoodPath, SearchFoodsPath } from "../../../../constant/FoodShoppingURL";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { searchProducts } from "../../../../api/SearchApi";
 
 interface Props{
     searchInputValue: string,
@@ -35,7 +36,16 @@ export default function Search(prop: Props){
     }
     // searching products
     const onKeyUpSearch: FormEventHandler<HTMLInputElement> = ()=>{
-        onUserInput(searchInputValue, handleSearchResult);
+        onUserInput(searchInputValue, fetchProducts);
+    }
+    // fetch products
+    const fetchProducts = async (userInput: string)=>{
+        const res = await searchProducts(userInput)
+        if(res.status===200){
+            const data = res.data;
+            handleSearchResult(data.content);
+            // return data;
+        }
     }
     // view searched products
     const onClickSearch: MouseEventHandler<HTMLButtonElement> = (event) =>{
@@ -61,7 +71,6 @@ export default function Search(prop: Props){
             </ul>
             <button className="input-group-text search-button btn btn-primary" 
                 id="search-addon" onClick={onClickSearch}>
-                <i className="fa-solid fa-magnifying-glass"></i>
                 <FontAwesomeIcon icon={faMagnifyingGlass}/>
             </button>
         </div>

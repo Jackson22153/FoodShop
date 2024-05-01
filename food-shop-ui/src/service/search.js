@@ -1,23 +1,13 @@
 import { searchProducts } from "../api/SearchApi";
-
+const SEARCH_TIMEOUT = 300;
 let debounceTimeOut;
-function sendToBackend(userInput, handleSearchResultCallback){
-    searchProducts(userInput).then(res =>{
-        if(res.status===200){
-            const data = res.data;
-            // console.log(data);
-            handleSearchResultCallback(data);
-            // return data;
-        }
-    })
-}
 
-export function onUserInput(userInput, handleSearchResultCallback){
+export function onUserInput(userInput, searchCallBack){
     clearTimeout(debounceTimeOut);
     debounceTimeOut = setTimeout(()=>{
         if(userInput.length>2){
-            sendToBackend(userInput, handleSearchResultCallback);
+            searchCallBack(userInput);
         }
-    }, 300);
+    }, SEARCH_TIMEOUT);
 }
 

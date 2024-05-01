@@ -12,19 +12,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.phucx.account.constant.DiscountActive;
 import com.phucx.account.constant.DiscountTypeConst;
 import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.model.Discount;
+import com.phucx.account.model.DiscountDetail;
 import com.phucx.account.model.DiscountType;
 import com.phucx.account.model.DiscountWithProduct;
 import com.phucx.account.model.OrderItem;
 import com.phucx.account.model.OrderItemDiscount;
 import com.phucx.account.model.Products;
-import com.phucx.account.model.ProductsDiscounts;
+import com.phucx.account.repository.DiscountDetailRepository;
 import com.phucx.account.repository.DiscountRepository;
 import com.phucx.account.repository.DiscountTypeRepository;
-import com.phucx.account.repository.ProductsDiscountsRepository;
 import com.phucx.account.repository.ProductsRepository;
 
 import jakarta.transaction.Transactional;
@@ -38,9 +37,9 @@ public class DiscountServiceImp implements DiscountService{
     @Autowired
     private ProductsRepository productsRepository;
     @Autowired
-    private ProductsDiscountsRepository productsDiscountsRepository;
-    @Autowired
     private DiscountTypeRepository discountTypeRepository;
+    @Autowired
+    private DiscountDetailRepository discountDetailRepository;
 
     @Transactional
     public Discount insertDiscount(DiscountWithProduct discount) throws InvalidDiscountException, RuntimeException{
@@ -69,19 +68,23 @@ public class DiscountServiceImp implements DiscountService{
 
 
         // create new discount
-        Discount newDiscount = new Discount(newDiscountID, discount.getDiscountPercent(), 
-            discountType, discount.getDiscountCode(), discount.getStartDate(),
-             discount.getEndDate(), DiscountActive.DEACTIVE.getValue());
+        // Discount newDiscount = new Discount(newDiscountID, discount.getDiscountPercent(), 
+        //     discountType, discount.getDiscountCode(), discount.getStartDate(),
+        //      discount.getEndDate(), DiscountActive.DEACTIVE.getValue());
         // get product
         Products product = productsRepository.findById(productID)
             .orElseThrow(()-> new NotFoundException("Product not found"));
         // save discount along with product
-        Discount savedDiscount = discountRepository.save(newDiscount);
-        ProductsDiscounts productsDiscount = new ProductsDiscounts(product, savedDiscount);
-        productsDiscountsRepository.save(productsDiscount);
-
-        return savedDiscount;
-        
+        Boolean check = discountDetailRepository.insertDiscount(
+            newDiscountID, discount.getDiscountPercent(), 
+            discount.getDiscountCode(), discount.getStartDate(), 
+            discount.getEndDate(), discount.getActive(), 
+            discount.getDiscountType(), product.getProductID());
+        if(check) {
+            return discountRepository.findById(newDiscountID)
+                .orElseThrow(()-> new NotFoundException("Discount " + newDiscountID + " does not found"));
+        }
+        throw new RuntimeException("Discount " + newDiscountID + " can not be saved");
     }
     @Override
     public Boolean updateDiscount(DiscountWithProduct discount) throws InvalidDiscountException {
@@ -109,12 +112,12 @@ public class DiscountServiceImp implements DiscountService{
 
 
         if(fetchedDiscount!=null){
-            Integer check = discountRepository.updateDiscount(
-                discount.getDiscountID(), discount.getDiscountPercent(),
-                discountType, discount.getDiscountCode(), 
-                discount.getStartDate(), discount.getEndDate());
-            if(check>0) return true;
-            else return false;
+            Boolean check = discountDetailRepository.updateDiscount(
+                discount.getDiscountID(), discount.getDiscountPercent(), 
+                discount.getDiscountCode(), discount.getStartDate(), 
+                discount.getEndDate(), discount.getActive(), 
+                discount.getDiscountType());
+            return check;
         }
         throw new InvalidDiscountException("Discount not found");
     }
@@ -194,10 +197,7 @@ public class DiscountServiceImp implements DiscountService{
         if(discount.getDiscountID()==null) throw new InvalidDiscountException("Missing DiscountID");
         Discount fetchedDiscount = this.getDiscount(discount.getDiscountID());
         if(fetchedDiscount!=null){
-            Integer check =discountRepository.updateDiscountStatus(
-                fetchedDiscount.getDiscountID(), discount.getActive());
-            if(check>0) return true;
-            return false;
+            return discountDetailRepository.updateDiscountStatus(fetchedDiscount.getDiscountID(), discount.getActive());
         }
         throw new InvalidDiscountException("Discount "+discount.getDiscountID()+" is not valid");
     }
@@ -216,5 +216,25 @@ public class DiscountServiceImp implements DiscountService{
         }else if(DiscountTypeConst.Code.getValue().equalsIgnoreCase(discountType)){
             return this.validateCodeDiscount(productID, orderDiscount);
         }else throw new InvalidDiscountException("Invalid Discount Type: {}" + discountType);
+    }
+    @Override
+    public Page<DiscountType> getDiscountTypes(int pageNumber, int pageSize) {
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        return  discountTypeRepository.findAll(page);
+    }
+    @Override
+    public Page<DiscountDetail> getDiscountsByProduct(int productID, int pageNumber, int pageSize) {
+        Products product = productsRepository.findById(productID)
+            .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<DiscountDetail> discounts = discountDetailRepository.findByProductID(product.getProductID(), pageable);
+        return discounts;
+    }
+    @Override
+    public DiscountDetail getDiscountDetail(String discountID){
+        DiscountDetail discount = discountDetailRepository.findById(discountID)
+            .orElseThrow(()-> new NotFoundException("Discount " + discountID + " does not found"));
+        return discount;
     }
 }

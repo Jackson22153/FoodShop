@@ -13,13 +13,13 @@ import org.springframework.stereotype.Service;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.exception.InvalidOrderException;
-import com.phucx.account.model.EmployeeAccounts;
+import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.Employees;
 import com.phucx.account.model.NotificationMessage;
 import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderWithProducts;
-import com.phucx.account.repository.EmployeeAccountsRepository;
+import com.phucx.account.repository.EmployeeAccountRepository;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.repository.EmployeesRepository;
 import com.phucx.account.service.github.GithubService;
@@ -42,7 +42,7 @@ public class EmployeesServiceImp implements EmployeesService {
     @Autowired
     private MessageSender messageSender;
     @Autowired
-    private EmployeeAccountsRepository employeeAccountsRepository;
+    private EmployeeAccountRepository employeeAccountRepository;
     @Autowired
     private EmployeeDetailRepostiory employeeDetailRepostiory;
 
@@ -84,15 +84,14 @@ public class EmployeesServiceImp implements EmployeesService {
 	}
 
 	@Override
-	public Page<Employees> getAllEmployees(int pageNumber, int pageSize) {
+	public Page<EmployeeAccount> getAllEmployees(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        var employees = employeesRepository.findAll(pageable);
-        return employees;
+        return employeeAccountRepository.findAll(pageable);
 	}
 
 	@Override
 	public EmployeeDetail getEmployeeDetail(String username) {
-        EmployeeAccounts employeeAcc = employeeAccountsRepository.findByUsername(username);
+        EmployeeAccount employeeAcc = employeeAccountRepository.findByUsername(username);
         if(employeeAcc!=null){
             String employeeID = employeeAcc.getEmployeeID();
             EmployeeDetail employee = employeeDetailRepostiory.findById(employeeID)
@@ -100,7 +99,7 @@ public class EmployeesServiceImp implements EmployeesService {
             return employee;
         }else{
             String employeeID = UUID.randomUUID().toString();
-            employeeAccountsRepository.createEmployeeInfo(employeeID, username, username, username);
+            employeeAccountRepository.createEmployeeInfo(employeeID, username, username, username);
             EmployeeDetail employee = employeeDetailRepostiory.findById(employeeID)
                 .orElseThrow(()-> new NotFoundException("EmployeeID: " + employeeID + " does not found"));
             return employee;
@@ -140,5 +139,45 @@ public class EmployeesServiceImp implements EmployeesService {
     @Override
     public OrderWithProducts getPendingOrderDetail(int orderID) throws InvalidOrderException {
         return orderService.getPendingOrderDetail(orderID);
+    }
+
+    @Override
+    public Page<EmployeeAccount> searchEmployeesByEmployeeID(String employeeID, int pageNumber, int pageSize) {
+        String searchParam = "%" + employeeID +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<EmployeeAccount> employees = employeeAccountRepository.findByEmployeeIDLike(searchParam, page);
+        return employees;
+    }
+
+    @Override
+    public Page<EmployeeAccount> searchEmployeesByFirstName(String firstName, int pageNumber, int pageSize) {
+        String searchParam = "%" + firstName +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<EmployeeAccount> employees = employeeAccountRepository.findByFirstNameLike(searchParam, page);
+        return employees;
+    }
+
+    @Override
+    public Page<EmployeeAccount> searchEmployeesByLastName(String lastName, int pageNumber, int pageSize) {
+        String searchParam = "%" + lastName +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<EmployeeAccount> employees = employeeAccountRepository.findByLastNameLike(searchParam, page);
+        return employees;
+    }
+
+    @Override
+    public Page<EmployeeAccount> searchEmployeesByUsername(String username, int pageNumber, int pageSize) {
+        String searchParam = "%" + username +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<EmployeeAccount> employees = employeeAccountRepository.findByUsernameLike(searchParam, page);
+        return employees;
+    }
+
+    @Override
+    public Page<EmployeeAccount> searchEmployeesByEmail(String email, int pageNumber, int pageSize) {
+        String searchParam = "%" + email +"%";
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<EmployeeAccount> employees = employeeAccountRepository.findByEmailLike(searchParam, page);
+        return employees;
     }
 }

@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Immutable;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.NamedStoredProcedureQueries;
@@ -28,8 +30,10 @@ import lombok.Data;
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "reorderLevel", type = Integer.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "discontinued", type = Boolean.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "picture", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "description", type = String.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "categoryID", type = Integer.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "supplierID", type = Integer.class),
+        @StoredProcedureParameter(mode = ParameterMode.OUT, name = "result", type = Boolean.class)
     }),
     @NamedStoredProcedureQuery(name = "ProductDetails.insertProduct",
     procedureName = "insertProduct", parameters = {
@@ -41,8 +45,10 @@ import lombok.Data;
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "reorderLevel", type = Integer.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "discontinued", type = Boolean.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "picture", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "description", type = String.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "categoryID", type = Integer.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "supplierID", type = Integer.class),
+        @StoredProcedureParameter(mode = ParameterMode.OUT, name = "result", type = Boolean.class)
     })
 })
 public class ProductDetails{
@@ -58,10 +64,13 @@ public class ProductDetails{
     private Integer reorderLevel;
     private Boolean discontinued;
     private String picture;
+    private String description;
 
-    private Integer discountID;
-    private Float discountAmount;
+    private String discountID;
+    private Float discountPercent;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endDate;
 
     private String categoryName;

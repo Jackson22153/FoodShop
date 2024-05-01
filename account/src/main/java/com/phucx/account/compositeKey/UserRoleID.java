@@ -1,6 +1,4 @@
-package com.phucx.account.model;
-
-import java.util.List;
+package com.phucx.account.compositeKey;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +8,7 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRolesUtils {
-    private User user;
-    private List<Roles> roles;
+public class UserRoleID {
+    private String userID;
+    private String roleName;
 }

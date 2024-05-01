@@ -1,14 +1,14 @@
 import FoodSection from '../../../../shared/website/sections/foodSection/FoodSection';
 import { getProducts } from '../../../../../api/SearchApi';
 import { useEffect, useState } from 'react';
-import { Pageable, Product } from '../../../../../model/Type';
+import { CurrentProduct, Pageable } from '../../../../../model/Type';
 import PaginationSection from '../../../../shared/website/sections/paginationSection/PaginationSection';
 import { getPageNumber } from '../../../../../service/pageable';
 import { PathProvider } from '../../../../contexts/PathContext';
-import { foodsAdminPath } from '../../../../../constant/FoodShoppingURL';
+import { adminProducts } from '../../../../../constant/FoodShoppingURL';
 
-export default function FoodsDashBoardComponent(){
-    const [foodlist, setFoodlist] = useState<Product[]>([]);
+export default function AdminFoodsComponent(){
+    const [foodlist, setFoodlist] = useState<CurrentProduct[]>([]);
     const [pageable, setPageable] = useState<Pageable>({
         first: false,
         last: false,
@@ -16,7 +16,7 @@ export default function FoodsDashBoardComponent(){
         totalPages: 0
     })
 
-    async function getAndHandleFoods(pageNumber: number){
+    async function fetchFoods(pageNumber: number){
         const response = await getProducts(pageNumber);
         if(response.status===200){
             const data = response.data;
@@ -38,7 +38,7 @@ export default function FoodsDashBoardComponent(){
 
     function initial(){
         const pageNumber = getPageNumber();
-        getAndHandleFoods(pageNumber)
+        fetchFoods(pageNumber)
     }
 
 
@@ -52,7 +52,7 @@ export default function FoodsDashBoardComponent(){
             </div> */}
 
             <div className="row">
-                <PathProvider value={foodsAdminPath}>
+                <PathProvider value={adminProducts}>
                     <FoodSection lstFoodProducts={foodlist} sectionTitle='Foods'/>
                 </PathProvider>
             </div>

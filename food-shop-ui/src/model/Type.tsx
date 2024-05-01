@@ -52,23 +52,42 @@ export type ProductDetails={
     unitsInStock: number,
     unitsOnOrder: number,
     reorderLevel: number,
-    discountAmount: number,
-    startDate: string,
-    endDate: string,
     discontinued: boolean,
     picture: string,
     description: string
+
+    discountPercent: number,
+    startDate: string,
+    endDate: string,
+
     categoryID: number,
     categoryName: string,
+    
     supplierID: number,
     companyName: string
 }
+export type DiscountType={
+    discountTypeID: number,
+    discountType: string,
+    description: string
+}
 export type Discount = {
-    discountID: number,
-    discountAmount: number,
+    discountID: string,
+    discountPercent: number,
+    discountCode: string,
     startDate: string,
     endDate: string,
-    product: Product
+    active: boolean
+}
+export type DiscountDetail = {
+    discountID: string,
+    discountPercent: number,
+    discountCode: string,
+    startDate: string,
+    endDate: string,
+    description: string,
+    discountType: string,
+    active: boolean
 }
 export type CartProduct = {
     productID: number,
@@ -100,6 +119,23 @@ export type Customer={
     email: string,
     username: string
 }
+export type CustomerAccount = {
+    userID: string,
+    customerID: string,
+    username: string
+    contactName: string,
+    email: string,
+}
+
+export type EmployeeAccount = {
+    userID: string,
+    employeeID: string,
+    username: string
+    firstName: string,
+    lastName: string,
+    email: string,
+}
+
 export type Pageable = {
     first: boolean,
     last: boolean,
@@ -207,6 +243,12 @@ export type Employee = {
     title: string,
     email: string,
     username: string
+}
+export type UserRole = {
+    userID: string,
+    username: string,
+    email: string,
+    roleName: string
 }
 export type UserInfo = {
     userID: string,

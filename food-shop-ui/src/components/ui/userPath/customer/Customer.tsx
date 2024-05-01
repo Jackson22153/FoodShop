@@ -3,10 +3,10 @@ import './Customer.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import UserInfomationComponent from './userinfomation/UserInfomation';
+import UserInfomationComponent from './infomation/UserInfomation';
 import { customerInfo, customerNotification, customerOrder, homePath } from '../../../../constant/FoodShoppingURL';
-import UserOrdersComponent from './userorder/UserOrders';
-import UserOrderComponent from './userorder/UserOrder';
+import UserOrdersComponent from './order/UserOrders';
+import UserOrderComponent from './order/UserOrder';
 import UserNotificationComponent from './notification/UserNotification';
 import { logout } from '../../../../api/AuthorizationApi';
 

@@ -1,11 +1,13 @@
+import { Alert } from "../../../../model/WebType";
 
 interface Props{
-    message: string,
-    type: string,
+    alert: Alert
 }
-export default function AlertComponent(props: Props){
-    const message = props.message;
-    const type = props.type;
+export default function AlertComponent(prop: Props){
+    const alert = prop.alert;
+    const message = alert.message;
+    const type = alert.type;
+    const isShowed = alert.isShowed;
 
     function transform(message: string){
         return message.charAt(0).toUpperCase() + message.slice(1);
@@ -29,11 +31,13 @@ export default function AlertComponent(props: Props){
             }
         }
     }
-
-    return(
-        <div className={`alert  ${messageType(type)} alert-position`} role="alert">
-            <p className="h5">{transform(message)}</p>
-            {/* <a className="close">&times;</a> */}
-        </div>
-    );
+    if(isShowed){
+        return(
+            <div className={`alert  ${messageType(type)} alert-position`} role="alert">
+                <p className="h5">{transform(message)}</p>
+                {/* <a className="close">&times;</a> */}
+            </div>
+        );
+    }
+    else return null;
 }

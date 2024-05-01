@@ -5,11 +5,11 @@ import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { employeeInfo, employeeNotification, employeeOrder, homePath } from '../../../../constant/FoodShoppingURL';
 import { logout } from '../../../../api/AuthorizationApi';
-import EmployeeInfomationComponent from './employeeinfomation/EmployeeInfomation';
-import EmployeeOrdersComponent from './employeeorder/EmployeeOrders';
-import EmployeeOrderComponent from './employeeorder/EmployeeOrder';
+import EmployeeInfomationComponent from './infomation/EmployeeInfomation';
+import EmployeeOrdersComponent from './order/EmployeeOrders';
+import EmployeeOrderComponent from './order/EmployeeOrder';
 import EmployeeNotificationComponent from './notification/EmployeeNotification';
-import EmployeePendingOrderComponent from './employeeorder/EmployeePendingOrder';
+import EmployeePendingOrderComponent from './order/EmployeePendingOrder';
 
 export default function EmployeeComponent(){
     // const [customerInfo, setCustomerInfo] = useState<Customer>();

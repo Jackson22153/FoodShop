@@ -1,5 +1,7 @@
 package com.phucx.account.service.products;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -7,6 +9,11 @@ import com.phucx.account.model.ProductDetails;
 import com.phucx.account.repository.ProductDetailsRepository;
 import com.phucx.account.service.github.GithubService;
 
+import jakarta.persistence.EntityExistsException;
+import jakarta.ws.rs.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class ProductServiceImp implements ProductService{
     @Autowired
@@ -16,59 +23,40 @@ public class ProductServiceImp implements ProductService{
 
     @Override
     public boolean updateProductDetails(ProductDetails productDetails) {  
-        try {
-            String imageUrl = null;
-            var opFood = productDetailsRepository
-                .findById(productDetails.getProductID());
-            if(opFood.isPresent()){
-                String picture = productDetails.getPicture();
-                ProductDetails fetchedFood = opFood.get();
-                if(picture!=null){
-                    if(fetchedFood.getPicture()==null){
-                        imageUrl = githubService.uploadImage(picture);
-                    }else{
-                        int comparedPicture =fetchedFood.getPicture().compareToIgnoreCase(picture);
-                        if(comparedPicture!=0){
-                            imageUrl = githubService.uploadImage(picture);
-                        }else if(comparedPicture==0){
-                            imageUrl = fetchedFood.getPicture();
-                        }
-                    }
-                }
-                productDetailsRepository.updateProduct(
-                    productDetails.getProductID(), productDetails.getProductName(), 
-                    productDetails.getQuantityPerUnit(), productDetails.getUnitPrice(), 
-                    productDetails.getUnitsInStock(), productDetails.getUnitsOnOrder(), 
-                    productDetails.getReorderLevel(), productDetails.getDiscontinued(), 
-                    imageUrl, productDetails.getCategoryID(), 
-                    productDetails.getSupplierID());
-            }
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        log.info("updateProductDetails()", productDetails.toString());
+        if(productDetails.getProductID()==null) throw new NullPointerException("Product Id is null");
+        ProductDetails fetchedProduct = productDetailsRepository.findById(productDetails.getProductID())
+            .orElseThrow(()-> new NotFoundException("Product " + productDetails.getProductID() + " does not found"));
+        
+        Boolean result = productDetailsRepository.updateProduct(fetchedProduct.getProductID(), productDetails.getProductName(), 
+            productDetails.getQuantityPerUnit(), productDetails.getUnitPrice(), productDetails.getUnitsInStock(), 
+            productDetails.getUnitsOnOrder(), productDetails.getReorderLevel(), productDetails.getDiscontinued(), 
+            productDetails.getPicture(), productDetails.getDescription(), productDetails.getCategoryID(), 
+            productDetails.getSupplierID());
+        return result;
     }
     @Override
     public boolean insertProductDetails(ProductDetails productDetails) {
-        String imageUrl = null;
-        try {
-            String picture = productDetails.getPicture();
-            if(picture!=null){
-                imageUrl = githubService.uploadImage(picture);
-            }
-            productDetailsRepository.insertProduct(
+        log.info("insertProductDetails({})", productDetails);
+        if(productDetails.getProductID()==null) throw new NullPointerException("Product Id is null");
+        Optional<ProductDetails> productOptional = productDetailsRepository.findById(productDetails.getProductID());
+        if(productOptional.isEmpty()){
+            Boolean result = productDetailsRepository.insertProduct(
                 productDetails.getProductName(), productDetails.getQuantityPerUnit(), 
                 productDetails.getUnitPrice(), productDetails.getUnitsInStock(), 
                 productDetails.getUnitsOnOrder(), productDetails.getReorderLevel(), 
-                productDetails.getDiscontinued(), imageUrl, 
-                productDetails.getCategoryID(), 
+                productDetails.getDiscontinued(), productDetails.getPicture(), 
+                productDetails.getDescription(), productDetails.getCategoryID(), 
                 productDetails.getSupplierID());
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            return result;
         }
+        throw new EntityExistsException("Product " + productOptional.get().getProductID() + " already exists");
+    }
+    @Override
+    public ProductDetails getProductDetails(int productID) {
+        ProductDetails product = productDetailsRepository.findById(productID)
+            .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
+        return product;
     }
     
 }

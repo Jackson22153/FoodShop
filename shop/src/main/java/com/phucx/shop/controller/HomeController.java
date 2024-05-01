@@ -38,11 +38,19 @@ public class HomeController {
         return ResponseEntity.ok().body(data);
     }
 
-    @GetMapping("categories/{categoryName}")
+    @GetMapping("categories/name/{categoryName}")
     public ResponseEntity<Categories> getCategory(
         @PathVariable(name = "categoryName") String categoryName
     ){
         Categories data = categoriesService.getCategory(categoryName);
+        return ResponseEntity.ok().body(data);
+    }
+
+    @GetMapping("categories/id/{categoryID}")
+    public ResponseEntity<Categories> getCategoryByID(
+        @PathVariable(name = "categoryID") Integer categoryID
+    ){
+        Categories data = categoriesService.getCategory(categoryID);
         return ResponseEntity.ok().body(data);
     }
 

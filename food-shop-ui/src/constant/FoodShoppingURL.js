@@ -22,7 +22,10 @@ export const employeeInfo = `${employeePath}/info`
 export const employeeOrder = `${employeePath}/order`
 export const employeePendingOrder = `${employeeOrder}/pending`
 export const employeeNotification = `${employeePath}/notification`
-
+// adminPath
+export const adminCategories = `${adminPath}/categories`;
+export const adminProducts = `${adminPath}/products`;
+export const adminUsers = `${adminPath}/users`;
 // product
 export function SearchFoodsPath(search){
     return `${foodsPath}?s=${search}`;

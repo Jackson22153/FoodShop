@@ -2,7 +2,7 @@ import '../../../../init'
 
 import './Food.css'
 import { ChangeEventHandler, useEffect, useRef, useState, useContext } from 'react';
-import { getProductByID, getRecommendedProduct, getRecommendedProductsByCategory } from '../../../../api/SearchApi';
+import { getProductByID, getRecommendedProductsByCategory } from '../../../../api/SearchApi';
 import { CartProduct, CurrentProduct, CurrentProductDetail } from '../../../../model/Type';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
@@ -13,7 +13,7 @@ import { Stomp, CompatClient } from '@stomp/stompjs';
 import { QUEUE_CART, ShopWSUrl } from '../../../../constant/FoodShoppingApiURL';
 import numberOfCartProductsContext from '../../../contexts/NumberOfCartProductsContext';
 import { ceilRound } from '../../../../service/convert';
-import { FoodPath, foodsPath } from '../../../../constant/FoodShoppingURL';
+import { foodsPath } from '../../../../constant/FoodShoppingURL';
 
 export default function FoodComponent(){
     const urlParams = new URLSearchParams(window.location.search);
@@ -196,7 +196,7 @@ export default function FoodComponent(){
                                             {/* <span className="text-muted">
                                                 <i className="fas fa-shopping-basket fa-sm mx-1"></i>154 orders
                                             </span> */}
-                                            <span className="text-success ms-2">
+                                            <span className={`${foodInfo.unitsInStock>0?"text-success": 'text-danger'} ms-2`}>
                                                 {foodInfo.unitsInStock>0? "In stock": "Out of stock"}
                                             </span>
                                         </div>
@@ -315,7 +315,7 @@ export default function FoodComponent(){
 
                                         {/* <!-- Pills content --> */}
                                         <div className="tab-content" id="product-content">
-                                            {foodInfo.description}
+                                            <div dangerouslySetInnerHTML={{__html: foodInfo.description}}></div>
                                             {/* <div className="tab-pane fade show active" id="product-pills-1" role="tabpanel" aria-labelledby="product-tab-1">
                                                 <p>
                                                     With supporting text below as a natural lead-in to additional content. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut

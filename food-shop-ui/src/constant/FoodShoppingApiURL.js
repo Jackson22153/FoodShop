@@ -28,11 +28,19 @@ export function ProductsByCategories(categoryName){
 }
 // categories
 export const CategoriesUrl = `${HomeUrl}/categories`;
+export const CategoriesIDUrl = `${CategoriesUrl}/id`;
+export const CategoriesNameUrl = `${CategoriesUrl}/name`;
 // shippers
 export const ShippersUrl = `${HomeUrl}/shippers`;
 // adminurl
 export const ProductAdminUrl = `${AdminUrl}/product`;
 export const DiscountAdminUrl = `${AdminUrl}/discount`
+export const DiscountsByProductAdminUrl = `${DiscountAdminUrl}/product`
+export const CategoryAdminUrl = `${AdminUrl}/category`
+export const DiscountTypeAdminUrl = `${AdminUrl}/discountTypes`
+export const CustomersAdminUrl = `${AdminUrl}/customers`
+export const EmployeesAdminUrl = `${AdminUrl}/employees`
+export const UsersAdminUrl = `${AdminUrl}/users`
 // customer
 export const CustomerUrl = `${AccountService}/customer`;
 export const CustomerInfoUrl = `${CustomerUrl}/info`;

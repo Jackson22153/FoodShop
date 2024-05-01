@@ -89,15 +89,6 @@ public class ProductsServiceImp implements ProductsService{
     }
 
     @Override
-    public Page<Products> searchProductByName(String productName, int pageNumber, int pageSize) {
-        String productPattern = "%" + productName + "%";
-        Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<Products> products = productsRepository.findByProductNameLike(productPattern, page);
-
-        return products;
-    }
-
-    @Override
     public CurrentProductList getCurrentProduct(int productID) {
         var option = currentProductListRepository.findById(productID);
         if(option.isPresent())
@@ -121,9 +112,10 @@ public class ProductsServiceImp implements ProductsService{
 
     @Override
     public Page<CurrentProductList> searchCurrentProducts(String productName, int pageNumber, int pageSize) {
+        String searchValue = "%"+productName+"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CurrentProductList> products = currentProductListRepository
-            .searchCurrentProductsByProductName(productName, page);
+            .findByProductNameLike(searchValue, page);
         return products;
     }
 

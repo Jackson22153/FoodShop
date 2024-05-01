@@ -50,7 +50,7 @@ export default function PaginationSection(prop: Props){
 
 
     return(
-        <div aria-label="Page navigation example" className="d-flex justify-content-center mb-3">
+        <div aria-label="Page navigation example" className="d-flex justify-content-center">
             <ul className="pagination z-0">
                 <li className="page-item">
                     <a className="page-link" href={previousPage()} aria-label="Previous">

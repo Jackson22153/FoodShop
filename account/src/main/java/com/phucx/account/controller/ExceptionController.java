@@ -8,24 +8,43 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.exception.InvalidOrderException;
 
+import jakarta.persistence.EntityExistsException;
+import jakarta.ws.rs.NotFoundException;
+
 @ControllerAdvice
 public class ExceptionController extends ResponseEntityExceptionHandler{
 
     @ExceptionHandler(value = InvalidDiscountException.class)
     protected ResponseEntity<String> handleInvalidDiscountException(InvalidDiscountException exception){
-        String message = exception.getMessage();
-        return ResponseEntity.badRequest().body(message);
+        return ResponseEntity.badRequest().build();
     }
 
     @ExceptionHandler(value = InvalidOrderException.class)
     protected ResponseEntity<String> handleInvalidOrderException(InvalidOrderException exception){
-        String message = exception.getMessage();
-        return ResponseEntity.badRequest().body(message);
+        return ResponseEntity.badRequest().build();
     }
 
     @ExceptionHandler(value = IllegalArgumentException.class)
     protected ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException exception){
-        String message = exception.getMessage();
-        return ResponseEntity.badRequest().body(message);
+        return ResponseEntity.badRequest().build();
+    }
+
+    @ExceptionHandler(value = NullPointerException.class)
+    protected ResponseEntity<String> handleNullPointerException(NullPointerException exception){
+        return ResponseEntity.badRequest().build();
+    }
+
+    @ExceptionHandler(value = NotFoundException.class)
+    protected ResponseEntity<String> handleNotFoundException(NotFoundException exception){
+        return ResponseEntity.badRequest().build();
+    }
+
+    @ExceptionHandler(value = EntityExistsException.class)
+    protected ResponseEntity<String> handleEntityExistsException(EntityExistsException exception){
+        return ResponseEntity.badRequest().build();
+    }
+    @ExceptionHandler(value = RuntimeException.class)
+    protected ResponseEntity<String> handleRuntimeException(RuntimeException exception){
+        return ResponseEntity.badRequest().build();
     }
 }
