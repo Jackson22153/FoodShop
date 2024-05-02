@@ -40,7 +40,13 @@ export const CategoryAdminUrl = `${AdminUrl}/category`
 export const DiscountTypeAdminUrl = `${AdminUrl}/discountTypes`
 export const CustomersAdminUrl = `${AdminUrl}/customers`
 export const EmployeesAdminUrl = `${AdminUrl}/employees`
+export const RolesAdminUrl = `${AdminUrl}/roles`
+export const RolesEmployeeAdminUrl = `${RolesAdminUrl}/employee`
 export const UsersAdminUrl = `${AdminUrl}/users`
+export const UsersRolesAdminUrl = `${UsersAdminUrl}/roles`
+export const ResetPasswordAdminUrl = (userID)=>{
+    return `${UsersAdminUrl}/${userID}/password`
+};
 // customer
 export const CustomerUrl = `${AccountService}/customer`;
 export const CustomerInfoUrl = `${CustomerUrl}/info`;

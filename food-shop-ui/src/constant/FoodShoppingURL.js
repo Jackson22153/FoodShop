@@ -26,6 +26,8 @@ export const employeeNotification = `${employeePath}/notification`
 export const adminCategories = `${adminPath}/categories`;
 export const adminProducts = `${adminPath}/products`;
 export const adminUsers = `${adminPath}/users`;
+export const adminEmployee = `${adminPath}/employee`;
+export const adminCustomer = `${adminPath}/customer`;
 // product
 export function SearchFoodsPath(search){
     return `${foodsPath}?s=${search}`;

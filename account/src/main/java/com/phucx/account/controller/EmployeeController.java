@@ -49,7 +49,6 @@ public class EmployeeController {
     // UPDATE EMPLOYEE'S INFORMATION
     @PostMapping("info")
     public ResponseEntity<ResponseFormat> updateUserInfo(
-        Authentication authentication,
         @RequestBody EmployeeDetail employee
     ){
         Boolean status = employeeService.updateEmployeeInfo(employee);

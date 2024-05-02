@@ -2,7 +2,6 @@ package com.phucx.account.service.employee;
 
 import java.util.ArrayList;
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -15,28 +14,31 @@ import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
+import com.phucx.account.model.EmployeeDetailDTO;
 import com.phucx.account.model.Employee;
 import com.phucx.account.model.NotificationMessage;
 import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderWithProducts;
+import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.EmployeeAccountRepository;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.repository.EmployeeRepository;
 import com.phucx.account.service.github.GithubService;
 import com.phucx.account.service.messageQueue.sender.MessageSender;
 import com.phucx.account.service.order.OrderService;
-
+import com.phucx.account.service.user.UserService;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class EmployeeServiceImp implements EmployeeService {
-    // private Logger logger = LoggerFactory.getLogger(EmployeeServiceImp.class);
     @Autowired
     private GithubService githubService;
     @Autowired
     private EmployeeRepository employeeRepository;
+    @Autowired
+    private UserService userService;
     @Autowired
     private OrderService orderService;
     @Autowired
@@ -47,10 +49,19 @@ public class EmployeeServiceImp implements EmployeeService {
     private EmployeeDetailRepostiory employeeDetailRepostiory;
 
 	@Override
-	public Employee getEmployeeDetailByID(String employeeID) {
+	public EmployeeDetailDTO getEmployeeByID(String employeeID) {
+        log.info("getEmployeeByID(employeeID={})", employeeID);
         Employee employee = employeeRepository.findById(employeeID)
             .orElseThrow(()-> new NotFoundException("Employee " + employeeID + " does not found"));
-        return employee;
+        UserInfo user = userService.getUserInfo(employee.getUser().getUserID());
+    
+        EmployeeDetailDTO employeeDetailDTO = new EmployeeDetailDTO(
+            employee.getEmployeeID(), user, employee.getFirstName(), employee.getLastName(), 
+            employee.getBirthDate(), employee.getHireDate(), employee.getHomePhone(), 
+            employee.getPhoto(), employee.getTitle(), employee.getAddress(), employee.getCity(), 
+            employee.getNotes());
+
+        return employeeDetailDTO;
     }
 
 	@Override
@@ -69,8 +80,7 @@ public class EmployeeServiceImp implements EmployeeService {
 		try {
             Employee fetchedEmployee =employeeRepository.findById(employee.getEmployeeID())
                 .orElseThrow(()-> new NotFoundException("Employee " + employee.getEmployeeID() + " does not found"));
-
-
+            // update employee info
             Boolean status = employeeDetailRepostiory.updateEmployeeInfo(
                 fetchedEmployee.getEmployeeID(), employee.getEmail(), employee.getFirstName(), 
                 employee.getLastName(), employee.getBirthDate(), employee.getAddress(), 
@@ -179,5 +189,16 @@ public class EmployeeServiceImp implements EmployeeService {
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findByEmailLike(searchParam, page);
         return employees;
+    }
+
+    @Override
+    public Boolean updateAdminEmployeeInfo(Employee employee) {
+        log.info("updateAdminEmployeeInfo({})", employee.toString());
+        Employee fetchedEmployee = employeeRepository.findById(employee.getEmployeeID())
+            .orElseThrow(()-> new NotFoundException("Employee " + employee.getEmployeeID() + " does not found"));
+        Boolean status = employeeRepository.updateAdminEmployeeInfo(
+            fetchedEmployee.getEmployeeID(), employee.getFirstName(), employee.getLastName(), 
+            employee.getHireDate(), employee.getPhoto(), employee.getNotes());
+        return status;
     }
 }

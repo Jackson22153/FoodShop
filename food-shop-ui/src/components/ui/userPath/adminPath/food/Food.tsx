@@ -14,8 +14,9 @@ import { PickerChangeHandlerContext, DateTimeValidationError } from '@mui/x-date
 import dayjs from 'dayjs';
 import { ceilRound } from '../../../../../service/convert';
 import { ALERT_TIMEOUT, ALERT_TYPE, DISCOUNT_TYPE } from '../../../../../constant/config';
-import { Alert } from '../../../../../model/WebType';
+import { Alert, Modal } from '../../../../../model/WebType';
 import AlertComponent from '../../../../shared/functions/alert/Alert';
+import ModalComponent from '../../../../shared/functions/modal/Modal';
 
 export default function AdminFoodComponent(){
     const location = useLocation();
@@ -28,6 +29,21 @@ export default function AdminFoodComponent(){
         type: ALERT_TYPE.INFO,
         isShowed: false
     });
+    const [updateInfoModal, setUpdateInfoModal] = useState<Modal>({
+        title: "Confirm action",
+        message: "Do you want to continue?",
+        isShowed: false
+    })
+    const [updateDiscountModal, setupdateDiscountModal] = useState<Modal>({
+        title: "Confirm action",
+        message: "Do you want to continue?",
+        isShowed: false
+    })
+    const [addDiscountModal, setAddDiscountModal] = useState<Modal>({
+        title: "Confirm action",
+        message: "Do you want to continue?",
+        isShowed: false
+    })
     const [currentDiscount, setCurrentDiscount] = useState<DiscountDetail>({
         discountID: '',
         discountPercent: 0,
@@ -167,65 +183,12 @@ export default function AdminFoodComponent(){
     };
     const onClickUpdateDiscount:FormEventHandler<any>= async (event)=>{
         event.preventDefault()
-        if(currentDiscount){
-            const data = {
-                discountID: currentDiscount.discountID,
-                discountPercent: currentDiscount.discountPercent,
-                discountType: currentDiscount.discountType,
-                discountCode: currentDiscount.discountCode,
-                startDate: currentDiscount.startDate,
-                endDate: currentDiscount.endDate,
-                active: currentDiscount.active
-            }
-            const res = await updateDiscount(data);
-            if(res.status===200){
-                const data = res.data;
-                const status = data.status;
-                setAlert({
-                    message: status?'Discount has been updated successfully': 'Discount can not be updated',
-                    type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
-                    isShowed: true
-                })
-                
-                setTimeout(()=>{
-                    setAlert({...alert, isShowed: false});
-                }, ALERT_TIMEOUT)
-            }
-        }
+        toggleUpdateDiscountModal()
     }
 
     const onClickUpdateProduct:FormEventHandler<HTMLButtonElement> = async (event)=>{
         event.preventDefault();
-        if(foodInfoChange && foodInfo){
-            const data = {
-                productID: foodInfo.productID,
-                productName: foodInfoChange.productName || foodInfo.productName,
-                quantityPerUnit: foodInfoChange.quantityPerUnit || foodInfo.quantityPerUnit,
-                unitPrice: foodInfoChange.unitPrice || foodInfo.unitPrice,
-                unitsInStock: foodInfoChange.unitsInStock || foodInfo.unitsInStock,
-                unitsOnOrder: foodInfoChange.unitsOnOrder || foodInfo.unitsOnOrder,
-                reorderLevel: foodInfoChange.reorderLevel || foodInfo.reorderLevel,
-                discontinued: foodInfoChange.discontinued,
-                picture: foodInfoChange.picture,
-                description: foodInfoChange.description,
-                categoryID: foodInfoChange.categoryID || foodInfo.categoryID,
-                supplierID: foodInfoChange.supplierID || foodInfo.supplierID
-            }
-            const res = await updateProduct(data);
-            if(res.status===200){
-                const data = res.data;
-                const status = data.status;
-                setAlert({
-                    message: status?'Product has been updated successfully': 'Product can not be updated',
-                    type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
-                    isShowed: true
-                })
-                
-                setTimeout(()=>{
-                    setAlert({...alert, isShowed: false});
-                }, ALERT_TIMEOUT)
-            }
-        }
+        toggleUpdateInfoModal();
     }
 
     function changeStateDiscountEditable(){
@@ -353,6 +316,131 @@ export default function AdminFoodComponent(){
         })
     }
     const onClickAddNewDiscount = async ()=>{
+        toggleAddDiscountModal()
+    }
+
+    // update info
+    const toggleUpdateInfoModal = ()=>{
+        setUpdateInfoModal(modal=>({
+            ...modal,
+            isShowed:!modal.isShowed
+        }))
+    }
+
+    const handleClickCloseUpdateInfoModal = ()=>{
+        setUpdateInfoModal(modal=>({
+            ...modal,
+            isShowed:!modal.isShowed
+        }))
+    }
+    const handleClickConfirmUpdateInfoModal = async ()=>{
+        if(foodInfoChange && foodInfo){
+            const data = {
+                productID: foodInfo.productID,
+                productName: foodInfoChange.productName || foodInfo.productName,
+                quantityPerUnit: foodInfoChange.quantityPerUnit || foodInfo.quantityPerUnit,
+                unitPrice: foodInfoChange.unitPrice || foodInfo.unitPrice,
+                unitsInStock: foodInfoChange.unitsInStock || foodInfo.unitsInStock,
+                unitsOnOrder: foodInfoChange.unitsOnOrder || foodInfo.unitsOnOrder,
+                reorderLevel: foodInfoChange.reorderLevel || foodInfo.reorderLevel,
+                discontinued: foodInfoChange.discontinued,
+                picture: foodInfoChange.picture,
+                description: foodInfoChange.description,
+                categoryID: foodInfoChange.categoryID || foodInfo.categoryID,
+                supplierID: foodInfoChange.supplierID || foodInfo.supplierID
+            }
+            try {
+                const res = await updateProduct(data);
+                if(res.status){
+                    const data = res.data
+                    const status = data.status
+                    setAlert({
+                        message: status?'Product has been updated successfully': 'Product can not be updated',
+                        type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
+                        isShowed: true
+                    })  
+                }
+            } 
+            catch (error) {
+                setAlert({
+                    message: 'Product has been updated successfully',
+                    type: ALERT_TYPE.DANGER,
+                    isShowed: true
+                }) 
+            }
+            finally{
+                setTimeout(()=>{
+                    setAlert({...alert, isShowed: false});
+                }, ALERT_TIMEOUT)
+            }
+        }
+    }
+    // update discount
+    const toggleUpdateDiscountModal = ()=>{
+        setupdateDiscountModal(modal=>({
+            ...modal,
+            isShowed:!modal.isShowed
+        }))
+    }
+
+    const handleClickCloseUpdateDiscountModal = ()=>{
+        setupdateDiscountModal(modal=>({
+            ...modal,
+            isShowed:!modal.isShowed
+        }))
+    }
+    const handleClickConfirmUpdateDiscountModal = async ()=>{
+        if(currentDiscount){
+            const data = {
+                discountID: currentDiscount.discountID,
+                discountPercent: currentDiscount.discountPercent,
+                discountType: currentDiscount.discountType,
+                discountCode: currentDiscount.discountCode,
+                startDate: currentDiscount.startDate,
+                endDate: currentDiscount.endDate,
+                active: currentDiscount.active
+            }
+            try {
+                const res = await updateDiscount(data);
+                if(res.status){
+                    const data = res.data
+                    const status = data.status
+                    setAlert({
+                        message: status?'Discount has been updated successfully': 'Discount can not be updated',
+                        type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
+                        isShowed: true
+                    })  
+                }
+            } 
+            catch (error) {
+                setAlert({
+                    message: 'Discount can not be updated',
+                    type: ALERT_TYPE.DANGER,
+                    isShowed: true
+                }) 
+            }
+            finally{
+                setTimeout(()=>{
+                    setAlert({...alert, isShowed: false});
+                }, ALERT_TIMEOUT)
+            }
+        }
+    }
+    // add discount
+    const toggleAddDiscountModal = ()=>{
+        setAddDiscountModal(modal=>({
+            ...modal,
+            isShowed:!modal.isShowed
+        }))
+    }
+
+    const handleClickCloseAddDiscountModal = ()=>{
+        setAddDiscountModal(modal=>({
+            ...modal,
+            isShowed:!modal.isShowed
+        }))
+    }
+    const handleClickConfirmAddDiscountModal = async ()=>{
         const productID = getProductID();
         if(newDiscount && productID){
             const data={
@@ -364,16 +452,28 @@ export default function AdminFoodComponent(){
                 active: newDiscount.active,
                 productID: productID,
             }
-            const res = await insertDiscount(data);
-            if(res.status===200){
-                const data = res.data;
-                const status = data.status;
+            try {
+                const res = await insertDiscount(data);
+                if(res.status){
+                    const data = res.data;
+                    const status = data.status;
+                    setAlert({
+                        message: status?'New discount has been saved successfully': 'New discount can not be saved',
+                        type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
+                        isShowed: true
+                    })
+                    
+                    setTimeout(()=>{
+                        setAlert({...alert, isShowed: false});
+                    }, ALERT_TIMEOUT)
+                }
+            } catch (error) {
                 setAlert({
-                    message: status?'New discount has been saved successfully': 'New discount can not be saved',
-                    type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
+                    message: 'New discount can not be saved',
+                    type: ALERT_TYPE.DANGER,
                     isShowed: true
-                })
-                
+                }) 
+            }finally{
                 setTimeout(()=>{
                     setAlert({...alert, isShowed: false});
                 }, ALERT_TIMEOUT)
@@ -626,6 +726,8 @@ export default function AdminFoodComponent(){
                                                                     Update{`\u00A0`}Discount
                                                                 </button>
                                                             </div>
+                                                            <ModalComponent modal={updateDiscountModal} handleCloseButton={handleClickCloseUpdateDiscountModal}
+                                                                handleConfirmButton={handleClickConfirmUpdateDiscountModal}/>
                                                         </div>
                                                     </div>
                                                     :
@@ -772,6 +874,8 @@ export default function AdminFoodComponent(){
                                                                         Add{`\u00A0`}Discount
                                                                     </button>
                                                                 }
+                                                                <ModalComponent modal={addDiscountModal} handleCloseButton={handleClickCloseAddDiscountModal}
+                                                                    handleConfirmButton={handleClickConfirmAddDiscountModal}/>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -792,6 +896,8 @@ export default function AdminFoodComponent(){
                             </button>
                         </div>
                     </div>
+                    <ModalComponent modal={updateInfoModal} handleConfirmButton={handleClickConfirmUpdateInfoModal} 
+                        handleCloseButton={handleClickCloseUpdateInfoModal}/>
                 </div>
             }       
         </div>

@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
 import CustomerComponent from '../customer/Customer';
-import './User.css';
 import AdminComponent from '../adminPath/admin/Admin';
 import EmployeeComponent from '../employee/Employee';
 

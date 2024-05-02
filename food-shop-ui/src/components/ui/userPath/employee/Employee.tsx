@@ -3,19 +3,26 @@ import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { employeeInfo, employeeNotification, employeeOrder, homePath } from '../../../../constant/FoodShoppingURL';
+import { employeeInfo, employeeNotification, employeeOrder } from '../../../../constant/FoodShoppingURL';
 import { logout } from '../../../../api/AuthorizationApi';
 import EmployeeInfomationComponent from './infomation/EmployeeInfomation';
 import EmployeeOrdersComponent from './order/EmployeeOrders';
 import EmployeeOrderComponent from './order/EmployeeOrder';
 import EmployeeNotificationComponent from './notification/EmployeeNotification';
 import EmployeePendingOrderComponent from './order/EmployeePendingOrder';
+import { Modal } from '../../../../model/WebType';
+import ModalComponent from '../../../shared/functions/modal/Modal';
 
 export default function EmployeeComponent(){
     // const [customerInfo, setCustomerInfo] = useState<Customer>();
     const sidebarRef = useRef(null)
     const location = useLocation()
     const [selectedPath, setSelectedPath] = useState(0);
+    const [modal, setModal] = useState<Modal>({
+        title: 'Confirm action',
+        message: 'Do you want to continute?',
+        isShowed: false
+    })
 
     useEffect(()=>{
         initial();
@@ -36,9 +43,7 @@ export default function EmployeeComponent(){
     }
 
     async function onClickLogoutButton(){
-        logout().then((_res)=>{
-            window.location.href=homePath;
-        })
+        toggleModal();
     }
 
 
@@ -46,6 +51,24 @@ export default function EmployeeComponent(){
         if(sidebarRef.current){
             const sidebarEle = sidebarRef.current as HTMLDivElement;
             sidebarEle.classList.toggle('show-side-bar')
+        }
+    }
+
+    const toggleModal = ()=>{
+        setModal(modal =>({...modal, isShowed:!modal.isShowed}))
+    }
+
+    const onClickCloseModal = ()=>{
+        toggleModal()
+    }
+    const onClickConfirmModal = async ()=>{
+        try {
+            const res = await logout();
+            if(res.status){
+                window.location.href="/";
+            }
+        } catch (error) {
+
         }
     }
 
@@ -86,17 +109,12 @@ export default function EmployeeComponent(){
                             </ul>
                             <hr />
                             <ul className="bottom-cotent flex-column lists nav nav-pills">
-                                {/* <li className="list nav-item">
-                                    <a href="#" className="nav-link">
-                                        <i className="bx bx-cog icon"></i>
-                                        <span className="link">Settings</span>
-                                    </a>
-                                </li> */}
                                 <li className="list nav-item">
-                                    <a href="#" className="nav-link">
-                                        <i className="bx bx-log-out icon"></i>
-                                        <span className="link" onClick={onClickLogoutButton}>Logout</span>
-                                    </a>
+                                    <span className="nav-link" onClick={onClickLogoutButton}>
+                                        <span className="link">Logout</span>
+                                    </span>
+                                    <ModalComponent modal={modal} handleCloseButton={onClickCloseModal}
+                                        handleConfirmButton={onClickConfirmModal}/>
                                 </li>
                             </ul>
                         </div>

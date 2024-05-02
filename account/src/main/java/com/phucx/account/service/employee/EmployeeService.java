@@ -7,6 +7,7 @@ import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
+import com.phucx.account.model.EmployeeDetailDTO;
 import com.phucx.account.model.Employee;
 import com.phucx.account.model.NotificationMessage;
 import com.phucx.account.model.OrderDetailsDTO;
@@ -14,10 +15,11 @@ import com.phucx.account.model.OrderWithProducts;
 
 @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
 public interface EmployeeService {
-    public Employee getEmployeeDetailByID(String employeeID);
+    public EmployeeDetailDTO getEmployeeByID(String employeeID);
     public EmployeeDetail getEmployeeDetail(String username);
     public boolean createEmployee(Employee employee);
     public Boolean updateEmployeeInfo(EmployeeDetail employee);
+    public Boolean updateAdminEmployeeInfo(Employee employee);
     public Page<EmployeeAccount> getAllEmployees(int pageNumber, int pageSize);
     public NotificationMessage placeOrder(OrderWithProducts order);
 

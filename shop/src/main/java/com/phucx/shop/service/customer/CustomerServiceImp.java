@@ -1,4 +1,4 @@
-package com.phucx.shop.service.customers;
+package com.phucx.shop.service.customer;
 
 import java.util.List;
 

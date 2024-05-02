@@ -7,7 +7,8 @@ import com.phucx.shop.model.Category;
 import com.phucx.shop.model.CurrentProductList;
 import com.phucx.shop.model.CurrentSalesProduct;
 import com.phucx.shop.service.category.CategoryService;
-import com.phucx.shop.service.products.ProductService;
+import com.phucx.shop.service.product.ProductService;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

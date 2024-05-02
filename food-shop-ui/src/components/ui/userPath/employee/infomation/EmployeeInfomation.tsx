@@ -1,17 +1,31 @@
 import { ChangeEventHandler, FormEvent, useEffect, useState } from "react";
-import { displayUserImage } from "../../../../../service/image";
 import { Employee } from "../../../../../model/Type";
 import { getEmployeeInfo, updateEmployeeInfo } from "../../../../../api/EmployeeApi";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
+import { Alert, Modal } from "../../../../../model/WebType";
+import AlertComponent from "../../../../shared/functions/alert/Alert";
+import ModalComponent from "../../../../shared/functions/modal/Modal";
+import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/config";
+import { UserImageChangeInput } from "../../../../shared/functions/user-image-change-input/UserImageChangeInput";
 
 
 export default function EmployeeInfomationComponent(){
     const [employeeInfo, setEmployeeInfo] = useState<Employee>();
     const [employeeInfoAlter, setEmployeeInfoAlter] = useState<Employee>()
     const [editable, setEditable] = useState(true)
+    const [alert, setAlert] = useState<Alert>({
+        message: "",
+        type: "",
+        isShowed: false
+    })
+    const [modal, setModal] = useState<Modal>({
+        title: 'Confirm action',
+        message: 'Do you want to continute?',
+        isShowed: false
+    })
 
     useEffect(()=>{
         fetchEmployeeInfo();
@@ -66,43 +80,69 @@ export default function EmployeeInfomationComponent(){
 
     const onClickUpdate = async (event: FormEvent)=>{
         event.preventDefault();
-        if(employeeInfoAlter && employeeInfo){
-            // console.log(employeeInfo)
-            const employee = {
-                employeeID: employeeInfoAlter.employeeID,
-                firstName: employeeInfoAlter.firstName || employeeInfo.firstName,
-                lastName: employeeInfoAlter.lastName || employeeInfo.lastName,
-                birthDate: employeeInfoAlter.birthDate || null,
-                homePhone: employeeInfoAlter.homePhone || null,
-                address: employeeInfoAlter.address || null,
-                city: employeeInfoAlter.city || null,
-                photo: employeeInfoAlter.photo || null,
-                email: employeeInfoAlter.email || employeeInfo.lastName,
-                username: employeeInfoAlter.username || employeeInfo.lastName
-            };
-            // console.log(employee)
-            const res = await updateEmployeeInfo(employee);
-            if(res.status===200){
-                const data = res.data;
-                const message = `Your data have been updated ${data.status?'successfully': 'failed'}`
-                alert(message);
-                window.location.reload();
+        toggleModal()
+    }
+
+    const toggleModal = ()=>{
+        setModal(modal =>({...modal, isShowed:!modal.isShowed}))
+    }
+
+    const onClickCloseModal = ()=>{
+        toggleModal()
+    }
+    const onClickConfirmModal = async ()=>{
+        try {
+            if(employeeInfoAlter && employeeInfo){
+                // console.log(employeeInfo)
+                const employee = {
+                    employeeID: employeeInfoAlter.employeeID,
+                    firstName: employeeInfoAlter.firstName || employeeInfo.firstName,
+                    lastName: employeeInfoAlter.lastName || employeeInfo.lastName,
+                    birthDate: employeeInfoAlter.birthDate || null,
+                    homePhone: employeeInfoAlter.homePhone || null,
+                    address: employeeInfoAlter.address || null,
+                    city: employeeInfoAlter.city || null,
+                    photo: employeeInfoAlter.photo || null,
+                    email: employeeInfoAlter.email || employeeInfo.lastName,
+                    username: employeeInfoAlter.username || employeeInfo.lastName
+                };
+                // console.log(employee)
+                const res = await updateEmployeeInfo(employee);
+                if(res.status){
+                    const data = res.data
+                    const status = data.status
+                    setAlert({
+                        message: status?"Information has been updated successfully":"Information can not be updated",
+                        type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
+                        isShowed: true
+                    })   
+                }
             }
+        } catch (error) {
+            setAlert({
+                message: "Information can not be updated",
+                type: ALERT_TYPE.DANGER,
+                isShowed: true
+            }) 
         }
+        finally{
+            setTimeout(()=>{
+                setAlert({...alert, isShowed: false});
+            }, ALERT_TIMEOUT)
+        }
+    }
+    const onChangePicture = ()=>{
+
     }
 
     return(
         <div className="container emp-profile box-shadow-default">
+            <AlertComponent alert={alert}/>
             {employeeInfo && employeeInfoAlter &&
                 <div className="row">
                     <div className="col-md-4">
-                        <div className="profile-img">
-                            <img src={displayUserImage(employeeInfo.photo)} alt=""/>
-                            <div className="file btn btn-lg btn-primary">
-                                Change Photo
-                                <input type="file" name="file"/>
-                            </div>
-                        </div>
+                        <UserImageChangeInput imageSrc={employeeInfoAlter.photo} disable={!editable} 
+                            onChangePicture={onChangePicture}/>
                     </div>
                     <div className="col-md 6">
                         <div className="profile-head">
@@ -110,16 +150,6 @@ export default function EmployeeInfomationComponent(){
                                 Username: {employeeInfo.username}
                             </h5>
                         </div>
-
-                        {/* <ul className="nav nav-tabs" id="myTab" role="tablist">
-                            <li className="nav-item">
-                                <a className="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">About</a>
-                            </li>
-                            <li className="nav-item">
-                                <a className="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Timeline</a>
-                            </li>
-                        </ul> */}
-
 
                         <div className="profile-about">
                             <div className="row my-3 justify-content-end">
@@ -146,7 +176,7 @@ export default function EmployeeInfomationComponent(){
                                         <div className="col-md-3 mb-3">
                                             <label  htmlFor="last-name-employee">Last Name</label>
                                             <input type="text" className="form-control" id="last-name-employee" 
-                                                placeholder="Last Name"required value={employeeInfoAlter.lastName} 
+                                                placeholder="Last Name" required value={employeeInfoAlter.lastName} 
                                                 onChange={onChangeEmployeeInfo} disabled={editable} name="lastName"/>
                                             <div className="invalid-feedback">
                                                 Looks good!
@@ -208,13 +238,12 @@ export default function EmployeeInfomationComponent(){
                                             <label>Hire Date</label>
                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                 <DatePicker value={dayjs(employeeInfoAlter.hireDate)} 
-                                                    onChange={onChangeEmployeeInfoBirthDate} 
+                                                    readOnly
                                                     className="form-control"
                                                     name="hireDate"
                                                     slotProps={{
                                                         textField: { size: 'small' },  // Set the size here
-                                                        }}
-                                                    disabled
+                                                    }}
                                                 />
                                             </LocalizationProvider>
                                         </div>
@@ -238,6 +267,8 @@ export default function EmployeeInfomationComponent(){
                                                 Update{`\u00A0`}Infomation
                                             </button>
                                         </div>
+                                        <ModalComponent modal={modal} handleCloseButton={onClickCloseModal}
+                                            handleConfirmButton={onClickConfirmModal}/>
                                     </div>
                                 </form>
                             </div>

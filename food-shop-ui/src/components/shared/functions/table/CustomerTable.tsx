@@ -3,11 +3,13 @@ import PaginationSection from "../../website/sections/paginationSection/Paginati
 
 interface Props{
     customers: CustomerAccount[],
-    pageable: Pageable
+    pageable: Pageable,
+    path: string
 }
 export default function CustomerTable(prop: Props){
     const customers = prop.customers;
     const pageable = prop.pageable;
+    const path = prop.path;
 
     return(
         <table className="table table-bordered">
@@ -24,7 +26,7 @@ export default function CustomerTable(prop: Props){
                 {customers.map((customer, index)=>(
                     <tr key={index}>
                         <th scope="row" className="text-align-center">{index+1}</th>
-                        <td>{customer.customerID}</td>
+                        <td><a href={`${path}/${customer.customerID}`}>{customer.customerID}</a></td>
                         <td>{customer.contactName}</td>
                         <td>{customer.username}</td>
                         <td>{customer.email}</td>

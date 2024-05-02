@@ -32,7 +32,7 @@ import com.phucx.shop.model.Product;
 import com.phucx.shop.repository.CurrentProductListRepository;
 import com.phucx.shop.repository.ProductRepository;
 import com.phucx.shop.service.bigdecimal.BigDecimalService;
-import com.phucx.shop.service.customers.CustomerService;
+import com.phucx.shop.service.customer.CustomerService;
 import com.phucx.shop.service.messageQueue.MessageQueueService;
 import com.phucx.shop.service.user.UserService;
 import jakarta.servlet.http.Cookie;

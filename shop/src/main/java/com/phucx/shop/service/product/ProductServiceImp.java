@@ -1,4 +1,4 @@
-package com.phucx.shop.service.products;
+package com.phucx.shop.service.product;
 
 import java.util.List;
 import java.util.stream.Collectors;

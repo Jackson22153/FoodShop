@@ -3,11 +3,13 @@ import PaginationSection from "../../website/sections/paginationSection/Paginati
 
 interface Props{
     employees: EmployeeAccount[],
-    pageable: Pageable
+    pageable: Pageable,
+    path: string
 }
 export default function EmployeeTable(prop: Props){
     const employees = prop.employees;
     const pageable = prop.pageable;
+    const path = prop.path;
 
     return(
         <table className="table table-bordered">
@@ -25,7 +27,7 @@ export default function EmployeeTable(prop: Props){
                 {employees.map((employee, index)=>(
                     <tr key={index}>
                         <th scope="row" className="text-align-center">{index+1}</th>
-                        <td>{employee.employeeID}</td>
+                        <td><a href={`${path}/${employee.employeeID}`}>{employee.employeeID}</a></td>
                         <td>{employee.firstName}</td>
                         <td>{employee.lastName}</td>
                         <td>{employee.username}</td>

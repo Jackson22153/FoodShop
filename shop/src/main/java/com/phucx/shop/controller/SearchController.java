@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.shop.config.WebConfig;
 import com.phucx.shop.model.CurrentProductList;
-import com.phucx.shop.service.products.ProductService;
+import com.phucx.shop.service.product.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

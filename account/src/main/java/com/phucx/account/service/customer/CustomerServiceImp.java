@@ -17,18 +17,21 @@ import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
+import com.phucx.account.model.CustomerDetailDTO;
 import com.phucx.account.model.Customer;
 import com.phucx.account.model.InvoiceDTO;
 import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderItem;
 import com.phucx.account.model.OrderItemDiscount;
 import com.phucx.account.model.OrderWithProducts;
+import com.phucx.account.model.UserInfo;
 import com.phucx.account.model.Order;
 import com.phucx.account.repository.CustomerAccountRepository;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.repository.CustomerRepository;
 import com.phucx.account.service.github.GithubService;
 import com.phucx.account.service.order.OrderService;
+import com.phucx.account.service.user.UserService;
 
 import jakarta.ws.rs.NotFoundException;
 
@@ -38,6 +41,8 @@ public class CustomerServiceImp implements CustomerService {
     private Logger logger = LoggerFactory.getLogger(CustomerServiceImp.class);
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+    private UserService userService;
     @Autowired
     private GithubService githubService;
     @Autowired
@@ -104,10 +109,10 @@ public class CustomerServiceImp implements CustomerService {
 		return result;
 	}
 	@Override
-	public Customer getCustomerDetailByID(String customerID) {
-		var customerOp = customerRepository.findById(customerID);
-        if(customerOp.isPresent()) return customerOp.get();
-        return null;
+	public Customer getCustomerByID(String customerID) {
+		Customer customer = customerRepository.findById(customerID)
+            .orElseThrow(()-> new NotFoundException("Customer " + customerID + " does not found"));
+        return customer;
 	}
     @Override
     public OrderWithProducts placeOrder(OrderWithProducts order) 
@@ -186,5 +191,15 @@ public class CustomerServiceImp implements CustomerService {
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CustomerAccount> customers = customerAccountRepository.findByEmailLike(searchParam, page);
         return customers;
+    }
+    @Override
+    public CustomerDetailDTO getCustomerDetailByCustomerID(String customerID) {
+        Customer customer = customerRepository.findById(customerID)
+            .orElseThrow(()-> new NotFoundException("Customer " + customerID + " does not found"));
+        UserInfo user = userService.getUserInfo(customer.getUser().getUserID());
+        
+        CustomerDetailDTO customerDetail = new CustomerDetailDTO(
+            customer.getCustomerID(), customer.getContactName(), customer.getPicture(), user);
+        return customerDetail;
     }
 }

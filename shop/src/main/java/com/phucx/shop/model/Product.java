@@ -33,7 +33,7 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "SupplierID", referencedColumnName = "SupplierID")
-    private Suppliers supplierID;
+    private Supplier supplierID;
 
     @ManyToOne
     @JoinColumn(name = "CategoryID", referencedColumnName = "CategoryID")

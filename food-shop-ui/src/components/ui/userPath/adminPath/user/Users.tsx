@@ -6,6 +6,7 @@ import { CustomerAccount, EmployeeAccount, Pageable, UserRole } from '../../../.
 import UserTable from '../../../../shared/functions/table/UserTable';
 import EmployeeTable from '../../../../shared/functions/table/EmployeeTable';
 import CustomerTable from '../../../../shared/functions/table/CustomerTable';
+import { adminCustomer, adminEmployee } from '../../../../../constant/FoodShoppingURL';
 
 export default function AdminUsersComponent(){
     const USER = "User";
@@ -270,16 +271,16 @@ export default function AdminUsersComponent(){
             {selectedUserTab===0 ?
                 <UserTable users={users} pageable={pageable}/>:
             selectedUserTab===1?
-                <CustomerTable customers={customers} pageable={pageable}/>:
+                <CustomerTable path={adminCustomer} customers={customers} pageable={pageable}/>:
             selectedUserTab===2?                        
-                <EmployeeTable employees={employees} pageable={pageable}/>: 
+                <EmployeeTable path={adminEmployee} employees={employees} pageable={pageable}/>: 
             selectedUserTab===3&&                       
                 searchParamArgs[0]===USER?
                 <UserTable users={users} pageable={pageable}/>:
                 searchParamArgs[0]===CUSTOMER?
-                <CustomerTable customers={customers} pageable={pageable}/>:
+                <CustomerTable path={adminCustomer} customers={customers} pageable={pageable}/>:
                 searchParamArgs[0]===EMPLOYEE?
-                <EmployeeTable employees={employees} pageable={pageable}/>:
+                <EmployeeTable path={adminEmployee} employees={employees} pageable={pageable}/>:
                 <div className='border bg-white empty-table'>
   
                 </div>

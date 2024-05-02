@@ -3,17 +3,40 @@ package com.phucx.account.model;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.NamedStoredProcedureQueries;
+import jakarta.persistence.NamedStoredProcedureQuery;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity @Data @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "Employees")
+@NamedStoredProcedureQueries({
+    @NamedStoredProcedureQuery(name = "EmployeeDetail.updateAdminEmployeeInfo",
+        procedureName = "UpdateAdminEmployeeInfo",
+        parameters = {
+            @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="firstName", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="lastName", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="hireDate", mode = ParameterMode.IN, type = LocalDate.class),
+            @StoredProcedureParameter(name="photo", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="notes", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
+        })
+})
 public class Employee{
 
     @Id
@@ -25,15 +48,14 @@ public class Employee{
 
     @Column(name = "FirstName", length = 10, nullable = false)
     private String firstName;
-
-    @Column(name = "Title", length = 30)
     private String title;
-
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "BirthDate")
     private LocalDate birthDate;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "HireDate")
     private LocalDate hireDate;
     @Column(name = "Address", length = 200)
@@ -50,23 +72,4 @@ public class Employee{
     @OneToOne
     @JoinColumn(name = "userID")
     private User user;
-
-    public Employee(String employeeID, String lastName, String firstName, String title,
-            LocalDate birthDate, LocalDate hireDate, String address, String city, String homePhone, 
-            String photo, String notes) {
-        this.employeeID = employeeID;
-        this.lastName = lastName;
-        this.firstName = firstName;
-        this.title = title;
-        this.birthDate = birthDate;
-        this.hireDate = hireDate;
-        this.address = address;
-        this.city = city;
-        this.homePhone = homePhone;
-        this.photo = photo;
-        this.notes = notes;
-    }
-
-    public Employee() {
-    }
 }

@@ -2,7 +2,6 @@ package com.phucx.account.model;
 
 import org.springframework.data.annotation.Immutable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.phucx.account.compositeKey.UserRoleID;
 
 import jakarta.persistence.Entity;
@@ -20,20 +19,22 @@ import lombok.ToString;
 @Immutable
 @Data @ToString
 @IdClass(UserRoleID.class)
-@NamedStoredProcedureQuery(name = "UserRole.assignUserRole",
-    procedureName = "assignUserRole", parameters = {
+@NamedStoredProcedureQuery(name = "UserRole.assignUserRoles",
+    procedureName = "AssignUserRoles", parameters = {
         @StoredProcedureParameter(name="username", mode = ParameterMode.IN, type = String.class),
-        @StoredProcedureParameter(name="roleName", mode = ParameterMode.IN, type = String.class)
+        @StoredProcedureParameter(name="listRoleID", mode = ParameterMode.IN, type = String.class),
+        @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
     })
 @Table(name = "UserRoles")
 public class UserRole {
     @Id
     private String userID;
     @Id
+    private Integer roleID;
+
     private String roleName;
     private String username;
-    @JsonIgnore
-    private String password;
+
     @Email
     private String email;
 }

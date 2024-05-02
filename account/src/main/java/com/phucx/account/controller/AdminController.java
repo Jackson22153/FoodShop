@@ -16,21 +16,27 @@ import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.model.Category;
 import com.phucx.account.model.CustomerAccount;
+import com.phucx.account.model.CustomerDetailDTO;
 import com.phucx.account.model.Discount;
 import com.phucx.account.model.DiscountDetail;
 import com.phucx.account.model.DiscountType;
 import com.phucx.account.model.DiscountWithProduct;
-import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.Employee;
+import com.phucx.account.model.EmployeeAccount;
+import com.phucx.account.model.EmployeeDetailDTO;
 import com.phucx.account.model.ProductDetails;
 import com.phucx.account.model.ResponseFormat;
+import com.phucx.account.model.Role;
+import com.phucx.account.model.UserInfo;
 import com.phucx.account.model.UserRole;
 import com.phucx.account.service.category.CategoryService;
 import com.phucx.account.service.customer.CustomerService;
 import com.phucx.account.service.discount.DiscountService;
 import com.phucx.account.service.employee.EmployeeService;
 import com.phucx.account.service.product.ProductService;
+import com.phucx.account.service.role.RoleService;
 import com.phucx.account.service.user.UserService;
+import com.phucx.account.service.userRole.UserRoleService;
 
 
 @RestController
@@ -48,6 +54,10 @@ public class AdminController {
     private EmployeeService employeeService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRoleService userRoleService;
+    @Autowired
+    private RoleService roleService;
 
     @PostMapping("/product")
     public ResponseEntity<ResponseFormat> updateProductDetails(
@@ -152,7 +162,15 @@ public class AdminController {
         else customers = customerService.getAllCustomers(pageNumber, WebConstant.PAGE_SIZE);
         return ResponseEntity.ok().body(customers);
     }
-// employees
+
+    @GetMapping("/customers/{customerID}")
+    public ResponseEntity<CustomerDetailDTO> getUserByCustomerID(
+        @PathVariable(name = "customerID") String customerID
+    ){
+        CustomerDetailDTO customer = customerService.getCustomerDetailByCustomerID(customerID);
+        return ResponseEntity.ok().body(customer);
+    }
+    // employees
     @GetMapping("/employees")
     public ResponseEntity<Page<EmployeeAccount>> getEmployees(
         @RequestParam(name = "page", required = false) Integer pageNumber,
@@ -173,8 +191,20 @@ public class AdminController {
         return ResponseEntity.ok().body(employees);
     }
 
-    public ResponseEntity<Employee> getEmployeeDetail(){
-        return ResponseEntity.ok().body(null);
+    @GetMapping("/employees/{employeeID}")
+    public ResponseEntity<EmployeeDetailDTO> getEmployeeDetail(
+        @PathVariable(name = "employeeID") String employeeID
+    ){
+        EmployeeDetailDTO employee = employeeService.getEmployeeByID(employeeID);
+        return ResponseEntity.ok().body(employee);
+    }
+    
+    @PostMapping("/employees")
+    public ResponseEntity<ResponseFormat> updateEmployeeDetail(
+        @RequestBody Employee employee
+    ){
+        Boolean status = employeeService.updateAdminEmployeeInfo(employee);
+        return ResponseEntity.ok().body(new ResponseFormat(status));
     }
 // users
     @GetMapping("/users")
@@ -195,6 +225,30 @@ public class AdminController {
         return ResponseEntity.ok().body(users);
     }
 
+    @PostMapping("/users/{userID}/password")
+    public ResponseEntity<ResponseFormat> resetPassword(
+        @PathVariable(name = "userID") String userID
+    ){
+        Boolean status = userService.resetPassword(userID);
+        return ResponseEntity.ok().body(new ResponseFormat(status));
+    }
+
+    @PostMapping("/users/roles")
+    public ResponseEntity<ResponseFormat> assignRoles(
+        @RequestBody UserInfo user
+    ){
+        Boolean status = userRoleService.assignUserRoles(user);
+        return ResponseEntity.ok().body(new ResponseFormat(status));
+    }
+    // roles
+    @GetMapping("/roles/employee")
+    public ResponseEntity<Page<Role>> getRolesEmployee(
+        @RequestParam(name = "page", required = false) Integer pageNumber
+    ){  
+        pageNumber = pageNumber!=null?pageNumber:0;
+        Page<Role> roles = roleService.getRolesWithoutCustomer(pageNumber, WebConstant.PAGE_SIZE);
+        return ResponseEntity.ok().body(roles);
+    }
 // category
     @PostMapping("/category")
     public ResponseEntity<ResponseFormat> updateCategory(

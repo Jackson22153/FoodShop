@@ -10,5 +10,5 @@ import lombok.ToString;
 @NoArgsConstructor
 public class UserRoleID {
     private String userID;
-    private String roleName;
+    private Integer roleID;
 }

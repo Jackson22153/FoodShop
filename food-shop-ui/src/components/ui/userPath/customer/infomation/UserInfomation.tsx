@@ -1,13 +1,26 @@
 import { ChangeEventHandler, FormEvent, useEffect, useState } from "react";
-import { displayUserImage } from "../../../../../service/image";
 import { Customer } from "../../../../../model/Type";
 import { getCustomerInfo, updateUserInfo } from "../../../../../api/UserApi";
+import { Alert, Modal } from "../../../../../model/WebType";
+import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/config";
+import ModalComponent from "../../../../shared/functions/modal/Modal";
+import AlertComponent from "../../../../shared/functions/alert/Alert";
+import { UserImageChangeInput } from "../../../../shared/functions/user-image-change-input/UserImageChangeInput";
 
 export default function UserInfomationComponent(){
 
     const [customerInfo, setCustomerInfo] = useState<Customer>();
-
+    const [modal, setModal] = useState<Modal>({
+        title: 'Confirm action',
+        message: 'Do you want to continute?',
+        isShowed: false
+    })
     const [editable, setEditable] = useState(true)
+    const [alert, setAlert] = useState<Alert>({
+        message: "",
+        type: "",
+        isShowed: false
+    })
 
     useEffect(()=>{
         fetchCustomerInfo()
@@ -16,7 +29,7 @@ export default function UserInfomationComponent(){
 
     const fetchCustomerInfo = async ()=>{
         const res = await getCustomerInfo();
-        if(res){
+        if(res.status){
             const data = res.data;
             const customer = {
                 customerID: data.customerID,
@@ -28,7 +41,6 @@ export default function UserInfomationComponent(){
                 email: data.email || '',
                 username: data.username || ''
             };
-            // console.log(customer)
             setCustomerInfo(customer)
         }
     }
@@ -42,43 +54,72 @@ export default function UserInfomationComponent(){
         }
     }
 
+    const onChangePicture = ()=>{
+
+    }
+
     const onClickEditInfo = ()=>{
         setEditable((edit) => !edit)
     }
 
     const onClickUpdate = async (event: FormEvent)=>{
         event.preventDefault();
-        if(customerInfo){
-            const customer = {
-                customerID: customerInfo.customerID,
-                contactName: customerInfo.contactName || null,
-                address: customerInfo.address || null,
-                city: customerInfo.city || null,
-                phone: customerInfo.phone || null,
-                picture: customerInfo.picture || null,
-                email: customerInfo.email || null,
-                username: customerInfo.username || null
-            };
-            const res = await updateUserInfo(customer);
-            if(res.status===200){
-                alert(res.data);
-                window.location.reload();
+        toggleModal();
+    }
+    const toggleModal = ()=>{
+        setModal(modal =>({...modal, isShowed:!modal.isShowed}))
+    }
+
+    const onClickCloseModal = ()=>{
+        toggleModal()
+    }
+    const onClickConfirmModal = async ()=>{
+        try {
+            if(customerInfo){
+                const customer = {
+                    customerID: customerInfo.customerID,
+                    contactName: customerInfo.contactName || null,
+                    address: customerInfo.address || null,
+                    city: customerInfo.city || null,
+                    phone: customerInfo.phone || null,
+                    picture: customerInfo.picture || null,
+                    email: customerInfo.email || null,
+                    username: customerInfo.username || null
+                };
+                const res = await updateUserInfo(customer);
+                if(res.status){
+                    const data = res.data
+                    const status = data.status
+                    setAlert({
+                        message: status?"Information has been updated successfully":"Information can not be updated",
+                        type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
+                        isShowed: true
+                    })   
+                }
             }
+        } 
+        catch (error) {
+            setAlert({
+                message: "Information can not be updated",
+                type: ALERT_TYPE.DANGER,
+                isShowed: true
+            }) 
+        }
+        finally{
+            setTimeout(()=>{
+                setAlert({...alert, isShowed: false});
+            }, ALERT_TIMEOUT)
         }
     }
 
     return(
         <div className="container emp-profile box-shadow-default">
+            <AlertComponent alert={alert}/>
             {customerInfo &&
                 <div className="row">
                     <div className="col-md-4">
-                        <div className="profile-img">
-                            <img src={displayUserImage(customerInfo.picture)} alt=""/>
-                            <div className="file btn btn-lg btn-primary">
-                                Change Photo
-                                <input type="file" name="file"/>
-                            </div>
-                        </div>
+                        <UserImageChangeInput imageSrc={customerInfo.picture} disable={!editable}
+                            onChangePicture={onChangePicture} />
                     </div>
                     <div className="col-md 6">
                         <div className="profile-head">
@@ -157,15 +198,13 @@ export default function UserInfomationComponent(){
                                                 disabled={editable}>
                                                 Update{`\u00A0`}Infomation
                                             </button>
+                                            <ModalComponent modal={modal} handleCloseButton={onClickCloseModal}
+                                                handleConfirmButton={onClickConfirmModal}/>
                                         </div>
                                     </div>
                                 </form>
-                            </div>
-                            
+                            </div>       
                         </div>
-                    </div>
-                    <div>
-                        
                     </div>
                 </div>
             }

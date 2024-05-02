@@ -118,6 +118,21 @@ export type Customer={
     email: string,
     username: string
 }
+export type CustomerDetail={
+    customerID: string,
+    contactName: string,
+    address: string,
+    city: string,
+    phone: string,
+    picture: string,
+    user:User
+}
+export type CustomerUserInfo={
+    customerID: string,
+    contactName: string,
+    picture: string,
+    userInfo:UserRoles
+}
 export type CustomerAccount = {
     userID: string,
     customerID: string,
@@ -238,10 +253,22 @@ export type Employee = {
     address: string,
     city: string,
     photo: string,
-    reportsTo: string,
-    title: string,
     email: string,
     username: string
+}
+export type EmployeeDetail = {
+    employeeID: string,
+    lastName: string,
+    firstName: string,
+    birthDate: string,
+    hireDate: string,
+    address: string,
+    city: string,
+    homePhone: string,
+    description: string,
+    photo: string,
+    notes: string,
+    userInfo: UserRoles
 }
 export type UserRole = {
     userID: string,
@@ -249,8 +276,22 @@ export type UserRole = {
     email: string,
     roleName: string
 }
+export type UserRoles = {
+    user: User,
+    roles: Role[]
+}
+export type User = {
+    userID: string,
+    username: string,
+    email: string,
+}
 export type UserInfo = {
     userID: string,
     username: string,
     isAuthenticated: boolean
+}
+
+export type Role = {
+    roleID: number,
+    roleName: string
 }

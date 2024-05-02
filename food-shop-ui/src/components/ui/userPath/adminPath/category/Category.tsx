@@ -6,7 +6,8 @@ import { ProductImageChangeInput } from '../../../../shared/functions/product-im
 import { updateCategory } from '../../../../../api/AdminApi';
 import AlertComponent from '../../../../shared/functions/alert/Alert';
 import { ALERT_TIMEOUT, ALERT_TYPE } from '../../../../../constant/config';
-import { Alert } from '../../../../../model/WebType';
+import { Alert, Modal } from '../../../../../model/WebType';
+import ModalComponent from '../../../../shared/functions/modal/Modal';
 
 export default function AdminCategoryComponent(){
     const { categoryID } = useParams();
@@ -18,6 +19,11 @@ export default function AdminCategoryComponent(){
         type: ALERT_TYPE.INFO,
         isShowed: false
     });
+    const [modal, setModal] = useState<Modal>({
+        title: "Confirm action",
+        message: "Do you want to continue?",
+        isShowed: false
+    })
     useEffect(()=>{
         initial();
     }, [])
@@ -28,11 +34,11 @@ export default function AdminCategoryComponent(){
 
     const fetchCategory = async ()=>{
         const res = await getCategoryByID(categoryID);
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
             setCategory(data);
             setCategoryChange(data);
-            console.log(data);
+            // console.log(data);
         }
     }
 
@@ -49,9 +55,26 @@ export default function AdminCategoryComponent(){
         event.preventDefault();
         setEditable(editable => !editable)
     }
+    
 
     const onClickUpdateCategory:FormEventHandler<any> = async (event)=>{
         event.preventDefault();
+        toggleModal()
+    }   
+    const toggleModal = ()=>{
+        setModal(modal=>({
+            ...modal,
+            isShowed:!modal.isShowed
+        }))
+    }
+
+    const handleClickCloseModal = ()=>{
+        setModal(modal=>({
+            ...modal,
+            isShowed:!modal.isShowed
+        }))
+    }
+    const handleClickConfirmModal = async ()=>{
         if(categoryChange && category){
             const data = {
                 categoryID: categoryChange.categoryID,
@@ -59,24 +82,33 @@ export default function AdminCategoryComponent(){
                 description: categoryChange.description,
                 picture: categoryChange.picture
             }
-            const res = await updateCategory(data);
-            if(res.status===200){
-                const data = res.data;
-                const status = data.status;
-                // console.log(status);
 
+            try {
+                const res = await updateCategory(data);
+                if(res.status){
+                    const data = res.data
+                    const status = data.status
+                    setAlert({
+                        message: status?'Category has been updated successfully': 'Category can not be updated',
+                        type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
+                        isShowed: true
+                    })  
+                }
+            } 
+            catch (error) {
                 setAlert({
-                    message: status?'Category has been updated successfully': 'Category can not be updated',
-                    type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
+                    message: "Category can not be updated",
+                    type: ALERT_TYPE.DANGER,
                     isShowed: true
-                })
-
+                }) 
+            }
+            finally{
                 setTimeout(()=>{
                     setAlert({...alert, isShowed: false});
                 }, ALERT_TIMEOUT)
             }
         }
-    }   
+    }
 
     return(
         <div className="container-fluid container mb-5">
@@ -112,12 +144,16 @@ export default function AdminCategoryComponent(){
                                     onChange={onChange} value={categoryChange.description} name='description'
                                     required disabled={!editable}/>
                             </div>
-                            <button type="submit" className="btn btn-primary" disabled={!editable} onClick={onClickUpdateCategory}>
-                                Update Category</button>
+                            <button type="submit" className="btn btn-primary" disabled={!editable} 
+                                onClick={onClickUpdateCategory}>
+                                Update Category
+                            </button>
                         </div>
                     </div>
                 </form>
             }
+            <ModalComponent modal={modal} handleCloseButton={handleClickCloseModal}
+                handleConfirmButton={handleClickConfirmModal}/>
         </div>
     );
 }

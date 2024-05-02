@@ -1,8 +1,6 @@
 import HeaderComponent from "../../../shared/website/header/Header";
 import { Routes, Route } from "react-router-dom";
 import './Home.css';
-// import '../../../../css/bootstrap.css';
-// import '../../../../css/responsive.css';
 import FooterComponent from "../../../shared/website/footer/Footer";
 import HomeDashBoardComponent from "../homeDashBoard/HomeDashBoard";
 import FoodsComponent from "../foods/Foods";
@@ -19,6 +17,8 @@ import CategoryComponent from "../category/Category";
 import { NumberOfCartProductsProvider } from "../../../contexts/NumberOfCartProductsContext";
 import { getNumberOfCartProducts } from "../../../../service/cookie";
 import { CategoriesProvider } from "../../../contexts/CategoriesContext";
+import { Modal } from "../../../../model/WebType";
+import { logout } from "../../../../api/AuthorizationApi";
 
 export const isOpeningUserDropDownContext = createContext(false);
 function HomeComponent(){
@@ -27,7 +27,11 @@ function HomeComponent(){
     const [searchInputValue, setSearchInputValue] = useState('');
     const [searchResult, setSearchResult] = useState<Product[]>([]);
     const [numberOfCartProducts, setNumberOfCartProducts] = useState(0);
-
+    const [modal, setModal] = useState<Modal>({
+        title: 'Confirm action',
+        message: 'Do you want to continute?',
+        isShowed: false
+    })
     
     const [isOpeningUserDropDown, setIsOpeningUserDropDown] = useState<boolean>(false);
 
@@ -72,13 +76,18 @@ function HomeComponent(){
         }
     }
 
+    const toggleModal = ()=>{
+        setModal(modal =>({...modal, isShowed:!modal.isShowed}))
+    }
+
     return(
         <NumberOfCartProductsProvider value={{ numberOfCartProducts, setNumberOfCartProducts }}>
             <isOpeningUserDropDownContext.Provider value={isOpeningUserDropDown}>
                 <HeaderComponent lstCategories={categories} searchInputValue={searchInputValue} 
                     handleInputSearchChange={handleInputSearchChange} searchResult={searchResult}
                     handleIsOpeningUserDropDown={handleIsOpeningUserDropDown}
-                    handleSearchResult={handleSearchResult} />
+                    handleSearchResult={handleSearchResult} modal={modal}
+                    toggleModal={toggleModal}/>
             </isOpeningUserDropDownContext.Provider>
 
             <CategoriesProvider value={categories}>

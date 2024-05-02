@@ -15,12 +15,12 @@ import java.util.List;
 
 @Repository
 public interface UserRoleRepository extends JpaRepository<UserRole, UserRoleID>{
-    public List<UserRole> findByUserID(String userID);
+    List<UserRole> findByUserID(String userID);
 
     @Modifying
     @Transactional
-    @Procedure(name = "assignUserRole")
-    public void assignUserRole(String username, String roleName);
+    @Procedure(name = "AssignUserRoles")
+    Boolean assignUserRoles(String username, String listRoleID);
 
     Page<UserRole> findByEmailLike(String email, Pageable pageable);
     Page<UserRole> findByUserIDLike(String userID, Pageable pageable);

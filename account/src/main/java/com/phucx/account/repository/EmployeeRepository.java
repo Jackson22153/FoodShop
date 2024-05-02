@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,13 +15,12 @@ import jakarta.validation.constraints.Size;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, String>{
-    // @Query("""
-    //     SELECT e \
-    //     FROM Employee e \
-    //     WHERE e.lastName + e.firstName LIKE %?1% \
-    //     ORDER BY e.lastName + e.firstName\
-    //     """)
-    // Page<Employee> findByLetter(@Size(max = 30)String letter, Pageable page);
+    
+    @Modifying
+    @Transactional
+    @Procedure(name = "UpdateAdminEmployeeInfo")
+    Boolean updateAdminEmployeeInfo(String employeeID, String firstName, 
+        String lastName, LocalDate hireDate, String photo, String notes);
 
     @Modifying
     @Transactional

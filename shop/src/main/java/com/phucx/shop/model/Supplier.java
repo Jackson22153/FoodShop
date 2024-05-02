@@ -2,19 +2,18 @@ package com.phucx.shop.model;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.ToString;
 
 @Data @Entity @ToString
-@JsonFilter("SuppliersFilter")
-public class Suppliers {
+@Table(name = "Suppliers")
+public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")

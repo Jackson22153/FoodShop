@@ -6,10 +6,9 @@ export type Alert = {
     isShowed: boolean
 }
 export type Modal = {
-    message: string,
     title: string,
-    isShowed: boolean,
-    confirmAction: ()=> void,
+    message: string,
+    isShowed: boolean
 }
 export type CartContextType = {
     numberOfCartProducts: number;

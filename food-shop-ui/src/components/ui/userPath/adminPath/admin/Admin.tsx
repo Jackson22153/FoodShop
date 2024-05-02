@@ -12,6 +12,8 @@ import AdminCategoryComponent from '../category/Category';
 import AdminFoodsComponent from '../food/Foods';
 import AdminFoodComponent from '../food/Food';
 import AdminUsersComponent from '../user/Users';
+import AdminEmployeeComponent from '../user/Employee';
+import AdminCustomerComponent from '../user/Customer';
 
 export default function AdminComponent(){
     const sidebarRef = useRef(null)
@@ -123,7 +125,8 @@ export default function AdminComponent(){
                             <Route path='/categories' element={<AdminCategoriesComponent/>}/>
                             <Route path='/categories/:categoryID' element={<AdminCategoryComponent/>}/>
                             <Route path='/users' element={<AdminUsersComponent/>}/> 
-
+                            <Route path='/employee/:employeeID' element={<AdminEmployeeComponent/>}/> 
+                            <Route path='/customer/:customerID' element={<AdminCustomerComponent/>}/> 
                         </Routes>
                         
                         {/* <!-- /.container-fluid --> */}

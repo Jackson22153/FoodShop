@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CategoryAdminUrl, CustomersAdminUrl, DiscountAdminUrl, DiscountTypeAdminUrl, DiscountsByProductAdminUrl, EmployeesAdminUrl, ProductAdminUrl, UsersAdminUrl } from "../constant/FoodShoppingApiURL";
+import { CategoryAdminUrl, CustomersAdminUrl, DiscountAdminUrl, DiscountTypeAdminUrl, DiscountsByProductAdminUrl, EmployeesAdminUrl, ProductAdminUrl, ResetPasswordAdminUrl, RolesAdminUrl, RolesEmployeeAdminUrl, UsersAdminUrl, UsersRolesAdminUrl } from "../constant/FoodShoppingApiURL";
 
 
 export function updateCategory(category){
@@ -47,6 +47,14 @@ export function getCustomersBySearchParam(page, searchParam, searchValue){
         }
     });
 }
+export function getCustomer(customerID){
+    return axios.get(`${CustomersAdminUrl}/${customerID}`, {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
 // employee
 export function getEmployees(page){
     return axios.get(`${EmployeesAdminUrl}?page=${page}`, {
@@ -56,8 +64,24 @@ export function getEmployees(page){
         }
     });
 }
+export function getEmployee(employeeID){
+    return axios.get(`${EmployeesAdminUrl}/${employeeID}`, {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
 export function getEmployeesBySearchParam(page, searchParam, searchValue){
     return axios.get(`${EmployeesAdminUrl}?page=${page}&${searchParam}=${searchValue}`, {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
+export function updateEmployee(data){
+    return axios.post(EmployeesAdminUrl, JSON.stringify(data), {
         withCredentials: true,
         headers:{
             "Content-Type": 'application/json',
@@ -75,6 +99,30 @@ export function getUsers(page){
 }
 export function getUsersBySearchParam(page, searchParam, searchValue){
     return axios.get(`${UsersAdminUrl}?page=${page}&${searchParam}=${searchValue}`, {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
+export function getUser(userID){
+    return axios.get(`${UsersAdminUrl}/${userID}`, {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
+export function assignRoles(data){
+    return axios.post(UsersRolesAdminUrl, JSON.stringify(data), {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
+export function resetPassword(userID){
+    return axios.post(`${ResetPasswordAdminUrl(userID)}`, "",{
         withCredentials: true,
         headers:{
             "Content-Type": 'application/json',
@@ -120,6 +168,15 @@ export function getDiscountDetail(discountID){
 
 export function getDiscountTypes(pageNumber){
     return axios.get(`${DiscountTypeAdminUrl}?page=${pageNumber}`,{
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
+// roles
+export function getRolesEmployee(pageNumber){
+    return axios.get(`${RolesEmployeeAdminUrl}?page=${pageNumber}`,{
         withCredentials: true,
         headers:{
             "Content-Type": 'application/json',

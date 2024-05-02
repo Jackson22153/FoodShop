@@ -11,6 +11,8 @@ import { logout } from "../../../../api/AuthorizationApi";
 import { isOpeningUserDropDownContext } from "../../../ui/homePath/home/Home";
 import numberOfCartProductsContext from "../../../contexts/NumberOfCartProductsContext";
 import userInfoContext from "../../../contexts/UserInfoContext";
+import ModalComponent from "../../functions/modal/Modal";
+import { Modal } from "../../../../model/WebType";
  
 interface Props{
     lstCategories: Category[]
@@ -19,6 +21,8 @@ interface Props{
     handleSearchResult: any,
     handleIsOpeningUserDropDown: any,
     handleInputSearchChange: any,
+    modal: Modal,
+    toggleModal: any
 }
 const HeaderComponent = memo(function HeaderComponent(prop: Props){
     const logo = getLogo();
@@ -26,8 +30,7 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
     const searchInputValue = prop.searchInputValue;
     const searchResult = prop.searchResult;
     const isOpeningDropdown = useContext(isOpeningUserDropDownContext);
-
-
+    const modal = prop.modal;
 
     const  userInfo  = useContext(userInfoContext);
     const { numberOfCartProducts } = useContext(numberOfCartProductsContext);
@@ -37,11 +40,24 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
     }
 
     const onClickLogout = async ()=>{
-        const res = await logout();
-        if(res.status===200){
-            window.location.href = "/";
+        prop.toggleModal();
+    }
+
+    const onClickCloseModal = ()=>{
+        prop.toggleModal();
+    }
+    const onClickConfirmModal = async ()=>{
+        try {
+            const res = await logout();
+            if(res.status){
+                window.location.href="/";
+            }
+        } catch (error) {
+
         }
     }
+
+
     
 
     return(
@@ -69,6 +85,8 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
                                                     {/* <a className="dropdown-item cursor-pointer" href="#">Settings</a> */}
                                                     <div className="dropdown-divider"></div>
                                                     <span className="dropdown-item cursor-pointer" onClick={onClickLogout}>Logout</span>
+                                                    <ModalComponent modal={modal} handleCloseButton={onClickCloseModal} 
+                                                        handleConfirmButton={onClickConfirmModal}/>
                                                 </div>
                                             }
                                         </li>

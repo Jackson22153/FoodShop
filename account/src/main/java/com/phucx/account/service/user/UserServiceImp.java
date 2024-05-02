@@ -1,7 +1,7 @@
 package com.phucx.account.service.user;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,19 +13,22 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.config.WebConfig;
+import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.Role;
 import com.phucx.account.model.UserRole;
-import com.phucx.account.model.UserRolesDTO;
 import com.phucx.account.model.User;
+import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.CustomerAccountRepository;
 import com.phucx.account.repository.EmployeeAccountRepository;
 import com.phucx.account.repository.UserRoleRepository;
 import com.phucx.account.repository.UserRepository;
 
 import jakarta.ws.rs.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class UserServiceImp implements UserService {
     @Autowired
@@ -40,51 +43,30 @@ public class UserServiceImp implements UserService {
     private EmployeeAccountRepository employeeAccountRepository;
     @Override
     public User getUser(String username) {
-        User user = userRepository.findByUsername(username);
-        if(user!=null){
-            return user;
-        }
-        return null;
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(()-> new NotFoundException("User " + username + " does not found"));
+        return user;
     }
     @Override
     public User getUserByID(String userID) {
-        var opUser = userRepository.findById(userID);
-        if(opUser.isPresent())
-            return opUser.get();
-        else return null;
+        User user = userRepository.findById(userID)
+            .orElseThrow(()-> new NotFoundException("User " + userID + " does not found"));
+        return user;
     }
+
     @Override
-    public boolean createUser(User user) {
-        try {
-            String username = user.getUsername();
-            String password = user.getPassword();
-            User existedUser = this.getUser(username);
-            if(existedUser==null){
-                String hashedPassword = passwordEncoder.encode(password);
-                User newUser = new User(user.getUserID(), username, hashedPassword);
-                User check = userRepository.save(newUser);
-                if(check!=null)
-                    return true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-    @Override
-    public UserRolesDTO getUserRoles(String userID) {
+    public UserInfo getUserInfo(String userID) {
         List<UserRole> userRoles = userRoleRepository.findByUserID(userID);
-        // List<UserRole> userRole = userRoleService.getUserRole(userID);
         if(userRoles!=null && userRoles.size()>0){
             UserRole firstEntity = userRoles.get(0);
-            User user = new User(firstEntity.getUserID(), firstEntity.getUsername(), null);
-            List<Role> roles = new ArrayList<>();
-            for (UserRole userRole : userRoles) {
-                roles.add(new Role(null, userRole.getRoleName()));
-            }
-            return new UserRolesDTO(user, roles);
+            User user = new User(firstEntity.getUserID(), firstEntity.getUsername(), firstEntity.getEmail());
+            List<Role> roles = userRoles.stream().map(userRole ->{
+                return new Role(userRole.getRoleID(), userRole.getRoleName());
+            }).collect(Collectors.toList());
+
+            return new UserInfo(user, roles);
         }
-        return null;
+        throw new NotFoundException("User " + userID + " does not found");
     }
     @Override
     public String getUsername(Authentication authentication) {
@@ -142,5 +124,14 @@ public class UserServiceImp implements UserService {
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<UserRole> users = userRoleRepository.findByEmailLike(searchParam, page);
         return users;
+    }
+    @Override
+    public boolean resetPassword(String userID) {
+        log.info("resetPassword(userID={})", userID);
+        User user = userRepository.findById(userID)
+            .orElseThrow(()-> new NotFoundException("User " + userID + " does not found"));
+        Boolean status = userRepository.updateUserPassword(
+            user.getUserID(), passwordEncoder.encode(WebConstant.DEFUALT_PASSWORD));
+        return status;
     }
 }
