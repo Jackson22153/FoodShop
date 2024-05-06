@@ -40,6 +40,11 @@ public class CustomerController {
     private UserService userService;
     @Autowired
     private DiscountService discountService;
+
+    @GetMapping("/isCustomer")
+    public ResponseEntity<ResponseFormat> isCustomer(){
+        return ResponseEntity.ok().body(new ResponseFormat(true));
+    }
     // GET CUSTOMER'S INFOMATION
     @GetMapping("info")
     public ResponseEntity<CustomerDetail> getUserInfo(Authentication authentication){

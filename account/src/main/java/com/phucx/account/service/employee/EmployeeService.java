@@ -1,8 +1,6 @@
 package com.phucx.account.service.employee;
 
 import org.springframework.data.domain.Page;
-import org.springframework.security.access.prepost.PreAuthorize;
-
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.EmployeeAccount;
@@ -13,7 +11,6 @@ import com.phucx.account.model.Employee;
 import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderWithProducts;
 
-@PreAuthorize("hasRole('ROLE_EMPLOYEE')")
 public interface EmployeeService {
     // get employee
     public Employee getEmployee(String employeeID);
@@ -24,6 +21,7 @@ public interface EmployeeService {
     public boolean createEmployee(Employee employee);
     public Boolean updateEmployeeInfo(EmployeeDetail employee);
     public Boolean updateAdminEmployeeInfo(Employee employee);
+    public Boolean addNewEmployee(EmployeeAccount employeeAccount);
     // processing order of customer
     public Notification confirmOrder(OrderWithProducts order, String employeeID) throws InvalidOrderException;
     public Notification cancelOrder(OrderWithProducts order, String employeeID);

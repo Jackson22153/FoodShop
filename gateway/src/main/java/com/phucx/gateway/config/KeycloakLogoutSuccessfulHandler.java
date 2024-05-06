@@ -7,10 +7,8 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 import org.springframework.util.MultiValueMap;
 
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 public class KeycloakLogoutSuccessfulHandler implements ServerLogoutSuccessHandler {
     private final String SESSION_COOKIE = "SESSION";
 

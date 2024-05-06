@@ -1,6 +1,5 @@
 package com.phucx.shop.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 import org.springframework.data.annotation.Immutable;
@@ -14,7 +13,7 @@ import lombok.ToString;
 @Entity
 @Data @ToString @Immutable
 @Table(name = "Sales by Category")
-public class SalesByCategory implements Serializable{
+public class SalesByCategory{
     @Id
     private Integer productID;
     private Integer categoryID;

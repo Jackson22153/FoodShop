@@ -8,14 +8,16 @@ import { cartPath } from "../../../../constant/FoodShoppingURL";
 import { CompatClient, Stomp } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { AccountWSUrl, QUEUE_MESSAGES, PlaceOrderWsUrl } from "../../../../constant/FoodShoppingApiURL";
-import { Nofitication } from "../../../../model/WebType";
+import { Notification } from "../../../../model/Type";
 import { ALERT_TYPE, NOTIFICATION_TYPE } from "../../../../constant/config";
+import { isCustomer } from "../../../../api/UserApi";
 
 export default function OrderComponent(){
     const [orderInfo, setOrderInfo] = useState<OrderInfo>();
     const stompClient = useRef<CompatClient | null>(null);
-    const [notification, setNotification] = useState<Nofitication>({
+    const [notification, setNotification] = useState<Notification>({
         notificationID: '',
+        title: '',
         message: '',
         senderID: '',
         receiverID: '',
@@ -23,6 +25,7 @@ export default function OrderComponent(){
             topicName: ''
         },
         status: '',
+        active: false,
         isShowed: false,
     })
 
@@ -31,8 +34,22 @@ export default function OrderComponent(){
     }, [])
 
     const initial = ()=>{
+        checkAuthenticationCustomer();
         connectCustomer();
         fetchProductsInCart();
+    }
+
+    async function checkAuthenticationCustomer(){
+        try {
+            const res = await isCustomer();
+            if(res.status){
+                const data = res.data;
+                const status = data.status;
+                if(!status) window.location.href="/"
+            }
+        } catch (error) {
+            window.location.href="/"
+        }
     }
 
     async function fetchProductsInCart(){

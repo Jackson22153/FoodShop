@@ -33,7 +33,7 @@ function HomeDashBoardComponent(){
 
     const fetchRecommendedProducts = async ()=>{ 
         const res = await getRecommendedProduct();
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
             setRecommendedProducts(data);
         }

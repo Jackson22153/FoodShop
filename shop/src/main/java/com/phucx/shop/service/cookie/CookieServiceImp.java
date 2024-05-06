@@ -128,7 +128,8 @@ public class CookieServiceImp implements CookieService{
     @Override
     public OrderWithProducts getOrder(String encodedCartJson, Authentication authentication) 
         throws JsonMappingException, JsonProcessingException, NotFoundException {
-            
+        
+        log.info("getOrder(encodedCartJson={}, userID={})", encodedCartJson, authentication.getName());
         if(encodedCartJson!=null){
             String cartJson = this.decodeCookie(encodedCartJson);
             TypeReference<List<CartOrderItem>> typeRef = new TypeReference<List<CartOrderItem>>() {};
@@ -152,6 +153,7 @@ public class CookieServiceImp implements CookieService{
     }
     // create a new order
     private OrderWithProducts createOrderDetail(List<CartOrderItem> products, Customer customer){   
+        log.info("createOrderDetail(products={}, customer={})", products, customer);
         List<Integer> productIDs = products.stream()
             .map(CartOrderItem::getProductID)
             .collect(Collectors.toList());
@@ -205,6 +207,7 @@ public class CookieServiceImp implements CookieService{
                 order.setTotalPrice(bigDecimalService.formatter(order.getTotalPrice().add(extendedPrice)));
             }
         }
+        log.info("OrderDetail: {}", order);
         return order;
     }
     @Override

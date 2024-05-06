@@ -52,11 +52,11 @@ public class WebConfig {
         http.csrf(csrf-> csrf.disable());
         http.headers(header -> header.frameOptions(frame -> frame.sameOrigin()));
         http.authorizeHttpRequests(request -> request
-            .requestMatchers("/admin/**").permitAll()
+            .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/customer/**").hasRole("CUSTOMER")
             .requestMatchers("/employee/**").hasRole("EMPLOYEE")
             .requestMatchers("/user/userInfo").permitAll()
-            .requestMatchers("/actuator/**").permitAll()
+            .requestMatchers("/actuator/**").hasRole("ADMIN")
             .anyRequest().authenticated());
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt
             .jwtAuthenticationConverter(jwtAuthenticationConverter)));

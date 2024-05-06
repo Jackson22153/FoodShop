@@ -89,7 +89,7 @@ public class HomeController {
     @GetMapping("/products/recommended")
     public ResponseEntity<List<CurrentProductList>> getRecommendedProducts(){
         List<CurrentProductList> products = productService
-            .getRecommendedProducts(0, WebConfig.PAGE_SIZE);
+            .getRecommendedProducts(0, WebConfig.RECOMMENDED_PRODUCT_PAGE_SIZE);
             
         return ResponseEntity.ok().body(products);
     }

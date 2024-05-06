@@ -56,6 +56,11 @@ public class AdminController {
     @Autowired
     private RoleService roleService;
 
+    @GetMapping("/isAdmin")
+    public ResponseEntity<ResponseFormat> isAdmin(){
+        return ResponseEntity.ok().body(new ResponseFormat(true));
+    }
+
     @PostMapping("/product")
     public ResponseEntity<ResponseFormat> updateProductDetails(
         @RequestBody ProductDetails productDetails
@@ -142,6 +147,13 @@ public class AdminController {
         return ResponseEntity.ok().body(types);
     }
 // customers
+    @PutMapping("/customers")
+    public ResponseEntity<ResponseFormat> addCustomer(
+        @RequestBody CustomerAccount customerAccount
+    ){
+        Boolean status = customerService.addNewCustomer(customerAccount);
+        return ResponseEntity.ok().body(new ResponseFormat(status));
+    }
     @GetMapping("/customers")
     public ResponseEntity<Page<CustomerAccount>> getCustomers(
         @RequestParam(name = "page", required = false) Integer pageNumber,
@@ -168,6 +180,13 @@ public class AdminController {
         return ResponseEntity.ok().body(customer);
     }
     // employees
+    @PutMapping("/employees")
+    public ResponseEntity<ResponseFormat> addEmployee(
+        @RequestBody EmployeeAccount employeeAccount
+    ){
+        Boolean status = employeeService.addNewEmployee(employeeAccount);
+        return ResponseEntity.ok().body(new ResponseFormat(status));
+    }
     @GetMapping("/employees")
     public ResponseEntity<Page<EmployeeAccount>> getEmployees(
         @RequestParam(name = "page", required = false) Integer pageNumber,

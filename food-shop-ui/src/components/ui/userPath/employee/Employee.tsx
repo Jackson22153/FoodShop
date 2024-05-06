@@ -13,6 +13,7 @@ import EmployeePendingOrderComponent from './order/EmployeePendingOrder';
 import { Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
 import EmployeeConfirmedOrderComponent from './order/EmployeeConfirmOrder';
+import { isEmployee } from '../../../../api/EmployeeApi';
 
 export default function EmployeeComponent(){
     // const [customerInfo, setCustomerInfo] = useState<Customer>();
@@ -30,6 +31,7 @@ export default function EmployeeComponent(){
     }, [])
 
     const initial = ()=>{
+        checkAuthenticationEmployee();
         const path = location.pathname;
         // const subPath = path.substring(customerPath.length, path.length);
         if(path==employeeInfo){
@@ -42,6 +44,21 @@ export default function EmployeeComponent(){
         }
         // console.log(subPath)
     }
+
+
+    async function checkAuthenticationEmployee(){
+        try {
+            const res = await isEmployee();
+            if(res.status){
+                const data = res.data;
+                const status = data.status;
+                if(!status) window.location.href="/"
+            }
+        } catch (error) {
+            window.location.href="/"
+        }
+    }
+
     // logout modal
     async function onClickLogoutButton(){
         toggleModal();

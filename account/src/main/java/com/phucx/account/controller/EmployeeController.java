@@ -33,6 +33,12 @@ public class EmployeeController {
     private EmployeeService employeeService;
     @Autowired
     private UserService userService;
+
+
+    @GetMapping("/isEmployee")
+    public ResponseEntity<ResponseFormat> isEmployee(){
+        return ResponseEntity.ok().body(new ResponseFormat(true));
+    }
     // GET EMPLOYEE'S INFORMATION
     @GetMapping("info")
     public ResponseEntity<EmployeeDetail> getUserInfo(Authentication authentication){

@@ -70,7 +70,6 @@ function App() {
     const res = await getEmployeeNotifications(pageNumber);
     if(res.status){
       const data = res.data;
-      console.log(data)
       setNotificationMessages(data.content);
     }
   }

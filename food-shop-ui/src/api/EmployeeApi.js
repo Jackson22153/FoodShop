@@ -1,7 +1,15 @@
 
 import axios from "axios";
-import { EmployeeInfoUrl, EmployeeNotificationsUrl, EmployeeOrdersUrl, EmployeePendingOrdersUrl, EmployeeUrl } from "../constant/FoodShoppingApiURL";
+import { EmployeeInfoUrl, EmployeeNotificationsUrl, EmployeeOrdersUrl, EmployeePendingOrdersUrl, EmployeeUrl, IsEmployeeUrl } from "../constant/FoodShoppingApiURL";
 
+export function isEmployee(){
+    return axios.get(IsEmployeeUrl,{
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
 export async function getEmployeeInfo(){
     return axios.get(EmployeeInfoUrl, {
         withCredentials: true,

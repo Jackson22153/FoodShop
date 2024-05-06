@@ -4,6 +4,9 @@ import AdminComponent from '../adminPath/admin/Admin';
 import EmployeeComponent from '../employee/Employee';
 
 export default function UserComponent(){
+
+    
+
     return(
         <Routes>
             <Route path='*' element={<CustomerComponent/>}/>

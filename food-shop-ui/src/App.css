@@ -45,6 +45,9 @@ input[type=number]::-webkit-outer-spin-button {
   max-width: 450px;
   /* height: 450px; */
 }
+.img-medium{
+  max-width: 300px;
+}
 
 ins{
   text-decoration: none;
@@ -267,6 +270,11 @@ ins{
   .search-form{
     width: 450px;
   }
+}
+
+.role-dropdown-menu-pos{
+  bottom: 0;
+  transform: translate(30%, 100%);
 }
 
 .user-notification-dropdown .dropdown-item:last-child{

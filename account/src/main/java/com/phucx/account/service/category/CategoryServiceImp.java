@@ -28,34 +28,6 @@ public class CategoryServiceImp implements CategoryService{
             category.getPicture(), fetchedCategory.getCategoryID());
         if(check>0) return true;
         return false;
-        // try {
-        //     Category fechedCategory = categoryRepository
-        //         .findByCategoryName(category.getCategoryName());   
-        //     if(fechedCategory!=null){
-        //         String picture = category.getPicture();
-        //         if(picture!=null){
-        //             if(fechedCategory.getPicture()==null){
-        //                 picture = githubService.uploadImage(picture);
-        //             }else{
-        //                 int comparedPicture =fechedCategory.getPicture()
-        //                     .compareToIgnoreCase(picture);
-        //                 if(comparedPicture!=0){
-        //                     picture = githubService.uploadImage(picture);
-        //                 }else if(comparedPicture==0){
-        //                     picture = fechedCategory.getPicture();
-        //                 }
-        //             }
-        //         }
-        //         int check = categoryRepository.updateCategory(category.getCategoryName(), 
-        //             category.getDescription(), picture, category.getCategoryID());
-        //         if(check>0){
-        //             return true;
-        //         }
-        //     } 
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
-        
 	}
 	@Override
 	public boolean createCategory(Category category) {
@@ -67,19 +39,6 @@ public class CategoryServiceImp implements CategoryService{
             return false;
         }
         throw new EntityExistsException("Category " + fetchedCategoryOp.get().getCategoryName() + " already exists");
-		// try {
-        //     String picture = category.getPicture();
-        //     if(fechedCategory==null){
-        //         if(picture!=null){
-        //             picture = githubService.uploadImage(picture);
-        //             category.setPicture(picture);
-        //         }
-        //         Category newCategory = categoryRepository.save(category);
-        //         if(newCategory!=null) return true;
-        //     }
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
 	}
     
 }

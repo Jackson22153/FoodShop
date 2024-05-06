@@ -72,7 +72,6 @@ public class WebConfig {
             .pathMatchers("/shop/search/**").permitAll()
             .pathMatchers("/shop/home/**").permitAll()
             .pathMatchers("/isAuthenticated").permitAll()
-            .pathMatchers("/account/admin/**").permitAll()
             .pathMatchers("/account/user/userInfo").permitAll()
             .anyExchange().authenticated());
 

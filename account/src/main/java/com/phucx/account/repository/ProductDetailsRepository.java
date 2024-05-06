@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 import com.phucx.account.model.ProductDetails;
 
 import jakarta.transaction.Transactional;
+import java.util.Optional;
+
 
 @Repository
 public interface ProductDetailsRepository extends JpaRepository<ProductDetails, Integer>{
@@ -47,4 +49,6 @@ public interface ProductDetailsRepository extends JpaRepository<ProductDetails, 
         @Param("categoryID")Integer categoryID,
         @Param("supplierID") Integer supplierID
     );
+
+    Optional<ProductDetails> findByProductName(String productName);
 }

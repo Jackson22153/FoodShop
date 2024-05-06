@@ -2,6 +2,7 @@ package com.phucx.account.service.customer;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -10,11 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.constant.NotificationStatus;
 import com.phucx.account.constant.NotificationTopic;
 import com.phucx.account.constant.OrderStatus;
+import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.CustomerAccount;
@@ -28,6 +31,7 @@ import com.phucx.account.model.OrderItem;
 import com.phucx.account.model.OrderItemDiscount;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.Topic;
+import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.model.Order;
 import com.phucx.account.repository.CustomerAccountRepository;
@@ -53,6 +57,8 @@ public class CustomerServiceImp implements CustomerService {
     @Autowired
     private GithubService githubService;
     @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
     private CustomerAccountRepository customerAccountRepository;
     @Autowired
     private OrderService orderService;
@@ -63,24 +69,21 @@ public class CustomerServiceImp implements CustomerService {
 	public boolean updateCustomerInfo(CustomerDetail customer) {
         // return false;
         logger.info("updateCustomerInfo({})", customer.toString());
-        try {
-            Customer fetchedCustomer = customerRepository.findById(customer.getCustomerID())
-                .orElseThrow(()->new NotFoundException("Customer " + customer.getCustomerID() + " does not found"));
-            // Boolean result = false;
-            Boolean result = customerDetailRepository.updateCustomerInfo(fetchedCustomer.getCustomerID(), customer.getEmail(),
-                customer.getContactName(), customer.getAddress(), customer.getCity(), customer.getPhone(),
-                customer.getPicture());
-                logger.info("Result: {}", result);
-            return result;
-        } catch (Exception e) {
-            logger.warn(e.getMessage());
-            return false;
-        }
+        Customer fetchedCustomer = customerRepository.findById(customer.getCustomerID())
+            .orElseThrow(()->new NotFoundException("Customer " + customer.getCustomerID() + " does not found"));
+        // Boolean result = false;
+        Boolean result = customerDetailRepository.updateCustomerInfo(fetchedCustomer.getCustomerID(), customer.getEmail(),
+            customer.getContactName(), customer.getAddress(), customer.getCity(), customer.getPhone(),
+            customer.getPicture());
+            logger.info("Result: {}", result);
+        return result;
 	}
 	@Override
 	public CustomerDetail getCustomerDetail(String username) {
-        CustomerAccount customerAcc = customerAccountRepository.findByUsername(username);
-        if(customerAcc!=null){
+        User user = userService.getUser(username);
+        Optional<CustomerAccount> customerAccOp = customerAccountRepository.findByUserID(user.getUserID());
+        if(customerAccOp.isPresent()){
+            CustomerAccount customerAcc = customerAccOp.get();
             String customerID = customerAcc.getCustomerID();
             CustomerDetail customer = customerDetailRepository.findById(customerID)
                 .orElseThrow(()-> new NotFoundException("CustomerID: " + customerID + " does not found"));
@@ -91,22 +94,26 @@ public class CustomerServiceImp implements CustomerService {
             CustomerDetail customer = customerDetailRepository.findById(customerID)
                 .orElseThrow(()-> new NotFoundException("CustomerID: " + customerID + " does not found"));
             return customer;
-            // return this.getCustomerDetailByID(customerID);
         }
     }
     
     @Override
-    public boolean createCustomer(Customer customer){
-        try {
-            var customerOP = customerRepository.findById(customer.getCustomerID());
-            if(customerOP.isEmpty()){
-                Customer c = customerRepository.save(customer);
-                if(c!=null) return true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+    public boolean addNewCustomer(CustomerAccount customer){
+        logger.info("addNewCustomer({})", customer);
+        if(customer.getUsername() == null || customer.getEmail()==null || customer.getContactName()==null)
+            throw new RuntimeException("Missing some customer's information");
+        CustomerAccount fetchedCustomer= customerAccountRepository.findByUsername(customer.getUsername());
+        if(fetchedCustomer!=null) throw new RuntimeException("Customer " + customer.getUsername() + " already exists");
+        var fetchedCustomerByEmail= customerAccountRepository.findByEmail(customer.getEmail());
+        if(fetchedCustomerByEmail.isPresent()) throw new RuntimeException("Customer " + customer.getEmail() + " already exists");
+        // add new customer
+        String userID = UUID.randomUUID().toString();
+        String customerID = UUID.randomUUID().toString();
+        return customerAccountRepository.addNewCustomer(
+            userID, customer.getUsername(), 
+            passwordEncoder.encode( WebConstant.DEFUALT_PASSWORD), 
+            customer.getEmail(), customerID, 
+            customer.getContactName());
     }
 	
     @Override

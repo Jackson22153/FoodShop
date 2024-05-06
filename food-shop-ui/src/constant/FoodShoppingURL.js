@@ -26,8 +26,11 @@ export const employeeConfirmedOrder = `${employeeOrder}/confirmed`
 export const employeeNotification = `${employeePath}/notification`
 // adminPath
 export const adminCategories = `${adminPath}/categories`;
+export const adminAddCategory = `${adminCategories}/addCategory`;
 export const adminProducts = `${adminPath}/products`;
+export const adminAddProduct = `${adminProducts}/addProduct`;
 export const adminUsers = `${adminPath}/users`;
+export const adminAddUser = `${adminUsers}/adduser`;
 export const adminEmployee = `${adminPath}/employee`;
 export const adminCustomer = `${adminPath}/customer`;
 // product

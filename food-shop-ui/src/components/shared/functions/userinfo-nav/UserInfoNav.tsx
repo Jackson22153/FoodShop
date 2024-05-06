@@ -99,8 +99,6 @@ export default function UserInfoNav(prop: Props){
         return 0;
     }
 
-    if(notificationMessages.length<=0) return "...Loading"
-    else
     return(
         <div className="navbar-expand navbar-light text-white">
             <div id="navbarNavDropdown">

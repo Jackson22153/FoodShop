@@ -4,13 +4,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import UserInfomationComponent from './infomation/UserInfomation';
-import { customerInfo, customerNotification, customerOrder } from '../../../../constant/FoodShoppingURL';
+import { customerInfo, customerOrder } from '../../../../constant/FoodShoppingURL';
 import UserOrdersComponent from './order/UserOrders';
 import UserOrderComponent from './order/UserOrder';
 import UserNotificationComponent from './notification/UserNotification';
 import { logout } from '../../../../api/AuthorizationApi';
 import { Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
+import { isCustomer } from '../../../../api/UserApi';
 
 export default function CustomerComponent(){
     // const [customerInfo, setCustomerInfo] = useState<Customer>();
@@ -28,15 +29,27 @@ export default function CustomerComponent(){
     }, [])
 
     const initial = ()=>{
+        checkAuthenticationCustomer();
         const path = location.pathname;
-        // const subPath = path.substring(customerPath.length, path.length);
         if(path==customerInfo){
-            // console.log(customerInfo)
             setSelectedPath(0);
         }else if(path===customerOrder){
             setSelectedPath(1);
         }
         // console.log(subPath)
+    }
+
+    async function checkAuthenticationCustomer(){
+        try {
+            const res = await isCustomer();
+            if(res.status){
+                const data = res.data;
+                const status = data.status;
+                if(!status) window.location.href="/"
+            }
+        } catch (error) {
+            window.location.href="/"
+        }
     }
 
     async function onClickLogoutButton(){

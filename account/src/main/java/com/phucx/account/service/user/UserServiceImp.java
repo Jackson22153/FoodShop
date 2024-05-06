@@ -16,7 +16,6 @@ import com.phucx.account.config.WebConfig;
 import com.phucx.account.constant.RoleConstant;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.CustomerAccount;
-import com.phucx.account.model.Employee;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.Role;
 import com.phucx.account.model.UserRole;
@@ -142,9 +141,10 @@ public class UserServiceImp implements UserService {
     @Override
     public boolean assignUserRoles(UserInfo user) {
         log.info("assignUserRoles({})", user.toString());
+        log.info("userroles {}", user.getRoles().size());
         // check input data 
         if(user.getRoles().size()>0){
-            User fetchedUser = this.getUserByID(user.getUser().getUsername());
+            User fetchedUser = this.getUserByID(user.getUser().getUserID());
             List<Integer> roleIDs = user.getRoles().stream()
                 .map(Role::getRoleID)
                 .collect(Collectors.toList());
@@ -154,6 +154,9 @@ public class UserServiceImp implements UserService {
             List<String> roleIDsStr = fetchedRoles.stream()
                 .map(role -> String.valueOf(role.getRoleID()))
                 .collect(Collectors.toList());
+
+            log.info("username: {}", fetchedUser.getUsername());
+            log.info("listroleIDs: {}", String.join(",", roleIDsStr));
             // execute procedure 
             Boolean status = userRoleRepository.assignUserRoles(
                 fetchedUser.getUsername(), 

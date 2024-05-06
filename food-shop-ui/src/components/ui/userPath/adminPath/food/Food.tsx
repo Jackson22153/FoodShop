@@ -24,6 +24,7 @@ export default function AdminFoodComponent(){
     const [discountEditable, setDiscountEditable] = useState(false);
     const [foodInfoChange, setFoodInfoChange] = useState<ProductDetails>();
     const [selectedDiscountTabPane, setSelectedDiscountTabPane] = useState(0);
+    const [description, setDescription] = useState("")
     const [alert, setAlert] = useState<Alert>({
         message: '',
         type: ALERT_TYPE.INFO,
@@ -92,17 +93,18 @@ export default function AdminFoodComponent(){
 
     const fetchProduct = async (productID: string)=>{
         const res = await getProductDetail(productID);
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
             setFoodInfo(data);
             setFoodInfoChange(data);
             fetchDiscount(data.discountID);
+            setDescription(data.description);
         }
     }
 
     const fetchDiscountTypes = async (pageNumber: number)=>{
         const res = await getDiscountTypes(pageNumber);
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
             setDiscountTypes(data.content);
         }
@@ -111,7 +113,7 @@ export default function AdminFoodComponent(){
 
     const fetchCategories = async (pageNumber: number)=>{
         const res = await getCategories(pageNumber);
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
             setCategories(data.content);
         }
@@ -119,7 +121,7 @@ export default function AdminFoodComponent(){
 
     const fetchDiscountsByProduct = async (productID: string, pageNumber: number)=>{
         const res = await getDiscountsByProduct(productID, pageNumber);
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
             setDiscounts(data.content);
         }
@@ -127,7 +129,7 @@ export default function AdminFoodComponent(){
 
     const fetchDiscount = async (discountID: string)=>{
         const res = await getDiscountDetail(discountID);
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
             setCurrentDiscount(data);
         }
@@ -161,13 +163,10 @@ export default function AdminFoodComponent(){
 
     const onChangeDescription = (content: string)=>{
         if(foodInfoChange){
-            setFoodInfoChange({
-                ...foodInfoChange,
-                description: content
-            })
+            setDescription(content)
         }
     }
-    const onChangePicture:ChangeEventHandler<HTMLInputElement> = (event)=>{
+    const onChangePicture:ChangeEventHandler<HTMLInputElement> = (_event)=>{
 
     }
 
@@ -345,7 +344,7 @@ export default function AdminFoodComponent(){
                 reorderLevel: foodInfoChange.reorderLevel || foodInfo.reorderLevel,
                 discontinued: foodInfoChange.discontinued,
                 picture: foodInfoChange.picture,
-                description: foodInfoChange.description,
+                description: description,
                 categoryID: foodInfoChange.categoryID || foodInfo.categoryID,
                 supplierID: foodInfoChange.supplierID || foodInfo.supplierID
             }
@@ -536,7 +535,7 @@ export default function AdminFoodComponent(){
                                             <div className="row">
                                                 <div className="form-group col-md-2">
                                                     <label htmlFor="unit-price-admin"><strong>Price</strong></label>
-                                                    <input type="text" className="form-control text-dark text-align-center" id="unit-price-admin" required
+                                                    <input type="number" className="form-control text-dark text-align-center" id="unit-price-admin" required
                                                         placeholder="Price" onChange={onChange} value={foodInfoChange.unitPrice} disabled={!editable}
                                                         name='unitPrice'/>
                                                 </div>
@@ -610,7 +609,7 @@ export default function AdminFoodComponent(){
                                         <div className="tab-content" id="product-content">
                                             {/* {foodInfoChange.description} */}
                                             <div id="editor">
-                                                <TextEditor content={foodInfoChange.description} 
+                                                <TextEditor content={description} 
                                                     onChangeContent={onChangeDescription} 
                                                     editable={editable} height='100%'/>
                                             </div>   

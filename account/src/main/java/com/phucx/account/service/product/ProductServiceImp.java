@@ -5,8 +5,10 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.phucx.account.model.Product;
 import com.phucx.account.model.ProductDetails;
 import com.phucx.account.repository.ProductDetailsRepository;
+import com.phucx.account.repository.ProductRepository;
 import com.phucx.account.service.github.GithubService;
 
 import jakarta.persistence.EntityExistsException;
@@ -18,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductServiceImp implements ProductService{
     @Autowired
     private ProductDetailsRepository productDetailsRepository;
+    @Autowired
+    private ProductRepository productRepository;
     @Autowired
     private GithubService githubService;
 
@@ -38,8 +42,9 @@ public class ProductServiceImp implements ProductService{
     @Override
     public boolean insertProductDetails(ProductDetails productDetails) {
         log.info("insertProductDetails({})", productDetails);
-        if(productDetails.getProductID()==null) throw new NullPointerException("Product Id is null");
-        Optional<ProductDetails> productOptional = productDetailsRepository.findById(productDetails.getProductID());
+        
+        Optional<Product> productOptional = productRepository
+            .findByProductName(productDetails.getProductName());
         if(productOptional.isEmpty()){
             Boolean result = productDetailsRepository.insertProduct(
                 productDetails.getProductName(), productDetails.getQuantityPerUnit(), 
@@ -50,7 +55,7 @@ public class ProductServiceImp implements ProductService{
                 productDetails.getSupplierID());
             return result;
         }
-        throw new EntityExistsException("Product " + productOptional.get().getProductID() + " already exists");
+        throw new EntityExistsException("Product " + productDetails.getProductName() + " already exists");
     }
     @Override
     public ProductDetails getProductDetails(int productID) {

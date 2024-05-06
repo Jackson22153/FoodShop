@@ -14,6 +14,8 @@ import java.util.Optional;
 
 
 
+
+
 @Repository
 public interface CustomerAccountRepository extends JpaRepository<CustomerAccount, String>{
     public CustomerAccount findByUsername(String username);
@@ -24,10 +26,23 @@ public interface CustomerAccountRepository extends JpaRepository<CustomerAccount
     public void createCustomerInfo(@Param("customerID") String customerID, 
         @Param("contactName") String contactName, @Param("username") String username);
     
+        @Modifying
+        @Transactional
+        @Procedure(name = "AddNewCustomer")
+        public Boolean addNewCustomer(
+            @Param("userID") String userID,
+            @Param("username") String username,
+            @Param("password") String password,
+            @Param("email") String email,
+            @Param("customerID") String customerID, 
+            @Param("contactName") String contactName);
+
     Optional<CustomerAccount> findByCustomerID(String customerID);
 
     Page<CustomerAccount> findByEmailLike(String email, Pageable pageable);
     Page<CustomerAccount> findByCustomerIDLike(String customerID, Pageable pageable);
     Page<CustomerAccount> findByContactNameLike(String contactName, Pageable pageable);
     Page<CustomerAccount> findByUsernameLike(String username, Pageable pageable);
+    Optional<CustomerAccount> findByEmail(String email);
+    Optional<CustomerAccount> findByUserID(String userID);
 }

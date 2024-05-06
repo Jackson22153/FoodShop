@@ -1,7 +1,15 @@
 import axios from "axios";
-import { CategoryAdminUrl, CustomersAdminUrl, DiscountAdminUrl, DiscountTypeAdminUrl, DiscountsByProductAdminUrl, EmployeesAdminUrl, ProductAdminUrl, ResetPasswordAdminUrl, RolesAdminUrl, RolesEmployeeAdminUrl, UsersAdminUrl, UsersRolesAdminUrl } from "../constant/FoodShoppingApiURL";
+import { CategoryAdminUrl, CustomersAdminUrl, DiscountAdminUrl, DiscountTypeAdminUrl, DiscountsByProductAdminUrl, EmployeesAdminUrl, IsAdminUrl, ProductAdminUrl, ResetPasswordAdminUrl, RolesAdminUrl, RolesEmployeeAdminUrl, UsersAdminUrl, UsersRolesAdminUrl } from "../constant/FoodShoppingApiURL";
 
-
+export function isAdmin(){
+    return axios.get(IsAdminUrl,{
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
+// category
 export function updateCategory(category){
     return axios.post(CategoryAdminUrl, JSON.stringify(category), {
         withCredentials: true,
@@ -10,8 +18,25 @@ export function updateCategory(category){
         }
     });
 }
+export function addCategory(category){
+    return axios.put(CategoryAdminUrl, JSON.stringify(category), {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
 
 // product
+export function addProduct(productDetail){
+    const data = JSON.stringify(productDetail);
+    return axios.put(ProductAdminUrl, data,{
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
 export function updateProduct(productDetail){
     const data = JSON.stringify(productDetail);
     return axios.post(ProductAdminUrl, data,{
@@ -55,6 +80,14 @@ export function getCustomer(customerID){
         }
     });
 }
+export function addNewCustomer(data){
+    return axios.put(CustomersAdminUrl, JSON.stringify(data), {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
 // employee
 export function getEmployees(page){
     return axios.get(`${EmployeesAdminUrl}?page=${page}`, {
@@ -82,6 +115,14 @@ export function getEmployeesBySearchParam(page, searchParam, searchValue){
 }
 export function updateEmployee(data){
     return axios.post(EmployeesAdminUrl, JSON.stringify(data), {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
+export function addNewEmployee(data){
+    return axios.put(EmployeesAdminUrl, JSON.stringify(data), {
         withCredentials: true,
         headers:{
             "Content-Type": 'application/json',

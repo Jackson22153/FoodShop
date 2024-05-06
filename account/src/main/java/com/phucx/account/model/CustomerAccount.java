@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Immutable;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedStoredProcedureQueries;
 import jakarta.persistence.NamedStoredProcedureQuery;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureParameter;
@@ -18,12 +19,24 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@NamedStoredProcedureQuery(name = "CustomerAccount.createCustomerInfo",
-    procedureName = "createCustomerInfo", parameters = {
+@NamedStoredProcedureQueries({
+    @NamedStoredProcedureQuery(name = "CustomerAccount.createCustomerInfo",
+        procedureName = "createCustomerInfo", parameters = {
+            @StoredProcedureParameter(name="customerID", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="contactName", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="username", mode = ParameterMode.IN, type=String.class)
+        }),
+    @NamedStoredProcedureQuery(name = "CustomerAccount.addNewCustomer",
+    procedureName = "AddNewCustomer", parameters = {
+        @StoredProcedureParameter(name="userID", mode = ParameterMode.IN, type=String.class),
+        @StoredProcedureParameter(name="username", mode = ParameterMode.IN, type=String.class),
+        @StoredProcedureParameter(name="password", mode = ParameterMode.IN, type=String.class),
+        @StoredProcedureParameter(name="email", mode = ParameterMode.IN, type=String.class),
         @StoredProcedureParameter(name="customerID", mode = ParameterMode.IN, type=String.class),
         @StoredProcedureParameter(name="contactName", mode = ParameterMode.IN, type=String.class),
-        @StoredProcedureParameter(name="username", mode = ParameterMode.IN, type=String.class)
+        @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type=Boolean.class)
     })
+})
 @Table(name = "CustomerAccounts")
 public class CustomerAccount {
     @Id
@@ -32,5 +45,5 @@ public class CustomerAccount {
     private String email;
     private String customerID;
     private String contactName;
-    // private String companyName;
+    private String picture;
 }

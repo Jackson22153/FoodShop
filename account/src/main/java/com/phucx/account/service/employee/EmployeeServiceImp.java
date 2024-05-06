@@ -1,17 +1,20 @@
 package com.phucx.account.service.employee;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.constant.NotificationStatus;
 import com.phucx.account.constant.NotificationTopic;
 import com.phucx.account.constant.OrderStatus;
+import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
@@ -21,6 +24,7 @@ import com.phucx.account.model.Employee;
 import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.Topic;
+import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.EmployeeAccountRepository;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
@@ -40,6 +44,8 @@ public class EmployeeServiceImp implements EmployeeService {
     private NotificationService notificationService;
     @Autowired
     private GithubService githubService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private EmployeeRepository employeeRepository;
     @Autowired
@@ -106,8 +112,10 @@ public class EmployeeServiceImp implements EmployeeService {
 
 	@Override
 	public EmployeeDetail getEmployeeDetail(String username) {
-        EmployeeAccount employeeAcc = employeeAccountRepository.findByUsername(username);
-        if(employeeAcc!=null){
+        User user = userService.getUser(username);
+        Optional<EmployeeAccount> employeeAccOp = employeeAccountRepository.findByUserID(user.getUserID());
+        if(employeeAccOp.isPresent()){
+            EmployeeAccount employeeAcc = employeeAccOp.get();
             String employeeID = employeeAcc.getEmployeeID();
             EmployeeDetail employee = employeeDetailRepostiory.findById(employeeID)
                 .orElseThrow(()-> new NotFoundException("EmployeeID: " + employeeID + " does not found"));
@@ -277,5 +285,26 @@ public class EmployeeServiceImp implements EmployeeService {
             .getNotificationByUserIDOrNullAndNotificationID(userID, notificationID);
         return notificationService.updateNotificationActive(
             notification.getNotificationID(), false);
+    }
+
+    @Override
+    public Boolean addNewEmployee(EmployeeAccount employeeAccount) {
+        log.info("addNewEmployee({})", employeeAccount);
+        if(employeeAccount.getUsername() == null || employeeAccount.getEmail()==null || 
+            employeeAccount.getFirstName()==null || employeeAccount.getLastName()==null)
+            throw new RuntimeException("Missing some employee's information");
+        EmployeeAccount fetchedEmployeeByUsername= employeeAccountRepository.findByUsername(employeeAccount.getUsername());
+        if(fetchedEmployeeByUsername!=null) throw new RuntimeException("Employee " + fetchedEmployeeByUsername.getUsername() + " already exists");
+        var fetchedCustomerByEmail= employeeAccountRepository.findByEmail(employeeAccount.getEmail());
+        if(fetchedCustomerByEmail.isPresent()) throw new RuntimeException("Employee " + employeeAccount.getEmail() + " already exists");
+        // add new employee
+        String userID = UUID.randomUUID().toString();
+        String employeeID = UUID.randomUUID().toString();
+        return employeeAccountRepository.addNewEmployee(
+            userID, employeeAccount.getUsername(), 
+            passwordEncoder.encode( WebConstant.DEFUALT_PASSWORD), 
+            employeeAccount.getEmail(), 
+            employeeID, employeeAccount.getFirstName(), 
+            employeeAccount.getLastName());
     }
 }

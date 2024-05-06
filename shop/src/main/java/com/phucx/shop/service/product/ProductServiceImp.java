@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.phucx.shop.model.CurrentProductList;
 import com.phucx.shop.model.CurrentSalesProduct;
 import com.phucx.shop.model.ProductDetails;
+import com.phucx.shop.model.SalesByCategory;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.repository.CurrentProductListRepository;
 import com.phucx.shop.repository.ProductDetailsRepository;
@@ -77,11 +78,12 @@ public class ProductServiceImp implements ProductService{
 
     @Override
     public List<CurrentProductList> getRecommendedProducts(int pageNumber, int pageSize) {
+        log.info("getRecommendedProducts(pageNumber={}, pageSize={})", pageNumber, pageSize);
         Pageable page = PageRequest.of(pageNumber, pageSize);
-        var salesByCategory = salesByCategoryRepository
-            .findAllByOrderByProductSalesDesc(page);
-
-        List<Integer> productIDs = salesByCategory.stream()
+        Page<SalesByCategory> salesByCategory = salesByCategoryRepository
+            .findAllContinuedProductsOrderByProductSalesDesc(page);
+        log.info("Number Of recommended products {}", salesByCategory.getContent().size());
+        List<Integer> productIDs = salesByCategory.getContent().stream()
             .map(product -> product.getProductID())
             .collect(Collectors.toList());
         List<CurrentProductList> products = currentProductListRepository.findAllById(productIDs);

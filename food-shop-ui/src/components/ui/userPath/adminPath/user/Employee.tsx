@@ -21,7 +21,7 @@ export default function AdminEmployeeComponent(){
     const [isRolesDropdownShowed, setIsRolesDropdownShowed] = useState(false);
     const [editable, setEditable] = useState(false);
     const navHeaderRef = useRef(null);
-    const [selectedTab, setSelectedTab] = useState(1);
+    const [selectedTab, setSelectedTab] = useState(0);
     const [updateInfoModal, setUpdateInfoModal] = useState<Modal>({
         title: 'Confirm action',
         message: 'Do you want to continute?',
@@ -112,7 +112,7 @@ export default function AdminEmployeeComponent(){
         }
     }
 
-    const onChangePicture = (event: any)=>{
+    const onChangePicture = (_event: any)=>{
 
     }
 
@@ -206,6 +206,7 @@ export default function AdminEmployeeComponent(){
     }
 
     const onClickRoleDropdown = ()=>{
+        console.log("click")
         toggleRoleDropdown();
     }
 
@@ -473,7 +474,7 @@ export default function AdminEmployeeComponent(){
                                                         onClick={onClickRoleDropdown} disabled={!editable}> 
                                                         <span className="sr-only">Toggle Dropdown</span>
                                                     </button>
-                                                    <div className={`dropdown-menu dropdown-menu-pos ${isRolesDropdownShowed?'show':''}`}>
+                                                    <div className={`dropdown-menu role-dropdown-menu-pos ${isRolesDropdownShowed?'show':''}`}>
                                                         {roles.map((role)=>(
                                                             <div key={role.roleID} className="dropdown-item">
                                                                 <div className="form-check">

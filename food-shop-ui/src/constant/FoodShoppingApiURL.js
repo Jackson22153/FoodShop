@@ -39,6 +39,7 @@ export const CategoriesNameUrl = `${CategoriesUrl}/name`;
 // shippers
 export const ShippersUrl = `${HomeUrl}/shippers`;
 // adminurl
+export const IsAdminUrl = `${AdminUrl}/isAdmin`;
 export const ProductAdminUrl = `${AdminUrl}/product`;
 export const DiscountAdminUrl = `${AdminUrl}/discount`
 export const DiscountsByProductAdminUrl = `${DiscountAdminUrl}/product`
@@ -55,11 +56,13 @@ export const ResetPasswordAdminUrl = (userID)=>{
 };
 // customer
 export const CustomerUrl = `${AccountService}/customer`;
+export const IsCustomerUrl = `${CustomerUrl}/isCustomer`;
 export const CustomerInfoUrl = `${CustomerUrl}/info`;
 export const CustomerOrdersUrl = `${CustomerUrl}/orders`;
 export const CustomerNotificationsUrl = `${CustomerUrl}/notifications`;
 // employee
 export const EmployeeUrl = `${AccountService}/employee`;
+export const IsEmployeeUrl = `${EmployeeUrl}/isEmployee`;
 export const EmployeeInfoUrl = `${EmployeeUrl}/info`;
 export const EmployeeOrdersUrl = `${EmployeeUrl}/orders`;
 export const EmployeePendingOrdersUrl = `${EmployeeOrdersUrl}/pending`;

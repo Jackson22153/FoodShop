@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Immutable;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedStoredProcedureQueries;
 import jakarta.persistence.NamedStoredProcedureQuery;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureParameter;
@@ -18,13 +19,26 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@NamedStoredProcedureQuery(name = "EmployeeAccount.createEmployeeInfo",
-    procedureName = "createEmployeeInfo", parameters = {
+@NamedStoredProcedureQueries({
+    @NamedStoredProcedureQuery(name = "EmployeeAccount.createEmployeeInfo",
+        procedureName = "createEmployeeInfo", parameters = {
+            @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="lastName", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="firstName", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="username", mode = ParameterMode.IN, type=String.class)
+        }),
+    @NamedStoredProcedureQuery(name = "EmployeeAccount.addNewEmployee",
+    procedureName = "AddNewEmployee", parameters = {
+        @StoredProcedureParameter(name="userID", mode = ParameterMode.IN, type=String.class),
+        @StoredProcedureParameter(name="username", mode = ParameterMode.IN, type=String.class),
+        @StoredProcedureParameter(name="password", mode = ParameterMode.IN, type=String.class),
+        @StoredProcedureParameter(name="email", mode = ParameterMode.IN, type=String.class),
         @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type=String.class),
-        @StoredProcedureParameter(name="lastName", mode = ParameterMode.IN, type=String.class),
         @StoredProcedureParameter(name="firstName", mode = ParameterMode.IN, type=String.class),
-        @StoredProcedureParameter(name="username", mode = ParameterMode.IN, type=String.class)
+        @StoredProcedureParameter(name="lastName", mode = ParameterMode.IN, type=String.class),
+        @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type=Boolean.class)
     })
+})
 @Table(name = "EmployeeAccounts")
 public class EmployeeAccount {
     @Id
@@ -34,4 +48,5 @@ public class EmployeeAccount {
     private String employeeID;
     private String firstName;
     private String lastName;
+    private String photo;
 }

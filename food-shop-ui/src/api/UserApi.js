@@ -1,6 +1,14 @@
 import axios from "axios";
-import { CustomerInfoUrl, CustomerOrdersUrl, CustomerNotificationsUrl } from "../constant/FoodShoppingApiURL";
+import { CustomerInfoUrl, CustomerOrdersUrl, CustomerNotificationsUrl, IsCustomerUrl } from "../constant/FoodShoppingApiURL";
 
+export function isCustomer(){
+    return axios.get(IsCustomerUrl,{
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    });
+}
 export async function updateUserInfo(userInfo){
     return axios.post(CustomerInfoUrl, JSON.stringify(userInfo), {
         withCredentials: true,

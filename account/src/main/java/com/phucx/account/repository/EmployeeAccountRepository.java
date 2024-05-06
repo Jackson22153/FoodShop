@@ -15,6 +15,8 @@ import com.phucx.account.model.EmployeeAccount;
 
 
 
+
+
 @Repository
 public interface EmployeeAccountRepository extends JpaRepository<EmployeeAccount, String>{
     public EmployeeAccount findByUsername(String username);
@@ -26,6 +28,18 @@ public interface EmployeeAccountRepository extends JpaRepository<EmployeeAccount
         @Param("lastName") String lastName, @Param("firstName") String firstName,
         @Param("username") String username);
 
+    @Modifying
+    @Transactional
+    @Procedure(name = "AddNewEmployee")
+    public Boolean addNewEmployee(
+        @Param("userID") String userID, 
+        @Param("username") String username, 
+        @Param("password") String password, 
+        @Param("email") String email,
+        @Param("employeeID") String employeeID, 
+        @Param("firstName") String firstName,
+        @Param("lastName") String lastName);
+
     Optional<EmployeeAccount> findByEmployeeID(String employeeID);
 
     Page<EmployeeAccount> findByEmailLike(String email, Pageable pageable);
@@ -33,4 +47,7 @@ public interface EmployeeAccountRepository extends JpaRepository<EmployeeAccount
     Page<EmployeeAccount> findByFirstNameLike(String firstName, Pageable pageable);
     Page<EmployeeAccount> findByLastNameLike(String lastName, Pageable pageable);
     Page<EmployeeAccount> findByUsernameLike(String username, Pageable pageable);
+    Optional<EmployeeAccount> findByEmail(String email);
+
+    Optional<EmployeeAccount> findByUserID(String userID);
 }

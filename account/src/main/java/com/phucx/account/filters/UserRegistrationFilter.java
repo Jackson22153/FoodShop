@@ -32,6 +32,7 @@ public class UserRegistrationFilter extends GenericFilter {
             if(authentication.getPrincipal() instanceof Jwt){
                 var token = (Jwt)authentication.getPrincipal();
                 if(token!=null){
+                    authentication.getAuthorities().stream().forEach(authority -> logger.info(authority.getAuthority()));
                     String username = token.getClaimAsString(WebConfig.PREFERRED_USERNAME);
                     List<String> roles = authentication.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)

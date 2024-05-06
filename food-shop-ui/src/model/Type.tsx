@@ -54,7 +54,7 @@ export type ProductDetails={
     reorderLevel: number,
     discontinued: boolean,
     picture: string,
-    description: string
+    description: string,
 
     discountPercent: number,
     startDate: string,
@@ -136,18 +136,20 @@ export type CustomerUserInfo={
 export type CustomerAccount = {
     userID: string,
     customerID: string,
-    username: string
+    username: string,
     contactName: string,
     email: string,
+    picture: string
 }
 
 export type EmployeeAccount = {
     userID: string,
     employeeID: string,
-    username: string
+    username: string,
     firstName: string,
     lastName: string,
     email: string,
+    photo: string
 }
 
 export type Pageable = {

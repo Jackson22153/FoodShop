@@ -22,8 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
     @ComponentScan("com.phucx.shop.aspects")
 })
 public class WebConfig {  
-    public static int PAGE_SIZE = 10;
+    public static int PAGE_SIZE = 12;
     public static int RECOMMENDED_PAGE_SIZE = 4;
+    public static int RECOMMENDED_PRODUCT_PAGE_SIZE = 8;
     public final static String PREFERRED_USERNAME="preferred_username";
 
     public final static String ORDER_QUEUE = "order";
