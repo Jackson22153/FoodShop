@@ -34,6 +34,8 @@ public class Invoice {
     private String phone;
     
     private String customerID;
+
+    private String employeeID;
     private String salesperson;
 
     private LocalDateTime orderDate;

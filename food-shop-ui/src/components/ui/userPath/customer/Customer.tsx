@@ -75,13 +75,13 @@ export default function CustomerComponent(){
                     <div className="logo cursor-pointer" onClick={onClickShowSideBar}>
                         {/* <i className="bx bx-menu menu-icon"></i> */}
                         <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
-                        <span className="logo-name">CodingLab</span>
+                        <span className="logo-name">Phucx</span>
                     </div>
                     <div className="sidebar"  ref={sidebarRef}>
                         <div className="sidebar-content py-0">
                             <div className="logo cursor-pointer mx-0" onClick={onClickShowSideBar}>
                                 <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
-                                <span className="logo-name">CodingLab</span>
+                                <span className="logo-name">Phucx</span>
                             </div>
                             <ul className="flex-column lists nav nav-pills mb-auto">
                                 <li className="list nav-item">
@@ -97,9 +97,9 @@ export default function CustomerComponent(){
                                     </a>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href={customerNotification} className={`nav-link ${selectedPath===2?'active': ''}`}>
+                                    <a href='/' className={`nav-link ${selectedPath===2?'active': ''}`}>
                                         <i className="bx bx-bell icon"></i>
-                                        <span className="link">Notifications</span>
+                                        <span className="link">Home</span>
                                     </a>
                                 </li>
                             </ul>

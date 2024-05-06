@@ -26,6 +26,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public static String APPLICATION_ENDPOINT = "/app";
     public static String QUEUE_MESSAGES = "/queue/messages";
     public static String SIMP_USER = "simpUser";
+    public static String TOPIC_ORDER = "/topic/order";
+    public static String TOPIC_EMPLOYEE_NOTIFICAITON_ORDER = "/topic/employee.notification.order";
 
     @Value("${spring.rabbitmq.username}")
     private String rabbitmqAdminUsername;

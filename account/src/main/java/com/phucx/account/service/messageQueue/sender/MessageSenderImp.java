@@ -12,29 +12,39 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 
+import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.config.WebSocketConfig;
-import com.phucx.account.model.NotificationMessage;
+import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderWithProducts;
+import com.phucx.account.service.notification.NotificationService;
 
 @Service
 public class MessageSenderImp implements MessageSender{
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
+    private NotificationService notificationService;
+    @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
     private Logger logger = LoggerFactory.getLogger(MessageSenderImp.class);
     @Override
-    public void send(String exchange, String routingKey, OrderWithProducts order) {
-        this.rabbitTemplate.convertAndSend(exchange, routingKey, order);
+    public void sendNotification(Notification notification) {
+        this.rabbitTemplate.convertAndSend(MessageQueueConfig.NOTIFICATION_QUEUE, 
+            MessageQueueConfig.NOTIFICATION_ROUTING_KEY, notification);
     }
     @Override
-    public NotificationMessage sendAndReceiveOrder(String exchange, String routingKey, OrderWithProducts order) {
-        NotificationMessage response = (NotificationMessage) this.rabbitTemplate.convertSendAndReceive(exchange, routingKey, order);
+    public Notification sendAndReceiveOrder(OrderWithProducts order) {
+        // send order to message queue
+        Notification response = (Notification) this.rabbitTemplate.convertSendAndReceive(
+            MessageQueueConfig.ORDER_QUEUE, MessageQueueConfig.ORDER_ROUTING_KEY, order);
         return response;
     }
     @Override
-    public void sendMessageToUser(String userID, NotificationMessage notificationMessage) {
-        logger.info("sendMEssageToUser(userID={}, notificationMessage={})", userID, notificationMessage.toString());
+    public void sendMessageToUser(String userID, Notification notificationMessage) {
+        logger.info("sendMessageToUser(userID={}, notificationMessage={})", userID, notificationMessage.toString());
+        // save notification
+        notificationService.createNotification(notificationMessage);
+        // send notification
         simpMessagingTemplate.convertAndSendToUser(userID, WebSocketConfig.QUEUE_MESSAGES, notificationMessage, getHeaders());
     }
     
@@ -43,5 +53,11 @@ public class MessageSenderImp implements MessageSender{
         header.put("auto-delete", "true");
         header.put(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
         return header;
+    }
+    @Override
+    public void sendEmployeeNotificationOrderToTopic(Notification notification) {
+        notificationService.createNotification(notification);
+        // send notification to notification/order topic
+        this.simpMessagingTemplate.convertAndSend(WebSocketConfig.TOPIC_EMPLOYEE_NOTIFICAITON_ORDER, notification);
     }
 }

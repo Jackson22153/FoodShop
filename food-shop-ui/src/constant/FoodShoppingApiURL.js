@@ -10,6 +10,12 @@ const HomeUrl = `${ShopService}/home`;
 const SearchUrl = `${ShopService}/search`;
 // ws prefix destination
 const AppPrefixDestinationUrl = `/app`;
+// ws user destination prefix
+const UserDestinationPrefix = `/user`;
+
+const TopicWsPrefix = '/topic';
+// ws queue 
+const QueueWs = `/queue`
 
 // gateway
 export const LoginUrl = `${URL}/loginBE`;
@@ -51,20 +57,42 @@ export const ResetPasswordAdminUrl = (userID)=>{
 export const CustomerUrl = `${AccountService}/customer`;
 export const CustomerInfoUrl = `${CustomerUrl}/info`;
 export const CustomerOrdersUrl = `${CustomerUrl}/orders`;
+export const CustomerNotificationsUrl = `${CustomerUrl}/notifications`;
 // employee
 export const EmployeeUrl = `${AccountService}/employee`;
 export const EmployeeInfoUrl = `${EmployeeUrl}/info`;
 export const EmployeeOrdersUrl = `${EmployeeUrl}/orders`;
 export const EmployeePendingOrdersUrl = `${EmployeeOrdersUrl}/pending`;
+export const EmployeeNotificationsUrl = `${EmployeeUrl}/notifications`;
+// user
+export const UserUrl = `${AccountService}/user`;
+export const UserInfoUrl = `${UserUrl}/userInfo`;
 // cart
 export const CartUrl = `${ShopService}/cart`;
 export const CartProductsUrl = `${CartUrl}/products`;
 export const NumberOfCartProductsUrl = `${CartProductsUrl}/number`;
 // websocket
+// account service ws
 export const AccountWSUrl = `${AccountService}/chat`;
+// customer
+const CustomerWsUrl = `${AppPrefixDestinationUrl}/customer`;
+const CustomerOrderWsUrl = `${CustomerWsUrl}/order`;
+export const PlaceOrderWsUrl = `${CustomerOrderWsUrl}/placeOrder`;
+export const ReceiveOrderWsUrl = `${CustomerOrderWsUrl}/receive`;
+// employee
+const EmployeeWsUrl = `${AppPrefixDestinationUrl}/employee`;
+const EmployeeOrderWsUrl = `${EmployeeWsUrl}/order`;
+export const ConfirmOrderWsUrl = `${EmployeeOrderWsUrl}/confirm`;
+export const CancelOrderWsUrl = `${EmployeeOrderWsUrl}/cancel`;
+export const FulfillOrderWsUrl = `${EmployeeOrderWsUrl}/fulfill`;
 // shop service ws
 export const ShopWSUrl = `${ShopService}/chat`;
 export const AddItemTOCartWsUrl = `${AppPrefixDestinationUrl}/cart.addItem`;
+// topic ws
+export const OrderWsUrl = `${TopicWsPrefix}/order`;
+const NotificationWsUrl = `${TopicWsPrefix}/notification`;
+export const EmployeeNotificationOrderWsUrl = `${TopicWsPrefix}/employee.notification.order`;
 // user queue cart
-export const QUEUE_CART = '/user/queue/cart';
+export const QUEUE_CART = `${UserDestinationPrefix}/queue/cart`;
+export const QUEUE_MESSAGES = `${UserDestinationPrefix}/queue/messages`
 

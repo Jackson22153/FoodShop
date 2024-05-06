@@ -39,4 +39,9 @@ public class OrderDetailsExtendedStatus {
     private BigDecimal extendedPrice;
     @Enumerated(EnumType.STRING)
     private OrderStatus status; 
+
+    private String employeeID;
+    private String customerID;
+    private String contactName;
+    private String customerPicture;
 }

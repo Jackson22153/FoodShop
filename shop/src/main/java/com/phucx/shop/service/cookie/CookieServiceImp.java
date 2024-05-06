@@ -12,7 +12,6 @@ import javax.naming.InsufficientResourcesException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,7 +32,6 @@ import com.phucx.shop.repository.CurrentProductListRepository;
 import com.phucx.shop.repository.ProductRepository;
 import com.phucx.shop.service.bigdecimal.BigDecimalService;
 import com.phucx.shop.service.customer.CustomerService;
-import com.phucx.shop.service.messageQueue.MessageQueueService;
 import com.phucx.shop.service.user.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,8 +43,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CookieServiceImp implements CookieService{
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
-    private MessageQueueService messageQueueService;
     @Autowired
     private ProductRepository productRepository;
     @Autowired
@@ -94,10 +90,6 @@ public class CookieServiceImp implements CookieService{
             // write cart as json format
             String updatedCartJson = objectMapper.writeValueAsString(items);
 
-            String userID = SecurityContextHolder.getContext().getAuthentication().getName();
-            messageQueueService.sendCartNotificationToUser(userID, String.valueOf(items.size()));
-
-
             log.info("updated cartJson: {}", updatedCartJson);
             Cookie cookie = this.createCookie(updatedCartJson);
             response.addCookie(cookie);
@@ -132,7 +124,7 @@ public class CookieServiceImp implements CookieService{
             }
         }
     }
-
+    // return order including ship address, name, phone and products of order in cart
     @Override
     public OrderWithProducts getOrder(String encodedCartJson, Authentication authentication) 
         throws JsonMappingException, JsonProcessingException, NotFoundException {
@@ -169,9 +161,10 @@ public class CookieServiceImp implements CookieService{
         // sort products
         Collections.sort(products, Comparator.comparingInt(CartOrderItem::getProductID));
         OrderWithProducts order = new OrderWithProducts();
-        // add default ship detail
+        // add default shipping detail of customer
         order.setShipAddress(customer.getAddress());
         order.setShipCity(customer.getCity());
+        order.setShipName(customer.getContactName());
         order.setPhone(customer.getPhone());
         // convert 
         for (int i=0;i<products.size();i++) {
@@ -185,7 +178,7 @@ public class CookieServiceImp implements CookieService{
             }
             // add product to order
             if(fetchedProduct!=null){
-                // create a product in cart
+                // add product to cart
                 OrderItem item = new OrderItem(product.getProductID(), fetchedProduct.getProductName(),
                     fetchedProduct.getCategoryName(), product.getQuantity(), fetchedProduct.getUnitsInStock(), 
                     fetchedProduct.getPicture(), fetchedProduct.getUnitPrice());
@@ -195,12 +188,17 @@ public class CookieServiceImp implements CookieService{
                 discount.setDiscountID(fetchedProduct.getDiscountID());
                 discount.setDiscountPercent(fetchedProduct.getDiscountPercent());
                 item.getDiscounts().add(discount);
+
+                // add total discount to product
+                item.setTotalDiscount(discount.getDiscountPercent());
+
                 // calculate extended price
                 Double productDiscount = 1- Double.valueOf(fetchedProduct.getDiscountPercent())/100;
                 BigDecimal price = BigDecimal.valueOf(product.getQuantity()).multiply(item.getUnitPrice());
                 BigDecimal extendedPrice = price.multiply(BigDecimal.valueOf(productDiscount));
                 // log.info("discount: {}", (extendedPrice));
                 item.setExtendedPrice(bigDecimalService.formatter(extendedPrice));
+
                 // add product
                 order.getProducts().add(item);
                 // calculate total price of order 

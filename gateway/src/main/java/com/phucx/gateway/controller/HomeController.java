@@ -21,13 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RestController
 public class HomeController {
     private ServerRedirectStrategy redirectStrategy;
-    //  = new DefaultServerRedirectStrategy();
-
-
-    @GetMapping("/home")
-    public Mono<String> home(){
-        return Mono.just("home");
-    }
 
     @GetMapping("/loginBE")
     public Mono<Void> login(ServerWebExchange exchange, Authentication authentication){

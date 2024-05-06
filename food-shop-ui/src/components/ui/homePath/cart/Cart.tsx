@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { CartProduct, OrderInfo, ProductWithDiscount } from '../../../../model/Type';
 import { addProductToCart, deleteProductToCart, getProductsFromCart } from '../../../../api/CartApi';
 import { ceilRound } from '../../../../service/convert';
+import { orderPath } from '../../../../constant/FoodShoppingURL';
 
 export default function CartComponent(){
     const [order, setOrder] = useState<OrderInfo>();
@@ -14,8 +15,12 @@ export default function CartComponent(){
         initial();
     }, []);
 
+    // click to place order
+    const onClickPlaceOrder = ()=>{
+        window.location.href=orderPath;
+    }
 
-
+    // calculate totalprice
     async function calculateTotalPrice(products: ProductWithDiscount[]){
         var totalPrice = 0;
         products.forEach(product =>{
@@ -48,6 +53,7 @@ export default function CartComponent(){
             }
         }
     }
+    
     function onClickDecrementQuantity(index: number){
         if(order){
             const products = order.products;
@@ -74,9 +80,10 @@ export default function CartComponent(){
             }
         }
     }
+
     async function onClickAddToCart(cartProduct: CartProduct){
         const res = await addProductToCart(cartProduct);
-        if(res.status===200){
+        if(res.status){
             // console.log(res.data)
         }
     }
@@ -89,17 +96,16 @@ export default function CartComponent(){
                 ...products[index], quantity: quantity
             }
             setOrder({...order, products: products})
-
         }
     }
     
     function initial(){
-        fetchProductsInCart()
+        fetchProductsInCart();
     }
 
     async function fetchProductsInCart(){
         const res = await getProductsFromCart();
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
             console.log(data);
             setOrder(data);
@@ -166,16 +172,16 @@ export default function CartComponent(){
                                                         <h5>$ {ceilRound(totalPrice)}</h5>
                                                     </div>
 
-                                                    <h5 className="text-uppercase mb-3">Shipping</h5>
+                                                    {/* <h5 className="text-uppercase mb-3">Shipping</h5> */}
 
-                                                    <div className="mb-4 pb-2">
+                                                    {/* <div className="mb-4 pb-2">
                                                         <select className="select">
                                                             <option value="1">Standard-Delivery- $5.00</option>
                                                             <option value="2">Two</option>
                                                             <option value="3">Three</option>
                                                             <option value="4">Four</option>
                                                         </select>
-                                                    </div>
+                                                    </div> */}
 
                                                     {/* <h5 className="text-uppercase mb-3">Give code</h5>
 
@@ -193,8 +199,10 @@ export default function CartComponent(){
                                                         <h5>$ {ceilRound(totalPrice + order.freight)}</h5>
                                                     </div>
                                                     <button type="button" className="btn btn-dark btn-block btn-lg"
-                                                        disabled={order.products.length>0?false:true}
-                                                        data-mdb-ripple-color="dark">Order</button>
+                                                        onClick={onClickPlaceOrder} disabled={order.products.length>0?false:true}
+                                                        data-mdb-ripple-color="dark">
+                                                            Order
+                                                    </button>
                                                 </div>
                                             </div>
                                         </>

@@ -36,7 +36,6 @@ import com.phucx.account.service.employee.EmployeeService;
 import com.phucx.account.service.product.ProductService;
 import com.phucx.account.service.role.RoleService;
 import com.phucx.account.service.user.UserService;
-import com.phucx.account.service.userRole.UserRoleService;
 
 
 @RestController
@@ -54,8 +53,6 @@ public class AdminController {
     private EmployeeService employeeService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private UserRoleService userRoleService;
     @Autowired
     private RoleService roleService;
 
@@ -237,7 +234,7 @@ public class AdminController {
     public ResponseEntity<ResponseFormat> assignRoles(
         @RequestBody UserInfo user
     ){
-        Boolean status = userRoleService.assignUserRoles(user);
+        Boolean status = userService.assignUserRoles(user);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
     // roles

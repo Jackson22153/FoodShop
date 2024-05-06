@@ -1,8 +1,8 @@
 package com.phucx.account.constant;
 
-public enum Notification {
-    SUCCESS,
-    FAIL,
+public enum NotificationStatus {
+    SUCCESSFUL,
+    FAILED,
     ERROR,
     CANCEL
 }

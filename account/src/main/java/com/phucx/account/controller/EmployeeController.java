@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,17 +14,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.phucx.account.annotations.LoggerAspect;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.EmployeeDetail;
-import com.phucx.account.model.NotificationMessage;
+import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.employee.EmployeeService;
-import com.phucx.account.service.messageQueue.sender.MessageSender;
 import com.phucx.account.service.user.UserService;
 
 @RestController
@@ -36,8 +33,6 @@ public class EmployeeController {
     private EmployeeService employeeService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private MessageSender messageSender;
     // GET EMPLOYEE'S INFORMATION
     @GetMapping("info")
     public ResponseEntity<EmployeeDetail> getUserInfo(Authentication authentication){
@@ -103,34 +98,31 @@ public class EmployeeController {
     @GetMapping("/orders/{orderID}")
     public ResponseEntity<OrderWithProducts> getOrderDetail(@PathVariable Integer orderID, Authentication authentication) 
     throws InvalidOrderException{
+        logger.info("getOrderDetail(orderID={}, userID={})", orderID, authentication.getName());
         String username = userService.getUsername(authentication);
         EmployeeDetail employee = employeeService.getEmployeeDetail(username);
         OrderWithProducts order = employeeService.getOrderDetail(orderID, employee.getEmployeeID());
         return ResponseEntity.ok().body(order);
     }
-    
-    // CONFIRM AN ORDER
-    @LoggerAspect
-    @MessageMapping("/order.validate")
-    public void validateOrder(@RequestBody OrderWithProducts order,
+
+    // notification
+    @GetMapping("/notifications")
+    public ResponseEntity<Page<Notification>> getNotificationByReceiverID(
+        @RequestParam(name = "page", required = false) Integer pageNumber,
         Authentication authentication
     ){
-        // // validate order
-        // set employeeID that validates this order
-        String username = userService.getUsername(authentication);
-        EmployeeDetail employee = employeeService.getEmployeeDetail(username);
-        order.setEmployeeID(employee.getEmployeeID());
-
-        logger.info("employee {} has validated an order of customer {}", 
-            order.getEmployeeID(), order.getCustomerID());
-        // get notification after validate with database
-        NotificationMessage notificationMessage = employeeService.placeOrder(order);
-        
-        // send notification message back to customer
-        // get recipientID to send to a specific user
-        String recipientID = userService.getUserIdOfCustomerID(order.getCustomerID());
-        logger.info("recipientID: {}", recipientID);
-        logger.info("notification: {}", notificationMessage.toString());
-        messageSender.sendMessageToUser(recipientID, notificationMessage);
+        logger.info("getNotificationByReceiverID(page={}, userID={})", pageNumber, authentication.getName());
+        pageNumber=pageNumber!=null?pageNumber:0;
+        Page<Notification> notifications = employeeService.getNotifications(
+            authentication.getName(), pageNumber, WebConstant.NOTIFICATION_PAGE_SIZE);
+        return ResponseEntity.ok().body(notifications);
+    }
+    @PostMapping("/notifications")
+    public ResponseEntity<ResponseFormat> turnOffNotification(
+        @RequestBody Notification notification, Authentication authentication
+    ){
+        Boolean status = employeeService.turnOffNotification(
+            notification.getNotificationID(), authentication.getName());
+        return ResponseEntity.ok().body(new ResponseFormat(status));
     }
 }

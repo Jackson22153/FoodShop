@@ -23,6 +23,10 @@ public interface OrderService {
     public boolean validateAndProcessOrder(OrderWithProducts order) throws RuntimeException, InvalidDiscountException;
     // update 
     public boolean updateOrderEmployee(Integer orderID, String employeeID);
+
+    public OrderDetailsDTO getOrder(Integer orderID, OrderStatus status);
+    public OrderDetailsDTO getOrder(Integer orderID);
+
     // get order for employee
     public Page<OrderDetailsDTO> getEmployeeOrders(Integer pageNumber, Integer pageSize, String employeeID, OrderStatus status);
     public Page<OrderDetailsDTO> getEmployeeOrders(Integer pageNumber, Integer pageSize, String employeeID);

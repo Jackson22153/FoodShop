@@ -1,12 +1,11 @@
 import { Route, Routes, useLocation } from 'react-router-dom';
 import TopBarComponent from '../../../../shared/functions/admin/topbar/TopBar';
 import FooterComponent from '../../../../shared/website/footer/Footer';
-import AdminDashBoardComponent from '../adminDashBoard/AdminDashBoard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useRef, useState } from 'react';
 import { logout } from '../../../../../api/AuthorizationApi';
-import { adminCategories, adminUsers, adminProducts, homePath } from '../../../../../constant/FoodShoppingURL';
+import { adminCategories, adminUsers, adminProducts } from '../../../../../constant/FoodShoppingURL';
 import AdminCategoriesComponent from '../category/Categories';
 import AdminCategoryComponent from '../category/Category';
 import AdminFoodsComponent from '../food/Foods';
@@ -14,11 +13,18 @@ import AdminFoodComponent from '../food/Food';
 import AdminUsersComponent from '../user/Users';
 import AdminEmployeeComponent from '../user/Employee';
 import AdminCustomerComponent from '../user/Customer';
+import { Modal } from '../../../../../model/WebType';
+import ModalComponent from '../../../../shared/functions/modal/Modal';
 
 export default function AdminComponent(){
     const sidebarRef = useRef(null)
     const [selectedPath, setSelectedPath] = useState(0);
     const location = useLocation()
+    const [modal, setModal] = useState<Modal>({
+        title: 'Confirm action',
+        message: 'Do you want to continute?',
+        isShowed: false
+    })
 
 
     useEffect(()=>{
@@ -43,10 +49,26 @@ export default function AdminComponent(){
             sidebarEle.classList.toggle('show-side-bar')
         }
     }
-    const onClickLogoutButton = async ()=>{
-        const res = await logout();
-        if(res.status){
-            window.location.href=homePath;
+    // logout modal
+    async function onClickLogoutButton(){
+        toggleModal();
+    }
+
+    const toggleModal = ()=>{
+        setModal(modal =>({...modal, isShowed:!modal.isShowed}))
+    }
+
+    const onClickCloseModal = ()=>{
+        toggleModal()
+    }
+    const onClickConfirmModal = async ()=>{
+        try {
+            const res = await logout();
+            if(res.status){
+                window.location.href="/";
+            }
+        } catch (error) {
+
         }
     }
 
@@ -59,13 +81,13 @@ export default function AdminComponent(){
                     <nav className='z-3'>
                         <div className="logo cursor-pointer" onClick={onClickShowSideBar}>
                             <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
-                            <span className="logo-name">CodingLab</span>
+                            <span className="logo-name">Phucx</span>
                         </div>
                         <div className="sidebar"  ref={sidebarRef}>
                             <div className="sidebar-content py-0">
                                 <div className="logo cursor-pointer mx-0" onClick={onClickShowSideBar}>
                                     <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
-                                    <span className="logo-name">CodingLab</span>
+                                    <span className="logo-name">Phucx</span>
                                 </div>
                                 <ul className="flex-column lists nav nav-pills mb-auto">
                                     <li className="list nav-item">
@@ -87,19 +109,20 @@ export default function AdminComponent(){
                                         </a>
                                     </li>
                                     <li className="list nav-item">
-                                        <a href="#" className={`nav-link ${selectedPath===3?'active': ''}`}>
+                                        <a href="/" className={`nav-link ${selectedPath===3?'active': ''}`}>
                                             <i className="bx bx-bell icon"></i>
-                                            <span className="link">Notifications</span>
+                                            <span className="link">Home</span>
                                         </a>
                                     </li>
                                 </ul>
                                 <hr />
                                 <ul className="bottom-cotent flex-column lists nav nav-pills">
                                     <li className="list nav-item">
-                                        <a href="#" className="nav-link">
-                                            <i className="bx bx-log-out icon"></i>
-                                            <span className="link" onClick={onClickLogoutButton}>Logout</span>
-                                        </a>
+                                        <div className="nav-link" onClick={onClickLogoutButton}>
+                                            <span className="link">Logout</span>
+                                        </div>
+                                        <ModalComponent modal={modal} handleCloseButton={onClickCloseModal}
+                                            handleConfirmButton={onClickConfirmModal}/>
                                     </li>
                                 </ul>
                             </div>
@@ -121,8 +144,9 @@ export default function AdminComponent(){
                         <Routes>
                             <Route path='/products' element={<AdminFoodsComponent/>}/> 
                             <Route path='/products/:productName' element={<AdminFoodComponent/>}/> 
-                            <Route path='*' element={<AdminDashBoardComponent/>}/> 
+                            {/* <Route path='*' element={<AdminDashBoardComponent/>}/>  */}
                             <Route path='/categories' element={<AdminCategoriesComponent/>}/>
+                            <Route path='*' element={<AdminCategoriesComponent/>}/>
                             <Route path='/categories/:categoryID' element={<AdminCategoryComponent/>}/>
                             <Route path='/users' element={<AdminUsersComponent/>}/> 
                             <Route path='/employee/:employeeID' element={<AdminEmployeeComponent/>}/> 
@@ -143,25 +167,6 @@ export default function AdminComponent(){
             <a className="scroll-to-top rounded" href="#page-top">
                 <i className="fas fa-angle-up"></i>
             </a>
-            {/* <!-- Logout Modal--> */}
-            <div className="modal fade" id="logoutModal" tabIndex={-1}  role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                            <button className="close" type="button" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">×</span>
-                            </button>
-                        </div>
-                        <div className="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                        <div className="modal-footer">
-                            <button className="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                            <a className="btn btn-primary" href="login.html">Logout</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </>
     );
 }

@@ -12,6 +12,7 @@ import EmployeeNotificationComponent from './notification/EmployeeNotification';
 import EmployeePendingOrderComponent from './order/EmployeePendingOrder';
 import { Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
+import EmployeeConfirmedOrderComponent from './order/EmployeeConfirmOrder';
 
 export default function EmployeeComponent(){
     // const [customerInfo, setCustomerInfo] = useState<Customer>();
@@ -41,7 +42,7 @@ export default function EmployeeComponent(){
         }
         // console.log(subPath)
     }
-
+    // logout modal
     async function onClickLogoutButton(){
         toggleModal();
     }
@@ -79,13 +80,13 @@ export default function EmployeeComponent(){
                     <div className="logo cursor-pointer" onClick={onClickShowSideBar}>
                         {/* <i className="bx bx-menu menu-icon"></i> */}
                         <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
-                        <span className="logo-name">CodingLab</span>
+                        <span className="logo-name">Phucx</span>
                     </div>
                     <div className="sidebar"  ref={sidebarRef}>
                         <div className="sidebar-content py-0">
                             <div className="logo cursor-pointer mx-0" onClick={onClickShowSideBar}>
                                 <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
-                                <span className="logo-name">CodingLab</span>
+                                <span className="logo-name">Phucx</span>
                             </div>
                             <ul className="flex-column lists nav nav-pills mb-auto">
                                 <li className="list nav-item">
@@ -101,9 +102,9 @@ export default function EmployeeComponent(){
                                     </a>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href={employeeNotification} className={`nav-link ${selectedPath===2?'active': ''}`}>
+                                    <a href='/' className={`nav-link ${selectedPath===2?'active': ''}`}>
                                         <i className="bx bx-bell icon"></i>
-                                        <span className="link">Notifications</span>
+                                        <span className="link">Home</span>
                                     </a>
                                 </li>
                             </ul>
@@ -127,6 +128,7 @@ export default function EmployeeComponent(){
                         <Route path='order' element={<EmployeeOrdersComponent/>}></Route>
                         <Route path='order/:orderId' element={<EmployeeOrderComponent/>}></Route>
                         <Route path='order/pending/:orderId' element={<EmployeePendingOrderComponent/>} ></Route>
+                        <Route path='order/confirmed/:orderId' element={<EmployeeConfirmedOrderComponent/>} ></Route>
                         <Route path='notification' element={<EmployeeNotificationComponent/>}></Route>
                     </Routes>
                 </div>  

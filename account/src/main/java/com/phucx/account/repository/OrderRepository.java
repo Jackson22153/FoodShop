@@ -16,7 +16,7 @@ import com.phucx.account.model.Order;
 
 
 @Repository
-public interface OrdersRepository extends JpaRepository<Order, Integer>{
+public interface OrderRepository extends JpaRepository<Order, Integer>{
 
     @Modifying
     @Transactional

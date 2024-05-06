@@ -109,6 +109,7 @@ public class ProductServiceImp implements ProductService{
         return currentProductListRepository.findAll(pageable);
     }
 
+    // search product by name like
     @Override
     public Page<CurrentProductList> searchCurrentProducts(String productName, int pageNumber, int pageSize) {
         String searchValue = "%"+productName+"%";

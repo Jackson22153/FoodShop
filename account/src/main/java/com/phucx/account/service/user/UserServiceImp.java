@@ -13,8 +13,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.config.WebConfig;
+import com.phucx.account.constant.RoleConstant;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.CustomerAccount;
+import com.phucx.account.model.Employee;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.Role;
 import com.phucx.account.model.UserRole;
@@ -22,6 +24,7 @@ import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.CustomerAccountRepository;
 import com.phucx.account.repository.EmployeeAccountRepository;
+import com.phucx.account.repository.RoleRepository;
 import com.phucx.account.repository.UserRoleRepository;
 import com.phucx.account.repository.UserRepository;
 
@@ -37,6 +40,8 @@ public class UserServiceImp implements UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRoleRepository userRoleRepository;
+    @Autowired
+    private RoleRepository roleRepository;
     @Autowired
     private CustomerAccountRepository customerAccountRepository;
     @Autowired
@@ -90,7 +95,7 @@ public class UserServiceImp implements UserService {
     public String getUserIdOfEmployeeID(String employeeID) {
         EmployeeAccount employeeAccount = employeeAccountRepository.findByEmployeeID(employeeID)
             .orElseThrow(()-> new NotFoundException("Employee "+ employeeID +" does not found"));
-        return employeeAccount.getEmployeeID();
+        return employeeAccount.getUserID();
     }
     @Override
     public Page<UserRole> getAllUserRoles(int pageNumber, int pageSize) {
@@ -133,5 +138,47 @@ public class UserServiceImp implements UserService {
         Boolean status = userRepository.updateUserPassword(
             user.getUserID(), passwordEncoder.encode(WebConstant.DEFUALT_PASSWORD));
         return status;
+    }
+    @Override
+    public boolean assignUserRoles(UserInfo user) {
+        log.info("assignUserRoles({})", user.toString());
+        // check input data 
+        if(user.getRoles().size()>0){
+            User fetchedUser = this.getUserByID(user.getUser().getUsername());
+            List<Integer> roleIDs = user.getRoles().stream()
+                .map(Role::getRoleID)
+                .collect(Collectors.toList());
+            
+            List<Role> fetchedRoles = roleRepository.findAllById(roleIDs);
+            // convert roleID to string
+            List<String> roleIDsStr = fetchedRoles.stream()
+                .map(role -> String.valueOf(role.getRoleID()))
+                .collect(Collectors.toList());
+            // execute procedure 
+            Boolean status = userRoleRepository.assignUserRoles(
+                fetchedUser.getUsername(), 
+                String.join(",", roleIDsStr));
+            return status;
+        }
+        throw new NotFoundException("Does not found any roles for user " + user.getUser().getUserID());
+    }
+    @Override
+    public UserInfo getUserAuthenticationInfo(String userID) {
+        log.info("getUserAuthenticationInfo(userID={})", userID);
+        User user = this.getUserByID(userID);
+        // get and convert form userRoles to Role
+        List<Role> roles = userRoleRepository.findByUserID(userID).stream().filter(userRole -> {
+            String roleName = userRole.getRoleName();
+            return roleName.equalsIgnoreCase(RoleConstant.ADMIN.name()) || 
+            roleName.equalsIgnoreCase(RoleConstant.CUSTOMER.name()) ||
+            roleName.equalsIgnoreCase(RoleConstant.EMPLOYEE.name());
+        }).map(userRole -> new Role(userRole.getRoleID(), userRole.getRoleName()))
+        .collect(Collectors.toList());
+        // check if user has any roles
+        if(roles==null || roles.size()==0){
+            throw new NotFoundException("User " + userID + " does not have any roles");
+        }
+
+        return new UserInfo(user, roles);
     }
 }

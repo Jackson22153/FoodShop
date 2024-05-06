@@ -14,6 +14,8 @@ import com.phucx.shop.model.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
+       Page<Product> findByProductNameLike(String productName, Pageable page);
+
        List<Product> findByProductName(String productName);
 
        Page<Product> findByProductName(String productName, Pageable page);

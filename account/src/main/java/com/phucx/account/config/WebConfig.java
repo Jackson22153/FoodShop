@@ -55,6 +55,7 @@ public class WebConfig {
             .requestMatchers("/admin/**").permitAll()
             .requestMatchers("/customer/**").hasRole("CUSTOMER")
             .requestMatchers("/employee/**").hasRole("EMPLOYEE")
+            .requestMatchers("/user/userInfo").permitAll()
             .requestMatchers("/actuator/**").permitAll()
             .anyRequest().authenticated());
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt

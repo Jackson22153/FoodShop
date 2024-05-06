@@ -15,9 +15,9 @@ export default function EmployeeOrderComponent(){
 
     const fetchOrder = async ()=>{
         const res = await getOrderDetail(orderId);
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
-            console.log(data);
+            // console.log(data);
             setOrderInfo(data);
         }
     }
@@ -95,14 +95,6 @@ export default function EmployeeOrderComponent(){
                                 <label>${orderInfo.freight}</label>
                             </div>
                         </div>
-                        <div className="d-flex justify-content-start align-items-center pb-4 pl-3 border-bottom">
-                            {/* <div className="text-muted">
-                                <button className="text-white btn">50% Discount</button>
-                            </div>
-                            <div className="ml-auto price">
-                                -$34.94
-                            </div> */}
-                        </div>
                         <div className="d-flex justify-content-start align-items-center pl-3 py-3 mb-4 border-bottom">
                             <div className="text-muted">
                                 Today's Total
@@ -125,20 +117,6 @@ export default function EmployeeOrderComponent(){
                                         <p className='text-justify'>{orderInfo.shipperPhone}</p>
                                     </div>
                                 </div>
-                                {/* {employee &&
-                                    <div className="d-flex flex-column align-items start">
-                                        <div>
-                                            <b>Employee</b>
-                                            <p className="text-justify pt-2">{employee.lastName} {employee.firstName}</p>
-                                        </div>
-                                        <div className="d-flex justify-content-start align-items-center pb-4 pl-3 border-bottom"/>
-                                        <div className= 'py-3'>
-                                            <b>Ship</b>
-                                            <p className="text-justify pt-2">{ship.companyName}</p>
-                                            <p className='text-justify'>{ship.phone}</p>
-                                        </div>
-                                    </div>
-                                } */}
                             </div>
                             <div className="col-md-6 py-3">
                                 <div className="d-flex flex-column align-items start">
@@ -155,9 +133,9 @@ export default function EmployeeOrderComponent(){
                                 <b>#{orderInfo.orderID}</b>
                             </div>
                             <div>{orderInfo.orderDate}</div>
-                            <div>Status: {orderInfo.status}</div>
+                            <div>Status: <b>{orderInfo.status}</b></div>
                             <div>
-                                Total: <b> ${orderInfo.totalPrice}</b>
+                                Total: <b> ${orderInfo.totalPrice + orderInfo.freight}</b>
                             </div>
                         </div>
                     </div>

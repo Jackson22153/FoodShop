@@ -36,7 +36,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler{
 
     @ExceptionHandler(value = NotFoundException.class)
     protected ResponseEntity<String> handleNotFoundException(NotFoundException exception){
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(value = EntityExistsException.class)

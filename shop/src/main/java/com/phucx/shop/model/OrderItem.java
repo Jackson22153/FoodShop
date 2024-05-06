@@ -16,7 +16,7 @@ public class OrderItem {
     private Integer unitsInStock;
     private List<OrderItemDiscount> discounts;
     private String picture;
-   
+    private Integer totalDiscount;
     private BigDecimal unitPrice;
 
     private BigDecimal extendedPrice;

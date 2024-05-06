@@ -2,8 +2,8 @@ package com.phucx.account.constant;
 
 public enum OrderStatus {
     Pending,
-    Processing,
-    InTransit,
+    Confirmed,
+    Shipping,
     Successful,
     Canceled,
     All;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { CurrentProduct, Pageable } from "../../../../model/Type";
-import { getProducts, getProductsByProductName } from "../../../../api/SearchApi";
+import { getProducts, searchProducts } from "../../../../api/SearchApi";
 import PaginationSection from "../../../shared/website/sections/paginationSection/PaginationSection";
 import { getPageNumber } from "../../../../service/pageable";
 import { PathProvider } from "../../../contexts/PathContext";
@@ -30,7 +30,7 @@ export default function FoodsComponent(){
     // get and handle produts without searching
     async function fetchProducts(pageNumber: number){
         const res = await getProducts(pageNumber);
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
             setFoods(data.content);
             const pageable = {
@@ -45,8 +45,8 @@ export default function FoodsComponent(){
     }
     // get and handle searching produts
     async function fetchSearchingProducts(searchParam: string, pageNumber: number){
-        const res = await getProductsByProductName(searchParam, pageNumber)
-        if(res.status===200){
+        const res = await searchProducts(searchParam, pageNumber)
+        if(res.status){
             const data = res.data;
             setFoods(data.content);
             const pageable = {

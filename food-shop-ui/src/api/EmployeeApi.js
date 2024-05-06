@@ -1,6 +1,6 @@
 
 import axios from "axios";
-import { EmployeeInfoUrl, EmployeeOrdersUrl, EmployeePendingOrdersUrl, EmployeeUrl } from "../constant/FoodShoppingApiURL";
+import { EmployeeInfoUrl, EmployeeNotificationsUrl, EmployeeOrdersUrl, EmployeePendingOrdersUrl, EmployeeUrl } from "../constant/FoodShoppingApiURL";
 
 export async function getEmployeeInfo(){
     return axios.get(EmployeeInfoUrl, {
@@ -37,7 +37,7 @@ export function getOrderDetail(orderID){
     });
 }
 // get all pending order
-export function getPendingOrders(pageNumber, type){
+export function getPendingOrders(pageNumber){
     return axios.get(`${EmployeePendingOrdersUrl}?page=${pageNumber}`, {
         withCredentials: true,
         headers:{
@@ -52,4 +52,21 @@ export function getPendingOrder(orderID){
             'Content-Type': 'application/json'
         }
     });
+}
+// notification
+export async function getEmployeeNotifications(pageNumber){
+    return axios.get(`${EmployeeNotificationsUrl}?page=${pageNumber}`, {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    })
+}
+export async function turnOffEmployeeNotification(data){
+    return axios.post(`${EmployeeNotificationsUrl}`, JSON.stringify(data), {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    })
 }

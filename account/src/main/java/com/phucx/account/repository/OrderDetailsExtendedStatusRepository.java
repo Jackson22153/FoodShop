@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import com.phucx.account.compositeKey.OrderDetailsExtendedID;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.model.OrderDetailsExtendedStatus;
+import java.util.List;
+
 
 @Repository
 public interface OrderDetailsExtendedStatusRepository extends JpaRepository<OrderDetailsExtendedStatus, OrderDetailsExtendedID>{
@@ -51,5 +53,9 @@ public interface OrderDetailsExtendedStatusRepository extends JpaRepository<Orde
         ORDER BY o.orderID DESC
             """)
     Page<OrderDetailsExtendedStatus> findAllByStatusOrderByDesc(OrderStatus status, Pageable pageable);
+
+    List<OrderDetailsExtendedStatus> findByOrderIDAndStatus(Integer orderID, OrderStatus status);
+
+    List<OrderDetailsExtendedStatus> findByOrderID(Integer orderID);
 
 }

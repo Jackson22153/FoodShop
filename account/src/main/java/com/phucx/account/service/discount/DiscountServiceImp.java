@@ -125,6 +125,7 @@ public class DiscountServiceImp implements DiscountService{
 
     @Override
     public Boolean validateDiscountsOfProduct(OrderItem product) throws InvalidDiscountException {
+        logger.info("validateDiscountsOfProduct({})", product);
         try {
             Integer productID = product.getProductID();
             for(OrderItemDiscount discount: product.getDiscounts()){

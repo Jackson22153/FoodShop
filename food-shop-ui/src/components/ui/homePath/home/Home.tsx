@@ -7,43 +7,35 @@ import FoodsComponent from "../foods/Foods";
 import ContactUsComponent from "../contact/ContactUs";
 import FoodComponent from "../food/Food";
 import CartComponent from "../cart/Cart";
-import { cartPath, categoriesPath, contactPath, foodsPath } from "../../../../constant/FoodShoppingURL";
-import { ChangeEventHandler, createContext, useEffect, useState } from "react";
-import { useCookies } from 'react-cookie';
+import { cartPath, categoriesPath, contactPath, foodsPath, orderPath } from "../../../../constant/FoodShoppingURL";
+import { ChangeEventHandler, useEffect, useState } from "react";
 import { getCategories } from "../../../../api/SearchApi";
 import { Category, Product } from "../../../../model/Type";
 import CategoriesComponent from "../categories/Categories";
 import CategoryComponent from "../category/Category";
+import { useCookies } from 'react-cookie'
 import { NumberOfCartProductsProvider } from "../../../contexts/NumberOfCartProductsContext";
-import { getNumberOfCartProducts } from "../../../../service/cookie";
 import { CategoriesProvider } from "../../../contexts/CategoriesContext";
 import { Modal } from "../../../../model/WebType";
-import { logout } from "../../../../api/AuthorizationApi";
+import OrderComponent from "../order/Order";
+import {getNumberOfCartProducts} from "../../../../service/cookie"
 
-export const isOpeningUserDropDownContext = createContext(false);
 function HomeComponent(){
-    const [cartCookie] = useCookies(['cart']);
+    const [cookies] = useCookies();
     const [categories, setCategories] = useState<Category[]>([]);
     const [searchInputValue, setSearchInputValue] = useState('');
     const [searchResult, setSearchResult] = useState<Product[]>([]);
     const [numberOfCartProducts, setNumberOfCartProducts] = useState(0);
+    const [isExpanded, setIsExpanded] = useState(false); 
     const [modal, setModal] = useState<Modal>({
         title: 'Confirm action',
         message: 'Do you want to continute?',
         isShowed: false
     })
-    
-    const [isOpeningUserDropDown, setIsOpeningUserDropDown] = useState<boolean>(false);
-
-
 
     useEffect(()=>{
         initial();
     }, []);
-
-    const handleIsOpeningUserDropDown = (status:boolean)=>{
-        setIsOpeningUserDropDown(status);
-    }
 
     const handleInputSearchChange : ChangeEventHandler<HTMLInputElement> = event =>{
         const value = event.target.value;
@@ -58,19 +50,23 @@ function HomeComponent(){
         // get categories
         fetchCategories();
         // get numberOfCartProducts
-        fetchedNumberOfCartProducts();
+        fetchNumberOfCartProducts();
     }
 
+    // expand navbar
+    const onClickExpandNavBar = (status:boolean)=>{
+        setIsExpanded(status)
+    }
 
-
-    const fetchedNumberOfCartProducts = ()=>{
-        const numberOfCartProducts = getNumberOfCartProducts(cartCookie.cart)
+    // get number of cart products
+    const fetchNumberOfCartProducts = ()=>{
+        const numberOfCartProducts = getNumberOfCartProducts(cookies.cart);
         setNumberOfCartProducts(numberOfCartProducts);
     }
 
     const fetchCategories = async ()=>{
         const res = await getCategories(0)
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
             setCategories(data.content);
         }
@@ -82,13 +78,10 @@ function HomeComponent(){
 
     return(
         <NumberOfCartProductsProvider value={{ numberOfCartProducts, setNumberOfCartProducts }}>
-            <isOpeningUserDropDownContext.Provider value={isOpeningUserDropDown}>
-                <HeaderComponent lstCategories={categories} searchInputValue={searchInputValue} 
-                    handleInputSearchChange={handleInputSearchChange} searchResult={searchResult}
-                    handleIsOpeningUserDropDown={handleIsOpeningUserDropDown}
-                    handleSearchResult={handleSearchResult} modal={modal}
-                    toggleModal={toggleModal}/>
-            </isOpeningUserDropDownContext.Provider>
+            <HeaderComponent lstCategories={categories} searchInputValue={searchInputValue} 
+                handleInputSearchChange={handleInputSearchChange} searchResult={searchResult}
+                handleSearchResult={handleSearchResult} modal={modal} toggleModal={toggleModal} 
+                isNavExpanded={isExpanded} handleIsNavExpanded={onClickExpandNavBar}/>
 
             <CategoriesProvider value={categories}>
                 <div id="home-body">
@@ -100,6 +93,7 @@ function HomeComponent(){
                         <Route path={contactPath} element={<ContactUsComponent/>}/>
                         <Route path={`${foodsPath}/:foodName`} element={<FoodComponent/>}/>
                         <Route path={cartPath} element={<CartComponent/>}/>
+                        <Route path={orderPath} element={<OrderComponent/>}/>
                     </Routes>
                 </div>
             </CategoriesProvider>

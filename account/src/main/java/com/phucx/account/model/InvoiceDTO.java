@@ -8,16 +8,20 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.phucx.account.constant.OrderStatus;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
 
 @Data @ToString
+@AllArgsConstructor
 public class InvoiceDTO {
     private Integer orderID;
 
     private List<ProductWithBriefDiscount> products;
 
     private String customerID;
+
+    private String employeeID;
     private String salesPerson;
 
     private String shipName;
@@ -36,20 +40,19 @@ public class InvoiceDTO {
     private BigDecimal totalPrice;
     private BigDecimal freight;
     private OrderStatus status;
-    
 
-
-    public InvoiceDTO(Integer orderID, String customerID, String salesPerson, String shipName, 
-        String shipAddress, String shipCity, LocalDateTime orderDate, LocalDateTime requiredDate,
-        LocalDateTime shippedDate, String shipperName, BigDecimal freight, OrderStatus status) {
-
+    public InvoiceDTO(Integer orderID, String customerID, String employeeID, String salesPerson, String shipName,
+            String shipAddress, String shipCity, String phone, LocalDateTime orderDate, LocalDateTime requiredDate,
+            LocalDateTime shippedDate, String shipperName, BigDecimal freight, OrderStatus status) {
         this();
         this.orderID = orderID;
         this.customerID = customerID;
+        this.employeeID = employeeID;
         this.salesPerson = salesPerson;
         this.shipName = shipName;
         this.shipAddress = shipAddress;
         this.shipCity = shipCity;
+        this.phone = phone;
         this.orderDate = orderDate;
         this.requiredDate = requiredDate;
         this.shippedDate = shippedDate;
@@ -57,30 +60,6 @@ public class InvoiceDTO {
         this.freight = freight;
         this.status = status;
     }
-
-
-
-    public InvoiceDTO(Integer orderID, List<ProductWithBriefDiscount> products, String customerID, 
-            String salesPerson, String shipName, String shipAddress, String shipCity,LocalDateTime orderDate, 
-            LocalDateTime requiredDate, LocalDateTime shippedDate, String shipperName, 
-            BigDecimal totalPrice, BigDecimal freight, OrderStatus status) {
-        this.orderID = orderID;
-        this.products = products;
-        this.customerID = customerID;
-        this.salesPerson = salesPerson;
-        this.shipName = shipName;
-        this.shipAddress = shipAddress;
-        this.shipCity = shipCity;
-        this.orderDate = orderDate;
-        this.requiredDate = requiredDate;
-        this.shippedDate = shippedDate;
-        this.shipperName = shipperName;
-        this.totalPrice = totalPrice;
-        this.freight = freight;
-        this.status = status;
-    }
-
-
 
     public InvoiceDTO() {
         this.products = new ArrayList<>();

@@ -14,8 +14,10 @@ public interface UserService {
     public User getUserByID(String userID);
 
     public boolean resetPassword(String userID);
+    
+    public boolean assignUserRoles(UserInfo user);
 
-    // public boolean createUser(User user);
+    public UserInfo getUserAuthenticationInfo(String userID);
 
     public UserInfo getUserInfo(String userID);   
     

@@ -16,7 +16,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     protected ResponseEntity<String> notFoundExceptionHandler(NotFoundException exception){
         log.warn(exception.getMessage());
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(InsufficientResourcesException.class)

@@ -23,11 +23,12 @@ public class SearchController {
 
     @GetMapping("products")
     public ResponseEntity<Page<CurrentProductList>> searchProductsByName(
-        @RequestParam(name = "l") String letters
+        @RequestParam(name = "l") String letters,
+        @RequestParam(name = "page", required = false) Integer pageNumber
     ) {
         if(letters.length()>2){
-            var productsPageable = productService.searchCurrentProducts(
-                letters, 0, WebConfig.PAGE_SIZE);
+            pageNumber = pageNumber!=null?pageNumber:0;
+            var productsPageable = productService.searchCurrentProducts(letters, pageNumber, WebConfig.PAGE_SIZE);
 
             return ResponseEntity.ok().body(productsPageable);
         }

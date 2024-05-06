@@ -15,17 +15,27 @@ public class OrderDetailsDTO {
     private List<ProductDTO> products;
     private BigDecimal totalPrice;
     private OrderStatus status;
+    private String employeeID;
+    private String customerID;
+    private String contactName;
+    private String picture;
 
-    public OrderDetailsDTO(Integer orderID, BigDecimal totalPrice, OrderStatus status) {
-        this.products = new ArrayList<>();
+    public OrderDetailsDTO(Integer orderID, BigDecimal totalPrice, String customerID, String contactName, String picture, OrderStatus status) {
+        this();
         this.orderID = orderID;
         this.totalPrice = totalPrice;
+        this.customerID = customerID;
+        this.contactName = contactName;
+        this.picture = picture;
         this.status = status;
     }
-    public OrderDetailsDTO(Integer orderID, List<ProductDTO> products, BigDecimal totalPrice, OrderStatus status) {
+    public OrderDetailsDTO(Integer orderID, List<ProductDTO> products, BigDecimal totalPrice, String customerID, String contactName, String picture, OrderStatus status) {
         this.orderID = orderID;
         this.products = products;
         this.totalPrice = totalPrice;
+        this.customerID = customerID;
+        this.contactName = contactName;
+        this.picture = picture;
         this.status = status;
     }
     public OrderDetailsDTO() {

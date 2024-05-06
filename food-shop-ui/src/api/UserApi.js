@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CustomerInfoUrl, CustomerOrdersUrl } from "../constant/FoodShoppingApiURL";
+import { CustomerInfoUrl, CustomerOrdersUrl, CustomerNotificationsUrl } from "../constant/FoodShoppingApiURL";
 
 export async function updateUserInfo(userInfo){
     return axios.post(CustomerInfoUrl, JSON.stringify(userInfo), {
@@ -30,6 +30,23 @@ export async function getCustomerInvoice(orderID){
 
 export async function getCustomerInfo(){
     return axios.get(CustomerInfoUrl, {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    })
+}
+// notifications
+export async function getCustomerNotifications(pageNumber){
+    return axios.get(`${CustomerNotificationsUrl}?page=${pageNumber}`, {
+        withCredentials: true,
+        headers:{
+            "Content-Type": 'application/json',
+        }
+    })
+}
+export async function turnOffCustomerNotification(data){
+    return axios.post(`${CustomerNotificationsUrl}`, JSON.stringify(data), {
         withCredentials: true,
         headers:{
             "Content-Type": 'application/json',

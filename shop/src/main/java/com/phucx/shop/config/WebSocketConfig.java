@@ -31,8 +31,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
     @Value("${spring.rabbitmq.password}")
     private String mqPass;
 
-    public static final String QUEUE_CART = "/queue/cart";
-
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/chat").setAllowedOrigins("http://localhost:5173").withSockJS();

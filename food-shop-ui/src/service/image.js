@@ -22,6 +22,8 @@ import client from '../assets/images/client.png';
 import defaultImage from '../assets/images/defaultImage.png';
 import defaultUserImage from '../assets/images/defaultUser.jpg'
 
+import errorImage from '../assets/images/error.png'
+
 
 export function getDefaulImage(){
     return defaultImage;
@@ -48,6 +50,10 @@ export function getCardCategory(categoryName){
         case 'cardItem2': return cardItem2;
         case 'cardItem3': return cardItem3;
     }
+}
+// error
+export function getError(){
+    return errorImage;
 }
 // food 
 export function getFood(foodName){

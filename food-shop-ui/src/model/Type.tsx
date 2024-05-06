@@ -131,7 +131,7 @@ export type CustomerUserInfo={
     customerID: string,
     contactName: string,
     picture: string,
-    userInfo:UserRoles
+    userInfo:UserInfo
 }
 export type CustomerAccount = {
     userID: string,
@@ -157,6 +157,21 @@ export type Pageable = {
     totalPages: number
 
 }
+// notification
+export type Notification = {
+    notificationID: string,
+    title: string,
+    message: string,
+    senderID: string,
+    receiverID: string,
+    topic: {
+        topicName: string
+    },
+    status: string,
+    active: boolean,
+    isShowed: boolean,
+}
+// order
 export type Order = {
     orderID: string,
     products: OrderProduct[],
@@ -219,6 +234,18 @@ export type OrderItem = {
     extendedPrice: number,
     discounts: DiscountInfo[]
 }
+export type OrderDetail = {
+    orderID: number,
+    customerID: string,
+    contactName: string,
+    picture: string,
+    status: string,
+    totalPrice: number
+    products: ProductWithDiscount[]
+    freight: number,
+}
+
+// discount
 export type DiscountInfo = {
     discountID: string,
     discountPercent: number,
@@ -268,7 +295,7 @@ export type EmployeeDetail = {
     description: string,
     photo: string,
     notes: string,
-    userInfo: UserRoles
+    userInfo: UserInfo
 }
 export type UserRole = {
     userID: string,
@@ -276,7 +303,7 @@ export type UserRole = {
     email: string,
     roleName: string
 }
-export type UserRoles = {
+export type UserInfo = {
     user: User,
     roles: Role[]
 }
@@ -285,11 +312,11 @@ export type User = {
     username: string,
     email: string,
 }
-export type UserInfo = {
-    userID: string,
-    username: string,
-    isAuthenticated: boolean
-}
+// export type UserInfo = {
+//     userID: string,
+//     username: string,
+//     isAuthenticated: boolean
+// }
 
 export type Role = {
     roleID: number,

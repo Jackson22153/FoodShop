@@ -31,9 +31,9 @@ export async function getCategoryByID(categoryID){
 
 // products
 // get
-export async function searchProducts(productName){
+export async function searchProducts(productName, page){
     const url = SearchProductsUrl;
-    return axios.get(`${url}?l=${productName}`,{
+    return axios.get(`${url}?l=${productName}&page=${page}`,{
         'Content-Type': 'application/json'
     });
 }

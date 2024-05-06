@@ -1,4 +1,4 @@
-import { ChangeEventHandler, FormEventHandler, MouseEventHandler } from "react";
+import { ChangeEventHandler, FormEventHandler, MouseEventHandler, useState } from "react";
 import { onUserInput } from "../../../../service/search";
 import { Product } from "../../../../model/Type";
 import { FoodPath, SearchFoodsPath } from "../../../../constant/FoodShoppingURL";
@@ -14,7 +14,7 @@ interface Props{
 }
 export default function Search(prop: Props){
     // const searchDropdownRef = useRef(null);
-
+    const [isShowed, setIsShowed] = useState(false);
     const searchInputValue = prop.searchInputValue;
     const searchResult = prop.searchResult;
 
@@ -40,8 +40,8 @@ export default function Search(prop: Props){
     }
     // fetch products
     const fetchProducts = async (userInput: string)=>{
-        const res = await searchProducts(userInput)
-        if(res.status===200){
+        const res = await searchProducts(userInput, 0)
+        if(res.status){
             const data = res.data;
             handleSearchResult(data.content);
             // return data;
@@ -56,16 +56,20 @@ export default function Search(prop: Props){
         }
     }
 
+    const onFocus = ()=>{
+        setIsShowed(true);
+    }
+
     return(
-        <div className="input-group rounded search-container">
-            <input type="search" className="form-control rounded searchbar" placeholder="Search" 
+        <div className="input-group rounded search-container dropdown">
+            <input type="search" className="form-control rounded searchbar dropdown-toggle" placeholder="Search" 
                 aria-label="Search" aria-describedby="search-addon" value={searchInputValue}
-                onChange={handleInputChange} onKeyUp={onKeyUpSearch}/>
-            <ul className="search-dropdown">
-                {searchResult.length>0 && searchResult.map((product) =>(
-                    <li className="search-item" key={product.productID}>
+                onChange={handleInputChange} onKeyUp={onKeyUpSearch} onFocus={onFocus}/>
+            <ul className={`dropdown-menu search-dropdown ${isShowed?'show': ''} ${searchResult.length===0?'p-0': ''}`}>
+                {searchResult.map((product) =>(
+                    <li className="dropdown-item" key={product.productID}>
                         <a href={FoodPath(product.productName, product.productID)} 
-                            className="search-link">{product.productName}</a>
+                            className="dropdown-link">{product.productName}</a>
                     </li>
                 ))}
             </ul>

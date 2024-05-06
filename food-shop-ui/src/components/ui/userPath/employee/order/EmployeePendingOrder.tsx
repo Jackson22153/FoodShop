@@ -1,32 +1,60 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
 import { OrderWithProduct } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/image";
 import { getPendingOrder } from "../../../../../api/EmployeeApi";
 import dayjs from "dayjs";
+import stompClientsContext from "../../../../contexts/StompClientsContext";
+import { CancelOrderWsUrl, ConfirmOrderWsUrl, QUEUE_MESSAGES } from "../../../../../constant/FoodShoppingApiURL";
+import { employeeOrder } from "../../../../../constant/FoodShoppingURL";
 
 export default function EmployeePendingOrderComponent(){
     const { orderId } = useParams();
     const [orderInfo, setOrderInfo] = useState<OrderWithProduct>();
+    const {stompClientAccount} = useContext(stompClientsContext)
 
     useEffect(()=>{
-        fetchOrder()
+        fetchOrder();
+        onEmployeeConnect();
     }, [])
 
-    const fetchOrder = async ()=>{
-        const res = await getPendingOrder(orderId);
-        if(res.status===200){
-            const data = res.data;
-            console.log(data);
-            setOrderInfo(data);
+    const onEmployeeConnect = ()=>{
+        if(stompClientAccount.current){
+            // console.log(stompClientAccount.current)
+            stompClientAccount.current.subscribe(QUEUE_MESSAGES, onMessageRecieveSuccessfully, onMessageRecieveError)
         }
     }
 
-    const onClickConfirmButton = ()=>{
-
+    const onMessageRecieveSuccessfully = (payload: any)=>{
+        const message = JSON.parse(payload.body);
+        console.log(message)
     }
-    const onClickCancelButton = ()=>{
 
+    const onMessageRecieveError = ()=>{
+        stompClientAccount.current.deactive();
+    }
+
+    const fetchOrder = async ()=>{
+        const res = await getPendingOrder(orderId);
+        if(res.status){
+            const data = res.data;
+            // console.log(data);
+            setOrderInfo(data);
+        }
+    }
+    // confirm 
+    const onClickConfirmButton = ()=>{
+        if(stompClientAccount.current && orderInfo){
+            stompClientAccount.current.send(ConfirmOrderWsUrl, {}, JSON.stringify(orderInfo));
+            window.location.href=employeeOrder;
+        }
+    }
+    // cancel
+    const onClickCancelButton = ()=>{
+        if(stompClientAccount.current && orderInfo){
+            stompClientAccount.current.send(CancelOrderWsUrl, {}, JSON.stringify(orderInfo));
+            window.location.href=employeeOrder;
+        }
     }
 
     return(
@@ -146,14 +174,14 @@ export default function EmployeePendingOrderComponent(){
                                 <b>#{orderInfo.orderID}</b>
                             </div>
                             <div>{orderInfo.orderDate}</div>
-                            <div>Status: {orderInfo.status}</div>
+                            <div>Status: <b>{orderInfo.status}</b></div>
                             <div>
-                                Total: <b> ${orderInfo.totalPrice}</b>
+                                Total: <b> ${orderInfo.totalPrice + orderInfo.freight}</b>
                             </div>
                         </div>
                         <div className="d-flex justify-content-end">
-                            <button className="btn mx-1 btn-primary" onClick={onClickCancelButton}>Cancel</button>
-                            <button className="btn mx-1 btn-primary" onClick={onClickConfirmButton}>Confirm</button>
+                            <button className="btn mx-3 btn-primary" onClick={onClickCancelButton}>Cancel</button>
+                            <button className="btn btn-primary" onClick={onClickConfirmButton}>Confirm</button>
                         </div>
                     </div>
                 </div>

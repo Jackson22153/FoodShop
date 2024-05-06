@@ -1,13 +1,15 @@
 package com.phucx.account.service.messageQueue.sender;
 
-import com.phucx.account.model.NotificationMessage;
+import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderWithProducts;
 
 public interface MessageSender {
-    // public void send(String exchange, String routingKey, UserOrderProducts userOrderProducts);
-    public void send(String exchange, String routingKey, OrderWithProducts order);
+    // send message to message queues
+    public void sendNotification(Notification notification);
 
-    public NotificationMessage sendAndReceiveOrder(String exchange, String routingKey, OrderWithProducts order);
+    public void sendEmployeeNotificationOrderToTopic(Notification notification);
 
-    public void sendMessageToUser(String userID, NotificationMessage notificationMessage);
+    public Notification sendAndReceiveOrder(OrderWithProducts order);
+
+    public void sendMessageToUser(String userID, Notification notificationMessage);
 }

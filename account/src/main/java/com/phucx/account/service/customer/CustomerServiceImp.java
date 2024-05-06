@@ -12,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.phucx.account.constant.NotificationStatus;
+import com.phucx.account.constant.NotificationTopic;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.exception.InvalidOrderException;
@@ -20,16 +22,19 @@ import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.CustomerDetailDTO;
 import com.phucx.account.model.Customer;
 import com.phucx.account.model.InvoiceDTO;
+import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderItem;
 import com.phucx.account.model.OrderItemDiscount;
 import com.phucx.account.model.OrderWithProducts;
+import com.phucx.account.model.Topic;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.model.Order;
 import com.phucx.account.repository.CustomerAccountRepository;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.repository.CustomerRepository;
 import com.phucx.account.service.github.GithubService;
+import com.phucx.account.service.notification.NotificationService;
 import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.user.UserService;
 
@@ -43,6 +48,8 @@ public class CustomerServiceImp implements CustomerService {
     private CustomerRepository customerRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private NotificationService notificationService;
     @Autowired
     private GithubService githubService;
     @Autowired
@@ -116,8 +123,8 @@ public class CustomerServiceImp implements CustomerService {
 	}
     @Override
     public OrderWithProducts placeOrder(OrderWithProducts order) 
-        throws InvalidDiscountException, NotFoundException, RuntimeException, SQLException, InvalidOrderException 
-    {
+    throws InvalidDiscountException, InvalidOrderException, NotFoundException, SQLException, RuntimeException{
+        logger.info("placeOrder({})", order);
         if(order.getCustomerID()!=null){
             LocalDateTime currenDateTime = LocalDateTime.now();
             order.setOrderDate(currenDateTime);
@@ -128,7 +135,6 @@ public class CustomerServiceImp implements CustomerService {
                 }
             }
 
-
             // validate order
             boolean isValidOrder = orderService.validateOrder(order);
             if(!isValidOrder) throw new InvalidOrderException("Order is not valid");
@@ -138,6 +144,31 @@ public class CustomerServiceImp implements CustomerService {
             return order;
         }
         throw new NotFoundException("Customer is not found");
+    }
+    @Override
+    public Notification receiveOrder(OrderWithProducts order) {
+        logger.info("receiveOrder(orderID={})", order.getOrderID());
+        
+        OrderDetailsDTO orderDetailsDTO = orderService.getOrder(order.getOrderID(), OrderStatus.Shipping);
+        Boolean status = orderService.updateOrderStatus(orderDetailsDTO.getOrderID(), OrderStatus.Successful);
+        // notification
+        Notification notification = new Notification();
+        notification.setTitle("Receive Order");
+        notification.setTopic(new Topic(NotificationTopic.Order.name()));
+        logger.info("status: {}", status);
+        if(status){
+            logger.info("ssnotification: {}", notification);
+            notification.setMessage("Order #" + orderDetailsDTO.getOrderID() + " is received successully by customer " + orderDetailsDTO.getCustomerID());
+            notification.setStatus(NotificationStatus.SUCCESSFUL.name());
+            notification.setReceiverID(userService.getUserIdOfEmployeeID(orderDetailsDTO.getEmployeeID()));
+            logger.info("ssnotification: {}", notification);
+        }else {
+            notification.setMessage("Order #" + orderDetailsDTO.getOrderID() + " can not received by customer " + orderDetailsDTO.getCustomerID());
+            notification.setStatus(NotificationStatus.ERROR.name());
+            notification.setReceiverID(userService.getUserIdOfEmployeeID(orderDetailsDTO.getEmployeeID()));
+        }
+        logger.info("notification: {}", notification);
+        return notification;
     }
     
     @Override
@@ -201,5 +232,16 @@ public class CustomerServiceImp implements CustomerService {
         CustomerDetailDTO customerDetail = new CustomerDetailDTO(
             customer.getCustomerID(), customer.getContactName(), customer.getPicture(), user);
         return customerDetail;
+    }
+    @Override
+    public Page<Notification> getNotifications(String userID, int pageNumber, int pageSize) {
+        return notificationService.getNotificationsByReceiverID(userID, pageNumber, pageSize);
+    }
+    @Override
+    public Boolean turnOffNotification(String notificationID, String userID) {
+        Notification notification = notificationService
+            .getNotificationByUserIDAndNotificationID(userID, notificationID);
+        return notificationService.updateNotificationActive(
+            notification.getNotificationID(), false);
     }
 }

@@ -14,9 +14,9 @@ export default function UserOrderComponent(){
 
     const fetchedInvoice = async ()=>{
         const res = await getCustomerInvoice(orderId);
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
-            // console.log(data);
+            console.log(data);
             setOrderInfo(data);
         }
     }
