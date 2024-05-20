@@ -1,6 +1,8 @@
 
 import axios from "axios";
-import { EmployeeInfoUrl, EmployeeNotificationsUrl, EmployeeOrdersUrl, EmployeePendingOrdersUrl, EmployeeUrl, IsEmployeeUrl } from "../constant/FoodShoppingApiURL";
+import { EmployeeInfoUrl, EmployeeNotificationsUrl, EmployeeOrdersUrl, 
+    EmployeePendingOrdersUrl, IsEmployeeUrl 
+} from "../constant/FoodShoppingApiURL";
 
 export function isEmployee(){
     return axios.get(IsEmployeeUrl,{
@@ -14,7 +16,7 @@ export async function getEmployeeInfo(){
     return axios.get(EmployeeInfoUrl, {
         withCredentials: true,
         headers:{
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
     })
 }
@@ -22,7 +24,7 @@ export function updateEmployeeInfo(employeeInfo){
     return axios.post(EmployeeInfoUrl, JSON.stringify(employeeInfo), {
         withCredentials: true,
         headers:{
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
     })
 }
@@ -31,7 +33,7 @@ export function getOrders(pageNumber, type){
     return axios.get(`${EmployeeOrdersUrl}?page=${pageNumber}&type=${type}`, {
         withCredentials: true,
         headers:{
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
     });
 }
@@ -40,7 +42,7 @@ export function getOrderDetail(orderID){
     return axios.get(`${EmployeeOrdersUrl}/${orderID}`, {
         withCredentials: true,
         headers:{
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
     });
 }
@@ -49,7 +51,7 @@ export function getPendingOrders(pageNumber){
     return axios.get(`${EmployeePendingOrdersUrl}?page=${pageNumber}`, {
         withCredentials: true,
         headers:{
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
     });
 }
@@ -57,7 +59,7 @@ export function getPendingOrder(orderID){
     return axios.get(`${EmployeePendingOrdersUrl}/${orderID}`, {
         withCredentials: true,
         headers:{
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
     });
 }

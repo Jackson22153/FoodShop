@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getCustomerOrders } from "../../../../../api/UserApi";
 import { OrderDetail, Pageable } from "../../../../../model/Type";
 import { ORDER_STATUS } from "../../../../../constant/config";
@@ -6,16 +6,16 @@ import PaginationSection from "../../../../shared/website/sections/paginationSec
 import { getPageNumber } from "../../../../../service/pageable";
 import { customerOrder } from "../../../../../constant/FoodShoppingURL";
 import { displayProductImage } from "../../../../../service/image";
-import stompClientsContext from "../../../../contexts/StompClientsContext";
 import { AccountWSUrl, QUEUE_MESSAGES, ReceiveOrderWsUrl } from "../../../../../constant/FoodShoppingApiURL";
-import { Stomp } from "@stomp/stompjs";
+import { CompatClient, Stomp } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import { getAccessToken } from "../../../../../service/cookie";
 
 export default function UserOrdersComponent(){
     const [listOrders, setListOrders] = useState<OrderDetail[]>([])
     const navHeaderRef = useRef(null)
     const [selectedTagOrder, setSelectedTagOrder] = useState(0)
-    const {stompClientAccount} = useContext(stompClientsContext);
+    const stompClientAccount = useRef<CompatClient | null>(null);
     const [page, setPage] = useState<Pageable>({
         first: true,
         last: true,
@@ -32,6 +32,7 @@ export default function UserOrdersComponent(){
         fetchOrders(pageNumber, ORDER_STATUS.PENDING);
         connectCustomer();
     }
+    
 
     async function fetchOrders(pageNumber: number, type:string){
         const res = await getCustomerOrders(pageNumber, type)
@@ -97,11 +98,16 @@ export default function UserOrdersComponent(){
     // stomp
     const connectCustomer = ()=>{
         stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
-        stompClientAccount.current.connect({}, onShopConnectEmployee, stompFailureCallback);
+        stompClientAccount.current.connect({
+            "Authorization": `Bearer ${getAccessToken()}`,
+        }, onShopConnectEmployee, stompFailureCallback);
     }
     const onShopConnectEmployee = ()=>{
         if(stompClientAccount.current){
-            stompClientAccount.current.subscribe(QUEUE_MESSAGES, onMessageRecieveSuccessfully, onMessageRecieveError)
+            stompClientAccount.current.subscribe(QUEUE_MESSAGES, onMessageRecieveSuccessfully, {
+                "Authorization": `Bearer ${getAccessToken()}`,
+                "auto-delete": "true"
+            })
         }
     }
 
@@ -110,14 +116,10 @@ export default function UserOrdersComponent(){
         console.log(message)
     }
 
-    const onMessageRecieveError = ()=>{
-        if(stompClientAccount.current){
-            stompClientAccount.current.deactive();
-        }
-    }
     function stompFailureCallback(_error: any){
         if(stompClientAccount.current){
-            stompClientAccount.current.deactive();
+            console.log(_error)
+            stompClientAccount.current.deactivate;
         }
     }
 

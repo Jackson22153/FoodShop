@@ -25,14 +25,25 @@ export default function CategoriesComponent(){
                         the majority have
                     </p>
 
-                    {categories.map((category)=>(
+                    <ul className="category-detail-boxes-ul">
+                        {categories.map((category)=>(
+                            <li className="row layout_padding2 border-bottom category-detail-box-li" key={category.categoryName}>
+                                <CategoriesDetailbox categoryTitle={category.categoryName}
+                                    categoryDetail={category.description}
+                                    categoryImageSrc={category.picture}
+                                />
+                            </li>
+                        ))}
+                    </ul>
+
+                    {/* {categories.map((category)=>(
                         <div className="row layout_padding2" key={category.categoryName}>
                             <CategoriesDetailbox categoryTitle={category.categoryName}
                                 categoryDetail={category.description}
                                 categoryImageSrc={category.picture}
                             />
                         </div>
-                    ))}
+                    ))} */}
 
                 </div>
             </section>

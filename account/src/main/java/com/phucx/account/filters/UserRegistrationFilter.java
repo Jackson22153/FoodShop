@@ -18,6 +18,7 @@ import jakarta.servlet.GenericFilter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class UserRegistrationFilter extends GenericFilter {
@@ -27,6 +28,12 @@ public class UserRegistrationFilter extends GenericFilter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
             throws IOException, ServletException {
         logger.info("UserRegistrationFilter");
+        
+        if(request instanceof HttpServletRequest){
+            HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+            logger.info(httpServletRequest.getRequestURL().toString());
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication!=null){
             if(authentication.getPrincipal() instanceof Jwt){

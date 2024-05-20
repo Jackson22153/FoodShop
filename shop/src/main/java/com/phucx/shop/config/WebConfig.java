@@ -41,7 +41,9 @@ public class WebConfig {
         http.authorizeHttpRequests(request -> request
             .requestMatchers("/home/**").permitAll()
             .requestMatchers("/search/**").permitAll()
+            .requestMatchers("/chat/**").permitAll()
             .requestMatchers("/actuator/**").permitAll()
+            .requestMatchers("/cart/**").hasRole("CUSTOMER")
             .anyRequest().authenticated());
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt
             .jwtAuthenticationConverter(jwtAuthenticationConverter)));

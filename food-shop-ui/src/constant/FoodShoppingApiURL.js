@@ -18,8 +18,8 @@ const TopicWsPrefix = '/topic';
 const QueueWs = `/queue`
 
 // gateway
-export const LoginUrl = `${URL}/loginBE`;
-export const LogoutUrl = `${URL}/logout`;
+export const LoginUrl = `${URL}/login`;
+export const LogoutUrl = `${URL}/logoutBE`;
 export const UsernameUrl = `${URL}/user`;
 export const IsAuthenticatedUrl = `${URL}/isAuthenticated`;
 // product

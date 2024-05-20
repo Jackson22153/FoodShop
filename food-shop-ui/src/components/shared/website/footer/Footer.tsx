@@ -1,12 +1,6 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
-import { faTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faLinkedin } from "@fortawesome/free-brands-svg-icons";
 import { getIcon } from "../../../../service/image";
-interface Props{
 
-}
-export default function FooterComponent(prop: Props){
+export default function FooterComponent(){
 
     const fbIcon = getIcon('facebook');
     const twitterIcon = getIcon('twitter');

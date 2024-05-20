@@ -9,8 +9,6 @@ import com.phucx.account.model.Product;
 import com.phucx.account.model.ProductDetails;
 import com.phucx.account.repository.ProductDetailsRepository;
 import com.phucx.account.repository.ProductRepository;
-import com.phucx.account.service.github.GithubService;
-
 import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +20,6 @@ public class ProductServiceImp implements ProductService{
     private ProductDetailsRepository productDetailsRepository;
     @Autowired
     private ProductRepository productRepository;
-    @Autowired
-    private GithubService githubService;
 
     @Override
     public boolean updateProductDetails(ProductDetails productDetails) {  

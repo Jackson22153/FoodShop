@@ -29,7 +29,6 @@ import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.EmployeeAccountRepository;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.repository.EmployeeRepository;
-import com.phucx.account.service.github.GithubService;
 import com.phucx.account.service.messageQueue.sender.MessageSender;
 import com.phucx.account.service.notification.NotificationService;
 import com.phucx.account.service.order.OrderService;
@@ -42,8 +41,6 @@ import lombok.extern.slf4j.Slf4j;
 public class EmployeeServiceImp implements EmployeeService {
     @Autowired
     private NotificationService notificationService;
-    @Autowired
-    private GithubService githubService;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired

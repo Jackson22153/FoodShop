@@ -11,6 +11,7 @@ import { AccountWSUrl, QUEUE_MESSAGES, PlaceOrderWsUrl } from "../../../../const
 import { Notification } from "../../../../model/Type";
 import { ALERT_TYPE, NOTIFICATION_TYPE } from "../../../../constant/config";
 import { isCustomer } from "../../../../api/UserApi";
+import { getAccessToken } from "../../../../service/cookie";
 
 export default function OrderComponent(){
     const [orderInfo, setOrderInfo] = useState<OrderInfo>();
@@ -98,14 +99,17 @@ export default function OrderComponent(){
     // connect to order
     const connectCustomer = ()=>{
         stompClient.current = Stomp.over(()=> new SockJS(AccountWSUrl));
-        stompClient.current.connect({}, onShopConnectCustomer, stompFailureCallback);
+        stompClient.current.connect({
+            "Authorization": `Bearer ${getAccessToken()}`
+        }, onShopConnectCustomer, stompFailureCallback);
     }
 
     function onShopConnectCustomer() {
         if(stompClient.current){
             console.log('Connected');
             stompClient.current.subscribe(QUEUE_MESSAGES, onPrivateAccountOrderMessageReceived, {
-              'auto-delete': 'true'
+                "Authorization": `Bearer ${getAccessToken()}`,
+                'auto-delete': 'true'
             });
             stompClient.current.reconnect_delay=1000
         }
@@ -124,14 +128,16 @@ export default function OrderComponent(){
     }
 
     // failure callback
-    var stompFailureCallback = function (_error: any) {
-        // console.log('STOMP: ' + error);
+    var stompFailureCallback = function (error: any) {
+        console.log('STOMP: ' + error);
     };
 
     // send order message to employee
     const sendMessagePlaceOrder = (order: any)=>{
         if(stompClient.current && order){
-            stompClient.current.send(PlaceOrderWsUrl, {}, JSON.stringify(order))
+            stompClient.current.send(PlaceOrderWsUrl, {
+                "Authorization": `Bearer ${getAccessToken()}`,
+            }, JSON.stringify(order))
         }
     }
 

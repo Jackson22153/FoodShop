@@ -1,5 +1,8 @@
 import axios from "axios";
-import { CategoryAdminUrl, CustomersAdminUrl, DiscountAdminUrl, DiscountTypeAdminUrl, DiscountsByProductAdminUrl, EmployeesAdminUrl, IsAdminUrl, ProductAdminUrl, ResetPasswordAdminUrl, RolesAdminUrl, RolesEmployeeAdminUrl, UsersAdminUrl, UsersRolesAdminUrl } from "../constant/FoodShoppingApiURL";
+import { CategoryAdminUrl, CustomersAdminUrl, DiscountAdminUrl, DiscountTypeAdminUrl, 
+    DiscountsByProductAdminUrl, EmployeesAdminUrl, IsAdminUrl, ProductAdminUrl, 
+    ResetPasswordAdminUrl, RolesEmployeeAdminUrl, UsersAdminUrl, UsersRolesAdminUrl 
+} from "../constant/FoodShoppingApiURL";
 
 export function isAdmin(){
     return axios.get(IsAdminUrl,{

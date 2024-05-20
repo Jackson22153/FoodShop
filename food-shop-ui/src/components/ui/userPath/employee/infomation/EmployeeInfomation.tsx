@@ -141,7 +141,7 @@ export default function EmployeeInfomationComponent(){
             {employeeInfo && employeeInfoAlter &&
                 <div className="row">
                     <div className="col-md-4">
-                        <UserImageChangeInput imageSrc={employeeInfoAlter.photo} disable={!editable} 
+                        <UserImageChangeInput imageSrc={employeeInfoAlter.photo} disable={editable} 
                             onChangePicture={onChangePicture}/>
                     </div>
                     <div className="col-md 6">

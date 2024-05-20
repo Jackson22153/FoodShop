@@ -1,10 +1,6 @@
 import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Customer } from "../../../../../model/Type";
 
-interface Props{
-    lstCustomers: Customer[]
-}
 export default function ClientSection(){
     return(
         <section className="client_section layout_padding">

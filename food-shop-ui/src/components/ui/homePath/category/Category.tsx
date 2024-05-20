@@ -5,6 +5,8 @@ import { CurrentProduct, Pageable } from "../../../../model/Type";
 import PaginationSection from "../../../shared/website/sections/paginationSection/PaginationSection";
 import { getPageNumber } from "../../../../service/pageable";
 import FoodCardDeck from "../../../shared/functions/foodCardDeck/FoodCardDeck";
+import { PathProvider } from "../../../contexts/PathContext";
+import { foodsPath } from "../../../../constant/FoodShoppingURL";
 
 export default function CategoryComponent(){
     const {categoryName} = useParams();
@@ -49,7 +51,9 @@ export default function CategoryComponent(){
                     the majority have
                 </p>
                 <div className="py-4">
-                    <FoodCardDeck foods={products}/>
+                    <PathProvider value={foodsPath}>
+                        <FoodCardDeck foods={products}/>
+                    </PathProvider>
                 </div>
                 {/* pagination section */}
                 <PaginationSection pageable={pageable}/>

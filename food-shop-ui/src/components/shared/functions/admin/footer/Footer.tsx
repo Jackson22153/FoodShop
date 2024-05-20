@@ -1,7 +1,5 @@
-interface Props{
 
-}
-export default function FooterComponent(prop: Props){
+export default function FooterComponent(){
     return(
         <footer className="sticky-footer bg-white">
             <div className="container my-auto">

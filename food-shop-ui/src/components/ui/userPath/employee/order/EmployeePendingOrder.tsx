@@ -1,37 +1,51 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom"
 import { OrderWithProduct } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/image";
 import { getPendingOrder } from "../../../../../api/EmployeeApi";
 import dayjs from "dayjs";
-import stompClientsContext from "../../../../contexts/StompClientsContext";
-import { CancelOrderWsUrl, ConfirmOrderWsUrl, QUEUE_MESSAGES } from "../../../../../constant/FoodShoppingApiURL";
+import { AccountWSUrl, CancelOrderWsUrl, ConfirmOrderWsUrl, QUEUE_MESSAGES } from "../../../../../constant/FoodShoppingApiURL";
 import { employeeOrder } from "../../../../../constant/FoodShoppingURL";
+import { CompatClient, Stomp } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+import { getAccessToken } from "../../../../../service/cookie";
 
 export default function EmployeePendingOrderComponent(){
     const { orderId } = useParams();
     const [orderInfo, setOrderInfo] = useState<OrderWithProduct>();
-    const {stompClientAccount} = useContext(stompClientsContext)
+    const stompClientAccount = useRef<CompatClient | null>(null);
 
     useEffect(()=>{
         fetchOrder();
-        onEmployeeConnect();
+        connectEmployee();
     }, [])
 
-    const onEmployeeConnect = ()=>{
+    const connectEmployee = ()=>{
+        stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
+        stompClientAccount.current.connect({
+            "Authorization": `Bearer ${getAccessToken()}`,
+        }, onShopConnectEmployee, stompFailureCallback);
+    }
+
+    function stompFailureCallback(error: any){
+        if(stompClientAccount.current){
+            console.error(error)
+        }
+    }
+
+    const onShopConnectEmployee = ()=>{
         if(stompClientAccount.current){
             // console.log(stompClientAccount.current)
-            stompClientAccount.current.subscribe(QUEUE_MESSAGES, onMessageRecieveSuccessfully, onMessageRecieveError)
+            stompClientAccount.current.subscribe(QUEUE_MESSAGES, onMessageRecieveSuccessfully, {
+                "Authorization": `Bearer ${getAccessToken()}`,
+                'auto-delete': 'true'
+            })
         }
     }
 
     const onMessageRecieveSuccessfully = (payload: any)=>{
         const message = JSON.parse(payload.body);
         console.log(message)
-    }
-
-    const onMessageRecieveError = ()=>{
-        stompClientAccount.current.deactive();
     }
 
     const fetchOrder = async ()=>{
@@ -45,14 +59,18 @@ export default function EmployeePendingOrderComponent(){
     // confirm 
     const onClickConfirmButton = ()=>{
         if(stompClientAccount.current && orderInfo){
-            stompClientAccount.current.send(ConfirmOrderWsUrl, {}, JSON.stringify(orderInfo));
+            stompClientAccount.current.send(ConfirmOrderWsUrl, {
+                "Authorization": `Bearer ${getAccessToken()}`,
+            }, JSON.stringify(orderInfo));
             window.location.href=employeeOrder;
         }
     }
     // cancel
     const onClickCancelButton = ()=>{
         if(stompClientAccount.current && orderInfo){
-            stompClientAccount.current.send(CancelOrderWsUrl, {}, JSON.stringify(orderInfo));
+            stompClientAccount.current.send(CancelOrderWsUrl, {
+                "Authorization": `Bearer ${getAccessToken()}`,
+            }, JSON.stringify(orderInfo));
             window.location.href=employeeOrder;
         }
     }

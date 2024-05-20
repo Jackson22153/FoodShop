@@ -118,7 +118,7 @@ export default function UserInfomationComponent(){
             {customerInfo &&
                 <div className="row">
                     <div className="col-md-4">
-                        <UserImageChangeInput imageSrc={customerInfo.picture} disable={!editable}
+                        <UserImageChangeInput imageSrc={customerInfo.picture} disable={editable}
                             onChangePicture={onChangePicture} />
                     </div>
                     <div className="col-md 6">

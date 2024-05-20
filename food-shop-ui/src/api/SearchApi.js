@@ -1,13 +1,9 @@
 import axios from "axios";
 import { 
-    CategoriesIDUrl,
-    CategoriesNameUrl,
-    CategoriesUrl, ProductsByCategories, ProductsByIdUrl, 
+    CategoriesIDUrl, CategoriesNameUrl, CategoriesUrl, ProductsByCategories, ProductsByIdUrl, 
     ProductsByNameUrl, ProductsUrl, RecommendedProductsByCategoryUrl, RecommendedProductsUrl, 
-    SearchProductsUrl, 
-    ShippersUrl
-} 
-from '../constant/FoodShoppingApiURL';
+    SearchProductsUrl, ShippersUrl
+} from '../constant/FoodShoppingApiURL';
 
 // const BASE_URL = `${UrlService.clientService}/search`
 

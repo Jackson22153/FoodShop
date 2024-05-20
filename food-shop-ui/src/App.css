@@ -14,7 +14,16 @@
 .display-linebreak {
   white-space: pre-line;
 }
+/* product card */
+.product-card-image-container{
+  height: 250px;
+}
 
+
+/* category detail box */
+.category-detail-boxes-ul .category-detail-box-li:last-child{
+  border-bottom: 0 !important;
+}
 
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 

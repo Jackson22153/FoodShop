@@ -46,7 +46,7 @@ public class WebConfig {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new RoleConverter());
         http.sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
+        // http.addFilterBefore(new JwtFilter(), BearerTokenAuthenticationFilter.class);
         http.cors(Customizer.withDefaults());
         // http.csrf(csrf -> csrf.ignoringRequestMatchers("/chat/**"));
         http.csrf(csrf-> csrf.disable());
@@ -57,6 +57,7 @@ public class WebConfig {
             .requestMatchers("/employee/**").hasRole("EMPLOYEE")
             .requestMatchers("/user/userInfo").permitAll()
             .requestMatchers("/actuator/**").hasRole("ADMIN")
+            .requestMatchers("/chat/**").permitAll()
             .anyRequest().authenticated());
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt
             .jwtAuthenticationConverter(jwtAuthenticationConverter)));

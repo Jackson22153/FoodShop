@@ -1,10 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faEnvelope, faSearch } from "@fortawesome/free-solid-svg-icons";
 
-interface Props{
-
-}
-export default function TopBarComponent(prop: Props){
+export default function TopBarComponent(){
     return(
         <nav className="px-5 navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 

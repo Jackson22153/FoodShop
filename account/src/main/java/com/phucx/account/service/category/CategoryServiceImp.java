@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 
 import com.phucx.account.model.Category;
 import com.phucx.account.repository.CategoryRepository;
-import com.phucx.account.service.github.GithubService;
-
 import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.NotFoundException;
 
@@ -14,8 +12,6 @@ import jakarta.ws.rs.NotFoundException;
 public class CategoryServiceImp implements CategoryService{
     @Autowired
     private CategoryRepository categoryRepository;
-    @Autowired
-    private GithubService githubService;
 	@Override
 	public boolean updateCategory(Category category) {
         if(category.getCategoryID()==null) throw new NullPointerException("Category Id is null");

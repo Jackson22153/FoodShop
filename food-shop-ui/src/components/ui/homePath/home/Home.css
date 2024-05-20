@@ -283,10 +283,10 @@ body {
   
   
   /* service section */
-  .foods-section .card .card-img-top {
+  /* .foods-section .card .card-img-top {
     width: 50px;
     margin: 0 auto 5px auto;
-  }
+  } */
   
   .foods-section .card {
     text-align: center;

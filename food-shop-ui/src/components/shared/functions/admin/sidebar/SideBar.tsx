@@ -1,9 +1,6 @@
 
 
-interface Props{
-
-}
-export default function SidebarComponent(prop: Props){
+export default function SidebarComponent(){
     return(
         <ul className="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 

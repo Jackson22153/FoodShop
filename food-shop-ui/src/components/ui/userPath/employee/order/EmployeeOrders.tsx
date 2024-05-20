@@ -9,6 +9,7 @@ import { ORDER_STATUS } from "../../../../../constant/config";
 import { CompatClient, Stomp } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { AccountWSUrl, CancelOrderWsUrl, ConfirmOrderWsUrl, FulfillOrderWsUrl, QUEUE_MESSAGES, OrderWsUrl } from "../../../../../constant/FoodShoppingApiURL";
+import { getAccessToken } from "../../../../../service/cookie";
 
 export default function EmployeeOrdersComponent(){
     const [pendingOrders, setPendingOrders] = useState<OrderDetail[]>([])
@@ -69,17 +70,21 @@ export default function EmployeeOrdersComponent(){
     // stomp
     const connectEmployee = ()=>{
         stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
-        stompClientAccount.current.connect({}, onShopConnectEmployee, stompFailureCallback);
+        stompClientAccount.current.connect({
+            "Authorization": `Bearer ${getAccessToken()}`,
+        }, onShopConnectEmployee, stompFailureCallback);
     }
 
     function onShopConnectEmployee() {
         if(stompClientAccount.current){
             // listen to order topic
             stompClientAccount.current.subscribe(OrderWsUrl, onReceivePendingOrder, {
-              'auto-delete': 'true'
+                "Authorization": `Bearer ${getAccessToken()}`,
+                'auto-delete': 'true'
             });
             // listen to itself
             stompClientAccount.current.subscribe(QUEUE_MESSAGES, onReceiveMessage, {
+                "Authorization": `Bearer ${getAccessToken()}`,
                 'auto-delete': 'true'
             })
             stompClientAccount.current.reconnect_delay=1000
@@ -110,7 +115,9 @@ export default function EmployeeOrdersComponent(){
     // process order
     const onClickConfirmOrder = (order: OrderDetail)=>{
         if(stompClientAccount.current && order){
-            stompClientAccount.current.send(ConfirmOrderWsUrl, {}, JSON.stringify({
+            stompClientAccount.current.send(ConfirmOrderWsUrl, {
+                "Authorization": `Bearer ${getAccessToken()}`
+            }, JSON.stringify({
                 orderID: order.orderID,
                 customerID: order.customerID
             }))
@@ -119,7 +126,9 @@ export default function EmployeeOrdersComponent(){
     }
     const onClickFullFillOrder = (order: OrderDetail)=>{
         if(stompClientAccount.current && order){
-            stompClientAccount.current.send(FulfillOrderWsUrl, {}, JSON.stringify({
+            stompClientAccount.current.send(FulfillOrderWsUrl, {
+                "Authorization": `Bearer ${getAccessToken()}`
+            }, JSON.stringify({
                 orderID: order.orderID,
                 customerID: order.customerID
             }))
@@ -128,7 +137,9 @@ export default function EmployeeOrdersComponent(){
     }
     const onClickCancelOrder = (order: OrderDetail)=>{
         if(stompClientAccount.current && order){
-            stompClientAccount.current.send(CancelOrderWsUrl, {}, JSON.stringify({
+            stompClientAccount.current.send(CancelOrderWsUrl, {
+                "Authorization": `Bearer ${getAccessToken()}`
+            }, JSON.stringify({
                 orderID: order.orderID,
                 customerID: order.customerID
             }))

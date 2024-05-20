@@ -17,6 +17,7 @@ import SockJS from 'sockjs-client';
 import { ROLE } from './constant/config';
 import { StompClientsProvider } from './components/contexts/StompClientsContext';
 import { getCustomerNotifications } from './api/UserApi';
+import { getAccessToken } from './service/cookie';
 
 function App() {
   const [userInfo, setUserInfo] = useState<UserInfo>({
@@ -85,16 +86,20 @@ function App() {
   // employee
   const connectEmployee = ()=>{
     stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
-    stompClientAccount.current.connect({}, onEmployeeConnect, stompFailureCallback);
+    stompClientAccount.current.connect({
+      "Authorization": `Bearer ${getAccessToken()}`
+    }, onEmployeeConnect, stompFailureCallback);
   }
   function onEmployeeConnect() {
     if(stompClientAccount.current){
         // listen to customer order
         stompClientAccount.current.subscribe(EmployeeNotificationOrderWsUrl, onEmployeeReceiveNotification, {
+          "Authorization": `Bearer ${getAccessToken()}`,
           'auto-delete': 'true'
         });
         // listen to notification send to employee
         stompClientAccount.current.subscribe(QUEUE_MESSAGES, onEmployeeReceiveNotification, {
+          "Authorization": `Bearer ${getAccessToken()}`,
           'auto-delete': 'true'
         })
         stompClientAccount.current.reconnect_delay=1000 
@@ -113,12 +118,15 @@ function App() {
   // customer
   const connectCustomer = ()=>{
     stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
-    stompClientAccount.current.connect({}, onCustomerConnect, stompFailureCallback);
+    stompClientAccount.current.connect({
+      "Authorization": `Bearer ${getAccessToken()}`
+    }, onCustomerConnect, stompFailureCallback);
   }
   function onCustomerConnect() {
     if(stompClientAccount.current){
         // console.log('Connected');
         stompClientAccount.current.subscribe(QUEUE_MESSAGES, onCustomerReceiveNotification, {
+          "Authorization": `Bearer ${getAccessToken()}`,
           'auto-delete': 'true'
         });
         stompClientAccount.current.reconnect_delay=1000 
@@ -139,8 +147,8 @@ function App() {
 
 
   
-  function stompFailureCallback(_error: any){
-
+  function stompFailureCallback(error: any){
+    console.log(error)
   }
 
 

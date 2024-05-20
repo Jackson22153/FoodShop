@@ -13,13 +13,14 @@ public class WebSocketSecurityConfig {
     @Bean
     public AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder builder){
         builder
-            .nullDestMatcher().authenticated()
-            .simpDestMatchers("/app/customer/**").hasRole("CUSTOMER")
-            .simpDestMatchers("/app/employee/**").hasRole("EMPLOYEE")
-            .simpSubscribeDestMatchers("/user/**").hasAnyRole("CUSTOMER", "EMPLOYEE")
-            .simpSubscribeDestMatchers("/topic/order/**").hasRole("EMPLOYEE")
-            .simpSubscribeDestMatchers("/topic/employee.notification.order/**").hasRole("EMPLOYEE")
-            .anyMessage().denyAll();
+            .anyMessage().permitAll();
+            // .nullDestMatcher().authenticated()
+            // .simpDestMatchers("/app/customer/**").hasRole("CUSTOMER")
+            // .simpDestMatchers("/app/employee/**").hasRole("EMPLOYEE")
+            // .simpSubscribeDestMatchers("/user/**").hasAnyRole("CUSTOMER", "EMPLOYEE")
+            // .simpSubscribeDestMatchers("/topic/order/**").hasRole("EMPLOYEE")
+            // .simpSubscribeDestMatchers("/topic/employee.notification.order/**").hasRole("EMPLOYEE")
+            // .anyMessage().denyAll();
         return builder.build();
     }
     

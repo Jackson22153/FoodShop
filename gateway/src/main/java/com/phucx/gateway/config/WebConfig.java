@@ -5,9 +5,10 @@ import java.util.Collections;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.web.cors.CorsConfiguration;
@@ -21,6 +22,10 @@ import reactor.core.publisher.Mono;
 @EnableWebFluxSecurity
 @ComponentScan("com.phucx.gateway.filter")
 public class WebConfig {
+    public final static String PREFERRED_USERNAME="preferred_username";
+    public final static String REALM_ACCESS_CLAIM="realm_access";
+    public final static String ROLES_CLAIM="roles";
+
     @Bean
     public KeycloakLogoutHandler getKeycloakLogoutHandler(){
         return new KeycloakLogoutHandler();
@@ -44,7 +49,7 @@ public class WebConfig {
                 return configuration;
             }
         }));
-
+ 
         http.csrf(csrf -> csrf.disable()
             // .csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
             // .csrfTokenRequestHandler(new XorServerCsrfTokenRequestAttributeHandler()::handle)
@@ -66,19 +71,24 @@ public class WebConfig {
                 
             // })
             );
-        // http.logout(logout -> logout.logoutHandler(null))
+        // http.oauth2Login().authorizationEndpoint();
+        // http.logout(logout -> logout.logoutHandler(null);
         http.authorizeExchange(request -> request
-            // .pathMatchers("/home").permitAll()
             .pathMatchers("/shop/search/**").permitAll()
             .pathMatchers("/shop/home/**").permitAll()
             .pathMatchers("/isAuthenticated").permitAll()
             .pathMatchers("/account/user/userInfo").permitAll()
+            .pathMatchers("/loginBE/**").permitAll()
+            .pathMatchers("/login/**").permitAll()
+            .pathMatchers("/account/chat/**").permitAll()
             .anyExchange().authenticated());
 
-        http.oauth2Login(Customizer.withDefaults())
-            .logout(logout-> logout
-                .logoutHandler(getKeycloakLogoutHandler())
-                .logoutSuccessHandler(keycloakLogoutSuccessfulHandler()));
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new RoleConverter());
+
+        http.oauth2ResourceServer(resource -> resource
+            .jwt(jwt -> jwt.jwtAuthenticationConverter(
+                new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter))));
 
         http.formLogin(login -> login.disable());
         http.httpBasic(login -> login.disable());

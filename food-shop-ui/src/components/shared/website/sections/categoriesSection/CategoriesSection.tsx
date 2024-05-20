@@ -25,14 +25,24 @@ export default function CategoriesSection(prop: Props){
                     the majority have
                 </p>
 
-                {lstCategories.map((category)=>(
-                    <div className="row layout_padding2" key={category.categoryName}>
+                <ul className="category-detail-boxes-ul">
+                    {lstCategories.map((category)=>(
+                        <li className="row layout_padding2 border-bottom category-detail-box-li" key={category.categoryName}>
+                            <CategoriesDetailbox categoryTitle={category.categoryName}
+                                categoryDetail={category.description}
+                                categoryImageSrc={category.picture}
+                            />
+                        </li>
+                    ))}
+                </ul>
+                {/* {lstCategories.map((category)=>(
+                    <div className="row layout_padding2 border-bottom category-detail-box-container" key={category.categoryName}>
                         <CategoriesDetailbox categoryTitle={category.categoryName}
                             categoryDetail={category.description}
                             categoryImageSrc={category.picture}
                         />
                     </div>
-                ))}
+                ))} */}
 
                 <div className="d-flex justify-content-center layout_padding-bottom">
                     <ExpandedToggleBtn expandedStatusToggle={expandedStatusToggle} 

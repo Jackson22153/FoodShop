@@ -37,7 +37,6 @@ import com.phucx.account.model.Order;
 import com.phucx.account.repository.CustomerAccountRepository;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.repository.CustomerRepository;
-import com.phucx.account.service.github.GithubService;
 import com.phucx.account.service.notification.NotificationService;
 import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.user.UserService;
@@ -54,8 +53,6 @@ public class CustomerServiceImp implements CustomerService {
     private UserService userService;
     @Autowired
     private NotificationService notificationService;
-    @Autowired
-    private GithubService githubService;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
