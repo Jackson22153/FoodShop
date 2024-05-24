@@ -2,6 +2,7 @@ package com.phucx.shop.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -23,4 +24,5 @@ public class Discount {
     private String discountCode;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private Boolean active;
 }

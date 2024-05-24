@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 import com.phucx.shop.model.CurrentProductList;
-import com.phucx.shop.model.CurrentSalesProduct;
 import com.phucx.shop.model.Product;
+import com.phucx.shop.model.ProductDetail;
 
 public interface ProductService {
     public CurrentProductList getCurrentProduct(int productID);
@@ -14,7 +14,7 @@ public interface ProductService {
     public Page<CurrentProductList> getCurrentProductList(int pageNumber, int pageSize);
     public Page<CurrentProductList> searchCurrentProducts(String productName, int pageNumber, int pageSize);
     public Page<CurrentProductList> getCurrentProductsByCategoryName(String categoryName, int pageNumber, int pageSize);
-    public CurrentSalesProduct getCurrentSalesProductsByID(int productID);
+    public ProductDetail getProductDetail(int productID);
 
     public Product getProduct(int productID);
     public List<Product> getProducts();

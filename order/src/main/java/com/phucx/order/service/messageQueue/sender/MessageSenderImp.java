@@ -60,4 +60,13 @@ public class MessageSenderImp implements MessageSender{
         // send notification to notification/order topic
         this.simpMessagingTemplate.convertAndSend(WebSocketConstant.TOPIC_EMPLOYEE_NOTIFICAITON_ORDER, notification);
     }
+
+    @Override
+    public void sendMessageToUser(String userID, Notification notificationMessage) {
+        logger.info("sendMessageToUser(userID={}, notificationMessage={})", userID, notificationMessage.toString());
+        // save notification
+        notificationService.createNotification(notificationMessage);
+        // send notification
+        simpMessagingTemplate.convertAndSendToUser(userID, WebSocketConstant.QUEUE_MESSAGES, notificationMessage, getHeaders());
+    }
 }

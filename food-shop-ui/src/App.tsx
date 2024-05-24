@@ -61,10 +61,10 @@ function App() {
     // get notification for employee
     if(roleNames.includes(ROLE.EMPLOYEE.toLowerCase())){
       fetchEmployeeNotifications(pageable.number);
-      connectEmployee();
+      // connectEmployee();
     }else if(roleNames.includes(ROLE.CUSTOMER.toLowerCase())){
       fetchCustomerNotifications(pageable.number);
-      connectCustomer();
+      // connectCustomer();
     }
   }
   const fetchEmployeeNotifications = async (pageNumber: number)=>{

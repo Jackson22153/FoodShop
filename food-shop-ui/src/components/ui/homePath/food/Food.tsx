@@ -50,10 +50,9 @@ export default function FoodComponent(){
 
     async function onClickAddToCart(){
         const res = await addProductToCart(cartProduct);
-        if(res.status===200){
+        if(res.status){
             const numberProducts = numberOfProductsInCart();
             setNumberOfCartProducts(numberProducts)
-            
         }
     }
 

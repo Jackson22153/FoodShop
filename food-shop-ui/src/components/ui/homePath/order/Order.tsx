@@ -1,21 +1,17 @@
-import { ChangeEventHandler, useEffect, useRef, useState } from "react"
+import { ChangeEventHandler, useEffect, useState } from "react"
 import { OrderInfo } from "../../../../model/Type"
 import { displayProductImage, getError } from "../../../../service/image";
 import { getProductsFromCart } from "../../../../api/CartApi";
 import { faLongArrowAltLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { cartPath } from "../../../../constant/FoodShoppingURL";
-import { CompatClient, Stomp } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
-import { AccountWSUrl, QUEUE_MESSAGES, PlaceOrderWsUrl } from "../../../../constant/FoodShoppingApiURL";
 import { Notification } from "../../../../model/Type";
 import { ALERT_TYPE, NOTIFICATION_TYPE } from "../../../../constant/config";
 import { isCustomer } from "../../../../api/UserApi";
-import { getAccessToken } from "../../../../service/cookie";
+import { connectCustomer, sendMessagePlaceOrder } from "../../../../api/OrderWsApi";
 
 export default function OrderComponent(){
     const [orderInfo, setOrderInfo] = useState<OrderInfo>();
-    const stompClient = useRef<CompatClient | null>(null);
     const [notification, setNotification] = useState<Notification>({
         notificationID: '',
         title: '',
@@ -36,7 +32,7 @@ export default function OrderComponent(){
 
     const initial = ()=>{
         checkAuthenticationCustomer();
-        connectCustomer();
+        connectCustomer(getNotification);
         fetchProductsInCart();
     }
 
@@ -57,7 +53,7 @@ export default function OrderComponent(){
         const res = await getProductsFromCart();
         if(res.status){
             const data = res.data;
-            console.log(data);
+            // console.log(data);
             setOrderInfo(data);
         }
     }
@@ -95,49 +91,12 @@ export default function OrderComponent(){
         }
     }
 
-    // stomp
-    // connect to order
-    const connectCustomer = ()=>{
-        stompClient.current = Stomp.over(()=> new SockJS(AccountWSUrl));
-        stompClient.current.connect({
-            "Authorization": `Bearer ${getAccessToken()}`
-        }, onShopConnectCustomer, stompFailureCallback);
-    }
-
-    function onShopConnectCustomer() {
-        if(stompClient.current){
-            console.log('Connected');
-            stompClient.current.subscribe(QUEUE_MESSAGES, onPrivateAccountOrderMessageReceived, {
-                "Authorization": `Bearer ${getAccessToken()}`,
-                'auto-delete': 'true'
-            });
-            stompClient.current.reconnect_delay=1000
-        }
-      }
-    //   receive message
-    async function onPrivateAccountOrderMessageReceived(payload: any) {
-        // console.log('Message received', payload);
-        const message = JSON.parse(payload.body);
+    function getNotification(message: any){
         const statusMessage = message.status;
         if(statusMessage.toLowerCase() === ALERT_TYPE.SUCCESS.toLowerCase()){
             setNotification({...message, isShowed: true});
         }else {
             setNotification({...message, isShowed: true});
-        }
-        // console.log(message)
-    }
-
-    // failure callback
-    var stompFailureCallback = function (error: any) {
-        console.log('STOMP: ' + error);
-    };
-
-    // send order message to employee
-    const sendMessagePlaceOrder = (order: any)=>{
-        if(stompClient.current && order){
-            stompClient.current.send(PlaceOrderWsUrl, {
-                "Authorization": `Bearer ${getAccessToken()}`,
-            }, JSON.stringify(order))
         }
     }
 

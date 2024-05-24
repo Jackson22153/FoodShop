@@ -1,23 +1,17 @@
 package com.phucx.shop.service.product;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.phucx.shop.model.CurrentProductList;
-import com.phucx.shop.model.CurrentSalesProduct;
-import com.phucx.shop.model.ProductDetails;
-import com.phucx.shop.model.SalesByCategory;
 import com.phucx.shop.model.Product;
+import com.phucx.shop.model.ProductDetail;
 import com.phucx.shop.repository.CurrentProductListRepository;
 import com.phucx.shop.repository.ProductDetailsRepository;
 import com.phucx.shop.repository.ProductRepository;
-import com.phucx.shop.repository.SalesByCategoryRepository;
-
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductServiceImp implements ProductService{
     @Autowired
     private ProductRepository productRepository;
-    @Autowired
-    private SalesByCategoryRepository salesByCategoryRepository;
     @Autowired
     private CurrentProductListRepository currentProductListRepository;
     @Autowired
@@ -79,15 +71,9 @@ public class ProductServiceImp implements ProductService{
     @Override
     public List<CurrentProductList> getRecommendedProducts(int pageNumber, int pageSize) {
         log.info("getRecommendedProducts(pageNumber={}, pageSize={})", pageNumber, pageSize);
-        Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<SalesByCategory> salesByCategory = salesByCategoryRepository
-            .findAllContinuedProductsOrderByProductSalesDesc(page);
-        log.info("Number Of recommended products {}", salesByCategory.getContent().size());
-        List<Integer> productIDs = salesByCategory.getContent().stream()
-            .map(product -> product.getProductID())
-            .collect(Collectors.toList());
-        List<CurrentProductList> products = currentProductListRepository.findAllById(productIDs);
-        return products;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<CurrentProductList> products = currentProductListRepository.findProductsRandom(pageable);
+        return products.getContent();
     }
 
     @Override
@@ -134,16 +120,10 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public CurrentSalesProduct getCurrentSalesProductsByID(int productID) {
-        ProductDetails product = productDetailsRepository.findById(productID)
+    public ProductDetail getProductDetail(int productID) {
+        ProductDetail product = productDetailsRepository.findById(productID)
             .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
-        CurrentSalesProduct currentSalesProduct = new CurrentSalesProduct(
-            product.getProductID(), product.getProductName(), product.getSupplierID(), 
-            product.getCategoryID(), product.getQuantityPerUnit(), product.getUnitPrice(), 
-            product.getUnitsInStock(), product.getDiscountID(), product.getDiscountPercent(), 
-            product.getPicture(), product.getCategoryName(), product.getCompanyName(), product.getDescription());
-        
-        return currentSalesProduct;
+        return product;
     }
 
     @Override

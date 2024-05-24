@@ -34,6 +34,13 @@ public interface CurrentProductListRepository extends JpaRepository<CurrentProdu
         """)
     Page<CurrentProductList> findRandomByCategoryName(int productID, String categoryName, Pageable page);
 
+    @Query(nativeQuery = true, value = """
+        SELECT  * \
+        FROM [Current Product List] \
+        ORDER BY NEWID()
+        """)
+    Page<CurrentProductList> findProductsRandom(Pageable page);
+
     @Query("""
         SELECT c FROM CurrentProductList c \
         WHERE c.productID IN ?1 \

@@ -23,9 +23,9 @@ public interface EmployeeService {
     public Boolean updateAdminEmployeeInfo(Employee employee);
     public Boolean addNewEmployee(EmployeeAccount employeeAccount);
     // processing order of customer
-    public Notification confirmOrder(OrderWithProducts order, String employeeID) throws InvalidOrderException;
-    public Notification cancelOrder(OrderWithProducts order, String employeeID);
-    public Notification fulfillOrder(OrderWithProducts order);
+    // public Notification confirmOrder(OrderWithProducts order, String employeeID) throws InvalidOrderException;
+    // public Notification cancelOrder(OrderWithProducts order, String employeeID);
+    // public Notification fulfillOrder(OrderWithProducts order);
     // get order
     public Page<OrderDetailsDTO> getOrders(int pageNumber, int pageSize, String employeeID, OrderStatus status);
     public Page<OrderDetailsDTO> getPendingOrders(int pageNumber, int pageSize);

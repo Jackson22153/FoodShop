@@ -8,22 +8,30 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity 
 @Immutable
-public class ProductDetails{
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "ProductDetails")
+public class ProductDetail{
     @Id
     private Integer productID;
     private String productName;
-    private Integer supplierID;
     private Integer categoryID;
     private String quantityPerUnit;
     private BigDecimal unitPrice;
     private Integer unitsInStock;
-    private Integer unitsOnOrder;
-    private Integer reorderLevel;
+    private Boolean discontinued;
+    private String picture;
+    private String description;
+    
+    private String categoryName;
 
     private String discountID;
     private Integer discountPercent;
@@ -31,10 +39,4 @@ public class ProductDetails{
     private LocalDateTime startDate;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endDate;
-
-    private Boolean discontinued;
-    private String picture;
-    private String categoryName;
-    private String companyName;
-    private String description;
 }

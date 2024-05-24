@@ -91,6 +91,7 @@ public class CustomerServiceImp implements CustomerService {
 
         order.setCustomerID(customer.getCustomerID());
         OrderWithProducts newOrder = this.orderProcessing(order);
+        logger.info("newOrder: {}", newOrder);
         if(newOrder !=null){
             // create and save notification back to user
             Notification notificationToCustomer = new Notification(

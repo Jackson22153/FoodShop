@@ -20,7 +20,8 @@ import com.phucx.shop.constant.CookieConstant;
 import com.phucx.shop.model.CartOrderItem;
 import com.phucx.shop.model.CartProductsCookie;
 import com.phucx.shop.model.OrderWithProducts;
-import com.phucx.shop.service.cookie.CookieService;
+import com.phucx.shop.service.cart.CartService;
+
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.NotFoundException;
 
@@ -28,13 +29,13 @@ import jakarta.ws.rs.NotFoundException;
 @RequestMapping("/cart")
 public class CartController {
     @Autowired
-    private CookieService cookieService;
+    private CartService cartService;
     @PostMapping
     public ResponseEntity<Void> updateCookie(
         HttpServletResponse response, @RequestBody CartOrderItem OrderItem,
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson
     ) throws JsonMappingException, NotFoundException, JsonProcessingException, InsufficientResourcesException {
-        cookieService.updateCookie(cartJson, OrderItem, response);
+        cartService.updateCookie(cartJson, OrderItem, response);
         return ResponseEntity.ok().build();
     }
 
@@ -43,7 +44,7 @@ public class CartController {
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson,
         @PathVariable("productID") Integer productID
     ) throws JsonMappingException, JsonProcessingException{
-        cookieService.removeProduct(productID, cartJson, response);
+        cartService.removeProduct(productID, cartJson, response);
         return ResponseEntity.ok().build(); 
     }
 
@@ -52,7 +53,7 @@ public class CartController {
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson,
         Authentication authentication
     ) throws JsonMappingException, NotFoundException, JsonProcessingException{
-        OrderWithProducts order = cookieService.getOrder(cartJson, authentication);
+        OrderWithProducts order = cartService.getOrder(cartJson, authentication);
         return ResponseEntity.ok().body(order);
     }
 
@@ -61,7 +62,7 @@ public class CartController {
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson,
         Authentication authentication
     ) throws JsonMappingException, NotFoundException, JsonProcessingException{
-        CartProductsCookie cartProductsCookie = cookieService.getNumberOfProducts(cartJson);
+        CartProductsCookie cartProductsCookie = cartService.getNumberOfProducts(cartJson);
         return ResponseEntity.ok().body(cartProductsCookie);
     }
 }

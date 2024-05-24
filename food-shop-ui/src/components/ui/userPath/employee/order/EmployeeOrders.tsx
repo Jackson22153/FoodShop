@@ -6,17 +6,16 @@ import { displayProductImage, displayUserImage } from "../../../../../service/im
 import { employeeConfirmedOrder, employeeOrder, employeePendingOrder } from "../../../../../constant/FoodShoppingURL";
 import { getOrders, getPendingOrders } from "../../../../../api/EmployeeApi";
 import { ORDER_STATUS } from "../../../../../constant/config";
-import { CompatClient, Stomp } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
-import { AccountWSUrl, CancelOrderWsUrl, ConfirmOrderWsUrl, FulfillOrderWsUrl, QUEUE_MESSAGES, OrderWsUrl } from "../../../../../constant/FoodShoppingApiURL";
+import { CompatClient } from "@stomp/stompjs";
+import { CancelOrderWsUrl, ConfirmOrderWsUrl, FulfillOrderWsUrl } from "../../../../../constant/FoodShoppingApiURL";
 import { getAccessToken } from "../../../../../service/cookie";
+import { connectReceiveOrderEmployee } from "../../../../../api/EmployeeReceiveOrdersWsApi";
 
 export default function EmployeeOrdersComponent(){
     const [pendingOrders, setPendingOrders] = useState<OrderDetail[]>([])
     const [listOrders, setListOrders] = useState<OrderDetail[]>([])
     const navHeaderRef = useRef(null)
     const stompClientAccount = useRef<CompatClient | null>(null);
-    // const {stompClientAccount} = useContext(stompClientsContext)
     const pendingOrdersRef = useRef<any>(null);
     const [selectedTagOrder, setSelectedTagOrder] = useState(0); 
     const [page, setPage] = useState<Pageable>({
@@ -32,7 +31,7 @@ export default function EmployeeOrdersComponent(){
     }, [])
 
     function initial(){
-        connectEmployee();
+        connectReceiveOrderEmployee(getNewPendingOrder);
         const pageNumber = getPageNumber();
         fetchPendingOrders(pageNumber);
     }
@@ -67,47 +66,11 @@ export default function EmployeeOrdersComponent(){
         }
     }
 
-    // stomp
-    const connectEmployee = ()=>{
-        stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
-        stompClientAccount.current.connect({
-            "Authorization": `Bearer ${getAccessToken()}`,
-        }, onShopConnectEmployee, stompFailureCallback);
-    }
-
-    function onShopConnectEmployee() {
-        if(stompClientAccount.current){
-            // listen to order topic
-            stompClientAccount.current.subscribe(OrderWsUrl, onReceivePendingOrder, {
-                "Authorization": `Bearer ${getAccessToken()}`,
-                'auto-delete': 'true'
-            });
-            // listen to itself
-            stompClientAccount.current.subscribe(QUEUE_MESSAGES, onReceiveMessage, {
-                "Authorization": `Bearer ${getAccessToken()}`,
-                'auto-delete': 'true'
-            })
-            stompClientAccount.current.reconnect_delay=1000
-        }
-      }
-    // receive message to itself
-    async function onReceiveMessage(payload: any) {
-        const message = JSON.parse(payload.body);
-        console.log(message)
-    }
-    //   receive new order from employee
-    async function onReceivePendingOrder(payload: any) {
-        const message = JSON.parse(payload.body);
-        const newOrder = message as OrderDetail;
+    // get new pending order
+    function getNewPendingOrder(newOrder: any){
         if(newOrder){
             fetchPendingOrders(page.number);
             setPendingOrders([...pendingOrders, newOrder]);
-        }
-    }
-
-    function stompFailureCallback(error: any){
-        if(stompClientAccount.current){
-            console.error(error)
         }
     }
 

@@ -1,8 +1,8 @@
 package com.phucx.shop.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -14,11 +14,11 @@ import lombok.ToString;
 @Data @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Users")
-public class User {
+@Table(name = "DiscountTypes")
+public class DiscountType {
     @Id
-    private String userID;
-    private String username;
-    @JsonIgnore
-    private String password;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer discountTypeID;
+    private String discountType;
+    private String description;
 }

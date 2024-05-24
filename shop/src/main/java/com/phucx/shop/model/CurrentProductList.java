@@ -20,10 +20,12 @@ public class CurrentProductList {
     @Id
     private Integer productID;
     private String productName;
-    private String picture;
     private BigDecimal unitPrice;
     private Integer unitsInStock;
+    private String picture;
+
     private String discountID;
     private Integer discountPercent;
+
     private String categoryName;
 }

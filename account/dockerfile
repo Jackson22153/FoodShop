@@ -1,3 +1,5 @@
 FROM openjdk:17
 COPY target/account-0.0.1-SNAPSHOT.jar account-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java","-jar","/account-0.0.1-SNAPSHOT.jar"]
+COPY entrypoint.sh ./entrypoint.sh
+# ENTRYPOINT ["java","-jar","/account-0.0.1-SNAPSHOT.jar"]
+CMD [ "entrypoint.sh" ]

@@ -14,26 +14,26 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MessageQueueConfig {
     // message queue 
-    public final static String ORDER_QUEUE = "order";
-    public final static String ORDER_ROUTING_KEY = "order";
+    // public final static String ORDER_QUEUE = "order";
+    // public final static String ORDER_ROUTING_KEY = "order";
 
-    public final static String NOTIFICATION_QUEUE = "notification";
-    public final static String NOTIFICATION_ROUTING_KEY = "notification";
+    public final static String NOTIFICATION_QUEUE = "accountnotification";
+    public final static String NOTIFICATION_ROUTING_KEY = "accountnotification";
     // creating order message queue
-    @Bean
-    public Queue orderQueue(){
-        return new Queue(ORDER_QUEUE, false);
-    }
+    // @Bean
+    // public Queue orderQueue(){
+    //     return new Queue(ORDER_QUEUE, false);
+    // }
     // creating exchange key for order message queue
-    @Bean
-    public DirectExchange orderExchange(){
-        return new DirectExchange(ORDER_ROUTING_KEY);
-    }
+    // @Bean
+    // public DirectExchange orderExchange(){
+    //     return new DirectExchange(ORDER_ROUTING_KEY);
+    // }
     // binding exchange key to order message queue
-    @Bean
-    public Binding bindingOrderQueue(Queue orderQueue, DirectExchange orderExchange){
-        return BindingBuilder.bind(orderQueue).to(orderExchange).with(ORDER_ROUTING_KEY);
-    }
+    // @Bean
+    // public Binding bindingOrderQueue(Queue orderQueue, DirectExchange orderExchange){
+    //     return BindingBuilder.bind(orderQueue).to(orderExchange).with(ORDER_ROUTING_KEY);
+    // }
 
     // creating notification message queue
     @Bean

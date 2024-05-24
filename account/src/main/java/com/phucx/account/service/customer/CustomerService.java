@@ -1,10 +1,7 @@
 package com.phucx.account.service.customer;
 
-import java.sql.SQLException;
-
 import org.springframework.data.domain.Page;
 import com.phucx.account.constant.OrderStatus;
-import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
@@ -13,9 +10,6 @@ import com.phucx.account.model.Customer;
 import com.phucx.account.model.InvoiceDTO;
 import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetailsDTO;
-import com.phucx.account.model.OrderWithProducts;
-
-import jakarta.ws.rs.NotFoundException;
 
 public interface CustomerService {
     // get customer
@@ -37,9 +31,9 @@ public interface CustomerService {
     public InvoiceDTO getInvoice(int orderID, String customerID) throws InvalidOrderException;
 
     // place an order by customer
-    public OrderWithProducts placeOrder(OrderWithProducts order) 
-        throws InvalidDiscountException, InvalidOrderException, NotFoundException, SQLException, RuntimeException;
-    public Notification receiveOrder(OrderWithProducts order);
+    // public OrderWithProducts placeOrder(OrderWithProducts order) 
+    //     throws InvalidDiscountException, InvalidOrderException, NotFoundException, SQLException, RuntimeException;
+    // public Notification receiveOrder(OrderWithProducts order);
 
     // notification
     Page<Notification> getNotifications(String userID, int pageNumber, int pageSize);

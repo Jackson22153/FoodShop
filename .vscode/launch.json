@@ -61,6 +61,17 @@
             "mainClass": "com.phucx.configserver.ConfigserverApplication",
             "projectName": "configserver",
             "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=59894 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=configserver"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-OrderApplication<order>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.phucx.order.OrderApplication",
+            "projectName": "order",
+            "args": "",
             "envFile": "${workspaceFolder}/.env"
         }
     ]

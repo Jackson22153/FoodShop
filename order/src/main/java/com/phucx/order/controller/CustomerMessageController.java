@@ -61,7 +61,7 @@ public class CustomerMessageController {
     // HANDLE MESSAGE EXCEPTION
     @MessageExceptionHandler(value = SQLException.class)
     public void handleSqlMessageException(Authentication authentication, Exception exception){
-        log.warn(exception.getMessage());
+        log.warn("Error: {}", exception.getMessage());
         // notification
         Notification notificationMessage = new Notification(
             "Error order",
@@ -71,7 +71,7 @@ public class CustomerMessageController {
     }
     @MessageExceptionHandler(value = InvalidDiscountException.class)
     public void handleInvalidDiscountMessageException(Authentication authentication, Exception exception){
-        log.info(exception.getMessage());
+        log.warn("Error: {}", exception.getMessage());
         Notification notificationMessage = new Notification(
             "Invalid Order",
             "Invalid Discount", null, authentication.getName(),
@@ -80,7 +80,8 @@ public class CustomerMessageController {
     }
 
     @MessageExceptionHandler(value = InvalidOrderException.class)
-    public void handleInvalidOrderMessageException(Authentication authentication){
+    public void handleInvalidOrderMessageException(Authentication authentication, Exception exception){
+        log.warn("Error: {}", exception.getMessage());
         Notification notificationMessage = new Notification(
             "Invalid Order",
             "Invalid order", null, authentication.getName(),
@@ -90,6 +91,7 @@ public class CustomerMessageController {
 
     @MessageExceptionHandler(value = RuntimeException.class)
     public void handleRuntimeMessageException(Authentication authentication, Exception exception){
+        log.warn("Error: {}", exception.getMessage());
         Notification notificationMessage = new Notification(
             "Invalid Order",
             "Error during processing order", null, authentication.getName(),

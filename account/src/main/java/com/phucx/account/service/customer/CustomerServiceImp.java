@@ -1,7 +1,5 @@
 package com.phucx.account.service.customer;
 
-import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,11 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.phucx.account.constant.NotificationStatus;
-import com.phucx.account.constant.NotificationTopic;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
-import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
@@ -27,13 +22,8 @@ import com.phucx.account.model.Customer;
 import com.phucx.account.model.InvoiceDTO;
 import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetailsDTO;
-import com.phucx.account.model.OrderItem;
-import com.phucx.account.model.OrderItemDiscount;
-import com.phucx.account.model.OrderWithProducts;
-import com.phucx.account.model.Topic;
 import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
-import com.phucx.account.model.Order;
 import com.phucx.account.repository.CustomerAccountRepository;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.repository.CustomerRepository;
@@ -125,55 +115,55 @@ public class CustomerServiceImp implements CustomerService {
             .orElseThrow(()-> new NotFoundException("Customer " + customerID + " does not found"));
         return customer;
 	}
-    @Override
-    public OrderWithProducts placeOrder(OrderWithProducts order) 
-    throws InvalidDiscountException, InvalidOrderException, NotFoundException, SQLException, RuntimeException{
-        logger.info("placeOrder({})", order);
-        if(order.getCustomerID()!=null){
-            LocalDateTime currenDateTime = LocalDateTime.now();
-            order.setOrderDate(currenDateTime);
-            // set applieddate for discount;
-            for (OrderItem product : order.getProducts()) {
-                for(OrderItemDiscount discount : product.getDiscounts()){
-                    discount.setAppliedDate(currenDateTime);
-                }
-            }
+    // @Override
+    // public OrderWithProducts placeOrder(OrderWithProducts order) 
+    // throws InvalidDiscountException, InvalidOrderException, NotFoundException, SQLException, RuntimeException{
+    //     logger.info("placeOrder({})", order);
+    //     if(order.getCustomerID()!=null){
+    //         LocalDateTime currenDateTime = LocalDateTime.now();
+    //         order.setOrderDate(currenDateTime);
+    //         // set applieddate for discount;
+    //         for (OrderItem product : order.getProducts()) {
+    //             for(OrderItemDiscount discount : product.getDiscounts()){
+    //                 discount.setAppliedDate(currenDateTime);
+    //             }
+    //         }
 
-            // validate order
-            boolean isValidOrder = orderService.validateOrder(order);
-            if(!isValidOrder) throw new InvalidOrderException("Order is not valid");
-            // save order
-            Order pendingOrder = orderService.saveFullOrder(order);
-            order.setOrderID(pendingOrder.getOrderID());
-            return order;
-        }
-        throw new NotFoundException("Customer is not found");
-    }
-    @Override
-    public Notification receiveOrder(OrderWithProducts order) {
-        logger.info("receiveOrder(orderID={})", order.getOrderID());
+    //         // validate order
+    //         boolean isValidOrder = orderService.validateOrder(order);
+    //         if(!isValidOrder) throw new InvalidOrderException("Order is not valid");
+    //         // save order
+    //         Order pendingOrder = orderService.saveFullOrder(order);
+    //         order.setOrderID(pendingOrder.getOrderID());
+    //         return order;
+    //     }
+    //     throw new NotFoundException("Customer is not found");
+    // }
+    // @Override
+    // public Notification receiveOrder(OrderWithProducts order) {
+    //     logger.info("receiveOrder(orderID={})", order.getOrderID());
         
-        OrderDetailsDTO orderDetailsDTO = orderService.getOrder(order.getOrderID(), OrderStatus.Shipping);
-        Boolean status = orderService.updateOrderStatus(orderDetailsDTO.getOrderID(), OrderStatus.Successful);
-        // notification
-        Notification notification = new Notification();
-        notification.setTitle("Receive Order");
-        notification.setTopic(new Topic(NotificationTopic.Order.name()));
-        logger.info("status: {}", status);
-        if(status){
-            logger.info("ssnotification: {}", notification);
-            notification.setMessage("Order #" + orderDetailsDTO.getOrderID() + " is received successully by customer " + orderDetailsDTO.getCustomerID());
-            notification.setStatus(NotificationStatus.SUCCESSFUL.name());
-            notification.setReceiverID(userService.getUserIdOfEmployeeID(orderDetailsDTO.getEmployeeID()));
-            logger.info("ssnotification: {}", notification);
-        }else {
-            notification.setMessage("Order #" + orderDetailsDTO.getOrderID() + " can not received by customer " + orderDetailsDTO.getCustomerID());
-            notification.setStatus(NotificationStatus.ERROR.name());
-            notification.setReceiverID(userService.getUserIdOfEmployeeID(orderDetailsDTO.getEmployeeID()));
-        }
-        logger.info("notification: {}", notification);
-        return notification;
-    }
+    //     OrderDetailsDTO orderDetailsDTO = orderService.getOrder(order.getOrderID(), OrderStatus.Shipping);
+    //     Boolean status = orderService.updateOrderStatus(orderDetailsDTO.getOrderID(), OrderStatus.Successful);
+    //     // notification
+    //     Notification notification = new Notification();
+    //     notification.setTitle("Receive Order");
+    //     notification.setTopic(new Topic(NotificationTopic.Order.name()));
+    //     logger.info("status: {}", status);
+    //     if(status){
+    //         logger.info("ssnotification: {}", notification);
+    //         notification.setMessage("Order #" + orderDetailsDTO.getOrderID() + " is received successully by customer " + orderDetailsDTO.getCustomerID());
+    //         notification.setStatus(NotificationStatus.SUCCESSFUL.name());
+    //         notification.setReceiverID(userService.getUserIdOfEmployeeID(orderDetailsDTO.getEmployeeID()));
+    //         logger.info("ssnotification: {}", notification);
+    //     }else {
+    //         notification.setMessage("Order #" + orderDetailsDTO.getOrderID() + " can not received by customer " + orderDetailsDTO.getCustomerID());
+    //         notification.setStatus(NotificationStatus.ERROR.name());
+    //         notification.setReceiverID(userService.getUserIdOfEmployeeID(orderDetailsDTO.getEmployeeID()));
+    //     }
+    //     logger.info("notification: {}", notification);
+    //     return notification;
+    // }
     
     @Override
     public Customer getCustomerByUsername(String username) {

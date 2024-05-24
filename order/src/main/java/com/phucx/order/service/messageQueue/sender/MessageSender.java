@@ -10,6 +10,6 @@ public interface MessageSender {
     public void sendEmployeeNotificationOrderToTopic(Notification notification);
 
     public Notification sendAndReceiveOrder(OrderWithProducts order);
-
+    public void sendMessageToUser(String userID, Notification notificationMessage);
     public void sendNotificationToUser(String userID, Notification notificationMessage);
 }

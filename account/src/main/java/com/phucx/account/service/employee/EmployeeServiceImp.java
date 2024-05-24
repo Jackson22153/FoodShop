@@ -11,8 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.phucx.account.constant.NotificationStatus;
-import com.phucx.account.constant.NotificationTopic;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.InvalidOrderException;
@@ -23,13 +21,11 @@ import com.phucx.account.model.Notification;
 import com.phucx.account.model.Employee;
 import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderWithProducts;
-import com.phucx.account.model.Topic;
 import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.EmployeeAccountRepository;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.repository.EmployeeRepository;
-import com.phucx.account.service.messageQueue.sender.MessageSender;
 import com.phucx.account.service.notification.NotificationService;
 import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.user.UserService;
@@ -49,8 +45,8 @@ public class EmployeeServiceImp implements EmployeeService {
     private UserService userService;
     @Autowired
     private OrderService orderService;
-    @Autowired
-    private MessageSender messageSender;
+    // @Autowired
+    // private MessageSender messageSender;
     @Autowired
     private EmployeeAccountRepository employeeAccountRepository;
     @Autowired
@@ -206,64 +202,64 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
     // PROCESSING ORDER
-    @Override
-    public Notification confirmOrder(OrderWithProducts order, String employeeID) throws InvalidOrderException {
-        OrderWithProducts orderWithProducts = orderService.getPendingOrderDetail(order.getOrderID());
-        orderWithProducts.setEmployeeID(employeeID);
-        // send order for server to validate it
-        Notification response = messageSender.sendAndReceiveOrder(orderWithProducts);
-        return response;
-    }
+    // @Override
+    // public Notification confirmOrder(OrderWithProducts order, String employeeID) throws InvalidOrderException {
+    //     OrderWithProducts orderWithProducts = orderService.getPendingOrderDetail(order.getOrderID());
+    //     orderWithProducts.setEmployeeID(employeeID);
+    //     // send order for server to validate it
+    //     Notification response = messageSender.sendAndReceiveOrder(orderWithProducts);
+    //     return response;
+    // }
 
-    @Override
-    public Notification cancelOrder(OrderWithProducts order, String employeeID) {
-        // fetch pending order
-        OrderDetailsDTO orderDetail = orderService.getOrder(
-            order.getOrderID(), OrderStatus.Pending);
-        Boolean check = orderService.updateOrderEmployee(order.getOrderID(), employeeID);
-        if(!check) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated");
-        // update order status as canceled
-        Boolean status = orderService.updateOrderStatus(orderDetail.getOrderID(), OrderStatus.Canceled);
-        // notification
-        Notification notification = new Notification();
-        notification.setTitle("Cancel Order");
-        notification.setTopic(new Topic(NotificationTopic.Order.name()));
-        if(status){
-            String userID = userService.getUserIdOfCustomerID(order.getCustomerID());
-            notification.setReceiverID(userID);
-            notification.setMessage("Order #" + order.getOrderID() + " has been canceled successfully");
-            notification.setStatus(NotificationStatus.SUCCESSFUL.name());
-        }else {
-            String userID = userService.getUserIdOfEmployeeID(employeeID);
-            notification.setReceiverID(userID);
-            notification.setMessage("Order #" + order.getOrderID() + " can not be canceled");
-            notification.setStatus(NotificationStatus.ERROR.name());
-        }
-        return notification;
-    }
+    // @Override
+    // public Notification cancelOrder(OrderWithProducts order, String employeeID) {
+    //     // fetch pending order
+    //     OrderDetailsDTO orderDetail = orderService.getOrder(
+    //         order.getOrderID(), OrderStatus.Pending);
+    //     Boolean check = orderService.updateOrderEmployee(order.getOrderID(), employeeID);
+    //     if(!check) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated");
+    //     // update order status as canceled
+    //     Boolean status = orderService.updateOrderStatus(orderDetail.getOrderID(), OrderStatus.Canceled);
+    //     // notification
+    //     Notification notification = new Notification();
+    //     notification.setTitle("Cancel Order");
+    //     notification.setTopic(new Topic(NotificationTopic.Order.name()));
+    //     if(status){
+    //         String userID = userService.getUserIdOfCustomerID(order.getCustomerID());
+    //         notification.setReceiverID(userID);
+    //         notification.setMessage("Order #" + order.getOrderID() + " has been canceled successfully");
+    //         notification.setStatus(NotificationStatus.SUCCESSFUL.name());
+    //     }else {
+    //         String userID = userService.getUserIdOfEmployeeID(employeeID);
+    //         notification.setReceiverID(userID);
+    //         notification.setMessage("Order #" + order.getOrderID() + " can not be canceled");
+    //         notification.setStatus(NotificationStatus.ERROR.name());
+    //     }
+    //     return notification;
+    // }
 
-    @Override
-    public Notification fulfillOrder(OrderWithProducts order) {
-        log.info("fulfillOrder(orderID={})", order.getOrderID());
-        OrderDetailsDTO fetchedOrder = orderService.getOrder(order.getOrderID(), OrderStatus.Confirmed);
-        Boolean status = orderService.updateOrderStatus(fetchedOrder.getOrderID(), OrderStatus.Shipping);
-        // notification
-        Notification notification = new Notification();
-        notification.setTitle("Fulfill Order");
-        notification.setTopic(new Topic(NotificationTopic.Order.name()));
-        if(status){
-            String userID = userService.getUserIdOfCustomerID(order.getCustomerID());
-            notification.setReceiverID(userID);
-            notification.setMessage("Order #" + order.getOrderID() + " has been fulfilled");
-            notification.setStatus(NotificationStatus.SUCCESSFUL.name());
-        }else {
-            String userID = userService.getUserIdOfEmployeeID(order.getEmployeeID());
-            notification.setReceiverID(userID);
-            notification.setMessage("Order #" + order.getOrderID() + " can not be fulfilled");
-            notification.setStatus(NotificationStatus.ERROR.name());
-        }
-        return notification;
-    }
+    // @Override
+    // public Notification fulfillOrder(OrderWithProducts order) {
+    //     log.info("fulfillOrder(orderID={})", order.getOrderID());
+    //     OrderDetailsDTO fetchedOrder = orderService.getOrder(order.getOrderID(), OrderStatus.Confirmed);
+    //     Boolean status = orderService.updateOrderStatus(fetchedOrder.getOrderID(), OrderStatus.Shipping);
+    //     // notification
+    //     Notification notification = new Notification();
+    //     notification.setTitle("Fulfill Order");
+    //     notification.setTopic(new Topic(NotificationTopic.Order.name()));
+    //     if(status){
+    //         String userID = userService.getUserIdOfCustomerID(order.getCustomerID());
+    //         notification.setReceiverID(userID);
+    //         notification.setMessage("Order #" + order.getOrderID() + " has been fulfilled");
+    //         notification.setStatus(NotificationStatus.SUCCESSFUL.name());
+    //     }else {
+    //         String userID = userService.getUserIdOfEmployeeID(order.getEmployeeID());
+    //         notification.setReceiverID(userID);
+    //         notification.setMessage("Order #" + order.getOrderID() + " can not be fulfilled");
+    //         notification.setStatus(NotificationStatus.ERROR.name());
+    //     }
+    //     return notification;
+    // }
 
     @Override
     public Page<Notification> getNotifications(String userID, int pageNumber, int pageSize) {

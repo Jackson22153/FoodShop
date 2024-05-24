@@ -1,4 +1,4 @@
-package com.phucx.shop.service.cookie;
+package com.phucx.shop.service.cart;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import com.phucx.shop.model.OrderWithProducts;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.NotFoundException;
 
-public interface CookieService {
+public interface CartService {
     public void removeProduct(Integer productID, String encodedCartJson, HttpServletResponse response) 
         throws JsonMappingException, JsonProcessingException;
     public OrderWithProducts getOrder(String encodedCartJson, Authentication authentication) 

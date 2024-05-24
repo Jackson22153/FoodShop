@@ -16,10 +16,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @EnableAspectJAutoProxy
 @ComponentScans({
-    @ComponentScan("com.phucx.shop.aspects")
+    @ComponentScan("com.phucx.shop.aspects"),
+    @ComponentScan("com.phucx.shop.messageQueueListener")
 })
 public class WebConfig {  
     public static int PAGE_SIZE = 12;

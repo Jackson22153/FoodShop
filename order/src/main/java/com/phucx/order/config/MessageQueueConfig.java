@@ -17,7 +17,7 @@ public class MessageQueueConfig {
     public final static String ORDER_QUEUE = "order";
     public final static String ORDER_ROUTING_KEY = "order";
 
-    public final static String ORDER_NOTIFICATION_QUEUE = "order-notification";
+    public final static String ORDER_NOTIFICATION_QUEUE = "ordernotification";
     public final static String ORDER_NOTIFICATION_ROUTING_KEY = "ordernotification";
     // creating order message queue
     @Bean

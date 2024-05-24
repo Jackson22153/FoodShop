@@ -15,7 +15,6 @@ import org.springframework.util.MimeTypeUtils;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.config.WebSocketConfig;
 import com.phucx.account.model.Notification;
-import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.service.notification.NotificationService;
 
 @Service
@@ -32,13 +31,13 @@ public class MessageSenderImp implements MessageSender{
         this.rabbitTemplate.convertAndSend(MessageQueueConfig.NOTIFICATION_QUEUE, 
             MessageQueueConfig.NOTIFICATION_ROUTING_KEY, notification);
     }
-    @Override
-    public Notification sendAndReceiveOrder(OrderWithProducts order) {
-        // send order to message queue
-        Notification response = (Notification) this.rabbitTemplate.convertSendAndReceive(
-            MessageQueueConfig.ORDER_QUEUE, MessageQueueConfig.ORDER_ROUTING_KEY, order);
-        return response;
-    }
+    // @Override
+    // public Notification sendAndReceiveOrder(OrderWithProducts order) {
+    //     // send order to message queue
+    //     Notification response = (Notification) this.rabbitTemplate.convertSendAndReceive(
+    //         MessageQueueConfig.ORDER_QUEUE, MessageQueueConfig.ORDER_ROUTING_KEY, order);
+    //     return response;
+    // }
     @Override
     public void sendMessageToUser(String userID, Notification notificationMessage) {
         logger.info("sendMessageToUser(userID={}, notificationMessage={})", userID, notificationMessage.toString());

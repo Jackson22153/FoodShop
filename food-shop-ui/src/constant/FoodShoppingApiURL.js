@@ -3,6 +3,7 @@ const URL = "http://localhost:8060";
 // service
 const ShopService = `${URL}/shop`;
 const AccountService = `${URL}/account`;
+const OrderService = `${URL}/order`;
 // account service
 const AdminUrl = `${AccountService}/admin`;
 // shop service
@@ -19,7 +20,7 @@ const QueueWs = `/queue`
 
 // gateway
 export const LoginUrl = `${URL}/login`;
-export const LogoutUrl = `${URL}/logoutBE`;
+export const LogoutUrl = `${URL}/logout`;
 export const UsernameUrl = `${URL}/user`;
 export const IsAuthenticatedUrl = `${URL}/isAuthenticated`;
 // product
@@ -74,9 +75,9 @@ export const UserInfoUrl = `${UserUrl}/userInfo`;
 export const CartUrl = `${ShopService}/cart`;
 export const CartProductsUrl = `${CartUrl}/products`;
 export const NumberOfCartProductsUrl = `${CartProductsUrl}/number`;
-// websocket
-// account service ws
+// websocket endpoint
 export const AccountWSUrl = `${AccountService}/chat`;
+export const OrderServiceWSUrl = `${OrderService}/chat`;
 // customer
 const CustomerWsUrl = `${AppPrefixDestinationUrl}/customer`;
 const CustomerOrderWsUrl = `${CustomerWsUrl}/order`;

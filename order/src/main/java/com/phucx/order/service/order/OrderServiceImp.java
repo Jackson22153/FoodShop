@@ -38,12 +38,8 @@ import com.phucx.order.repository.OrderDetailsRepository;
 import com.phucx.order.repository.OrderRepository;
 import com.phucx.order.repository.ShipperRepository;
 import com.phucx.order.service.bigdecimal.BigDecimalService;
-import com.phucx.order.service.customer.CustomerService;
 import com.phucx.order.service.discount.DiscountService;
-import com.phucx.order.service.employee.EmployeeService;
 import com.phucx.order.service.product.ProductService;
-import com.phucx.order.service.shipper.ShipperService;
-
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -112,10 +108,10 @@ public class OrderServiceImp implements OrderService{
         Shipper shipper = shipperRepository.findById(order.getShipVia())
             .orElseThrow(()-> new NotFoundException("Shipper "+order.getShipVia()+" does not found"));
         // save order
-        Order newOrder = new Order(customer.getCustomerID(), employee.getEmployeeID(), order.getOrderDate(), order.getRequiredDate(), 
-            order.getShippedDate(), shipper.getShipperID(), bigDecimalService.formatter(order.getFreight()), 
-            order.getShipName(), order.getShipAddress(),  order.getShipCity(), order.getPhone(), 
-            OrderStatus.Pending);
+        Order newOrder = new Order(customer.getCustomerID(), employee!=null?employee.getEmployeeID():null, 
+            order.getOrderDate(), order.getRequiredDate(), order.getShippedDate(), shipper.getShipperID(), 
+            bigDecimalService.formatter(order.getFreight()), order.getShipName(), order.getShipAddress(),  
+            order.getShipCity(), order.getPhone(), OrderStatus.Pending);
         Order checkOrder = orderRepository.saveAndFlush(newOrder);
         if(checkOrder==null) throw new RuntimeException("Error while saving order");
         return checkOrder;

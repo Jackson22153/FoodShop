@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.phucx.shop.config.WebConfig;
 import com.phucx.shop.model.Category;
 import com.phucx.shop.model.CurrentProductList;
-import com.phucx.shop.model.CurrentSalesProduct;
+import com.phucx.shop.model.ProductDetail;
 import com.phucx.shop.service.category.CategoryService;
 import com.phucx.shop.service.product.ProductService;
 
@@ -79,10 +79,8 @@ public class HomeController {
     }
     
     @GetMapping("products/id/{productID}")
-    public ResponseEntity<CurrentSalesProduct> getProductByID(
-        @PathVariable(name = "productID") Integer productID
-    ){
-        CurrentSalesProduct productDetails = productService.getCurrentSalesProductsByID(productID);
+    public ResponseEntity<ProductDetail> getProductByID(@PathVariable(name = "productID") Integer productID){
+        ProductDetail productDetails = productService.getProductDetail(productID);
         return ResponseEntity.ok().body(productDetails);
     }
 

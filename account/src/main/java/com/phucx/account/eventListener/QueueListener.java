@@ -26,7 +26,7 @@ import com.phucx.account.exception.InvalidOrderException;
 @Slf4j
 @Component
 @RabbitListeners({
-    @RabbitListener(queues = MessageQueueConfig.ORDER_QUEUE),
+    // @RabbitListener(queues = MessageQueueConfig.ORDER_QUEUE),
     @RabbitListener(queues = MessageQueueConfig.NOTIFICATION_QUEUE)
 })
 public class QueueListener {
