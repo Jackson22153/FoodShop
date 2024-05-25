@@ -1,6 +1,5 @@
 package com.phucx.shop.repository;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.phucx.shop.model.Discount;
-import com.phucx.shop.model.DiscountType;
 
 
 @Repository
@@ -27,24 +25,24 @@ public interface DiscountRepository extends JpaRepository<Discount, String>{
 
     @Query("""
         SELECT d \
-        FROM ProductDiscount pd JOIN Discount d ON pd.discount.discountID=d.discountID \
-        WHERE d.discountID=?1 AND pd.product.productID=?2
+        FROM ProductDiscount pd JOIN Discount d ON pd.discountID=d.discountID \
+        WHERE d.discountID=?1 AND pd.productID=?2
         """)
     Optional<Discount> findByDiscountIDAndProductID(String discountID, Integer productID);
 
     @Modifying
     @Transactional
     @Query("""
-        UPDATE Discount SET discountPercent=?2, discountType=?3, discountCode=?4, startDate=?5, endDate=?6 \
+        UPDATE Discount SET discountPercent=?2, discountTypeID=?3, discountCode=?4, startDate=?5, endDate=?6 \
         WHERE discountID=?1 
             """)
-    Integer updateDiscount(String discountID, BigDecimal discountPercent, DiscountType discountType,
+    Integer updateDiscount(String discountID, Integer discountPercent, Integer discountTypeID,
         String discountCode, LocalDateTime startDate, LocalDateTime endDate);
 
     @Query("""
         SELECT d \
-        FROM Discount d JOIN ProductDiscount pd ON d.discountID=pd.discount.discountID \
-        WHERE pd.product.productID=?1
+        FROM Discount d JOIN ProductDiscount pd ON d.discountID=pd.discountID \
+        WHERE pd.productID=?1
             """)
     Page<Discount> findByProductID(int productID, Pageable pageable);
 }

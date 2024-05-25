@@ -1,10 +1,8 @@
-package com.phucx.order.service.messageQueue.sender;
+package com.phucx.order.service.messageQueue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageHeaders;
@@ -14,19 +12,23 @@ import org.springframework.util.MimeTypeUtils;
 
 import com.phucx.order.config.MessageQueueConfig;
 import com.phucx.order.constant.WebSocketConstant;
+import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Notification;
 import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.service.notification.NotificationService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
-public class MessageSenderImp implements MessageSender{
+public class MessageQueueServiceImp implements MessageQueueService{
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private NotificationService notificationService;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
-    private Logger logger = LoggerFactory.getLogger(MessageSenderImp.class);
+
     @Override
     public void sendNotification(Notification notification) {
         this.rabbitTemplate.convertAndSend(MessageQueueConfig.ORDER_NOTIFICATION_QUEUE, 
@@ -41,7 +43,7 @@ public class MessageSenderImp implements MessageSender{
     }
     @Override
     public void sendNotificationToUser(String userID, Notification notificationMessage) {
-        logger.info("sendMessageToUser(userID={}, notificationMessage={})", userID, notificationMessage.toString());
+        log.info("sendMessageToUser(userID={}, notificationMessage={})", userID, notificationMessage.toString());
         // save notification
         notificationService.createNotification(notificationMessage);
         // send notification
@@ -63,10 +65,17 @@ public class MessageSenderImp implements MessageSender{
 
     @Override
     public void sendMessageToUser(String userID, Notification notificationMessage) {
-        logger.info("sendMessageToUser(userID={}, notificationMessage={})", userID, notificationMessage.toString());
+        log.info("sendMessageToUser(userID={}, notificationMessage={})", userID, notificationMessage.toString());
         // save notification
         notificationService.createNotification(notificationMessage);
         // send notification
         simpMessagingTemplate.convertAndSendToUser(userID, WebSocketConstant.QUEUE_MESSAGES, notificationMessage, getHeaders());
+    }
+    @Override
+    @SuppressWarnings("unchecked")
+    public EventMessage<Object> sendAndReceiveData(Object message, String queueName, String routingKey) {
+        log.info("sendAndReceiveData(message={}, queueName={}, routingKey={})", message, queueName, routingKey);
+        EventMessage<Object> eventMessage = (EventMessage<Object>) this.rabbitTemplate.convertSendAndReceive(queueName, routingKey, message);
+        return eventMessage;
     }
 }

@@ -11,9 +11,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedStoredProcedureQueries;
+import jakarta.persistence.NamedStoredProcedureQuery;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,10 +26,28 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Orders")
+@NamedStoredProcedureQueries({
+    @NamedStoredProcedureQuery(name = "Order.insertOrder", procedureName = "InsertOrder",
+        parameters = {
+            @StoredProcedureParameter(name="orderID", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="orderDate", mode = ParameterMode.IN, type = LocalDateTime.class),
+            @StoredProcedureParameter(name="requiredDate", mode = ParameterMode.IN, type = LocalDateTime.class),
+            @StoredProcedureParameter(name="shippedDate", mode = ParameterMode.IN, type = LocalDateTime.class),
+            @StoredProcedureParameter(name="freight", mode = ParameterMode.IN, type = BigDecimal.class),
+            @StoredProcedureParameter(name="shipName", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="shipAddress", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="shipCity", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="phone", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="status", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="customerID", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="shipperID", mode = ParameterMode.IN, type = Integer.class),
+            @StoredProcedureParameter(name="result", mode = ParameterMode.IN, type = Boolean.class),
+        })
+})
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
-    private Integer orderID;
+    private String orderID;
 
     private String customerID;
 

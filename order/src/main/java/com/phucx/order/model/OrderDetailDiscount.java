@@ -1,9 +1,11 @@
 package com.phucx.order.model;
 
 import java.time.LocalDateTime;
-import com.phucx.order.compositeKey.OrderDetailsDiscountsID;
-import jakarta.persistence.EmbeddedId;
+
+import com.phucx.order.compositeKey.OrderDetailDiscountID;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.NamedStoredProcedureQuery;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureParameter;
@@ -17,19 +19,24 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@IdClass(OrderDetailDiscountID.class)
 @Table(name = "OrderDetailsDiscounts")
 @NamedStoredProcedureQuery(name = "OrderDetailsDiscounts.insertOrderDetailDiscount", 
     procedureName = "InsertOrderDetailDiscount", 
     parameters = {
-        @StoredProcedureParameter(name="orderID", type = Integer.class, mode = ParameterMode.IN),
+        @StoredProcedureParameter(name="orderID", type = String.class, mode = ParameterMode.IN),
         @StoredProcedureParameter(name="productID", type = Integer.class, mode = ParameterMode.IN),
         @StoredProcedureParameter(name="discountID", type = String.class, mode = ParameterMode.IN),
         @StoredProcedureParameter(name="appliedDate", type = LocalDateTime.class, mode = ParameterMode.IN),
         @StoredProcedureParameter(name="result", type = Boolean.class, mode = ParameterMode.OUT),
     })
-public class OrderDetailsDiscounts {
-    @EmbeddedId
-    private OrderDetailsDiscountsID id;
+public class OrderDetailDiscount {
+    @Id
+    private String orderID;
+    @Id
+    private Integer productID;
+    @Id
+    private String discountID;
     private Integer discountPercent;
     private LocalDateTime appliedDate;
 

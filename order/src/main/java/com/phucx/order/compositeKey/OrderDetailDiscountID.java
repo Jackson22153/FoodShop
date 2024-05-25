@@ -3,13 +3,12 @@ package com.phucx.order.compositeKey;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
-@ToString
-@NoArgsConstructor
 @AllArgsConstructor
-public class OrderDetailsExtendedID {
-    private Integer orderID;
+@NoArgsConstructor
+public class OrderDetailDiscountID {
+    private String orderID;
     private Integer productID;
+    private String discountID;
 }

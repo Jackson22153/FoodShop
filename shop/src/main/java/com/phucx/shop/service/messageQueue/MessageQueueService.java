@@ -1,7 +1,5 @@
 package com.phucx.shop.service.messageQueue;
 
-import com.phucx.shop.model.EventMessage;
-
 public interface MessageQueueService {
-    public Object sendAndReceiveData(EventMessage message, String queueName, String routingKey);
+    public Object sendAndReceiveData(Object message, String queueName, String routingKey);
 }

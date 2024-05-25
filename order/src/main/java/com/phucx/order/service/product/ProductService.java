@@ -5,7 +5,9 @@ import java.util.List;
 import com.phucx.order.model.Product;
 
 public interface ProductService {
-    public Product getProduct(int productID);
-    public Boolean updateProductInStocks(int productID, int value);
+    // public List<Product> getProducts(List<Integer> productIDs);
+    
+    public Boolean updateProductInStocks(List<Product> products);
     public List<Product> getProducts(List<Integer> productIDs);
+    public Product getProduct(int productID);
 }

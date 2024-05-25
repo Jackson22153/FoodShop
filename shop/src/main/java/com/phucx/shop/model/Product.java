@@ -25,7 +25,7 @@ public class Product {
     @Column(name = "ProductName", length = 40, nullable = false)
     private String productName;
 
-    private String categoryID;
+    private Integer categoryID;
 
     @Column(name = "QuantityPerUnit", length = 20)
     private String quantityPerUnit;

@@ -1,4 +1,4 @@
-package com.phucx.order.model;
+package com.phucx.order.compositeKey;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,8 +8,7 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
-    private String userID;
-    private String username;
-    private String email;
+public class OrderDetailKey {
+    private Integer productID;
+    private String orderID;
 }

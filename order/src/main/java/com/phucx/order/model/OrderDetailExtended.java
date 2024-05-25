@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import org.springframework.data.annotation.Immutable;
 
-import com.phucx.order.compositeKey.OrderDetailsExtendedID;
+import com.phucx.order.compositeKey.OrderDetailKey;
 import com.phucx.order.constant.OrderStatus;
 
 import jakarta.persistence.Entity;
@@ -24,24 +24,19 @@ import lombok.ToString;
 @Immutable
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(OrderDetailsExtendedID.class)
-@Table(name = "Order Details Extended Status")
-public class OrderDetailsExtendedStatus {
+@IdClass(OrderDetailKey.class)
+@Table(name = "Order Details Extended")
+public class OrderDetailExtended {
     @Id
-    private Integer orderID;
+    private String orderID;
     @Id
     private Integer productID;
-    private String productName;
     private BigDecimal unitPrice;
     private Integer quantity;
     private Integer discount;
-    private String picture;
     private BigDecimal extendedPrice;
     @Enumerated(EnumType.STRING)
     private OrderStatus status; 
-
-    private String employeeID;
     private String customerID;
-    private String contactName;
-    private String customerPicture;
+    private String employeeID;
 }

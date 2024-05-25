@@ -8,8 +8,12 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
-    private String userID;
+public class UserRequest {
     private String username;
-    private String email;
+    private String userID;
+    private String employeeID;
+    private String customerID;
+    private Integer shipperID;
+    private Integer pageNumber;
+    private Integer pageSize;
 }

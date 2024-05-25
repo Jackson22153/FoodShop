@@ -1,5 +1,7 @@
 package com.phucx.order.repository;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -7,28 +9,40 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.model.Order;
 
+
 @Repository
-public interface OrderRepository extends JpaRepository<Order, Integer>{
+public interface OrderRepository extends JpaRepository<Order, String>{
+
+    Optional<Order> findByOrderIDAndStatus(String orderID, OrderStatus status);
+
+    @Modifying
+    @Transactional
+    @Procedure("insertOrder")
+    public Boolean insertOrder(String orderID, 
+        LocalDateTime orderDate, LocalDateTime requiredDate, LocalDateTime shippedDate, 
+        BigDecimal freight, String shipName, String shipAddress, String shipCity, 
+        String phone, String status, String customerID, String employeeID, Integer shipperID);
 
     @Modifying
     @Transactional
     @Query("""
         UPDATE Order SET status=?2 WHERE orderID=?1    
         """)
-    public Integer updateOrderStatus(Integer orderID, OrderStatus status);
+    public Integer updateOrderStatus(String orderID, OrderStatus status);
 
     @Modifying
     @Transactional
     @Query("""
         UPDATE Order SET employeeID=?2 WHERE orderID=?1    
         """)
-    public Integer updateOrderEmployeeID(Integer orderID, String employeeID);
+    public Integer updateOrderEmployeeID(String orderID, String employeeID);
     
     @Query("""
         SELECT o FROM Order o WHERE o.status=?1    

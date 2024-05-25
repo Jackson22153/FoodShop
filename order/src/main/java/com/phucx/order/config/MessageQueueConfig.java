@@ -14,11 +14,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MessageQueueConfig {
     // message queue 
-    public final static String ORDER_QUEUE = "order";
-    public final static String ORDER_ROUTING_KEY = "order";
+    public final static String ORDER_QUEUE = "orderservice";
+    public final static String ORDER_ROUTING_KEY = "orderservice";
 
     public final static String ORDER_NOTIFICATION_QUEUE = "ordernotification";
     public final static String ORDER_NOTIFICATION_ROUTING_KEY = "ordernotification";
+
     // creating order message queue
     @Bean
     public Queue orderQueue(){

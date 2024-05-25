@@ -22,22 +22,22 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
        @Query("""
               SELECT p \
-              FROM Product p \
-              WHERE p.categoryID.categoryName=:categoryName \
+              FROM Product p JOIN Category c ON p.categoryID=c.categoryID \
+              WHERE c.categoryName=:categoryName \
               """)
        Page<Product> findByCategoryName(String categoryName, Pageable page);
 
        @Query("""
               SELECT p \
-              FROM Product p \
-              WHERE p.categoryID.categoryName=?1 AND p.productName=?2
+              FROM Product p JOIN Category c ON p.categoryID=c.categoryID \
+              WHERE c.categoryName=?1 AND p.productName=?2
               """)
        Product findByCategoryNameAndProductName(String categoryName, String productName);
 
        @Query("""
               SELECT p \
-              FROM Product p \
-              WHERE p.categoryID.categoryName LIKE ?1       
+              FROM Product p JOIN Category c ON p.categoryID=c.categoryID \
+              WHERE c.categoryName LIKE ?1       
               """)
        Page<Product> findByCategoryNameLike(String categoryName, Pageable page);
 

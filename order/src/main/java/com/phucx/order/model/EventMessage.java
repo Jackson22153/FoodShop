@@ -1,6 +1,6 @@
-package com.phucx.shop.model;
+package com.phucx.order.model;
 
-import com.phucx.shop.constant.EventType;
+import com.phucx.order.constant.EventType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data @ToString
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class EventMessage<T> {
     private String eventId;
     private EventType eventType;

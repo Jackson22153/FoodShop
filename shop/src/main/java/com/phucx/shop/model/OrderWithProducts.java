@@ -12,7 +12,7 @@ import lombok.ToString;
 
 @Data @ToString
 public class OrderWithProducts {
-    private Integer orderID;
+    private String orderID;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderDate;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -32,7 +32,7 @@ public class OrderWithProducts {
 
 
 
-    public OrderWithProducts(Integer orderID, LocalDateTime orderDate, 
+    public OrderWithProducts(String orderID, LocalDateTime orderDate, 
             LocalDateTime requiredDate, LocalDateTime shippedDate,
             Integer shipVia, BigDecimal freight, String shipName,
             String shipAddress, String shipCity, String phone) {
@@ -50,7 +50,7 @@ public class OrderWithProducts {
     }
 
 
-    public OrderWithProducts(Integer orderID, LocalDateTime orderDate, 
+    public OrderWithProducts(String orderID, LocalDateTime orderDate, 
             LocalDateTime requiredDate, LocalDateTime shippedDate,
             Integer shipVia, String shipName, String shipAddress,
             String shipCity, String phone) {
@@ -67,7 +67,7 @@ public class OrderWithProducts {
     }
 
 
-    public OrderWithProducts(Integer orderID, LocalDateTime orderDate, 
+    public OrderWithProducts(String orderID, LocalDateTime orderDate, 
             LocalDateTime requiredDate, LocalDateTime shippedDate,
             Integer shipVia, BigDecimal freight, String shipName,
             String shipAddress, String shipCity, String phone, BigDecimal totalPrice) {
@@ -86,7 +86,7 @@ public class OrderWithProducts {
     }
 
 
-    public OrderWithProducts(Integer orderID, LocalDateTime orderDate, 
+    public OrderWithProducts(String orderID, LocalDateTime orderDate, 
             LocalDateTime requiredDate, LocalDateTime shippedDate, List<OrderItem> products, 
             Integer shipVia, BigDecimal freight, String shipName, String shipAddress, String shipCity, 
             String phone, BigDecimal totalPrice) {

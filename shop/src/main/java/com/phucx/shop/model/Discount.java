@@ -1,6 +1,5 @@
 package com.phucx.shop.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
@@ -19,7 +18,7 @@ import lombok.ToString;
 public class Discount {
     @Id
     private String discountID;
-    private BigDecimal discountPercent;
+    private Integer discountPercent;
     private Integer discountTypeID;
     private String discountCode;
     private LocalDateTime startDate;

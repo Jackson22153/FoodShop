@@ -9,6 +9,7 @@ import com.phucx.shop.constant.EventType;
 import com.phucx.shop.constant.MessageQueueConstant;
 import com.phucx.shop.model.Customer;
 import com.phucx.shop.model.EventMessage;
+import com.phucx.shop.model.UserRequest;
 import com.phucx.shop.service.messageQueue.MessageQueueService;
 
 import jakarta.ws.rs.NotFoundException;
@@ -23,11 +24,12 @@ public class CustomerServiceImp implements CustomerService{
     @Override
     public Customer getCustomerByUserID(String userID) {
         log.info("getCustomerByUserID(userID={})", userID);
-        Customer customer = new Customer();
-        customer.setUserID(userID);
+        UserRequest userRequest = new UserRequest();
+        userRequest.setUserID(userID);
+
         String eventID = UUID.randomUUID().toString();
         // fetching customer from account service
-        EventMessage eventMessage = new EventMessage(eventID, EventType.GetCustomerByUserID, customer);
+        EventMessage<UserRequest> eventMessage = new EventMessage<>(eventID, EventType.GetCustomerByUserID, userRequest);
         Customer fetchedCustomer = (Customer) messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.ACCOUNT_QUEUE, 
             MessageQueueConstant.ACCOUNT_ROUTING_KEY);
