@@ -11,7 +11,7 @@ import lombok.ToString;
 
 @Data @ToString
 public class OrderDetailsDTO {
-    private Integer orderID;
+    private String orderID;
     private List<ProductDTO> products;
     private BigDecimal totalPrice;
     private OrderStatus status;
@@ -20,7 +20,7 @@ public class OrderDetailsDTO {
     private String contactName;
     private String picture;
 
-    public OrderDetailsDTO(Integer orderID, BigDecimal totalPrice, String customerID, String contactName, String picture, OrderStatus status) {
+    public OrderDetailsDTO(String orderID, BigDecimal totalPrice, String customerID, String contactName, String picture, OrderStatus status) {
         this();
         this.orderID = orderID;
         this.totalPrice = totalPrice;
@@ -29,7 +29,7 @@ public class OrderDetailsDTO {
         this.picture = picture;
         this.status = status;
     }
-    public OrderDetailsDTO(Integer orderID, List<ProductDTO> products, BigDecimal totalPrice, String customerID, String contactName, String picture, OrderStatus status) {
+    public OrderDetailsDTO(String orderID, List<ProductDTO> products, BigDecimal totalPrice, String customerID, String contactName, String picture, OrderStatus status) {
         this.orderID = orderID;
         this.products = products;
         this.totalPrice = totalPrice;

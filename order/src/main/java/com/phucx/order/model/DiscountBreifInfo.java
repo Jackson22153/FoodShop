@@ -1,4 +1,4 @@
-package com.phucx.account.model;
+package com.phucx.order.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,8 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class DiscountTypeOfProduct {
+public class DiscountBreifInfo {
+    private String discountID;
+    private Integer discountPercent;
     private String discountType;
-    private Integer countType;
 }

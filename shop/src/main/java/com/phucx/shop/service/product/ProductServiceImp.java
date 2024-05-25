@@ -10,8 +10,10 @@ import com.phucx.shop.model.CurrentProductList;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
 import com.phucx.shop.repository.CurrentProductListRepository;
-import com.phucx.shop.repository.ProductDetailsRepository;
+import com.phucx.shop.repository.ProductDetailRepository;
 import com.phucx.shop.repository.ProductRepository;
+
+import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +25,7 @@ public class ProductServiceImp implements ProductService{
     @Autowired
     private CurrentProductListRepository currentProductListRepository;
     @Autowired
-    private ProductDetailsRepository productDetailsRepository;
+    private ProductDetailRepository productDetailRepository;
 
     @Override
     public List<Product> getProducts() {
@@ -121,7 +123,7 @@ public class ProductServiceImp implements ProductService{
 
     @Override
     public ProductDetail getProductDetail(int productID) {
-        ProductDetail product = productDetailsRepository.findById(productID)
+        ProductDetail product = productDetailRepository.findById(productID)
             .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
         return product;
     }
@@ -134,6 +136,34 @@ public class ProductServiceImp implements ProductService{
         Page<CurrentProductList> products = currentProductListRepository.findRandomByCategoryName(productID, categoryName, page);
         
         return products;
+    }
+
+    @Override
+    public boolean updateProductDetail(ProductDetail productDetail) {  
+        log.info("updateProductDetail()", productDetail.toString());
+        if(productDetail.getProductID()==null) throw new NotFoundException("Product Id is null");
+        ProductDetail fetchedProduct = productDetailRepository.findById(productDetail.getProductID())
+            .orElseThrow(()-> new NotFoundException("Product " + productDetail.getProductID() + " does not found"));
+        
+        Boolean result = productDetailRepository.updateProduct(fetchedProduct.getProductID(), productDetail.getProductName(), 
+            productDetail.getQuantityPerUnit(), productDetail.getUnitPrice(), productDetail.getUnitsInStock(),  
+            productDetail.getDiscontinued(), productDetail.getPicture(), productDetail.getDescription(), 
+            productDetail.getCategoryID());
+        return result;
+    }
+    @Override
+    public boolean insertProductDetail(ProductDetail productDetail) {
+        log.info("insertProductDetail({})", productDetail);
+        List<Product> products = productRepository.findByProductName(productDetail.getProductName());
+        if(!products.isEmpty()){
+            throw new EntityExistsException("Product " + productDetail.getProductName() + " already exists");
+        }
+        Boolean result = productDetailRepository.insertProduct(
+            productDetail.getProductName(), productDetail.getQuantityPerUnit(), 
+            productDetail.getUnitPrice(), productDetail.getUnitsInStock(), 
+            productDetail.getDiscontinued(), productDetail.getPicture(), 
+            productDetail.getDescription(), productDetail.getCategoryID());
+        return result;
     }
 
 }

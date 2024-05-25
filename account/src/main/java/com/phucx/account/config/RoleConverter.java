@@ -16,6 +16,7 @@ public class RoleConverter implements Converter<Jwt, Collection<GrantedAuthority
 
     @Override
     @Nullable
+    @SuppressWarnings("unchecked")
     public Collection<GrantedAuthority> convert(Jwt token) {
         Map<String, Object> roles = 
             (Map<String, Object>) token.getClaims().get(WebConfig.REALM_ACCESS_CLAIM);

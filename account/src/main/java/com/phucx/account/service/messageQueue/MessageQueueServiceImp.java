@@ -1,10 +1,8 @@
-package com.phucx.account.service.messageQueue.sender;
+package com.phucx.account.service.messageQueue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageHeaders;
@@ -14,18 +12,21 @@ import org.springframework.util.MimeTypeUtils;
 
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.config.WebSocketConfig;
+import com.phucx.account.model.EventMessage;
 import com.phucx.account.model.Notification;
 import com.phucx.account.service.notification.NotificationService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
-public class MessageSenderImp implements MessageSender{
+public class MessageQueueServiceImp implements MessageQueueService{
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private NotificationService notificationService;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
-    private Logger logger = LoggerFactory.getLogger(MessageSenderImp.class);
     @Override
     public void sendNotification(Notification notification) {
         this.rabbitTemplate.convertAndSend(MessageQueueConfig.NOTIFICATION_QUEUE, 
@@ -40,7 +41,7 @@ public class MessageSenderImp implements MessageSender{
     // }
     @Override
     public void sendMessageToUser(String userID, Notification notificationMessage) {
-        logger.info("sendMessageToUser(userID={}, notificationMessage={})", userID, notificationMessage.toString());
+        log.info("sendMessageToUser(userID={}, notificationMessage={})", userID, notificationMessage.toString());
         // save notification
         notificationService.createNotification(notificationMessage);
         // send notification
@@ -58,5 +59,12 @@ public class MessageSenderImp implements MessageSender{
         notificationService.createNotification(notification);
         // send notification to notification/order topic
         this.simpMessagingTemplate.convertAndSend(WebSocketConfig.TOPIC_EMPLOYEE_NOTIFICAITON_ORDER, notification);
+    }
+    @Override
+    @SuppressWarnings("unchecked")
+    public EventMessage<Object> sendAndReceiveData(Object message, String queueName, String routingKey) {
+        log.info("sendAndReceiveData(message={}, queueName={}, routingKey={})", message, queueName, routingKey);
+        EventMessage<Object> eventMessage = (EventMessage<Object>) this.rabbitTemplate.convertSendAndReceive(queueName, routingKey, message);
+        return eventMessage;
     }
 }

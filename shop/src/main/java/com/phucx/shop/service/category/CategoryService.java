@@ -11,4 +11,8 @@ public interface CategoryService {
     public Page<Category> getCategories(int pageNumber, int pageSize);
     public Category getCategory(int categoryID);
     public Category getCategory(String categoryName);
+    // update 
+    boolean updateCategory(Category category);
+    // create
+    boolean createCategory(Category category);
 } 

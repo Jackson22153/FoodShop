@@ -8,6 +8,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedStoredProcedureQueries;
+import jakarta.persistence.NamedStoredProcedureQuery;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +23,33 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "ProductDetails")
+@NamedStoredProcedureQueries({
+    @NamedStoredProcedureQuery(name = "ProductDetails.updateProduct",
+    procedureName = "updateProduct", parameters = {
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "productId", type = Integer.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "productName", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "quantityPerUnit", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitPrice", type = BigDecimal.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitsInStock", type = Integer.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "discontinued", type = Boolean.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "picture", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "description", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "categoryID", type = Integer.class),
+        @StoredProcedureParameter(mode = ParameterMode.OUT, name = "result", type = Boolean.class)
+    }),
+    @NamedStoredProcedureQuery(name = "ProductDetails.insertProduct",
+    procedureName = "insertProduct", parameters = {
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "productName", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "quantityPerUnit", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitPrice", type = BigDecimal.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "unitsInStock", type = Integer.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "discontinued", type = Boolean.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "picture", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "description", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "categoryID", type = Integer.class),
+        @StoredProcedureParameter(mode = ParameterMode.OUT, name = "result", type = Boolean.class)
+    })
+})
 public class ProductDetail{
     @Id
     private Integer productID;

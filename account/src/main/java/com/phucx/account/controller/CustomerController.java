@@ -16,17 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
-import com.phucx.account.exception.InvalidDiscountException;
-import com.phucx.account.exception.InvalidOrderException;
-import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.Customer;
+import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.InvoiceDTO;
 import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetailsDTO;
-import com.phucx.account.model.OrderItem;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.customer.CustomerService;
-import com.phucx.account.service.discount.DiscountService;
 import com.phucx.account.service.user.UserService;
 
 
@@ -38,15 +34,13 @@ public class CustomerController {
     private CustomerService customerService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private DiscountService discountService;
 
     @GetMapping("/isCustomer")
     public ResponseEntity<ResponseFormat> isCustomer(){
         return ResponseEntity.ok().body(new ResponseFormat(true));
     }
     // GET CUSTOMER'S INFOMATION
-    @GetMapping("info")
+    @GetMapping("/info")
     public ResponseEntity<CustomerDetail> getUserInfo(Authentication authentication){
         String username = userService.getUsername(authentication);
         logger.info("username: {}", username);
@@ -54,7 +48,7 @@ public class CustomerController {
         return ResponseEntity.ok().body(customer);
     }
     // UPDATE CUSTOMER'S INFOMATION
-    @PostMapping("info")
+    @PostMapping("/info")
     public ResponseEntity<ResponseFormat> updateUserInfo(
         Authentication authentication,
         @RequestBody CustomerDetail customer
@@ -63,18 +57,9 @@ public class CustomerController {
         return ResponseEntity.ok().body(new ResponseFormat(check));
     }
 
-    @GetMapping("/discount/validate")
-    public ResponseEntity<ResponseFormat> validateDiscount(
-        @RequestBody OrderItem orderItem) throws InvalidDiscountException
-    {
-        Boolean status = discountService.validateDiscountsOfProduct(orderItem);
-        return ResponseEntity.ok().body(new ResponseFormat(status));
-    }
-    // get INVOICE of customer
+        // get INVOICE of customer
     @GetMapping("/orders/{orderID}")
-    public ResponseEntity<InvoiceDTO> getOrderDetail(
-        @PathVariable Integer orderID, Authentication authentication
-    ) throws InvalidOrderException{    
+    public ResponseEntity<InvoiceDTO> getOrder(@PathVariable String orderID, Authentication authentication){    
         String username = userService.getUsername(authentication);
         Customer customer = customerService.getCustomerByUsername(username);
         InvoiceDTO order = customerService.getInvoice(orderID, customer.getCustomerID());
@@ -92,10 +77,10 @@ public class CustomerController {
         String username = userService.getUsername(authentication);
         Customer customer = customerService.getCustomerByUsername(username);
         OrderStatus status = null;
-        if(orderStatus==null){
-            status = OrderStatus.All;
-        }else {
+        if(orderStatus!=null){
             status = OrderStatus.fromString(orderStatus.toUpperCase());
+        }else {
+            status=OrderStatus.All;
         }
         Page<OrderDetailsDTO> orders = customerService.getOrders(
             pageNumber, WebConstant.PAGE_SIZE, customer.getCustomerID(), status);

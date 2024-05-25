@@ -1,13 +1,12 @@
 package com.phucx.account.service.customer;
 
 import org.springframework.data.domain.Page;
-import com.phucx.account.constant.OrderStatus;
-import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.CustomerDetailDTO;
-import com.phucx.account.model.Customer;
 import com.phucx.account.model.InvoiceDTO;
+import com.phucx.account.constant.OrderStatus;
+import com.phucx.account.model.Customer;
 import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetailsDTO;
 
@@ -18,6 +17,10 @@ public interface CustomerService {
     public CustomerDetailDTO getCustomerDetailByCustomerID(String customerID);
     public CustomerDetail getCustomerDetail(String username);
     public Page<CustomerAccount> getAllCustomers(int pageNumber, int pageSize);
+    public Customer getCustomerByUserID(String userID);
+    // get order
+    public Page<OrderDetailsDTO> getOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus);
+    public InvoiceDTO getInvoice(String orderID, String customerID);
     // create/ update customer
     public boolean addNewCustomer(CustomerAccount customer);
     public boolean updateCustomerInfo(CustomerDetail customer);
@@ -26,15 +29,6 @@ public interface CustomerService {
     public Page<CustomerAccount> searchCustomersByContactName(String contactName, int pageNumber, int pageSize);
     public Page<CustomerAccount> searchCustomersByUsername(String username, int pageNumber, int pageSize);
     public Page<CustomerAccount> searchCustomersByEmail(String email, int pageNumber, int pageSize);
-    // get customer's order
-    public Page<OrderDetailsDTO> getOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus);
-    public InvoiceDTO getInvoice(int orderID, String customerID) throws InvalidOrderException;
-
-    // place an order by customer
-    // public OrderWithProducts placeOrder(OrderWithProducts order) 
-    //     throws InvalidDiscountException, InvalidOrderException, NotFoundException, SQLException, RuntimeException;
-    // public Notification receiveOrder(OrderWithProducts order);
-
     // notification
     Page<Notification> getNotifications(String userID, int pageNumber, int pageSize);
     Boolean turnOffNotification(String notificationID, String userID);

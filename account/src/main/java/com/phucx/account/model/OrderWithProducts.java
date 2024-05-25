@@ -13,7 +13,7 @@ import lombok.ToString;
 
 @Data @ToString
 public class OrderWithProducts {
-    private Integer orderID;
+    private String orderID;
 
     private String customerID;
     private String contactName;
@@ -43,7 +43,7 @@ public class OrderWithProducts {
 
 
 
-    public OrderWithProducts(Integer orderID, String customerID, String contactName, String employeeID,
+    public OrderWithProducts(String orderID, String customerID, String contactName, String employeeID,
             String salesPerson, LocalDateTime orderDate, LocalDateTime requiredDate, LocalDateTime shippedDate,
             Integer shipVia, String shipperName, String shipperPhone, BigDecimal freight, String shipName,
             String shipAddress, String shipCity, String phone, OrderStatus status) {
@@ -68,7 +68,7 @@ public class OrderWithProducts {
     }
 
 
-    public OrderWithProducts(Integer orderID, String customerID, String contactName, String employeeID,
+    public OrderWithProducts(String orderID, String customerID, String contactName, String employeeID,
             String salesPerson, LocalDateTime orderDate, LocalDateTime requiredDate, LocalDateTime shippedDate,
             Integer shipVia, String shipperName, String shipperPhone, String shipName, String shipAddress,
             String shipCity, String phone, OrderStatus status) {
@@ -92,7 +92,7 @@ public class OrderWithProducts {
     }
 
 
-    public OrderWithProducts(Integer orderID, String customerID, String contactName, String employeeID,
+    public OrderWithProducts(String orderID, String customerID, String contactName, String employeeID,
             String salesPerson, LocalDateTime orderDate, LocalDateTime requiredDate, LocalDateTime shippedDate,
             Integer shipVia, String shipperName, String shipperPhone, BigDecimal freight, String shipName,
             String shipAddress, String shipCity, String phone, BigDecimal totalPrice, OrderStatus status) {
@@ -118,7 +118,7 @@ public class OrderWithProducts {
     }
 
 
-    public OrderWithProducts(Integer orderID, String customerID, String contactName, String employeeID,
+    public OrderWithProducts(String orderID, String customerID, String contactName, String employeeID,
             String salesPerson, LocalDateTime orderDate, LocalDateTime requiredDate, LocalDateTime shippedDate,
             List<OrderItem> products, Integer shipVia, String shipperName, String shipperPhone, BigDecimal freight,
             String shipName, String shipAddress, String shipCity, String phone, BigDecimal totalPrice, OrderStatus status) {

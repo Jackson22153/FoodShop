@@ -19,6 +19,9 @@ public class MessageQueueConfig {
 
     public final static String NOTIFICATION_QUEUE = "accountnotification";
     public final static String NOTIFICATION_ROUTING_KEY = "accountnotification";
+
+    public final static String ACCOUNT_QUEUE = "accountserivce";
+    public final static String ACCOUNT_ROUTING_KEY = "accountserivce";
     // creating order message queue
     // @Bean
     // public Queue orderQueue(){
@@ -51,6 +54,24 @@ public class MessageQueueConfig {
         return BindingBuilder.bind(notificationQueue).to(notificationExchange).with(NOTIFICATION_ROUTING_KEY);
     }
 
+    // account service
+    @Bean
+    public Queue accountQueue(){
+        return new Queue(ACCOUNT_QUEUE, false);
+    }
+    // creating exchange key for account message queue
+    @Bean
+    public DirectExchange accountExchange(){
+        return new DirectExchange(ACCOUNT_ROUTING_KEY);
+    }
+    // binding exchange key to account message queue
+    @Bean
+    public Binding bindingAccountQueue(Queue accountQueue, DirectExchange accountExchange){
+        return BindingBuilder.bind(accountQueue).to(accountExchange).with(ACCOUNT_ROUTING_KEY);
+    }
+
+
+    // message queue configuration
     @Bean
     public MessageConverter jsonMessageConverter(){
         return new Jackson2JsonMessageConverter();

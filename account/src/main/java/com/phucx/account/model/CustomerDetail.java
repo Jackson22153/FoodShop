@@ -34,15 +34,9 @@ public class CustomerDetail {
     private String customerID;
     private String username;
     private String email;
-    // private String companyName;
     private String contactName;
-    // private String contactTitle;
     private String address;
     private String city;
-    // private String region;
-    // private String postalCode;
-    // private String country;
     private String phone;
-    // private String fax;
     private String picture;
 }

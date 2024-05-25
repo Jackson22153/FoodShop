@@ -13,27 +13,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.account.constant.WebConstant;
-import com.phucx.account.exception.InvalidDiscountException;
-import com.phucx.account.model.Category;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetailDTO;
-import com.phucx.account.model.Discount;
-import com.phucx.account.model.DiscountDetail;
-import com.phucx.account.model.DiscountType;
-import com.phucx.account.model.DiscountWithProduct;
 import com.phucx.account.model.Employee;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetailDTO;
-import com.phucx.account.model.ProductDetails;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.model.Role;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.model.UserRole;
-import com.phucx.account.service.category.CategoryService;
 import com.phucx.account.service.customer.CustomerService;
-import com.phucx.account.service.discount.DiscountService;
 import com.phucx.account.service.employee.EmployeeService;
-import com.phucx.account.service.product.ProductService;
 import com.phucx.account.service.role.RoleService;
 import com.phucx.account.service.user.UserService;
 
@@ -41,12 +31,6 @@ import com.phucx.account.service.user.UserService;
 @RestController
 @RequestMapping("admin")
 public class AdminController {
-    @Autowired
-    private ProductService productService;
-    @Autowired
-    private DiscountService discountsService;
-    @Autowired
-    private CategoryService categoryService;
     @Autowired
     private CustomerService customerService;
     @Autowired
@@ -59,92 +43,6 @@ public class AdminController {
     @GetMapping("/isAdmin")
     public ResponseEntity<ResponseFormat> isAdmin(){
         return ResponseEntity.ok().body(new ResponseFormat(true));
-    }
-
-    @PostMapping("/product")
-    public ResponseEntity<ResponseFormat> updateProductDetails(
-        @RequestBody ProductDetails productDetails
-    ){        
-        boolean status = productService.updateProductDetails(productDetails);
-        ResponseFormat data = new ResponseFormat(status);
-
-        return ResponseEntity.ok().body(data);
-    }
-    @PutMapping("/product")
-    public ResponseEntity<ResponseFormat> insertProductDetails(
-        @RequestBody ProductDetails productDetails
-    ){        
-        boolean status = productService.insertProductDetails(productDetails);
-        ResponseFormat data = new ResponseFormat(status);
-
-        return ResponseEntity.ok().body(data);
-    }
-    @GetMapping("/product/{productID}")
-    public ResponseEntity<ProductDetails> getProductDetails(
-        @PathVariable Integer productID
-    ){        
-        ProductDetails product = productService.getProductDetails(productID);
-        return ResponseEntity.ok().body(product);
-    }
-
-
-    // discount
-    @PutMapping("/discount")
-    public ResponseEntity<ResponseFormat> insertDiscount(
-        @RequestBody DiscountWithProduct discount
-    ) throws InvalidDiscountException, RuntimeException{
-        Discount newDiscount = discountsService.insertDiscount(discount);
-        boolean status = newDiscount!=null?true:false;
-        ResponseFormat data = new ResponseFormat(status);
-
-        return ResponseEntity.ok().body(data);
-    }
-
-    @PostMapping("/discount")
-    public ResponseEntity<ResponseFormat> updateDiscount(
-        @RequestBody DiscountWithProduct discount
-    ) throws InvalidDiscountException{
-        Boolean status = discountsService.updateDiscount(discount);
-        ResponseFormat data = new ResponseFormat(status);
-        return ResponseEntity.ok().body(data);
-    }
-
-    @PostMapping("/discount/status")
-    public ResponseEntity<ResponseFormat> updateDiscountStatus(
-        @RequestBody Discount discount
-    ) throws InvalidDiscountException{
-        Boolean check = discountsService.updateDiscountStatus(discount);
-        ResponseFormat data = new ResponseFormat(check);
-        return ResponseEntity.ok().body(data);
-    }
-
-    @GetMapping("/discount/product/{productID}")
-    public ResponseEntity<Page<DiscountDetail>> getDiscountsByProductID(
-        @PathVariable(name = "productID") Integer productID,
-        @RequestParam(name = "page", required = false) Integer pageNumber
-    ){
-        pageNumber = pageNumber!=null?pageNumber: 0;
-        Page<DiscountDetail> discounts = discountsService.getDiscountsByProduct(
-            productID, pageNumber,WebConstant.PAGE_SIZE);
-        return ResponseEntity.ok().body(discounts);
-    }
-
-    @GetMapping("/discount/{discountID}")
-    public ResponseEntity<DiscountDetail> getDiscountDetail(
-        @PathVariable(name = "discountID") String discountID
-    ){
-        DiscountDetail discount = discountsService.getDiscountDetail(discountID);
-        return ResponseEntity.ok().body(discount);
-    }
-
-    @GetMapping("/discountTypes")
-    public ResponseEntity<Page<DiscountType>> getDiscountTypes(
-        @RequestParam(name = "page", required = false) Integer pageNumber
-    ){
-        pageNumber = pageNumber!=null?pageNumber: 0;
-        Page<DiscountType> types = discountsService.getDiscountTypes(
-            pageNumber, WebConstant.PAGE_SIZE);
-        return ResponseEntity.ok().body(types);
     }
 // customers
     @PutMapping("/customers")
@@ -264,22 +162,5 @@ public class AdminController {
         pageNumber = pageNumber!=null?pageNumber:0;
         Page<Role> roles = roleService.getRolesWithoutCustomer(pageNumber, WebConstant.PAGE_SIZE);
         return ResponseEntity.ok().body(roles);
-    }
-// category
-    @PostMapping("/category")
-    public ResponseEntity<ResponseFormat> updateCategory(
-        @RequestBody Category category
-    ){
-        boolean check = categoryService.updateCategory(category);
-        ResponseFormat data = new ResponseFormat(check);
-        return ResponseEntity.ok().body(data);
-    }
-    @PutMapping("/category")
-    public ResponseEntity<ResponseFormat> createCategory(
-        @RequestBody Category category
-    ){
-        boolean check = categoryService.createCategory(category);
-        ResponseFormat data = new ResponseFormat(check);
-        return ResponseEntity.ok().body(data);
     }
 }

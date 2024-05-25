@@ -40,10 +40,8 @@ public class WebConfig {
         http.csrf(csrf -> csrf.disable());
         http.cors(Customizer.withDefaults());
         http.authorizeHttpRequests(request -> request
-            .requestMatchers("/home/**").permitAll()
-            .requestMatchers("/search/**").permitAll()
-            .requestMatchers("/chat/**").permitAll()
-            .requestMatchers("/actuator/**").permitAll()
+            .requestMatchers("/home/**", "/chat/**", "/search/**").permitAll()
+            .requestMatchers("/discount/**", "/category/**", "/product/**", "/actuator/**").hasRole("ADMIN")
             .requestMatchers("/cart/**").hasRole("CUSTOMER")
             .anyRequest().authenticated());
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt

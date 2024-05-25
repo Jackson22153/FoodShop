@@ -1,20 +1,19 @@
-package com.phucx.account.repository;
+package com.phucx.shop.repository;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import com.phucx.account.model.ProductDetails;
+import com.phucx.shop.model.ProductDetail;
 
 import jakarta.transaction.Transactional;
-import java.util.Optional;
-
 
 @Repository
-public interface ProductDetailsRepository extends JpaRepository<ProductDetails, Integer>{
+public interface ProductDetailRepository extends JpaRepository<ProductDetail, Integer>{
     @Modifying
     @Transactional
     @Procedure(name = "UpdateProduct")
@@ -24,13 +23,10 @@ public interface ProductDetailsRepository extends JpaRepository<ProductDetails, 
         @Param("quantityPerUnit") String quantityPerUnit, 
         @Param("unitPrice") BigDecimal unitPrice, 
         @Param("unitsInStock") Integer unitsInStock, 
-        @Param("unitsOnOrder") Integer unitsOnOrder, 
-        @Param("reorderLevel") Integer reorderLevel, 
         @Param("discontinued") Boolean discontinued,
         @Param("picture") String picture, 
         @Param("description") String description, 
-        @Param("categoryID")Integer categoryID,
-        @Param("supplierID") Integer supplierID
+        @Param("categoryID")Integer categoryID
     );
 
     @Modifying
@@ -41,14 +37,11 @@ public interface ProductDetailsRepository extends JpaRepository<ProductDetails, 
         @Param("quantityPerUnit") String quantityPerUnit, 
         @Param("unitPrice") BigDecimal unitPrice, 
         @Param("unitsInStock") Integer unitsInStock, 
-        @Param("unitsOnOrder") Integer unitsOnOrder, 
-        @Param("reorderLevel") Integer reorderLevel, 
         @Param("discontinued") Boolean discontinued,
         @Param("picture") String picture, 
         @Param("description") String description, 
-        @Param("categoryID")Integer categoryID,
-        @Param("supplierID") Integer supplierID
+        @Param("categoryID")Integer categoryID
     );
 
-    Optional<ProductDetails> findByProductName(String productName);
+    Optional<ProductDetail> findByProductName(String productName);
 }

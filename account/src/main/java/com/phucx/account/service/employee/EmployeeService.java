@@ -1,15 +1,14 @@
 package com.phucx.account.service.employee;
 
 import org.springframework.data.domain.Page;
-import com.phucx.account.constant.OrderStatus;
-import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EmployeeDetailDTO;
 import com.phucx.account.model.Notification;
-import com.phucx.account.model.Employee;
 import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderWithProducts;
+import com.phucx.account.constant.OrderStatus;
+import com.phucx.account.model.Employee;
 
 public interface EmployeeService {
     // get employee
@@ -22,21 +21,15 @@ public interface EmployeeService {
     public Boolean updateEmployeeInfo(EmployeeDetail employee);
     public Boolean updateAdminEmployeeInfo(Employee employee);
     public Boolean addNewEmployee(EmployeeAccount employeeAccount);
-    // processing order of customer
-    // public Notification confirmOrder(OrderWithProducts order, String employeeID) throws InvalidOrderException;
-    // public Notification cancelOrder(OrderWithProducts order, String employeeID);
-    // public Notification fulfillOrder(OrderWithProducts order);
-    // get order
-    public Page<OrderDetailsDTO> getOrders(int pageNumber, int pageSize, String employeeID, OrderStatus status);
-    public Page<OrderDetailsDTO> getPendingOrders(int pageNumber, int pageSize);
-    public OrderWithProducts getPendingOrderDetail(int orderID) throws InvalidOrderException;
-    public OrderWithProducts getOrderDetail(Integer orderID, String employeeID) throws InvalidOrderException;
     // search
     public Page<EmployeeAccount> searchEmployeesByEmployeeID(String employeeID, int pageNumber, int pageSize);
     public Page<EmployeeAccount> searchEmployeesByFirstName(String firstName, int pageNumber, int pageSize);
     public Page<EmployeeAccount> searchEmployeesByLastName(String lastName, int pageNumber, int pageSize);
     public Page<EmployeeAccount> searchEmployeesByUsername(String username, int pageNumber, int pageSize);
     public Page<EmployeeAccount> searchEmployeesByEmail(String email, int pageNumber, int pageSize);
+    // get order
+    public Page<OrderDetailsDTO> getOrders(String employeeID, OrderStatus status, int pageNumber, int pageSize);
+    public OrderWithProducts getOrder(String orderID, String employeeID);
     // notification
     public Page<Notification> getNotifications(String userID, int pageNumber, int pageSize);
     Boolean turnOffNotification(String notificationID, String userID);

@@ -1,11 +1,9 @@
 package com.phucx.account.service.employee;
 
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,14 +11,13 @@ import org.springframework.stereotype.Service;
 
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
-import com.phucx.account.exception.InvalidOrderException;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EmployeeDetailDTO;
 import com.phucx.account.model.Notification;
-import com.phucx.account.model.Employee;
 import com.phucx.account.model.OrderDetailsDTO;
 import com.phucx.account.model.OrderWithProducts;
+import com.phucx.account.model.Employee;
 import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.EmployeeAccountRepository;
@@ -45,8 +42,6 @@ public class EmployeeServiceImp implements EmployeeService {
     private UserService userService;
     @Autowired
     private OrderService orderService;
-    // @Autowired
-    // private MessageSender messageSender;
     @Autowired
     private EmployeeAccountRepository employeeAccountRepository;
     @Autowired
@@ -123,34 +118,6 @@ public class EmployeeServiceImp implements EmployeeService {
 	}
 
     @Override
-    public Page<OrderDetailsDTO> getOrders(int pageNumber, int pageSize, String employeeID, OrderStatus status) {
-        Page<OrderDetailsDTO> pendingOrders = new PageImpl<>(new ArrayList<>());
-        if(status.equals(OrderStatus.All)){
-            pendingOrders = orderService.getEmployeeOrders(pageNumber, pageSize, employeeID);
-        }else {
-            pendingOrders = orderService.getEmployeeOrders(pageNumber, pageSize, employeeID, status);
-        }
-        return pendingOrders;
-    }
-
-    @Override
-    public Page<OrderDetailsDTO> getPendingOrders(int pageNumber, int pageSize) {
-        return orderService.getPendingOrders(pageNumber, pageSize);
-    }
-
-    @Override
-    public OrderWithProducts getOrderDetail(Integer orderID, String employeeID) throws InvalidOrderException {
-        OrderWithProducts order = orderService.getEmployeeOrderDetail(orderID, employeeID);
-        log.info("order: {}", order.toString());
-        return order;
-    }
-
-    @Override
-    public OrderWithProducts getPendingOrderDetail(int orderID) throws InvalidOrderException {
-        return orderService.getPendingOrderDetail(orderID);
-    }
-
-    @Override
     public Page<EmployeeAccount> searchEmployeesByEmployeeID(String employeeID, int pageNumber, int pageSize) {
         String searchParam = "%" + employeeID +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
@@ -201,66 +168,6 @@ public class EmployeeServiceImp implements EmployeeService {
         return status;
     }
 
-    // PROCESSING ORDER
-    // @Override
-    // public Notification confirmOrder(OrderWithProducts order, String employeeID) throws InvalidOrderException {
-    //     OrderWithProducts orderWithProducts = orderService.getPendingOrderDetail(order.getOrderID());
-    //     orderWithProducts.setEmployeeID(employeeID);
-    //     // send order for server to validate it
-    //     Notification response = messageSender.sendAndReceiveOrder(orderWithProducts);
-    //     return response;
-    // }
-
-    // @Override
-    // public Notification cancelOrder(OrderWithProducts order, String employeeID) {
-    //     // fetch pending order
-    //     OrderDetailsDTO orderDetail = orderService.getOrder(
-    //         order.getOrderID(), OrderStatus.Pending);
-    //     Boolean check = orderService.updateOrderEmployee(order.getOrderID(), employeeID);
-    //     if(!check) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated");
-    //     // update order status as canceled
-    //     Boolean status = orderService.updateOrderStatus(orderDetail.getOrderID(), OrderStatus.Canceled);
-    //     // notification
-    //     Notification notification = new Notification();
-    //     notification.setTitle("Cancel Order");
-    //     notification.setTopic(new Topic(NotificationTopic.Order.name()));
-    //     if(status){
-    //         String userID = userService.getUserIdOfCustomerID(order.getCustomerID());
-    //         notification.setReceiverID(userID);
-    //         notification.setMessage("Order #" + order.getOrderID() + " has been canceled successfully");
-    //         notification.setStatus(NotificationStatus.SUCCESSFUL.name());
-    //     }else {
-    //         String userID = userService.getUserIdOfEmployeeID(employeeID);
-    //         notification.setReceiverID(userID);
-    //         notification.setMessage("Order #" + order.getOrderID() + " can not be canceled");
-    //         notification.setStatus(NotificationStatus.ERROR.name());
-    //     }
-    //     return notification;
-    // }
-
-    // @Override
-    // public Notification fulfillOrder(OrderWithProducts order) {
-    //     log.info("fulfillOrder(orderID={})", order.getOrderID());
-    //     OrderDetailsDTO fetchedOrder = orderService.getOrder(order.getOrderID(), OrderStatus.Confirmed);
-    //     Boolean status = orderService.updateOrderStatus(fetchedOrder.getOrderID(), OrderStatus.Shipping);
-    //     // notification
-    //     Notification notification = new Notification();
-    //     notification.setTitle("Fulfill Order");
-    //     notification.setTopic(new Topic(NotificationTopic.Order.name()));
-    //     if(status){
-    //         String userID = userService.getUserIdOfCustomerID(order.getCustomerID());
-    //         notification.setReceiverID(userID);
-    //         notification.setMessage("Order #" + order.getOrderID() + " has been fulfilled");
-    //         notification.setStatus(NotificationStatus.SUCCESSFUL.name());
-    //     }else {
-    //         String userID = userService.getUserIdOfEmployeeID(order.getEmployeeID());
-    //         notification.setReceiverID(userID);
-    //         notification.setMessage("Order #" + order.getOrderID() + " can not be fulfilled");
-    //         notification.setStatus(NotificationStatus.ERROR.name());
-    //     }
-    //     return notification;
-    // }
-
     @Override
     public Page<Notification> getNotifications(String userID, int pageNumber, int pageSize) {
         return notificationService.getNotificationsByReceiverIDOrNull(userID, pageNumber, pageSize);
@@ -299,5 +206,17 @@ public class EmployeeServiceImp implements EmployeeService {
             employeeAccount.getEmail(), 
             employeeID, employeeAccount.getFirstName(), 
             employeeAccount.getLastName());
+    }
+
+    @Override
+    public Page<OrderDetailsDTO> getOrders(String employeeID, OrderStatus status, int pageNumber, int pageSize) {
+        log.info("getOrders(employeeID={}, status={}, pageNumber={}, pageSize={})", employeeID, status, pageNumber, pageSize);
+        return orderService.getEmployeeOrders(employeeID, status, pageNumber, pageSize);
+    }
+
+    @Override
+    public OrderWithProducts getOrder(String orderID, String employeeID){
+        log.info("getOrderDetail(orderID={}, employeeID={})", orderID, employeeID);
+        return orderService.getEmployeeOrder(orderID, employeeID);
     }
 }

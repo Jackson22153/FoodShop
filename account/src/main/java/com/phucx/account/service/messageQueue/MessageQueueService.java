@@ -1,9 +1,9 @@
-package com.phucx.account.service.messageQueue.sender;
+package com.phucx.account.service.messageQueue;
 
+import com.phucx.account.model.EventMessage;
 import com.phucx.account.model.Notification;
-import com.phucx.account.model.OrderWithProducts;
 
-public interface MessageSender {
+public interface MessageQueueService {
     // send message to message queues
     public void sendNotification(Notification notification);
 
@@ -11,5 +11,9 @@ public interface MessageSender {
 
     // public Notification sendAndReceiveOrder(OrderWithProducts order);
 
+    public EventMessage<Object> sendAndReceiveData(Object message, String queueName, String routingKey);
+
     public void sendMessageToUser(String userID, Notification notificationMessage);
+
+    
 }
