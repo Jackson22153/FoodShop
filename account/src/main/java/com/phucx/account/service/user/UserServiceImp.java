@@ -184,4 +184,14 @@ public class UserServiceImp implements UserService {
 
         return new UserInfo(user, roles);
     }
+    @Override
+    public User getUserByCustomerID(String customerID) {
+        return userRepository.findByCustomerID(customerID)
+            .orElseThrow(()-> new NotFoundException("User with Customer "+ customerID + " does not found"));
+    }
+    @Override
+    public User getUserByEmployeeID(String employeeID) {
+        return userRepository.findByEmployeeID(employeeID)
+            .orElseThrow(()-> new NotFoundException("User with Employee "+ employeeID + " does not found"));
+    }
 }

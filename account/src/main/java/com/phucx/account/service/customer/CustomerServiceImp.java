@@ -1,5 +1,6 @@
 package com.phucx.account.service.customer;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -190,5 +191,10 @@ public class CustomerServiceImp implements CustomerService {
     public InvoiceDTO getInvoice(String orderID, String customerID) {
         log.info("getInvoice(orderID={}, customerID={})", orderID, customerID);
         return orderService.getCustomerInvoice(orderID, customerID);
+    }
+    @Override
+    public List<Customer> getCustomersByIDs(List<String> customerIDs) {
+        log.info("getCustomersByIDs(customerIDs={})", customerIDs);
+        return customerRepository.findAllById(customerIDs);
     }
 }

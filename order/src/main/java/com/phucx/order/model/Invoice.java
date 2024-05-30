@@ -40,7 +40,7 @@ public class Invoice {
 
     private String customerID;
     private String employeeID;
-    private String shipperID;
+    private Integer shipperID;
 
     private String shipName;
     private String shipAddress;

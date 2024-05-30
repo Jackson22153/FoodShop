@@ -26,6 +26,9 @@ public interface UserService {
 
     public String getUserIdOfCustomerID(String customerID);
     public String getUserIdOfEmployeeID(String employeeID);
+
+    public User getUserByCustomerID(String customerID);
+    public User getUserByEmployeeID(String employeeID);
     // search users
     public Page<UserRole> searchUsersByUserID(String userID, int pageNumber, int pageSize);
     public Page<UserRole> searchUsersByRoleName(String roleName, int pageNumber, int pageSize);

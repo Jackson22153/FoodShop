@@ -52,7 +52,7 @@ public class EmployeeServiceImp implements EmployeeService {
         log.info("getEmployeeByID(employeeID={})", employeeID);
         Employee employee = employeeRepository.findById(employeeID)
             .orElseThrow(()-> new NotFoundException("Employee " + employeeID + " does not found"));
-        UserInfo user = userService.getUserInfo(employee.getUser().getUserID());
+        UserInfo user = userService.getUserInfo(employee.getUserID());
     
         EmployeeDetailDTO employeeDetailDTO = new EmployeeDetailDTO(
             employee.getEmployeeID(), user, employee.getFirstName(), employee.getLastName(), 

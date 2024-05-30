@@ -6,11 +6,15 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
+import com.phucx.order.model.DataRequest;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Product;
 import com.phucx.order.model.ProductRequest;
+import com.phucx.order.model.ResponseFormat;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,60 +26,63 @@ public class ProductServiceImp implements ProductService{
     private MessageQueueService messageQueueService;
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<Product> getProducts(List<Integer> productIDs) {
+    public List<Product> getProducts(List<Integer> productIDs) throws JsonProcessingException {
         log.info("getProducts(productIDs={})", productIDs);
         // create a request for user
         ProductRequest productRequest = new ProductRequest();
         productRequest.setProductIds(productIDs);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<ProductRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataRequest> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetProductsByIDs);
         eventMessage.setPayload(productRequest);
         // receive data
-        EventMessage<Object> response = messageQueueService.sendAndReceiveData(
+        TypeReference<List<Product>> typeReference = new TypeReference<List<Product>>() {};
+        EventMessage<List<Product>> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.PRODUCT_QUEUE, 
-            MessageQueueConstant.PRODUCT_ROUTING_KEY);
+            MessageQueueConstant.PRODUCT_ROUTING_KEY,
+            typeReference);
         log.info("response={}", response);
-        return (List<Product>) response.getPayload();
+        return response.getPayload();
     }
     @Override
-    public Product getProduct(int productID) {
+    public Product getProduct(int productID) throws JsonProcessingException {
         log.info("getProduct(productID={})", productID);
         ProductRequest productRequest = new ProductRequest();
         productRequest.setProductID(productID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<ProductRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataRequest> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetProductByID);
         eventMessage.setPayload(productRequest);
         // receive data
-        EventMessage<Object> response = messageQueueService.sendAndReceiveData(
+        EventMessage<Product> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.PRODUCT_QUEUE, 
-            MessageQueueConstant.PRODUCT_ROUTING_KEY);
+            MessageQueueConstant.PRODUCT_ROUTING_KEY,
+            Product.class);
         log.info("response={}", response);
-        return  (Product) response.getPayload();
+        return response.getPayload();
     }
     @Override
-    public Boolean updateProductInStocks(List<Product> products) {
+    public Boolean updateProductInStocks(List<Product> products) throws JsonProcessingException {
         log.info("updateProductInStocks(products={})", products);
         ProductRequest productRequest = new ProductRequest();
         productRequest.setProducts(products);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<ProductRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataRequest> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetProductByID);
         eventMessage.setPayload(productRequest);
         // receive data
-        EventMessage<Object> response = messageQueueService.sendAndReceiveData(
+        EventMessage<ResponseFormat> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.PRODUCT_QUEUE, 
-            MessageQueueConstant.PRODUCT_ROUTING_KEY);
+            MessageQueueConstant.PRODUCT_ROUTING_KEY,
+            ResponseFormat.class);
         log.info("response={}", response);
-        return (Boolean) response.getPayload();
+        return response.getPayload().getStatus();
     }
 
     // @Override

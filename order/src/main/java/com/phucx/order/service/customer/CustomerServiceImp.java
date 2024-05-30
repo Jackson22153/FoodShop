@@ -1,33 +1,23 @@
 package com.phucx.order.service.customer;
 
-import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
-import com.phucx.order.constant.NotificationStatus;
-import com.phucx.order.constant.NotificationTopic;
-import com.phucx.order.constant.OrderStatus;
-import com.phucx.order.exception.InvalidDiscountException;
-import com.phucx.order.exception.InvalidOrderException;
 import com.phucx.order.model.Customer;
+import com.phucx.order.model.DataRequest;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Notification;
-import com.phucx.order.model.OrderDetailDTO;
-import com.phucx.order.model.OrderItem;
-import com.phucx.order.model.OrderItemDiscount;
-import com.phucx.order.model.OrderWithProducts;
-import com.phucx.order.model.Topic;
 import com.phucx.order.model.UserRequest;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.notification.NotificationService;
-import com.phucx.order.service.order.OrderService;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,23 +31,24 @@ public class CustomerServiceImp implements CustomerService {
     private MessageQueueService messageQueueService;
 	
 	@Override
-	public Customer getCustomerByID(String customerID) {
+	public Customer getCustomerByID(String customerID) throws JsonProcessingException {
 		log.info("getCustomerByID(customerID={})", customerID);
         // create a request for user
         UserRequest userRequest = new UserRequest();
         userRequest.setCustomerID(customerID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<UserRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataRequest> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetCustomerByID);
         eventMessage.setPayload(userRequest);
         // receive data
-        EventMessage<Object> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.ACCOUNT_QUEUE, 
-            MessageQueueConstant.ACCOUNT_ROUTING_KEY);
+        EventMessage<Customer> response = messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConstant.USER_QUEUE, 
+            MessageQueueConstant.USER_ROUTING_KEY,
+            Customer.class);
         log.info("response={}", response);
-        return  (Customer) response.getPayload();
+        return response.getPayload();
 	}
     // order processing
     // validating and saving customer's order 
@@ -151,5 +142,27 @@ public class CustomerServiceImp implements CustomerService {
             .getNotificationByUserIDAndNotificationID(userID, notificationID);
         return notificationService.updateNotificationActive(
             notification.getNotificationID(), false);
+    }
+
+    @Override
+    public List<Customer> getCustomersByIDs(List<String> customerIDs) throws JsonProcessingException{
+        log.info("getCustomersByIDs(customerIDs={})", customerIDs);
+        // create a request for user
+        UserRequest userRequest = new UserRequest();
+        userRequest.setCustomerIDs(customerIDs);
+        // create a request message
+        String eventID = UUID.randomUUID().toString();
+        EventMessage<DataRequest> eventMessage = new EventMessage<>();
+        eventMessage.setEventId(eventID);
+        eventMessage.setEventType(EventType.GetCustomersByID);
+        eventMessage.setPayload(userRequest);
+        // receive data
+        TypeReference<List<Customer>> typeReference = new TypeReference<List<Customer>>() {};
+        EventMessage<List<Customer>> response = messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConstant.USER_QUEUE, 
+            MessageQueueConstant.USER_ROUTING_KEY,
+            typeReference);
+        log.info("response={}", response);
+        return response.getPayload();
     }
 }

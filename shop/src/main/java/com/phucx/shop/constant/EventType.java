@@ -1,5 +1,23 @@
 package com.phucx.shop.constant;
 
 public enum EventType {
-    GetCustomerByUserID
+    GetCustomerByUserID,
+
+    ValidateDiscounts,
+
+    GetProductByID,
+    GetProductsByIDs,
+
+    GetDiscountByID,
+    GetDiscountsByIDs,
+
+    ReturnProductByID,
+    ReturnProductsByIDs,
+
+    ReturnCustomerByUserID,
+    
+    ReturnDiscountByID,
+    ReturnDiscountsByIDs,
+
+    ReturnValidateDiscounts;
 }

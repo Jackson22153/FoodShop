@@ -7,9 +7,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.JwtClaimConstant;
 import com.phucx.order.constant.MessageQueueConstant;
+import com.phucx.order.model.DataRequest;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.User;
 import com.phucx.order.model.UserRequest;
@@ -22,18 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UserServiceImp implements UserService {
     @Autowired
     private MessageQueueService messageQueueService;
-    // @Override
-    // public User getUser(String username) {
-    //     User user = userRepository.findByUsername(username)
-    //         .orElseThrow(()-> new NotFoundException("User " + username + " does not found"));
-    //     return user;
-    // }
-    // @Override
-    // public User getUserByID(String userID) {
-    //     User user = userRepository.findById(userID)
-    //         .orElseThrow(()-> new NotFoundException("User " + userID + " does not found"));
-    //     return user;
-    // }
 
     @Override
     public String getUsername(Authentication authentication) {
@@ -48,41 +38,43 @@ public class UserServiceImp implements UserService {
         return userID;
     }
     @Override
-    public User getUserByCustomerID(String customerID) {
+    public User getUserByCustomerID(String customerID) throws JsonProcessingException {
         log.info("getUserByCustomerID(customerID={})", customerID);
         // create a request for user
         UserRequest userRequest = new UserRequest();
         userRequest.setCustomerID(customerID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<UserRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataRequest> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetUserByCustomerID);
         eventMessage.setPayload(userRequest);
         // receive data
-        EventMessage<Object> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.ACCOUNT_QUEUE, 
-            MessageQueueConstant.ACCOUNT_ROUTING_KEY);
-        log.info("response={}", response);
-        return (User) response.getPayload();
+        return sendAndReceiveUserData(eventMessage);
     }
     @Override
-    public User getUserByEmployeeID(String employeeID) {
+    public User getUserByEmployeeID(String employeeID) throws JsonProcessingException{
         log.info("getUserByEmployeeID(employeeID={})", employeeID);
         // create a request for user
         UserRequest userRequest = new UserRequest();
         userRequest.setEmployeeID(employeeID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<UserRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataRequest> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetUserByEmployeeID);
         eventMessage.setPayload(userRequest);
         // receive data
-        EventMessage<Object> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.ACCOUNT_QUEUE, 
-            MessageQueueConstant.ACCOUNT_ROUTING_KEY);
+        return sendAndReceiveUserData(eventMessage);
+    }
+
+    // send and receive user data from user queue
+    private User sendAndReceiveUserData(EventMessage<DataRequest> eventMessage) throws JsonProcessingException{
+        EventMessage<User> response = this.messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConstant.USER_QUEUE, 
+            MessageQueueConstant.USER_ROUTING_KEY,
+            User.class);
         log.info("response={}", response);
-        return (User) response.getPayload();
+        return response.getPayload();
     }
 }

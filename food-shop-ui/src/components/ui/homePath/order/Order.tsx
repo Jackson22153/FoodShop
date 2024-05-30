@@ -1,7 +1,7 @@
 import { ChangeEventHandler, useEffect, useState } from "react"
 import { OrderInfo } from "../../../../model/Type"
 import { displayProductImage, getError } from "../../../../service/image";
-import { getProductsFromCart } from "../../../../api/CartApi";
+import { getOrder, getProductsFromCart } from "../../../../api/CartApi";
 import { faLongArrowAltLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { cartPath } from "../../../../constant/FoodShoppingURL";
@@ -33,7 +33,7 @@ export default function OrderComponent(){
     const initial = ()=>{
         checkAuthenticationCustomer();
         connectCustomer(getNotification);
-        fetchProductsInCart();
+        fetchCartOrder();
     }
 
     async function checkAuthenticationCustomer(){
@@ -49,11 +49,11 @@ export default function OrderComponent(){
         }
     }
 
-    async function fetchProductsInCart(){
-        const res = await getProductsFromCart();
+    async function fetchCartOrder(){
+        const res = await getOrder();
         if(res.status){
             const data = res.data;
-            // console.log(data);
+            console.log(data)
             setOrderInfo(data);
         }
     }

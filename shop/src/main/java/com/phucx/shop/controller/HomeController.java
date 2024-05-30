@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.shop.config.WebConfig;
 import com.phucx.shop.model.Category;
-import com.phucx.shop.model.CurrentProductList;
+import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.ProductDetail;
 import com.phucx.shop.service.category.CategoryService;
 import com.phucx.shop.service.product.ProductService;
@@ -56,12 +56,12 @@ public class HomeController {
     }
 
     @GetMapping("categories/{categoryName}/products")
-    public ResponseEntity<Page<CurrentProductList>> getProductsByCategoryName(
+    public ResponseEntity<Page<CurrentProduct>> getProductsByCategoryName(
         @PathVariable(name = "categoryName") String categoryName,
         @RequestParam(name = "page", required=false) Integer pageNumber
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
-        Page<CurrentProductList> products = productService
+        Page<CurrentProduct> products = productService
             .getCurrentProductsByCategoryName(categoryName, pageNumber, WebConfig.PAGE_SIZE);
 
         return ResponseEntity.ok().body(products);
@@ -70,11 +70,11 @@ public class HomeController {
 
     // products
     @GetMapping("products")
-    public ResponseEntity<Page<CurrentProductList>> getProducts(
+    public ResponseEntity<Page<CurrentProduct>> getProducts(
         @RequestParam(name = "page", required = false) Integer pageNumber
     ){
         pageNumber = pageNumber!=null?pageNumber:0;
-        var productsPageable =productService.getCurrentProductList(pageNumber, WebConfig.PAGE_SIZE);
+        var productsPageable =productService.getCurrentProduct(pageNumber, WebConfig.PAGE_SIZE);
         return ResponseEntity.ok().body(productsPageable);
     }
     
@@ -85,8 +85,8 @@ public class HomeController {
     }
 
     @GetMapping("/products/recommended")
-    public ResponseEntity<List<CurrentProductList>> getRecommendedProducts(){
-        List<CurrentProductList> products = productService
+    public ResponseEntity<List<CurrentProduct>> getRecommendedProducts(){
+        List<CurrentProduct> products = productService
             .getRecommendedProducts(0, WebConfig.RECOMMENDED_PRODUCT_PAGE_SIZE);
             
         return ResponseEntity.ok().body(products);

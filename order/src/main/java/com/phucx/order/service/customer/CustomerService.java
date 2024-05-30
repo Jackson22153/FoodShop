@@ -1,20 +1,17 @@
 package com.phucx.order.service.customer;
 
-import java.sql.SQLException;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
-import com.phucx.order.exception.InvalidDiscountException;
-import com.phucx.order.exception.InvalidOrderException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.model.Customer;
 import com.phucx.order.model.Notification;
-import com.phucx.order.model.OrderDetailDTO;
-import com.phucx.order.model.OrderWithProducts;
-
-import jakarta.ws.rs.NotFoundException;
 
 public interface CustomerService {
     // customer info
-    public Customer getCustomerByID(String customerID);
+    public Customer getCustomerByID(String customerID) throws JsonProcessingException;
+    public List<Customer> getCustomersByIDs(List<String> customerIDs) throws JsonProcessingException;
     // public Customer getCustomerByUsername(String username);
     // place an order by customer
     // public OrderDetailDTO placeOrder(OrderWithProducts order, String customerID, String userID) 

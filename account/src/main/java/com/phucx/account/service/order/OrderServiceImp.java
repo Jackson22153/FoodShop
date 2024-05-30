@@ -36,7 +36,7 @@ public class OrderServiceImp implements OrderService{
         String eventID = UUID.randomUUID().toString();
         EventMessage<OrderRequest> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
-        eventMessage.setEventType(EventType.GetOrderByCustomerID);
+        eventMessage.setEventType(EventType.GetOrdersByCustomerID);
         eventMessage.setPayload(orderRequest);
         // receive data
         EventMessage<Object> response = messageQueueService.sendAndReceiveData(

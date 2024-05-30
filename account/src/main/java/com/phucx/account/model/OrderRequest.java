@@ -3,14 +3,16 @@ package com.phucx.account.model;
 import com.phucx.account.constant.OrderStatus;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
-@Data @ToString
+@ToString
+@Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderRequest {
+public class OrderRequest extends DataRequest{
     private String orderID;
     private String customerID;
     private String employeeID;

@@ -75,6 +75,7 @@ export const UserInfoUrl = `${UserUrl}/userInfo`;
 export const CartUrl = `${ShopService}/cart`;
 export const CartProductsUrl = `${CartUrl}/products`;
 export const NumberOfCartProductsUrl = `${CartProductsUrl}/number`;
+export const CartOrderUrl = `${CartUrl}/order`;
 // websocket endpoint
 export const AccountWSUrl = `${AccountService}/chat`;
 export const OrderServiceWSUrl = `${OrderService}/chat`;

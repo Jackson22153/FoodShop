@@ -2,8 +2,9 @@ package com.phucx.order.service.discount;
 
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.model.DiscountDetail;
-import com.phucx.order.model.OrderWithProducts;
+import com.phucx.order.model.ProductDiscountsDTO;
 
 public interface DiscountService {
     // public Discount insertDiscount(DiscountWithProduct discount) throws InvalidDiscountException, RuntimeException;
@@ -20,9 +21,9 @@ public interface DiscountService {
     // public Page<DiscountType> getDiscountTypes(int pageNumber, int pageSize);
     // public Page<DiscountDetail> getDiscountsByProduct(int productID, int pageNumber, int pageSize);
 
-    public DiscountDetail getDiscount(String discountID);
-    public List<DiscountDetail> getDiscounts(List<String> discountIDs);
+    public DiscountDetail getDiscount(String discountID) throws JsonProcessingException;
+    public List<DiscountDetail> getDiscounts(List<String> discountIDs) throws JsonProcessingException;
 
-    public Boolean validateDiscount(OrderWithProducts order);
+    public Boolean validateDiscount(List<ProductDiscountsDTO> productsDiscounts) throws JsonProcessingException;
     
 } 

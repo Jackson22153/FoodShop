@@ -6,10 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import com.phucx.shop.model.CurrentProductList;
+import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
-import com.phucx.shop.repository.CurrentProductListRepository;
+import com.phucx.shop.repository.CurrentProductRepository;
 import com.phucx.shop.repository.ProductDetailRepository;
 import com.phucx.shop.repository.ProductRepository;
 
@@ -23,7 +23,7 @@ public class ProductServiceImp implements ProductService{
     @Autowired
     private ProductRepository productRepository;
     @Autowired
-    private CurrentProductListRepository currentProductListRepository;
+    private CurrentProductRepository currentProductRepository;
     @Autowired
     private ProductDetailRepository productDetailRepository;
 
@@ -71,16 +71,16 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public List<CurrentProductList> getRecommendedProducts(int pageNumber, int pageSize) {
+    public List<CurrentProduct> getRecommendedProducts(int pageNumber, int pageSize) {
         log.info("getRecommendedProducts(pageNumber={}, pageSize={})", pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<CurrentProductList> products = currentProductListRepository.findProductsRandom(pageable);
+        Page<CurrentProduct> products = currentProductRepository.findProductsRandom(pageable);
         return products.getContent();
     }
 
     @Override
-    public CurrentProductList getCurrentProduct(int productID) {
-        CurrentProductList product = currentProductListRepository.findById(productID)
+    public CurrentProduct getCurrentProduct(int productID) {
+        CurrentProduct product = currentProductRepository.findById(productID)
             .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
         return product;
     }
@@ -88,35 +88,35 @@ public class ProductServiceImp implements ProductService{
     
 
     @Override
-    public List<CurrentProductList> getCurrentProductList() {
-        var products = currentProductListRepository.findAll();
+    public List<CurrentProduct> getCurrentProduct() {
+        var products = currentProductRepository.findAll();
         return products;
     }
 
     @Override
-    public Page<CurrentProductList> getCurrentProductList(int pageNumber, int pageSize) {
+    public Page<CurrentProduct> getCurrentProduct(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return currentProductListRepository.findAll(pageable);
+        return currentProductRepository.findAll(pageable);
     }
 
     // search product by name like
     @Override
-    public Page<CurrentProductList> searchCurrentProducts(String productName, int pageNumber, int pageSize) {
+    public Page<CurrentProduct> searchCurrentProducts(String productName, int pageNumber, int pageSize) {
         String searchValue = "%"+productName+"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<CurrentProductList> products = currentProductListRepository
+        Page<CurrentProduct> products = currentProductRepository
             .findByProductNameLike(searchValue, page);
         return products;
     }
 
     @Override
-    public Page<CurrentProductList> getCurrentProductsByCategoryName(
+    public Page<CurrentProduct> getCurrentProductsByCategoryName(
         String categoryName, int pageNumber, int pageSize) {
         // replace '-' with "_" for like syntax in sql server
         categoryName = categoryName.replaceAll("-", "_");
         log.info("getCurrentProductsByCategoryName(categoryName={}, pageNumber={}, pageSize={})", categoryName, pageNumber, pageSize);
         Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<CurrentProductList> products = currentProductListRepository
+        Page<CurrentProduct> products = currentProductRepository
             .findByCategoryNameLike(categoryName, page);
         return products;
     }
@@ -129,11 +129,11 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public Page<CurrentProductList> getRecommendedProductsByCategory(
+    public Page<CurrentProduct> getRecommendedProductsByCategory(
         int productID, String categoryName, int pageNumber, int pageSize) {
 
         Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<CurrentProductList> products = currentProductListRepository.findRandomByCategoryName(productID, categoryName, page);
+        Page<CurrentProduct> products = currentProductRepository.findRandomByCategoryName(productID, categoryName, page);
         
         return products;
     }
@@ -164,6 +164,12 @@ public class ProductServiceImp implements ProductService{
             productDetail.getDiscontinued(), productDetail.getPicture(), 
             productDetail.getDescription(), productDetail.getCategoryID());
         return result;
+    }
+
+    @Override
+    public List<Product> getProducts(List<Integer> productIDs) {
+        log.info("getProducts(productIds={})", productIDs);
+        return productRepository.findAllById(productIDs);
     }
 
 }

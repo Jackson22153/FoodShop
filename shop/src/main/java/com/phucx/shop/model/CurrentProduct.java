@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Current Product List")
-public class CurrentProductList {
+public class CurrentProduct {
     @Id
     private Integer productID;
     private String productName;

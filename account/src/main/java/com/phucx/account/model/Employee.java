@@ -8,10 +8,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.NamedStoredProcedureQueries;
 import jakarta.persistence.NamedStoredProcedureQuery;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
@@ -38,7 +36,6 @@ import lombok.ToString;
         })
 })
 public class Employee{
-
     @Id
     @Column(name = "EmployeeID", length = 36, nullable = false)
     private String employeeID;
@@ -66,10 +63,6 @@ public class Employee{
     @Column(name = "HomePhone", length = 24)
     private String homePhone;
     private String photo;
-
     private String notes;
-
-    @OneToOne
-    @JoinColumn(name = "userID")
-    private User user;
+    private String userID;
 }

@@ -1,5 +1,8 @@
 package com.phucx.order.service.messageQueue;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.phucx.order.model.DataRequest;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Notification;
 import com.phucx.order.model.OrderWithProducts;
@@ -12,5 +15,10 @@ public interface MessageQueueService {
     public void sendMessageToUser(String userID, Notification notificationMessage);
     public void sendNotificationToUser(String userID, Notification notificationMessage);
 
-    public EventMessage<Object> sendAndReceiveData(Object eventMessage, String queueName, String routingKey);
+    // send and receive data from other services
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataRequest> eventMessage, String queueName, 
+        String routingKey, Class<T> dataType) throws JsonProcessingException;
+    // send and receive data from other services
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataRequest> eventMessage, String queueName, 
+        String routingKey, TypeReference<T> dataType) throws JsonProcessingException;
 }

@@ -6,12 +6,16 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
+import com.phucx.order.model.DataRequest;
 import com.phucx.order.model.DiscountDetail;
 import com.phucx.order.model.DiscountRequest;
 import com.phucx.order.model.EventMessage;
-import com.phucx.order.model.OrderWithProducts;
+import com.phucx.order.model.ProductDiscountsDTO;
+import com.phucx.order.model.ResponseFormat;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,64 +27,67 @@ public class DiscountServiceImp implements DiscountService{
     private MessageQueueService messageQueueService;
 
     @Override
-    public DiscountDetail getDiscount(String discountID) {
+    public DiscountDetail getDiscount(String discountID) throws JsonProcessingException {
         log.info("getDiscount(discountID={})", discountID);
         // create a request for discount
         DiscountRequest discountRequest = new DiscountRequest();
         discountRequest.setDiscountID(discountID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DiscountRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataRequest> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetDiscountByID);
         eventMessage.setPayload(discountRequest);
         // receive data
-        EventMessage<Object> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.PRODUCT_QUEUE, 
-            MessageQueueConstant.PRODUCT_ROUTING_KEY);
+        EventMessage<DiscountDetail> response = messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConstant.DISCOUNT_QUEUE, 
+            MessageQueueConstant.DISCOUNT_ROUTING_KEY,
+            DiscountDetail.class);
         log.info("response={}", response);
-        return  (DiscountDetail) response.getPayload();
+        return response.getPayload();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<DiscountDetail> getDiscounts(List<String> discountIDs) {
+    public List<DiscountDetail> getDiscounts(List<String> discountIDs) throws JsonProcessingException {
         log.info("getDiscount(getDiscounts={})", discountIDs);
         // create a request for discount
         DiscountRequest discountRequest = new DiscountRequest();
         discountRequest.setDiscountIDs(discountIDs);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DiscountRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataRequest> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetDiscountsByIDs);
         eventMessage.setPayload(discountRequest);
         // receive data
-        EventMessage<Object> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.PRODUCT_QUEUE, 
-            MessageQueueConstant.PRODUCT_ROUTING_KEY);
+        TypeReference<List<DiscountDetail>> typeReference = 
+            new TypeReference<List<DiscountDetail>>() {};
+        EventMessage<List<DiscountDetail>> response = messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConstant.DISCOUNT_QUEUE, 
+            MessageQueueConstant.DISCOUNT_ROUTING_KEY, typeReference);
         log.info("response={}", response);
-        return  (List<DiscountDetail>) response.getPayload();
+        return response.getPayload();
     }
 
     @Override
-    public Boolean validateDiscount(OrderWithProducts order) {
-        log.info("validateDiscount(order={})", order);
+    public Boolean validateDiscount(List<ProductDiscountsDTO> productsDiscounts) throws JsonProcessingException {
+        log.info("validateDiscount(productDiscounts={})", productsDiscounts);
         // create a request for discount
         DiscountRequest discountRequest = new DiscountRequest();
-        discountRequest.setOrder(order);
+        discountRequest.setProductsDiscounts(productsDiscounts);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DiscountRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataRequest> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
-        eventMessage.setEventType(EventType.GetDiscountsByIDs);
+        eventMessage.setEventType(EventType.ValidateDiscounts);
         eventMessage.setPayload(discountRequest);
         // receive data
-        EventMessage<Object> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.PRODUCT_QUEUE, 
-            MessageQueueConstant.PRODUCT_ROUTING_KEY);
+        EventMessage<ResponseFormat> response = messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConstant.DISCOUNT_QUEUE, 
+            MessageQueueConstant.DISCOUNT_ROUTING_KEY, 
+            ResponseFormat.class);
         log.info("response={}", response);
-        return (Boolean) response.getPayload();
+        return  response.getPayload().getStatus();
     }
 
     // @Transactional

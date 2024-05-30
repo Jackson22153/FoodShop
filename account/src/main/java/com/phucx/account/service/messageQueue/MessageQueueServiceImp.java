@@ -10,8 +10,12 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.config.WebSocketConfig;
+import com.phucx.account.model.DataRequest;
 import com.phucx.account.model.EventMessage;
 import com.phucx.account.model.Notification;
 import com.phucx.account.service.notification.NotificationService;
@@ -27,6 +31,9 @@ public class MessageQueueServiceImp implements MessageQueueService{
     private NotificationService notificationService;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private ObjectMapper objectMapper;
+    
     @Override
     public void sendNotification(Notification notification) {
         this.rabbitTemplate.convertAndSend(MessageQueueConfig.NOTIFICATION_QUEUE, 
@@ -66,5 +73,29 @@ public class MessageQueueServiceImp implements MessageQueueService{
         log.info("sendAndReceiveData(message={}, queueName={}, routingKey={})", message, queueName, routingKey);
         EventMessage<Object> eventMessage = (EventMessage<Object>) this.rabbitTemplate.convertSendAndReceive(queueName, routingKey, message);
         return eventMessage;
+    }
+    @Override
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataRequest> message, String queueName,
+            String routingKey, Class<T> dataType) throws JsonProcessingException {
+        log.info("sendAndReceiveData(message={}, queueName={}, routingKey={}, dataType={})", 
+            message, queueName, routingKey, dataType.getName());
+        String messageJson = objectMapper.writeValueAsString(message);
+        String response = (String) rabbitTemplate.convertSendAndReceive(queueName, routingKey, messageJson);
+        TypeReference<EventMessage<T>> typeRef = new TypeReference<EventMessage<T>>() {};
+        EventMessage<T>  responseMessage = objectMapper.readValue(response, typeRef);
+        return responseMessage;
+    }
+    @Override
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataRequest> message, String queueName,
+            String routingKey, TypeReference<T> dataType) throws JsonProcessingException {
+        log.info("sendAndReceiveData(message={}, queueName={}, routingKey={}, className={})", 
+            message, queueName, routingKey, dataType.toString());
+        String messageJson = objectMapper.writeValueAsString(message);
+        // send and receive message
+        String responseMessage = (String) this.rabbitTemplate.convertSendAndReceive(queueName, routingKey, messageJson);
+        // convert message
+        TypeReference<EventMessage<T>> typeReference = new TypeReference<EventMessage<T>>() {};
+        EventMessage<T> response = objectMapper.readValue(responseMessage, typeReference);
+        return response;
     }
 }

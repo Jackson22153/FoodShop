@@ -5,20 +5,29 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.compositeKey.OrderDetailKey;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.constant.WebConstant;
 import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.model.Customer;
+import com.phucx.order.model.DiscountBreifInfo;
 import com.phucx.order.model.DiscountDetail;
 import com.phucx.order.model.Employee;
+import com.phucx.order.model.Invoice;
+import com.phucx.order.model.InvoiceDTO;
 import com.phucx.order.model.OrderItem;
 import com.phucx.order.model.OrderItemDiscount;
 import com.phucx.order.model.OrderWithProducts;
@@ -28,8 +37,11 @@ import com.phucx.order.model.OrderDetailDTO;
 import com.phucx.order.model.OrderDetailDiscount;
 import com.phucx.order.model.OrderDetailExtended;
 import com.phucx.order.model.ProductDTO;
+import com.phucx.order.model.ProductDiscountsDTO;
+import com.phucx.order.model.ProductWithBriefDiscount;
 import com.phucx.order.model.Shipper;
 import com.phucx.order.model.Product;
+import com.phucx.order.repository.InvoiceRepository;
 import com.phucx.order.repository.OrderDetailDiscountRepository;
 import com.phucx.order.repository.OrderDetailExtendedRepository;
 import com.phucx.order.repository.OrderDetailRepository;
@@ -67,9 +79,11 @@ public class OrderServiceImp implements OrderService{
     private EmployeeService employeeService;
     @Autowired
     private ShipperService shipperService;
+    @Autowired
+    private InvoiceRepository invoiceRepository;
 
     @Override
-    public boolean updateOrderStatus(String orderID, OrderStatus status) {
+    public Boolean updateOrderStatus(String orderID, OrderStatus status) {
         log.info("updateOrderStatus(orderID={}, status={})", orderID, status);
         Order order = orderRepository.findById(orderID)
             .orElseThrow(()-> new NotFoundException("Order " + orderID + " does not found"));
@@ -80,7 +94,7 @@ public class OrderServiceImp implements OrderService{
 
     @Override
     @Transactional
-    public String saveFullOrder(OrderWithProducts order) {
+    public String saveFullOrder(OrderWithProducts order) throws JsonProcessingException {
             log.info("saveFullOrder({})", order);
         String orderID = this.saveOrder(order);
         // // save OrderDetail
@@ -94,7 +108,7 @@ public class OrderServiceImp implements OrderService{
         return orderID;
     }
     // save order
-    private String saveOrder(OrderWithProducts order){
+    private String saveOrder(OrderWithProducts order) throws JsonProcessingException{
         log.info("saveOrder({})", order);
         String orderID = UUID.randomUUID().toString();
         Customer fetchedCustomer = customerService.getCustomerByID(order.getCustomerID());
@@ -131,7 +145,7 @@ public class OrderServiceImp implements OrderService{
 
     @Override
     @Transactional
-    public boolean validateAndProcessOrder(OrderWithProducts order) throws InvalidDiscountException{
+    public Boolean validateAndProcessOrder(OrderWithProducts order) throws InvalidDiscountException, JsonProcessingException{
         log.info("validateAndProcessOrder({})", order.toString());
         if(order!=null && order.getProducts().size()>0){
             // store product's new instock
@@ -141,7 +155,14 @@ public class OrderServiceImp implements OrderService{
             List<Integer> productIds = products.stream().map(OrderItem::getProductID).collect(Collectors.toList());
             List<Product> fetchedProducts = productService.getProducts(productIds);
             // validate discounts of products
-            Boolean isValidDiscount = discountService.validateDiscount(order);
+            // get products and products's discount
+            List<ProductDiscountsDTO> productDiscountsDTOs = order.getProducts().stream().map((product) -> {
+                List<String> discountIDs = product.getDiscounts().stream()
+                    .map(OrderItemDiscount::getDiscountID).collect(Collectors.toList());
+                return new ProductDiscountsDTO(product.getProductID(), discountIDs);
+            }).collect(Collectors.toList());
+            // send and receive request 
+            Boolean isValidDiscount = discountService.validateDiscount(productDiscountsDTOs);
             if(!isValidDiscount){
                 throw new InvalidDiscountException("Discounts of Product is invalid");
             }
@@ -169,23 +190,15 @@ public class OrderServiceImp implements OrderService{
         return false;
     }
     @Override
-    public boolean updateOrderEmployee(String orderID, String employeeID) {
+    public Boolean updateOrderEmployee(String orderID, String employeeID) {
         // orderRepository.findById(11071);
         Integer check = orderRepository.updateOrderEmployeeID(orderID, employeeID);
         if(check>0) return true;
         return false;
     }
-  
-    // @Override
-    // public boolean isPendingOrder(String orderID) throws InvalidOrderException {
-    //     if(orderID==null) throw new InvalidOrderException("OrderID is null");
-    //     return orderRepository.findById(orderID)
-    //     .map(order -> order.getStatus().equals(OrderStatus.Pending))
-    //     .orElse(false);
-    // }
 
     @Override
-    public boolean validateOrder(OrderWithProducts order) throws InvalidDiscountException {
+    public Boolean validateOrder(OrderWithProducts order) throws InvalidDiscountException, JsonProcessingException {
         log.info("validateOrder({})", order);
         try {
             // get products
@@ -207,16 +220,21 @@ public class OrderServiceImp implements OrderService{
                     if(numberOfDiscounts>WebConstant.MAX_APPLIED_DISCOUNT_PRODUCT){
                         throw new RuntimeException("Exceed the number of discount codes");
                     }
-                    // boolean isValidDiscount = discountService.validateDiscountsOfProduct(product);
-                    // if(!isValidDiscount) throw new InvalidDiscountException("Invalid discount");
                 }
             }
-            Boolean isValidDiscount = discountService.validateDiscount(order);
+            // get products and products's discount
+            List<ProductDiscountsDTO> productDiscountsDTOs = order.getProducts().stream().map((product) -> {
+                List<String> discountIDs = product.getDiscounts().stream()
+                    .map(OrderItemDiscount::getDiscountID).collect(Collectors.toList());
+                return new ProductDiscountsDTO(product.getProductID(), discountIDs);
+            }).collect(Collectors.toList());
+            Boolean isValidDiscount = discountService.validateDiscount(productDiscountsDTOs);
+            // check discount status
             if(!isValidDiscount) throw new InvalidDiscountException("Invalid discount");
 
             return true;
         } catch (InvalidDiscountException e) {
-            log.error("Error occurs: " + e.getMessage());
+            log.error("Error: " + e.getMessage());
             return false;
         }
         
@@ -225,7 +243,7 @@ public class OrderServiceImp implements OrderService{
 
 
     @Override
-    public OrderWithProducts getPendingOrderDetail(String orderID){
+    public OrderWithProducts getPendingOrderDetail(String orderID) throws JsonProcessingException{
         log.info("getPendingOrderDetail(orderID={})", orderID);
         Order order = orderRepository.findByOrderIDAndStatus( orderID, OrderStatus.Pending)
             .orElseThrow(()-> new NotFoundException("Order " + orderID + " with pending status does not found"));
@@ -233,37 +251,51 @@ public class OrderServiceImp implements OrderService{
         return convertedOrder;
     }
 
-    // convert orders
-    // private List<OrderDetailDTO> convertOrders(List<OrderDetailExtended> orders){
-    //     List<OrderDetailDTO> orderDTOs = new ArrayList<>();
-    //     for(OrderDetailExtended order: orders){
-    //         // add new OrderDetailDTO to result list when it meets a new orderID
-    //         if(orderDTOs.size()==0 || !orderDTOs.get(orderDTOs.size()-1).getOrderID().equals(order.getOrderID())){
-    //             OrderDetailDTO orderDTO = new OrderDetailDTO();
-    //             orderDTO.setOrderID(order.getOrderID());
-    //             orderDTO.setStatus(order.getStatus());
-    //             // set customer
-    //             orderDTO.setCustomerID(order.getCustomerID());
-    //             orderDTO.setContactName(order.getContactName());
-    //             orderDTO.setPicture(order.getCustomerPicture());
-    //             // add order to a list of order
-    //             orderDTOs.add(orderDTO);
-    //         }
-    //         // add new product to the newest OrderDetail
-    //         ProductDTO productDTO = new ProductDTO(order.getProductID(), order.getProductName(), 
-    //             order.getUnitPrice(), order.getQuantity(), order.getDiscount(), order.getExtendedPrice(),
-    //             order.getPicture());
-    //         orderDTOs.get(orderDTOs.size()-1).getProducts().add(productDTO);
-    //         orderDTOs.get(orderDTOs.size()-1).setTotalPrice(
-    //             orderDTOs.get(orderDTOs.size()-1).getTotalPrice().add(order.getExtendedPrice()));
+    // convert orders to list orderDetailDTO
+    private List<OrderDetailDTO> convertOrders(List<OrderDetailExtended> orders) throws JsonProcessingException{
+        // fetch products
+        List<Integer> productIds = orders.stream().map(OrderDetailExtended::getProductID).collect(Collectors.toList());
+        List<Product> fetchedProducts = this.productService.getProducts(productIds);
+        // fetch customer
+        Set<String> setCustomerId = orders.stream().map(OrderDetailExtended::getCustomerID).collect(Collectors.toSet());
+        List<String> listCustomerId = new ArrayList<>(setCustomerId);
+        List<Customer> fetchedCustomers = this.customerService.getCustomersByIDs(listCustomerId);
+        // create order
+        List<OrderDetailDTO> orderDTOs = new ArrayList<>();
+        for(OrderDetailExtended order: orders){
+            // add new OrderDetailDTO to result list when it meets a new orderID
+            if(orderDTOs.size()==0 || !orderDTOs.get(orderDTOs.size()-1).getOrderID().equals(order.getOrderID())){
+                // find customer
+                Customer customer = this.findCustomer(fetchedCustomers, order.getCustomerID())
+                    .orElseThrow(()-> new NotFoundException("Customer " + order.getCustomerID() + " does not found"));
+                // create an order
+                OrderDetailDTO orderDTO = new OrderDetailDTO();
+                orderDTO.setOrderID(order.getOrderID());
+                orderDTO.setStatus(order.getStatus());
+                // set customer
+                orderDTO.setCustomerID(customer.getCustomerID());
+                orderDTO.setContactName(customer.getContactName());
+                orderDTO.setPicture(customer.getPicture());
+                // add order to a list of order
+                orderDTOs.add(orderDTO);
+            }
+            Product product = findProduct(fetchedProducts, order.getProductID())
+                .orElseThrow(()-> new NotFoundException("Product " + order.getProductID() + " does not found"));
+            // add new product to the newest OrderDetail
+            ProductDTO productDTO = new ProductDTO(order.getProductID(), product.getProductName(), 
+                order.getUnitPrice(), order.getQuantity(), order.getDiscount(), order.getExtendedPrice(),
+                product.getPicture());
+            orderDTOs.get(orderDTOs.size()-1).getProducts().add(productDTO);
+            orderDTOs.get(orderDTOs.size()-1).setTotalPrice(
+                orderDTOs.get(orderDTOs.size()-1).getTotalPrice().add(order.getExtendedPrice()));
             
-    //     }
+        }
 
-    //     return orderDTOs;
-    // }
+        return orderDTOs;
+    }
 
     @Override
-    public OrderDetailDTO getOrder(String orderID, OrderStatus status) {
+    public OrderDetailDTO getOrder(String orderID, OrderStatus status) throws JsonProcessingException {
         log.info("getOrder(orderID={}, status={})", orderID, status.name());
         List<OrderDetailExtended> orderDetailExtendeds = orderDetailExtendedRepository
             .findByOrderIDAndStatus(orderID, status);
@@ -273,7 +305,7 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public OrderDetailDTO getOrder(String orderID) {
+    public OrderDetailDTO getOrder(String orderID) throws JsonProcessingException {
         log.info("getOrder(orderID={})", orderID);
         List<OrderDetailExtended> orderDetailExtended = orderDetailExtendedRepository
             .findByOrderID(orderID);
@@ -282,7 +314,7 @@ public class OrderServiceImp implements OrderService{
         return this.convertOrderDetail(orderDetailExtended);
     }
     // convert from one specific orderID to an OrderDetailDTO
-    private OrderDetailDTO convertOrderDetail(List<OrderDetailExtended> orderProducts){
+    private OrderDetailDTO convertOrderDetail(List<OrderDetailExtended> orderProducts) throws JsonProcessingException{
         // get the first element inside orderproducts
         OrderDetailExtended firstElement = orderProducts.get(0);
 
@@ -323,7 +355,7 @@ public class OrderServiceImp implements OrderService{
     }
     
     // convert order to orderWithProducts
-    private OrderWithProducts getOrderWithProducts(Order order){
+    private OrderWithProducts getOrderWithProducts(Order order) throws JsonProcessingException{
         // fetch infomation
         // get customer
         String customerID = order.getCustomerID();
@@ -409,6 +441,62 @@ public class OrderServiceImp implements OrderService{
         return orderWithProducts;
     }
 
+    // convert order to invoiceDTO
+    private InvoiceDTO getInvoiceDTO(List<Invoice> invoices) throws JsonProcessingException{
+        // fetch invoice
+        Invoice invoice = invoices.get(0);
+        // fetch employee
+        Employee fetchedEmployee = this.employeeService.getEmployeeByID(invoice.getEmployeeID());
+        if(fetchedEmployee==null) throw new NotFoundException("Employee " + invoice.getEmployeeID() + " does not found");
+        String salesperson = fetchedEmployee.getLastName() + " " + fetchedEmployee.getFirstName();
+        // fetch shipper
+        Shipper fetchedShipper = this.shipperService.getShipper(invoice.getShipperID());
+        if(fetchedShipper==null) throw new NotFoundException("Shipper " + invoice.getShipperID() + " does not found");
+        // fetch products
+        List<Integer> productIds = invoices.stream().map(Invoice::getProductID).collect(Collectors.toList());
+        List<Product> fetchedProducts = this.productService.getProducts(productIds);
+        // fetch discounts
+        List<String> discountIds = invoices.stream().map(Invoice::getDiscountID).collect(Collectors.toList());
+        List<DiscountDetail> fetchedDiscounts = this.discountService.getDiscounts(discountIds);
+        // create an invoice
+        InvoiceDTO invoiceDTO = new InvoiceDTO(
+            invoice.getOrderID(), invoice.getCustomerID(), invoice.getEmployeeID(), 
+            salesperson, invoice.getShipName(), invoice.getShipAddress(), 
+            invoice.getShipCity(), invoice.getPhone(), invoice.getOrderDate(), 
+            invoice.getRequiredDate(), invoice.getShippedDate(), fetchedShipper.getCompanyName(), 
+            invoice.getFreight(), invoice.getStatus()); 
+        // convert invoice of customer
+        List<ProductWithBriefDiscount> products = invoiceDTO.getProducts();
+        for(Invoice tempInvoice: invoices){
+            // find product
+            Product product = findProduct(fetchedProducts, tempInvoice.getProductID())
+                .orElseThrow(()-> new NotFoundException("Product " + tempInvoice.getProductID() + " does not found"));
+            // add new product
+            if(products.size()==0 || !products.get(products.size()-1).getProductID().equals(tempInvoice.getProductID())){
+                ProductWithBriefDiscount productWithBriefDiscount = new ProductWithBriefDiscount(
+                    tempInvoice.getProductID(), product.getProductName(), tempInvoice.getUnitPrice(), 
+                    tempInvoice.getQuantity(), product.getPicture(), tempInvoice.getExtendedPrice());
+                // set totalprice for invoice
+                invoiceDTO.setTotalPrice(tempInvoice.getExtendedPrice().add(invoiceDTO.getTotalPrice()));
+                products.add(productWithBriefDiscount);
+            }
+            // add new discount for product
+            if(tempInvoice.getDiscountID()!=null){
+                // find discount
+                DiscountDetail discount = this.findDiscount(fetchedDiscounts, tempInvoice.getDiscountID())
+                    .orElseThrow(()-> new NotFoundException("Discount " + tempInvoice.getDiscountID() + " does not found"));
+                DiscountBreifInfo discountBreifInfo = new DiscountBreifInfo(
+                    tempInvoice.getDiscountID(), 
+                    tempInvoice.getDiscountPercent(), 
+                    discount.getDiscountType());
+                products.get(products.size()-1).getDiscounts().add(discountBreifInfo);
+                products.get(products.size()-1).setTotalDiscount(products.get(products.size()-1).getTotalDiscount() + tempInvoice.getDiscountPercent());
+            }
+        }
+        return invoiceDTO;
+    }
+
+
     // find product
     private Optional<Product> findProduct(List<Product> products, Integer productID){
         return products.stream().filter(p -> p.getProductID().equals(productID)).findFirst();
@@ -416,6 +504,10 @@ public class OrderServiceImp implements OrderService{
     // find discount
     private Optional<DiscountDetail> findDiscount(List<DiscountDetail> discounts, String discountID){
         return discounts.stream().filter(p -> p.getDiscountID().equalsIgnoreCase(discountID)).findFirst();
+    }
+    // find customer
+    private Optional<Customer> findCustomer(List<Customer> customers, String customerID){
+        return customers.stream().filter(p -> p.getCustomerID().equalsIgnoreCase(customerID)).findFirst();
     }
 
     @Override
@@ -425,5 +517,44 @@ public class OrderServiceImp implements OrderService{
             .orElseThrow(()-> new NotFoundException("Order ID " + orderID + " does not found"));
         if(fetchedOrder.getStatus().equals(OrderStatus.Pending)) return true;
         return false;
+    }
+
+    @Override
+    public Page<OrderDetailDTO> getOrdersByCustomerID(String customerID, Integer pageNumber, Integer pageSize) throws JsonProcessingException {
+        log.info("getOrdersByCustomerID(customerID={}, pageNumber={}, pageSize={})", 
+            customerID, pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<OrderDetailExtended> orders = orderDetailExtendedRepository
+            .findAllByCustomerIDOrderByOrderIDDesc(customerID, pageable);
+        List<OrderDetailDTO> orderDetailDTOs = this.convertOrders(orders.getContent());
+        return new PageImpl<>(orderDetailDTOs, pageable, orders.getTotalElements());
+    }
+
+    @Override
+    public InvoiceDTO getInvoiceByCustomerID(String customerID, String orderID) throws JsonProcessingException {
+        log.info("getInvoiceByCustomerID(customerID={}, orderID={})", customerID, orderID);
+        List<Invoice> invoices = invoiceRepository.findByOrderIDAndCustomerID(orderID, customerID);
+        InvoiceDTO invoice = this.getInvoiceDTO(invoices);
+        return invoice;
+    }
+
+    @Override
+    public Page<OrderDetailDTO> getOrdersByEmployeeID(String employeeID, OrderStatus status, Integer pageNumber,
+            Integer pageSize) throws JsonProcessingException {
+        log.info("getOrdersByEmployeeID(employeeID={}, status={}, pageNumber={}, pageSize={})", 
+            employeeID, status, pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<OrderDetailExtended> orders = orderDetailExtendedRepository
+            .findAllByEmployeeIDAndStatusOrderByDesc(employeeID, status, pageable);
+        List<OrderDetailDTO> orderDetailDTOs = this.convertOrders(orders.getContent());
+        return new PageImpl<>(orderDetailDTOs, pageable, orders.getTotalElements());
+    }
+
+    @Override
+    public OrderWithProducts getOrderByEmployeeID(String employeeID, String orderID) throws JsonProcessingException {
+        log.info("getOrderByEmployeeID(employeeID={}, orderID={})", employeeID, orderID);
+        Order order = orderRepository.findByEmployeeIDAndOrderID(employeeID, orderID)
+            .orElseThrow(()-> new NotFoundException("Order " + orderID + " of employee "+ employeeID + " does not found"));
+        return this.getOrderWithProducts(order);
     }
 }

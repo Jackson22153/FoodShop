@@ -52,7 +52,7 @@ public interface OrderRepository extends JpaRepository<Order, String>{
     @Query("""
         SELECT o FROM Order o WHERE o.status=?1 AND o.orderID=?2   
         """)
-    Optional<Order> findByStatusAndOrderID(OrderStatus status, int orderID);
+    Optional<Order> findByStatusAndOrderID(OrderStatus status, String orderID);
 
     @Query("""
         SELECT o FROM Order o WHERE o.status=?1 AND o.employeeID=?2
@@ -67,5 +67,5 @@ public interface OrderRepository extends JpaRepository<Order, String>{
     @Query("""
         SELECT o FROM Order o WHERE o.employeeID=?1 AND o.orderID=?2
             """)
-    Optional<Order> findByEmployeeIDAndOrderID(String employeeID, int orderID);
+    Optional<Order> findByEmployeeIDAndOrderID(String employeeID, String orderID);
 } 

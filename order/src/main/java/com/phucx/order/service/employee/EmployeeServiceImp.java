@@ -6,21 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
-import com.phucx.order.constant.NotificationTopic;
-import com.phucx.order.constant.OrderStatus;
-import com.phucx.order.exception.InvalidOrderException;
+import com.phucx.order.model.DataRequest;
 import com.phucx.order.model.Employee;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Notification;
-import com.phucx.order.model.OrderDetailDTO;
-import com.phucx.order.model.OrderWithProducts;
-import com.phucx.order.model.Topic;
 import com.phucx.order.model.UserRequest;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.notification.NotificationService;
-import com.phucx.order.service.order.OrderService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -28,10 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 public class EmployeeServiceImp implements EmployeeService {
     @Autowired
     private NotificationService notificationService;
-    // @Autowired
-    // private OrderService orderService;
     @Autowired
     private MessageQueueService messageQueueService;
+    // @Autowired
+    // private OrderService orderService;
 
     // PROCESSING ORDER
     // @Override
@@ -109,22 +104,23 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
     @Override
-    public Employee getEmployeeByID(String employeeID) {
+    public Employee getEmployeeByID(String employeeID) throws JsonProcessingException {
         log.info("getEmployeeByID(employeeID={})", employeeID);
         // create a request for user
         UserRequest userRequest = new UserRequest();
         userRequest.setEmployeeID(employeeID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<UserRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataRequest> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetEmployeeByID);
         eventMessage.setPayload(userRequest);
         // receive data
-        EventMessage<Object> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.ACCOUNT_QUEUE, 
-            MessageQueueConstant.ACCOUNT_ROUTING_KEY);
+        EventMessage<Employee> response = messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConstant.USER_QUEUE, 
+            MessageQueueConstant.USER_ROUTING_KEY,
+            Employee.class);
         log.info("response={}", response);
-        return  (Employee) response.getPayload();
+        return  response.getPayload();
     }
 }

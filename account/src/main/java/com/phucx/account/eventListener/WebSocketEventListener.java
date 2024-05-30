@@ -16,9 +16,6 @@ public class WebSocketEventListener {
         Message<?> message = (Message<?>) event.getMessage();
         String simpDestination = (String) message.getHeaders().get("simpDestination");
         System.out.println(simpDestination);
-        // if (simpDestination.startsWith("/topic/group/1")) {
-        //     // Do something when a client subscribes to the topic.
-        // }
     }
 
     

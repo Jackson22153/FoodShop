@@ -1,5 +1,7 @@
 package com.phucx.account.service.customer;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
@@ -13,6 +15,7 @@ import com.phucx.account.model.OrderDetailsDTO;
 public interface CustomerService {
     // get customer
     public Customer getCustomerByID(String customerID);
+    public List<Customer> getCustomersByIDs(List<String> customerIDs);
     public Customer getCustomerByUsername(String username);
     public CustomerDetailDTO getCustomerDetailByCustomerID(String customerID);
     public CustomerDetail getCustomerDetail(String username);

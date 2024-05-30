@@ -8,23 +8,23 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.phucx.shop.model.CurrentProductList;
+import com.phucx.shop.model.CurrentProduct;
 
 
 
 
 @Repository
-public interface CurrentProductListRepository extends JpaRepository<CurrentProductList, Integer>{
+public interface CurrentProductRepository extends JpaRepository<CurrentProduct, Integer>{
     @Query("""
-        SELECT c FROM CurrentProductList c \
+        SELECT c FROM CurrentProduct c \
         WHERE productName LIKE ?1     
         """)
-    Page<CurrentProductList> searchCurrentProductsByProductName(String productName, Pageable page);
+    Page<CurrentProduct> searchCurrentProductsByProductName(String productName, Pageable page);
 
 
-    Page<CurrentProductList> findByCategoryNameLike(String categoryName, Pageable page);
+    Page<CurrentProduct> findByCategoryNameLike(String categoryName, Pageable page);
 
-    Page<CurrentProductList> findByProductNameLike(String productName, Pageable pageable);
+    Page<CurrentProduct> findByProductNameLike(String productName, Pageable pageable);
 
     @Query(nativeQuery = true, value = """
         SELECT  * \
@@ -32,19 +32,19 @@ public interface CurrentProductListRepository extends JpaRepository<CurrentProdu
         where CategoryName=?2 AND ProductID<>?1 \
         ORDER BY NEWID()
         """)
-    Page<CurrentProductList> findRandomByCategoryName(int productID, String categoryName, Pageable page);
+    Page<CurrentProduct> findRandomByCategoryName(int productID, String categoryName, Pageable page);
 
     @Query(nativeQuery = true, value = """
         SELECT  * \
         FROM [Current Product List] \
         ORDER BY NEWID()
         """)
-    Page<CurrentProductList> findProductsRandom(Pageable page);
+    Page<CurrentProduct> findProductsRandom(Pageable page);
 
     @Query("""
-        SELECT c FROM CurrentProductList c \
+        SELECT c FROM CurrentProduct c \
         WHERE c.productID IN ?1 \
         ORDER BY c.productID Asc
             """)
-    List<CurrentProductList> findAllByProductIDOrderByProductIDAsc(List<Integer> productIDs);
+    List<CurrentProduct> findAllByProductIDOrderByProductIDAsc(List<Integer> productIDs);
 }

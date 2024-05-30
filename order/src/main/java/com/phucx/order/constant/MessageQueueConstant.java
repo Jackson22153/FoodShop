@@ -1,9 +1,13 @@
 package com.phucx.order.constant;
 
 public class MessageQueueConstant {
-    public final static String PRODUCT_QUEUE = "productService";
-    public final static String PRODUCT_ROUTING_KEY = "productService";
-
-    public final static String ACCOUNT_QUEUE = "accountService";
-    public final static String ACCOUNT_ROUTING_KEY = "accountService";
+    // product queue
+    public final static String PRODUCT_QUEUE = "productqueue";
+    public final static String PRODUCT_ROUTING_KEY = "productqueue";
+    // discount queue
+    public final static String DISCOUNT_QUEUE = "discountqueue";
+    public final static String DISCOUNT_ROUTING_KEY = "discountqueue";
+    // user queue
+    public final static String USER_QUEUE = "userqueue";
+    public final static String USER_ROUTING_KEY = "userqueue";
 }

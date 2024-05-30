@@ -1,14 +1,14 @@
 package com.phucx.order.service.employee;
 
 import org.springframework.data.domain.Page;
-import com.phucx.order.exception.InvalidOrderException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.model.Employee;
 import com.phucx.order.model.Notification;
-import com.phucx.order.model.OrderWithProducts;
 
 public interface EmployeeService {
     // get employee
-    public Employee getEmployeeByID(String employeeID);
+    public Employee getEmployeeByID(String employeeID) throws JsonProcessingException;
     // public EmployeeAccount getEmployeeAccount(String username);
     // processing order of customer
     // public Notification confirmOrder(OrderWithProducts order, String employeeID) throws InvalidOrderException;

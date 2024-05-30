@@ -6,39 +6,51 @@ import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MessageQueueConfig {
-    public final static String PRODUCT_QUEUE = "productservice";
-    public final static String PRODUCT_ROUTING_KEY = "productservice";
+    public final static String PRODUCT_QUEUE = "productqueue";
+    public final static String PRODUCT_ROUTING_KEY = "productqueue";
 
-    // product service message queue
+    public final static String DISCOUNT_QUEUE = "discountqueue";
+    public final static String DISCOUNT_ROUTING_KEY = "discountqueue";
+
+    private final String SHOP_EXCHANGE = "shopservice";
+    // direct exchange
     @Bean
-    public DirectExchange productServiceExchange(){
-        return new DirectExchange(PRODUCT_ROUTING_KEY);
+    public DirectExchange shopExchange(){
+        return new DirectExchange(SHOP_EXCHANGE);
     }
+    // product message queue
     @Bean
-    public Queue productService(){
+    public Queue productQueue(){
         return new Queue(PRODUCT_QUEUE, false);
     }
     @Bean
-    public Binding productBinding(Queue productService, DirectExchange productDirectExchange){
-        return BindingBuilder.bind(productService).to(productDirectExchange).with(PRODUCT_ROUTING_KEY);
+    public Binding productBinding(Queue productQueue, DirectExchange shopExchange){
+        return BindingBuilder.bind(productQueue).to(shopExchange).with(PRODUCT_ROUTING_KEY);
+    }
+    // discount message quue
+    @Bean
+    public Queue discountQueue(){
+        return new Queue(DISCOUNT_QUEUE, false);
+    }
+    @Bean
+    public Binding discountBinding(Queue discountQueue, DirectExchange shopExchange){
+        return BindingBuilder.bind(discountQueue).to(shopExchange).with(DISCOUNT_ROUTING_KEY);
     }
 
     // message queue configuration 
-    @Bean
-    public MessageConverter jsonMessageConverter(){
-        return new Jackson2JsonMessageConverter();
-    }
+    // @Bean
+    // public MessageConverter jsonMessageConverter(){
+    //     return new Jackson2JsonMessageConverter();
+    // }
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setMessageConverter(jsonMessageConverter());
+        // rabbitTemplate.setMessageConverter(jsonMessageConverter);
         return rabbitTemplate;
     }
 }
