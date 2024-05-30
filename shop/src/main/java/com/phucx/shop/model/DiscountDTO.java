@@ -1,4 +1,4 @@
-package com.phucx.order.model;
+package com.phucx.shop.model;
 
 import java.util.List;
 
@@ -12,9 +12,8 @@ import lombok.ToString;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductRequest extends DataRequest{
-    private Integer productID;
-    private List<Integer> productIds;
-    private List<Product> products;
-
+public class DiscountDTO extends DataDTO{
+    private String discountID;
+    private List<String> discountIDs;
+    private List<ProductDiscountsDTO> productsDiscounts;
 }

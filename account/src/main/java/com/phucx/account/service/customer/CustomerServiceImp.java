@@ -11,15 +11,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
-import com.phucx.account.model.CustomerDetailDTO;
-import com.phucx.account.model.InvoiceDTO;
+import com.phucx.account.model.CustomerDetails;
+import com.phucx.account.model.InvoiceDetails;
 import com.phucx.account.model.Customer;
 import com.phucx.account.model.Notification;
-import com.phucx.account.model.OrderDetailsDTO;
+import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.CustomerAccountRepository;
@@ -153,12 +154,12 @@ public class CustomerServiceImp implements CustomerService {
         return customers;
     }
     @Override
-    public CustomerDetailDTO getCustomerDetailByCustomerID(String customerID) {
+    public CustomerDetails getCustomerDetailByCustomerID(String customerID) {
         Customer customer = customerRepository.findById(customerID)
             .orElseThrow(()-> new NotFoundException("Customer " + customerID + " does not found"));
         UserInfo user = userService.getUserInfo(customer.getUserID());
         
-        CustomerDetailDTO customerDetail = new CustomerDetailDTO(
+        CustomerDetails customerDetail = new CustomerDetails(
             customer.getCustomerID(), customer.getContactName(), customer.getPicture(), user);
         return customerDetail;
     }
@@ -182,13 +183,13 @@ public class CustomerServiceImp implements CustomerService {
             ()-> new NotFoundException("Customer with userID " + userID + " does not found"));
     }
     @Override
-    public Page<OrderDetailsDTO> getOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus) {
+    public Page<OrderDetails> getOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus) throws JsonProcessingException {
         log.info("getOrders(pageNumber={}, pageSize={}, customerID={}, orderStatus={})", 
             pageNumber, pageSize, customerID, orderStatus);
         return orderService.getCustomerOrders(customerID, orderStatus, pageNumber, pageSize);
     }
     @Override
-    public InvoiceDTO getInvoice(String orderID, String customerID) {
+    public InvoiceDetails getInvoice(String orderID, String customerID) throws JsonProcessingException {
         log.info("getInvoice(orderID={}, customerID={})", orderID, customerID);
         return orderService.getCustomerInvoice(orderID, customerID);
     }

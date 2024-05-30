@@ -2,19 +2,20 @@ package com.phucx.account.service.order;
 
 import org.springframework.data.domain.Page;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.constant.OrderStatus;
-import com.phucx.account.model.InvoiceDTO;
-import com.phucx.account.model.OrderDetailsDTO;
+import com.phucx.account.model.InvoiceDetails;
+import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.OrderWithProducts;
 
 public interface OrderService {
     // customer's orders
-    public Page<OrderDetailsDTO> getCustomerOrders(String customerID, OrderStatus orderStatus, int pageNumber, int pageSize);
+    public Page<OrderDetails> getCustomerOrders(String customerID, OrderStatus orderStatus, int pageNumber, int pageSize) throws JsonProcessingException;
     // customer's invoice
-    public InvoiceDTO getCustomerInvoice(String orderID, String customerID);
+    public InvoiceDetails getCustomerInvoice(String orderID, String customerID) throws JsonProcessingException;
     
     // employee's order
-    public OrderWithProducts getEmployeeOrder(String orderID, String employeeID);
+    public OrderWithProducts getEmployeeOrder(String orderID, String employeeID) throws JsonProcessingException;
     // employee's orders
-    public Page<OrderDetailsDTO> getEmployeeOrders(String employeeID, OrderStatus status, int pageNumber, int pageSize);
+    public Page<OrderDetails> getEmployeeOrders(String employeeID, OrderStatus status, int pageNumber, int pageSize) throws JsonProcessingException;
 } 

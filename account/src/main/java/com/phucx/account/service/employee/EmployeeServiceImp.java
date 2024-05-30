@@ -9,13 +9,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
-import com.phucx.account.model.EmployeeDetailDTO;
+import com.phucx.account.model.EmployeeDetails;
 import com.phucx.account.model.Notification;
-import com.phucx.account.model.OrderDetailsDTO;
+import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.Employee;
 import com.phucx.account.model.User;
@@ -48,19 +49,19 @@ public class EmployeeServiceImp implements EmployeeService {
     private EmployeeDetailRepostiory employeeDetailRepostiory;
 
 	@Override
-	public EmployeeDetailDTO getEmployeeByID(String employeeID) {
+	public EmployeeDetails getEmployeeByID(String employeeID) {
         log.info("getEmployeeByID(employeeID={})", employeeID);
         Employee employee = employeeRepository.findById(employeeID)
             .orElseThrow(()-> new NotFoundException("Employee " + employeeID + " does not found"));
         UserInfo user = userService.getUserInfo(employee.getUserID());
     
-        EmployeeDetailDTO employeeDetailDTO = new EmployeeDetailDTO(
+        EmployeeDetails employeeDetails = new EmployeeDetails(
             employee.getEmployeeID(), user, employee.getFirstName(), employee.getLastName(), 
             employee.getBirthDate(), employee.getHireDate(), employee.getHomePhone(), 
             employee.getPhoto(), employee.getTitle(), employee.getAddress(), employee.getCity(), 
             employee.getNotes());
 
-        return employeeDetailDTO;
+        return employeeDetails;
     }
 
 	@Override
@@ -209,13 +210,13 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
     @Override
-    public Page<OrderDetailsDTO> getOrders(String employeeID, OrderStatus status, int pageNumber, int pageSize) {
+    public Page<OrderDetails> getOrders(String employeeID, OrderStatus status, int pageNumber, int pageSize) throws JsonProcessingException {
         log.info("getOrders(employeeID={}, status={}, pageNumber={}, pageSize={})", employeeID, status, pageNumber, pageSize);
         return orderService.getEmployeeOrders(employeeID, status, pageNumber, pageSize);
     }
 
     @Override
-    public OrderWithProducts getOrder(String orderID, String employeeID){
+    public OrderWithProducts getOrder(String orderID, String employeeID) throws JsonProcessingException{
         log.info("getOrderDetail(orderID={}, employeeID={})", orderID, employeeID);
         return orderService.getEmployeeOrder(orderID, employeeID);
     }

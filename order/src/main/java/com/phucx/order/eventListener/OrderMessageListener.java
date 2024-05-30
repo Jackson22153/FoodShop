@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.order.config.MessageQueueConfig;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.model.EventMessage;
-import com.phucx.order.model.InvoiceDTO;
-import com.phucx.order.model.OrderDetailDTO;
-import com.phucx.order.model.OrderRequest;
+import com.phucx.order.model.InvoiceDetails;
+import com.phucx.order.model.OrderDetails;
+import com.phucx.order.model.OrderDTO;
 import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.service.order.OrderService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,39 +31,39 @@ public class OrderMessageListener {
 
     @RabbitHandler
     public String fetchOrderData(String message){
-        log.info("fetchOrderData(orderRequest={})", message);
+        log.info("fetchOrderData(orderDOrderDTO={})", message);
         String eventID = UUID.randomUUID().toString();
         EventMessage<Object> responseMessage= new EventMessage<>();
         responseMessage.setEventId(eventID);
         try {
-            TypeReference<EventMessage<OrderRequest>> typeRef = new TypeReference<EventMessage<OrderRequest>>() {};
-            EventMessage<OrderRequest> orderRequest =  objectMapper.readValue(message, typeRef);
+            TypeReference<EventMessage<OrderDTO>> typeRef = new TypeReference<EventMessage<OrderDTO>>() {};
+            EventMessage<OrderDTO> orderDOrderDTO =  objectMapper.readValue(message, typeRef);
             // fetch data
-            OrderRequest payload = orderRequest.getPayload();
-            if(orderRequest.getEventType().equals(EventType.GetOrdersByCustomerID)){
+            OrderDTO payload = orderDOrderDTO.getPayload();
+            if(orderDOrderDTO.getEventType().equals(EventType.GetOrdersByCustomerID)){
                 // get orders by customerId
                 String customerID = payload.getCustomerID();
-                Page<OrderDetailDTO> orders = orderService.getOrdersByCustomerID(customerID, payload.getPageNumber(), payload.getPageSize());
+                Page<OrderDetails> orders = orderService.getOrdersByCustomerID(customerID, payload.getPageNumber(), payload.getPageSize());
                 // set response message
                 responseMessage.setPayload(orders);
                 responseMessage.setEventType(EventType.ReturnOrdersByCustomerID);
-            }else if(orderRequest.getEventType().equals(EventType.GetOrderInvoiceByIdAndCustomerID)){
+            }else if(orderDOrderDTO.getEventType().equals(EventType.GetOrderInvoiceByIdAndCustomerID)){
                 // get order invoice by customerId
                 String customerID = payload.getCustomerID();
                 String orderID = payload.getOrderID();
-                InvoiceDTO invoice = orderService.getInvoiceByCustomerID(customerID, orderID);
+                InvoiceDetails invoice = orderService.getInvoiceByCustomerID(customerID, orderID);
                 // set response message
                 responseMessage.setPayload(invoice);
                 responseMessage.setEventType(EventType.ReturnOrderInvoiceByIdAndCustomerID);
-            }else if(orderRequest.getEventType().equals(EventType.GetOrdersByEmployeeID)){
+            }else if(orderDOrderDTO.getEventType().equals(EventType.GetOrdersByEmployeeID)){
                 // get orders by employeeId
                 String employeeID = payload.getEmployeeID();
-                Page<OrderDetailDTO> orders = orderService.getOrdersByEmployeeID(
+                Page<OrderDetails> orders = orderService.getOrdersByEmployeeID(
                     employeeID, payload.getOrderStatus(), payload.getPageNumber(), payload.getPageSize());
                 // set response message
                 responseMessage.setPayload(orders);
                 responseMessage.setEventType(EventType.ReturnOrdersByEmployeeID);
-            }else if(orderRequest.getEventType().equals(EventType.GetOrderByEmployeeID)){
+            }else if(orderDOrderDTO.getEventType().equals(EventType.GetOrderByEmployeeID)){
                 // get order by employeeId
                 String employeeID = payload.getEmployeeID();
                 OrderWithProducts order = orderService.getOrderByEmployeeID(employeeID, payload.getOrderID());

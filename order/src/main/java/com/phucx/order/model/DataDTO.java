@@ -1,6 +1,6 @@
 package com.phucx.order.model;
 
-public class DataRequest {
+public class DataDTO {
 
     
 }

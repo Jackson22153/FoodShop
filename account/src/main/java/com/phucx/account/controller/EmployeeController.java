@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.Notification;
-import com.phucx.account.model.OrderDetailsDTO;
+import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.employee.EmployeeService;
 import com.phucx.account.service.user.UserService;
@@ -54,11 +55,11 @@ public class EmployeeController {
 
     // GET ALL ORDERS WHICH EMPLOYEE HAS APPROVED
     @GetMapping("/orders")
-    public ResponseEntity<Page<OrderDetailsDTO>> getOrders(
+    public ResponseEntity<Page<OrderDetails>> getOrders(
         @RequestParam(name = "page", required = false) Integer pageNumber,
         @RequestParam(name = "type", required = false) String orderStatus,
         Authentication authentication
-    ){    
+    ) throws JsonProcessingException{    
         logger.info("OrderStatus: {}", orderStatus);
         pageNumber = pageNumber!=null?pageNumber:0;
         String username = userService.getUsername(authentication);
@@ -71,7 +72,7 @@ public class EmployeeController {
             status = OrderStatus.All;
         }
         // get orders
-        Page<OrderDetailsDTO> orders = employeeService.getOrders(
+        Page<OrderDetails> orders = employeeService.getOrders(
             employee.getEmployeeID(), status,
             pageNumber, WebConstant.PAGE_SIZE);
         return ResponseEntity.ok().body(orders);

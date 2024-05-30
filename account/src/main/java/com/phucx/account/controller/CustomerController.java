@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.Customer;
 import com.phucx.account.model.CustomerDetail;
-import com.phucx.account.model.InvoiceDTO;
+import com.phucx.account.model.InvoiceDetails;
 import com.phucx.account.model.Notification;
-import com.phucx.account.model.OrderDetailsDTO;
+import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.customer.CustomerService;
 import com.phucx.account.service.user.UserService;
@@ -59,19 +60,19 @@ public class CustomerController {
 
         // get INVOICE of customer
     @GetMapping("/orders/{orderID}")
-    public ResponseEntity<InvoiceDTO> getOrder(@PathVariable String orderID, Authentication authentication){    
+    public ResponseEntity<InvoiceDetails> getOrder(@PathVariable String orderID, Authentication authentication) throws JsonProcessingException{    
         String username = userService.getUsername(authentication);
         Customer customer = customerService.getCustomerByUsername(username);
-        InvoiceDTO order = customerService.getInvoice(orderID, customer.getCustomerID());
+        InvoiceDetails order = customerService.getInvoice(orderID, customer.getCustomerID());
         return ResponseEntity.ok().body(order);
     }
     // GET ALL ORDERS OF CUSTOMER
     @GetMapping("/orders")
-    public ResponseEntity<Page<OrderDetailsDTO>> getOrders(
+    public ResponseEntity<Page<OrderDetails>> getOrders(
         @RequestParam(name = "page", required = false) Integer pageNumber,
         @RequestParam(name = "type", required = false) String orderStatus,
         Authentication authentication
-    ){    
+    ) throws JsonProcessingException{    
         logger.info("getOrders(pageNumber={}, type=${})", pageNumber, orderStatus);
         pageNumber = pageNumber!=null?pageNumber:0;
         String username = userService.getUsername(authentication);
@@ -82,7 +83,7 @@ public class CustomerController {
         }else {
             status=OrderStatus.All;
         }
-        Page<OrderDetailsDTO> orders = customerService.getOrders(
+        Page<OrderDetails> orders = customerService.getOrders(
             pageNumber, WebConstant.PAGE_SIZE, customer.getCustomerID(), status);
         return ResponseEntity.ok().body(orders);
     }

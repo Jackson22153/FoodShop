@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
-import com.phucx.order.model.DataRequest;
+import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.Employee;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Notification;
-import com.phucx.order.model.UserRequest;
+import com.phucx.order.model.UserDTO;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.notification.NotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -107,14 +107,14 @@ public class EmployeeServiceImp implements EmployeeService {
     public Employee getEmployeeByID(String employeeID) throws JsonProcessingException {
         log.info("getEmployeeByID(employeeID={})", employeeID);
         // create a request for user
-        UserRequest userRequest = new UserRequest();
-        userRequest.setEmployeeID(employeeID);
+        UserDTO userDUserDTO = new UserDTO();
+        userDUserDTO.setEmployeeID(employeeID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DataRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetEmployeeByID);
-        eventMessage.setPayload(userRequest);
+        eventMessage.setPayload(userDUserDTO);
         // receive data
         EventMessage<Employee> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.USER_QUEUE, 

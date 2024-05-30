@@ -1,6 +1,6 @@
 package com.phucx.shop.model;
 
-public class DataRequest {
+public class DataDTO {
 
     
 } 

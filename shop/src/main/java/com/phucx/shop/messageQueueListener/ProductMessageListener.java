@@ -13,7 +13,7 @@ import com.phucx.shop.config.MessageQueueConfig;
 import com.phucx.shop.constant.EventType;
 import com.phucx.shop.model.EventMessage;
 import com.phucx.shop.model.Product;
-import com.phucx.shop.model.ProductRequest;
+import com.phucx.shop.model.ProductDTO;
 import com.phucx.shop.service.product.ProductService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,12 +29,12 @@ public class ProductMessageListener {
     
     // get product
     @RabbitHandler
-    public String fetchProduct(EventMessage<ProductRequest> eventMessage){
+    public String fetchProduct(EventMessage<ProductDTO> eventMessage){
         log.info("fetchProduct({})", eventMessage);
         String eventID = UUID.randomUUID().toString();
         EventMessage<Object> responseMessage = new EventMessage<>();
         responseMessage.setEventId(eventID);
-        ProductRequest payload = eventMessage.getPayload();
+        ProductDTO payload = eventMessage.getPayload();
         try {
             if(eventMessage.getEventType().equals(EventType.GetProductByID)){
                 // get product by id

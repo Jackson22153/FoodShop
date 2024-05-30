@@ -10,9 +10,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
-import com.phucx.order.model.DataRequest;
+import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.DiscountDetail;
-import com.phucx.order.model.DiscountRequest;
+import com.phucx.order.model.DiscountDTO;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.ProductDiscountsDTO;
 import com.phucx.order.model.ResponseFormat;
@@ -30,14 +30,14 @@ public class DiscountServiceImp implements DiscountService{
     public DiscountDetail getDiscount(String discountID) throws JsonProcessingException {
         log.info("getDiscount(discountID={})", discountID);
         // create a request for discount
-        DiscountRequest discountRequest = new DiscountRequest();
-        discountRequest.setDiscountID(discountID);
+        DiscountDTO discountDDiscountDTO = new DiscountDTO();
+        discountDDiscountDTO.setDiscountID(discountID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DataRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetDiscountByID);
-        eventMessage.setPayload(discountRequest);
+        eventMessage.setPayload(discountDDiscountDTO);
         // receive data
         EventMessage<DiscountDetail> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.DISCOUNT_QUEUE, 
@@ -51,14 +51,14 @@ public class DiscountServiceImp implements DiscountService{
     public List<DiscountDetail> getDiscounts(List<String> discountIDs) throws JsonProcessingException {
         log.info("getDiscount(getDiscounts={})", discountIDs);
         // create a request for discount
-        DiscountRequest discountRequest = new DiscountRequest();
-        discountRequest.setDiscountIDs(discountIDs);
+        DiscountDTO discountDDiscountDTO = new DiscountDTO();
+        discountDDiscountDTO.setDiscountIDs(discountIDs);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DataRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetDiscountsByIDs);
-        eventMessage.setPayload(discountRequest);
+        eventMessage.setPayload(discountDDiscountDTO);
         // receive data
         TypeReference<List<DiscountDetail>> typeReference = 
             new TypeReference<List<DiscountDetail>>() {};
@@ -73,14 +73,14 @@ public class DiscountServiceImp implements DiscountService{
     public Boolean validateDiscount(List<ProductDiscountsDTO> productsDiscounts) throws JsonProcessingException {
         log.info("validateDiscount(productDiscounts={})", productsDiscounts);
         // create a request for discount
-        DiscountRequest discountRequest = new DiscountRequest();
-        discountRequest.setProductsDiscounts(productsDiscounts);
+        DiscountDTO discountDDiscountDTO = new DiscountDTO();
+        discountDDiscountDTO.setProductsDiscounts(productsDiscounts);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DataRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.ValidateDiscounts);
-        eventMessage.setPayload(discountRequest);
+        eventMessage.setPayload(discountDDiscountDTO);
         // receive data
         EventMessage<ResponseFormat> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.DISCOUNT_QUEUE, 

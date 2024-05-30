@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,8 +12,7 @@ import lombok.ToString;
 @Data @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeDetailDTO {
-    @Id
+public class EmployeeDetails {
     private String employeeID;
     private UserInfo userInfo;
     private String firstName;

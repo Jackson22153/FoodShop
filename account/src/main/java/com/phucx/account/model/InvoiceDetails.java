@@ -14,7 +14,7 @@ import lombok.ToString;
 
 @Data @ToString
 @AllArgsConstructor
-public class InvoiceDTO {
+public class InvoiceDetails {
     private String orderID;
 
     private List<ProductWithBriefDiscount> products;
@@ -41,7 +41,7 @@ public class InvoiceDTO {
     private BigDecimal freight;
     private OrderStatus status;
 
-    public InvoiceDTO(String orderID, String customerID, String employeeID, String salesPerson, String shipName,
+    public InvoiceDetails(String orderID, String customerID, String employeeID, String salesPerson, String shipName,
             String shipAddress, String shipCity, String phone, LocalDateTime orderDate, LocalDateTime requiredDate,
             LocalDateTime shippedDate, String shipperName, BigDecimal freight, OrderStatus status) {
         this();
@@ -61,7 +61,7 @@ public class InvoiceDTO {
         this.status = status;
     }
 
-    public InvoiceDTO() {
+    public InvoiceDetails() {
         this.products = new ArrayList<>();
         this.totalPrice = BigDecimal.valueOf(0);
     }

@@ -1,6 +1,6 @@
 package com.phucx.account.model;
 
-public class DataRequest {
+public class DataDTO {
 
     
 } 

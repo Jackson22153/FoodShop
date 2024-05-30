@@ -12,10 +12,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
 import com.phucx.order.model.Customer;
-import com.phucx.order.model.DataRequest;
+import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Notification;
-import com.phucx.order.model.UserRequest;
+import com.phucx.order.model.UserDTO;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.notification.NotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,14 +34,14 @@ public class CustomerServiceImp implements CustomerService {
 	public Customer getCustomerByID(String customerID) throws JsonProcessingException {
 		log.info("getCustomerByID(customerID={})", customerID);
         // create a request for user
-        UserRequest userRequest = new UserRequest();
-        userRequest.setCustomerID(customerID);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setCustomerID(customerID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DataRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetCustomerByID);
-        eventMessage.setPayload(userRequest);
+        eventMessage.setPayload(userDTO);
         // receive data
         EventMessage<Customer> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.USER_QUEUE, 
@@ -148,14 +148,14 @@ public class CustomerServiceImp implements CustomerService {
     public List<Customer> getCustomersByIDs(List<String> customerIDs) throws JsonProcessingException{
         log.info("getCustomersByIDs(customerIDs={})", customerIDs);
         // create a request for user
-        UserRequest userRequest = new UserRequest();
-        userRequest.setCustomerIDs(customerIDs);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setCustomerIDs(customerIDs);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DataRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetCustomersByID);
-        eventMessage.setPayload(userRequest);
+        eventMessage.setPayload(userDTO);
         // receive data
         TypeReference<List<Customer>> typeReference = new TypeReference<List<Customer>>() {};
         EventMessage<List<Customer>> response = messageQueueService.sendAndReceiveData(

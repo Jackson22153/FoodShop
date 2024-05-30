@@ -1,22 +1,20 @@
 package com.phucx.order.model;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
-@Data
 @ToString
+@Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductDTO {
+public class ProductDTO extends DataDTO{
     private Integer productID;
-    private String productName;
-    private BigDecimal unitPrice;
-    private Integer quantity;
-    private Integer discount;
-    private BigDecimal extendedPrice;
-    private String picture;
+    private List<Integer> productIds;
+    private List<Product> products;
+
 }

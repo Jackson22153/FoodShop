@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.CustomerAccount;
-import com.phucx.account.model.CustomerDetailDTO;
+import com.phucx.account.model.CustomerDetails;
 import com.phucx.account.model.Employee;
 import com.phucx.account.model.EmployeeAccount;
-import com.phucx.account.model.EmployeeDetailDTO;
+import com.phucx.account.model.EmployeeDetails;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.model.Role;
 import com.phucx.account.model.UserInfo;
@@ -71,10 +71,10 @@ public class AdminController {
     }
 
     @GetMapping("/customers/{customerID}")
-    public ResponseEntity<CustomerDetailDTO> getUserByCustomerID(
+    public ResponseEntity<CustomerDetails> getUserByCustomerID(
         @PathVariable(name = "customerID") String customerID
     ){
-        CustomerDetailDTO customer = customerService.getCustomerDetailByCustomerID(customerID);
+        CustomerDetails customer = customerService.getCustomerDetailByCustomerID(customerID);
         return ResponseEntity.ok().body(customer);
     }
     // employees
@@ -106,10 +106,10 @@ public class AdminController {
     }
 
     @GetMapping("/employees/{employeeID}")
-    public ResponseEntity<EmployeeDetailDTO> getEmployeeDetail(
+    public ResponseEntity<EmployeeDetails> getEmployeeDetail(
         @PathVariable(name = "employeeID") String employeeID
     ){
-        EmployeeDetailDTO employee = employeeService.getEmployeeByID(employeeID);
+        EmployeeDetails employee = employeeService.getEmployeeByID(employeeID);
         return ResponseEntity.ok().body(employee);
     }
     

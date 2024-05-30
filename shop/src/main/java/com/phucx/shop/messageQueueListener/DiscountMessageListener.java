@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.shop.config.MessageQueueConfig;
 import com.phucx.shop.constant.EventType;
 import com.phucx.shop.model.DiscountDetail;
-import com.phucx.shop.model.DiscountRequest;
+import com.phucx.shop.model.DiscountDTO;
 import com.phucx.shop.model.EventMessage;
 import com.phucx.shop.model.ProductDiscountsDTO;
 import com.phucx.shop.model.ResponseFormat;
@@ -30,12 +30,12 @@ public class DiscountMessageListener {
     private ObjectMapper objectMapper;
     // get discount
     @RabbitHandler
-    public String fetchDiscount(EventMessage<DiscountRequest> eventMessage){
+    public String fetchDiscount(EventMessage<DiscountDTO> eventMessage){
         log.info("fetchDiscount({})", eventMessage);
         String eventID = UUID.randomUUID().toString();
         EventMessage<Object> responseMessage = new EventMessage<>();
         responseMessage.setEventId(eventID);
-        DiscountRequest payload = eventMessage.getPayload();
+        DiscountDTO payload = eventMessage.getPayload();
         try {
             if(eventMessage.getEventType().equals(EventType.GetDiscountByID)){
                 // get discount by id

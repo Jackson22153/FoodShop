@@ -12,7 +12,7 @@ import lombok.ToString;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderRequest extends DataRequest{
+public class OrderDTO extends DataDTO{
     private String orderID;
     private String customerID;
     private String employeeID;
@@ -20,10 +20,10 @@ public class OrderRequest extends DataRequest{
     private OrderStatus orderStatus;
     private Integer pageNumber;
     private Integer pageSize;
-    public OrderRequest(String orderID) {
+    public OrderDTO(String orderID) {
         this.orderID = orderID;
     }
-    public OrderRequest(OrderStatus orderStatus, Integer pageNumber, Integer pageSize) {
+    public OrderDTO(OrderStatus orderStatus, Integer pageNumber, Integer pageSize) {
         this.orderStatus = orderStatus;
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;

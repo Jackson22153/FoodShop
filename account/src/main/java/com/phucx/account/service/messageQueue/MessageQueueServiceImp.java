@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.config.WebSocketConfig;
-import com.phucx.account.model.DataRequest;
+import com.phucx.account.model.DataDTO;
 import com.phucx.account.model.EventMessage;
 import com.phucx.account.model.Notification;
 import com.phucx.account.service.notification.NotificationService;
@@ -75,7 +75,7 @@ public class MessageQueueServiceImp implements MessageQueueService{
         return eventMessage;
     }
     @Override
-    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataRequest> message, String queueName,
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> message, String queueName,
             String routingKey, Class<T> dataType) throws JsonProcessingException {
         log.info("sendAndReceiveData(message={}, queueName={}, routingKey={}, dataType={})", 
             message, queueName, routingKey, dataType.getName());
@@ -86,7 +86,7 @@ public class MessageQueueServiceImp implements MessageQueueService{
         return responseMessage;
     }
     @Override
-    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataRequest> message, String queueName,
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> message, String queueName,
             String routingKey, TypeReference<T> dataType) throws JsonProcessingException {
         log.info("sendAndReceiveData(message={}, queueName={}, routingKey={}, className={})", 
             message, queueName, routingKey, dataType.toString());

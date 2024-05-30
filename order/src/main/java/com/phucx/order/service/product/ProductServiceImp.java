@@ -10,10 +10,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
-import com.phucx.order.model.DataRequest;
+import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Product;
-import com.phucx.order.model.ProductRequest;
+import com.phucx.order.model.ProductDTO;
 import com.phucx.order.model.ResponseFormat;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 
@@ -29,14 +29,14 @@ public class ProductServiceImp implements ProductService{
     public List<Product> getProducts(List<Integer> productIDs) throws JsonProcessingException {
         log.info("getProducts(productIDs={})", productIDs);
         // create a request for user
-        ProductRequest productRequest = new ProductRequest();
-        productRequest.setProductIds(productIDs);
+        ProductDTO productDProductDTO = new ProductDTO();
+        productDProductDTO.setProductIds(productIDs);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DataRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetProductsByIDs);
-        eventMessage.setPayload(productRequest);
+        eventMessage.setPayload(productDProductDTO);
         // receive data
         TypeReference<List<Product>> typeReference = new TypeReference<List<Product>>() {};
         EventMessage<List<Product>> response = messageQueueService.sendAndReceiveData(
@@ -49,14 +49,14 @@ public class ProductServiceImp implements ProductService{
     @Override
     public Product getProduct(int productID) throws JsonProcessingException {
         log.info("getProduct(productID={})", productID);
-        ProductRequest productRequest = new ProductRequest();
-        productRequest.setProductID(productID);
+        ProductDTO productDProductDTO = new ProductDTO();
+        productDProductDTO.setProductID(productID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DataRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetProductByID);
-        eventMessage.setPayload(productRequest);
+        eventMessage.setPayload(productDProductDTO);
         // receive data
         EventMessage<Product> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.PRODUCT_QUEUE, 
@@ -68,14 +68,14 @@ public class ProductServiceImp implements ProductService{
     @Override
     public Boolean updateProductInStocks(List<Product> products) throws JsonProcessingException {
         log.info("updateProductInStocks(products={})", products);
-        ProductRequest productRequest = new ProductRequest();
-        productRequest.setProducts(products);
+        ProductDTO productDProductDTO = new ProductDTO();
+        productDProductDTO.setProducts(products);
         // create a request message
         String eventID = UUID.randomUUID().toString();
-        EventMessage<DataRequest> eventMessage = new EventMessage<>();
+        EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetProductByID);
-        eventMessage.setPayload(productRequest);
+        eventMessage.setPayload(productDProductDTO);
         // receive data
         EventMessage<ResponseFormat> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.PRODUCT_QUEUE, 

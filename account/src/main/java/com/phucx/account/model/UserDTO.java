@@ -1,4 +1,4 @@
-package com.phucx.shop.model;
+package com.phucx.account.model;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import lombok.ToString;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRequest extends DataRequest{
+public class UserDTO extends DataDTO{
     private String username;
     private String userID;
     private String employeeID;
