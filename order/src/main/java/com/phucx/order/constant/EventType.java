@@ -3,7 +3,7 @@ package com.phucx.order.constant;
 public enum EventType {
     // customer request
     GetCustomerByID,
-    GetCustomersByID,
+    GetCustomersByIDs,
     // employee request
     GetEmployeeByID,
     // user request
@@ -42,7 +42,7 @@ public enum EventType {
     ReturnShipperByID,
     // customer response
     ReturnCustomerByID,
-    ReturnCustomersByID,
+    ReturnCustomersByIDs,
     // employee response
     ReturnEmployeeByID,
     // user response

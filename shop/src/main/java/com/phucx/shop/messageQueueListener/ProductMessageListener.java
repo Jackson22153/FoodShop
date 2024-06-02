@@ -8,6 +8,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.shop.config.MessageQueueConfig;
 import com.phucx.shop.constant.EventType;
@@ -29,13 +30,16 @@ public class ProductMessageListener {
     
     // get product
     @RabbitHandler
-    public String fetchProduct(EventMessage<ProductDTO> eventMessage){
-        log.info("fetchProduct({})", eventMessage);
+    public String fetchProduct(String message){
+        log.info("fetchProduct({})", message);
         String eventID = UUID.randomUUID().toString();
         EventMessage<Object> responseMessage = new EventMessage<>();
         responseMessage.setEventId(eventID);
-        ProductDTO payload = eventMessage.getPayload();
         try {
+            TypeReference<EventMessage<ProductDTO>> typeRef = new TypeReference<EventMessage<ProductDTO>>() {};
+            EventMessage<ProductDTO> eventMessage = objectMapper.readValue(message, typeRef);
+            ProductDTO payload = eventMessage.getPayload();
+            // fetch data
             if(eventMessage.getEventType().equals(EventType.GetProductByID)){
                 // get product by id
                 Product product = productService.getProduct(payload.getProductID());

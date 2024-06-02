@@ -54,8 +54,8 @@ export default function UserInfomationComponent(){
         }
     }
 
-    const onChangePicture = ()=>{
-
+    const onChangePicture = (imageSrc: string)=>{
+        setCustomerInfo({...customerInfo, ['picture']:imageSrc})
     }
 
     const onClickEditInfo = ()=>{

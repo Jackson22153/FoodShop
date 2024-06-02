@@ -1,3 +1,4 @@
+import { ServerURL } from '../constant/FoodShoppingApiURL';
 import logo from '../assets/images/logo.png';
 import fb from '../assets/images/fb.png';
 import twitter from '../assets/images/twitter.png';
@@ -76,10 +77,28 @@ export function getSlide(){
     return slideImage;
 }
 
+function isValidUrl(string) {
+    try {
+      new URL(string)
+      return true;
+    } catch (_) {
+      return false;  
+    }
+  }
+  
+
+
 export function displayUserImage(picture){
-    return picture?picture: defaultUserImage
-    // return defaultUserImage
+    if(picture){
+        return isValidUrl(picture)?picture: ServerURL+picture;
+    }else{
+        return defaultUserImage;
+    }
 }
 export function displayProductImage(picture){
-    return picture?picture: defaultImage
+    if(picture){
+        return isValidUrl(picture)?picture: ServerURL+picture;
+    }else{
+        return defaultImage;
+    }
 }

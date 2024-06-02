@@ -25,7 +25,7 @@ import lombok.ToString;
             @StoredProcedureParameter(name="userID", type = String.class, mode = ParameterMode.IN),
             @StoredProcedureParameter(name="password", type = String.class, mode = ParameterMode.IN),
             @StoredProcedureParameter(name="result", type = String.class, mode = ParameterMode.OUT),
-        })
+        }),
 })
 public class User {
     @Id

@@ -1,5 +1,6 @@
 import { ChangeEventHandler } from "react";
 import { displayProductImage } from "../../../../service/image";
+import { uploadProductImage } from "../../../../api/ProductApi";
 
 interface Props{
     imageSrc: string,
@@ -12,8 +13,18 @@ export const ProductImageChangeInput = (prop: Props)=>{
     const disable= prop.disable;
 
     const onChange: ChangeEventHandler<HTMLInputElement> = (event)=>{
-        console.log(event.target.files)
-        // prop.onChangePicture(event);
+        const file = event.target.files[0];
+        uploadImage(file);
+        
+    }
+
+    const uploadImage = async (file: File)=>{
+        const res = await uploadProductImage(file);
+        if(res.status){
+            const data = res.data;
+            console.log(data)
+            prop.onChangePicture(data.imageUrl);
+        }
     }
 
     return(

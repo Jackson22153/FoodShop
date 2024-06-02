@@ -9,9 +9,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.shop.constant.EventType;
 import com.phucx.shop.constant.MessageQueueConstant;
 import com.phucx.shop.model.Customer;
+import com.phucx.shop.model.CustomerDTO;
 import com.phucx.shop.model.DataDTO;
 import com.phucx.shop.model.EventMessage;
-import com.phucx.shop.model.UserDTO;
 import com.phucx.shop.service.messageQueue.MessageQueueService;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -25,18 +25,17 @@ public class CustomerServiceImp implements CustomerService{
     @Override
     public Customer getCustomerByUserID(String userID) throws JsonProcessingException {
         log.info("getCustomerByUserID(userID={})", userID);
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUserID(userID);
-    
-        String eventID = UUID.randomUUID().toString();
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setUserID(userID);
         // fetching customer from account service
+        String eventID = UUID.randomUUID().toString();
         EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetCustomerByUserID);
-        eventMessage.setPayload(userDTO);
+        eventMessage.setPayload(customerDTO);
         EventMessage<Customer> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.USER_QUEUE, 
-            MessageQueueConstant.USER_ROUTING_KEY,
+            eventMessage, MessageQueueConstant.ACCOUNT_EXCHANGE, 
+            MessageQueueConstant.CUSTOMER_ROUTING_KEY,
             Customer.class);
         
         log.info("Response message: {}", response);

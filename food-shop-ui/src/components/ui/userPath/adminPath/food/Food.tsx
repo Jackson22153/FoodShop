@@ -166,7 +166,9 @@ export default function AdminFoodComponent(){
             setDescription(content)
         }
     }
-    const onChangePicture:ChangeEventHandler<HTMLInputElement> = (_event)=>{
+    // change product's picture
+    const onChangePicture = (imageSrc: string)=>{
+        setFoodInfoChange({...foodInfoChange, ['picture']:imageSrc})
 
     }
 

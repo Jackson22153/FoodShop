@@ -12,10 +12,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
 import com.phucx.order.model.Customer;
+import com.phucx.order.model.CustomerDTO;
 import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Notification;
-import com.phucx.order.model.UserDTO;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.notification.NotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,18 +34,18 @@ public class CustomerServiceImp implements CustomerService {
 	public Customer getCustomerByID(String customerID) throws JsonProcessingException {
 		log.info("getCustomerByID(customerID={})", customerID);
         // create a request for user
-        UserDTO userDTO = new UserDTO();
-        userDTO.setCustomerID(customerID);
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerID(customerID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
         EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetCustomerByID);
-        eventMessage.setPayload(userDTO);
+        eventMessage.setPayload(customerDTO);
         // receive data
         EventMessage<Customer> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.USER_QUEUE, 
-            MessageQueueConstant.USER_ROUTING_KEY,
+            eventMessage, MessageQueueConstant.ACCOUNT_EXCHANGE, 
+            MessageQueueConstant.CUSTOMER_ROUTING_KEY,
             Customer.class);
         log.info("response={}", response);
         return response.getPayload();
@@ -148,19 +148,19 @@ public class CustomerServiceImp implements CustomerService {
     public List<Customer> getCustomersByIDs(List<String> customerIDs) throws JsonProcessingException{
         log.info("getCustomersByIDs(customerIDs={})", customerIDs);
         // create a request for user
-        UserDTO userDTO = new UserDTO();
-        userDTO.setCustomerIDs(customerIDs);
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerIDs(customerIDs);
         // create a request message
         String eventID = UUID.randomUUID().toString();
         EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
-        eventMessage.setEventType(EventType.GetCustomersByID);
-        eventMessage.setPayload(userDTO);
+        eventMessage.setEventType(EventType.GetCustomersByIDs);
+        eventMessage.setPayload(customerDTO);
         // receive data
         TypeReference<List<Customer>> typeReference = new TypeReference<List<Customer>>() {};
         EventMessage<List<Customer>> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.USER_QUEUE, 
-            MessageQueueConstant.USER_ROUTING_KEY,
+            eventMessage, MessageQueueConstant.ACCOUNT_EXCHANGE, 
+            MessageQueueConstant.CUSTOMER_ROUTING_KEY,
             typeReference);
         log.info("response={}", response);
         return response.getPayload();

@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -30,8 +28,8 @@ public class JwtFilter extends OncePerRequestFilter{
         String token = request.getHeader("Authorization");
         if(token!=null){
             token = token.substring(7);
-            Jwt jwt = NimbusJwtDecoder.withJwkSetUri(jwtSetUri).build().decode(token);
-            log.info("Token ${}", jwt.getSubject());
+            // Jwt jwt = NimbusJwtDecoder.withJwkSetUri(jwtSetUri).build().decode(token);
+            // log.info("Token ${}", jwt.getSubject());
         }
         // var headers = request.getHeaderNames();
         filterChain.doFilter(request, response);

@@ -51,6 +51,10 @@ export default function AdminCategoryComponent(){
         }
     }
 
+    const onChangeCategoryPicture = (imageSrc: string)=>{
+        setCategoryChange({...categoryChange, ["picture"]: imageSrc})
+    }
+
     const onClickEditCategory: MouseEventHandler<HTMLButtonElement> = (event)=>{
         event.preventDefault();
         setEditable(editable => !editable)
@@ -117,8 +121,8 @@ export default function AdminCategoryComponent(){
                 <form action="" className='box-shadow-default bg-white py-4 px-3 rounded-4'>
                     <div className="row">
                         <div className="col-md-5">
-                            <ProductImageChangeInput imageSrc={category.picture} disable={!editable}
-                                onChangePicture={onChange}/>
+                            <ProductImageChangeInput imageSrc={categoryChange.picture} disable={!editable}
+                                onChangePicture={onChangeCategoryPicture}/>
                         </div>
                         <div className="col-md-7">
                             <div className="row justify-content-end">

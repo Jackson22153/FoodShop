@@ -34,7 +34,7 @@ export default function EmployeeInfomationComponent(){
 
     const fetchEmployeeInfo = async ()=>{
         const res = await getEmployeeInfo();
-        if(res.status===200){
+        if(res.status){
             const data = res.data;
             // console.log(data);
             const employee = {
@@ -131,8 +131,8 @@ export default function EmployeeInfomationComponent(){
             }, ALERT_TIMEOUT)
         }
     }
-    const onChangePicture = ()=>{
-
+    const onChangePicture = (imageSrc: string)=>{
+        setEmployeeInfoAlter({...employeeInfoAlter, ['photo']:imageSrc})
     }
 
     return(

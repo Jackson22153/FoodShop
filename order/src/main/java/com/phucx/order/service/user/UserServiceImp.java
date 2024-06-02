@@ -11,10 +11,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.JwtClaimConstant;
 import com.phucx.order.constant.MessageQueueConstant;
+import com.phucx.order.model.CustomerDTO;
 import com.phucx.order.model.DataDTO;
+import com.phucx.order.model.EmployeeDTO;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.User;
-import com.phucx.order.model.UserDTO;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,14 +42,14 @@ public class UserServiceImp implements UserService {
     public User getUserByCustomerID(String customerID) throws JsonProcessingException {
         log.info("getUserByCustomerID(customerID={})", customerID);
         // create a request for user
-        UserDTO userDUserDTO = new UserDTO();
-        userDUserDTO.setCustomerID(customerID);
+        CustomerDTO userDTO = new CustomerDTO();
+        userDTO.setCustomerID(customerID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
         EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetUserByCustomerID);
-        eventMessage.setPayload(userDUserDTO);
+        eventMessage.setPayload(userDTO);
         // receive data
         return sendAndReceiveUserData(eventMessage);
     }
@@ -56,14 +57,14 @@ public class UserServiceImp implements UserService {
     public User getUserByEmployeeID(String employeeID) throws JsonProcessingException{
         log.info("getUserByEmployeeID(employeeID={})", employeeID);
         // create a request for user
-        UserDTO userDUserDTO = new UserDTO();
-        userDUserDTO.setEmployeeID(employeeID);
+        EmployeeDTO userDTO = new EmployeeDTO();
+        userDTO.setEmployeeID(employeeID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
         EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetUserByEmployeeID);
-        eventMessage.setPayload(userDUserDTO);
+        eventMessage.setPayload(userDTO);
         // receive data
         return sendAndReceiveUserData(eventMessage);
     }
@@ -71,7 +72,7 @@ public class UserServiceImp implements UserService {
     // send and receive user data from user queue
     private User sendAndReceiveUserData(EventMessage<DataDTO> eventMessage) throws JsonProcessingException{
         EventMessage<User> response = this.messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.USER_QUEUE, 
+            eventMessage, MessageQueueConstant.ACCOUNT_EXCHANGE, 
             MessageQueueConstant.USER_ROUTING_KEY,
             User.class);
         log.info("response={}", response);

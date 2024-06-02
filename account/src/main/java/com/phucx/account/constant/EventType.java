@@ -1,32 +1,38 @@
 package com.phucx.account.constant;
 
 public enum EventType {
+    // customer
     GetCustomerByUserID,
     GetCustomerByID,
-    GetCustomersByID,
-
+    GetCustomersByIDs,
+    // employee
     GetEmployeeByID,
-
+    // shipper
     GetShipperByID,
-
+    // user
     GetUserByCustomerID,
     GetUserByEmployeeID,
-
+    // order
     GetOrderInvoiceByIdAndCustomerID,
     GetOrdersByCustomerID,
     GetOrderByEmployeeID,
     GetOrdersByEmployeeID,
 
+    // return
+    // customer
     ReturnCustomerByUserID,
     ReturnCustomerByID,
-    ReturnCustomersByID,
-
+    ReturnCustomersByIDs,
+    // employee
     ReturnEmployeeByID,
-
+    // usre
     ReturnUserByCustomerID,
     ReturnUserByEmployeeID,
-
+    // shipper
     ReturnShipperByID,
-
-    ReturnOrder,
+    // order
+    ReturnOrderInvoiceByIdAndCustomerID,
+    ReturnOrdersByCustomerID,
+    ReturnOrderByEmployeeID,
+    ReturnOrdersByEmployeeID,
 }

@@ -112,8 +112,9 @@ export default function AdminEmployeeComponent(){
         }
     }
 
-    const onChangePicture = (_event: any)=>{
-
+    // change employee picture
+    const onChangePicture = (imageSrc: string)=>{
+        setEmployeeInfo({...employeeInfo, ['photo']:imageSrc})
     }
 
     const onClickSelectTab= (tab:number)=>{
@@ -175,7 +176,7 @@ export default function AdminEmployeeComponent(){
                     photo: employeeInfo.photo,
                     notes: employeeInfo.notes
                 }
-                console.log(data)
+
                 const res = await updateEmployee(data);
                 if(res.status){
                     const data = res.data
@@ -206,7 +207,6 @@ export default function AdminEmployeeComponent(){
     }
 
     const onClickRoleDropdown = ()=>{
-        console.log("click")
         toggleRoleDropdown();
     }
 

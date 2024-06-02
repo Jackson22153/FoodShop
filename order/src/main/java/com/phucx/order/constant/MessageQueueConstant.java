@@ -1,13 +1,20 @@
 package com.phucx.order.constant;
 
 public class MessageQueueConstant {
-    // product queue
-    public final static String PRODUCT_QUEUE = "productqueue";
+    // order exchange
+    public final static String ACCOUNT_EXCHANGE = "accountservice";
+    // shop exchange
+    public final static String SHOP_EXCHANGE = "shopservice";
+    // product routing key
     public final static String PRODUCT_ROUTING_KEY = "productqueue";
-    // discount queue
-    public final static String DISCOUNT_QUEUE = "discountqueue";
+    // discount routing key
     public final static String DISCOUNT_ROUTING_KEY = "discountqueue";
-    // user queue
-    public final static String USER_QUEUE = "userqueue";
+    // user routing key
     public final static String USER_ROUTING_KEY = "userqueue";
+    //  customer routing key
+    public final static String CUSTOMER_ROUTING_KEY = "customerqueue";
+    //  employee routing key
+    public final static String EMPLOYEE_ROUTING_KEY = "employeequeue";
+    //  shipper routing key
+    public final static String SHIPPER_ROUTING_KEY = "shipperqueue";
 }

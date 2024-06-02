@@ -18,7 +18,6 @@ public interface EmployeeService {
     public EmployeeDetail getEmployeeDetail(String username);
     public Page<EmployeeAccount> getAllEmployees(int pageNumber, int pageSize);
     // update / create employee
-    public boolean createEmployee(Employee employee);
     public Boolean updateEmployeeInfo(EmployeeDetail employee);
     public Boolean updateAdminEmployeeInfo(Employee employee);
     public Boolean addNewEmployee(EmployeeAccount employeeAccount);

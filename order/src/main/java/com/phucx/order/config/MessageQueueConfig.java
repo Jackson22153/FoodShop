@@ -29,24 +29,30 @@ public class MessageQueueConfig {
     }
 
     // order queue
-    // creating order message queue
     @Bean
     public Queue orderQueue(){
         return new Queue(ORDER_QUEUE, false);
     }
-    // binding exchange key to order message queue
     @Bean
     public Binding bindingOrderQueue(Queue orderQueue, DirectExchange orderExchange){
         return BindingBuilder.bind(orderQueue).to(orderExchange).with(ORDER_ROUTING_KEY);
     }
 
-    // creating notification message queue
+    // order processing queue
+    @Bean
+    public Queue orderProcessingQueue(){
+        return new Queue(ORDER_PROCESSING_QUEUE, false);
+    }
+    @Bean
+    public Binding bindingOrderProcessingQueue(Queue orderProcessingQueue, DirectExchange orderExchange){
+        return BindingBuilder.bind(orderProcessingQueue).to(orderExchange).with(ORDER_PROCESSING_QUEUE);
+    }
+
+    // order notification queue
     @Bean
     public Queue notificationQueue(){
         return new Queue(ORDER_NOTIFICATION_QUEUE, false);
     }
-    // notification queue
-    // binding exchange key to notification message queue
     @Bean
     public Binding bindingNotificationQueue(Queue notificationQueue, DirectExchange orderExchange){
         return BindingBuilder.bind(notificationQueue).to(orderExchange).with(ORDER_NOTIFICATION_ROUTING_KEY);

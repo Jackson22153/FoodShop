@@ -45,7 +45,7 @@ public class OrderServiceImp implements OrderService{
         // receive data
         TypeReference<Page<OrderDetails>> typeReference = new TypeReference<Page<OrderDetails>>() {};
         EventMessage<Page<OrderDetails>> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.ORDER_QUEUE, 
+            eventMessage, MessageQueueConstant.ORDER_EXCHANGE, 
             MessageQueueConstant.ORDER_ROUTING_KEY,
             typeReference);
         log.info("response={}", response);
@@ -65,7 +65,7 @@ public class OrderServiceImp implements OrderService{
         eventMessage.setPayload(orderDTO);
         // receive data
         EventMessage<InvoiceDetails> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.ORDER_QUEUE, 
+            eventMessage, MessageQueueConstant.ORDER_EXCHANGE, 
             MessageQueueConstant.ORDER_ROUTING_KEY,
             InvoiceDetails.class);
         log.info("response={}", response);
@@ -86,7 +86,7 @@ public class OrderServiceImp implements OrderService{
         eventMessage.setPayload(orderDTO);
         // receive data
         EventMessage<OrderWithProducts> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.ORDER_QUEUE, 
+            eventMessage, MessageQueueConstant.ORDER_EXCHANGE, 
             MessageQueueConstant.ORDER_ROUTING_KEY,
             OrderWithProducts.class);
         log.info("response={}", response);
@@ -110,7 +110,7 @@ public class OrderServiceImp implements OrderService{
         // receive data
         TypeReference<Page<OrderDetails>> typeReference = new TypeReference<Page<OrderDetails>>() {};
         EventMessage<Page<OrderDetails>> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.ORDER_QUEUE, 
+            eventMessage, MessageQueueConstant.ORDER_EXCHANGE, 
             MessageQueueConstant.ORDER_ROUTING_KEY,
             typeReference);
         log.info("response={}", response);

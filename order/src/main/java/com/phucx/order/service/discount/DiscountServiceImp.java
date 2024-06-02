@@ -40,7 +40,7 @@ public class DiscountServiceImp implements DiscountService{
         eventMessage.setPayload(discountDDiscountDTO);
         // receive data
         EventMessage<DiscountDetail> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.DISCOUNT_QUEUE, 
+            eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
             MessageQueueConstant.DISCOUNT_ROUTING_KEY,
             DiscountDetail.class);
         log.info("response={}", response);
@@ -63,7 +63,7 @@ public class DiscountServiceImp implements DiscountService{
         TypeReference<List<DiscountDetail>> typeReference = 
             new TypeReference<List<DiscountDetail>>() {};
         EventMessage<List<DiscountDetail>> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.DISCOUNT_QUEUE, 
+            eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
             MessageQueueConstant.DISCOUNT_ROUTING_KEY, typeReference);
         log.info("response={}", response);
         return response.getPayload();
@@ -83,7 +83,7 @@ public class DiscountServiceImp implements DiscountService{
         eventMessage.setPayload(discountDDiscountDTO);
         // receive data
         EventMessage<ResponseFormat> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.DISCOUNT_QUEUE, 
+            eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
             MessageQueueConstant.DISCOUNT_ROUTING_KEY, 
             ResponseFormat.class);
         log.info("response={}", response);

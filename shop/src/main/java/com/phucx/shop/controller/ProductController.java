@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.phucx.shop.model.ProductDetail;
 import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.service.product.ProductService;
@@ -20,7 +19,7 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @PostMapping("/product")
+    @PostMapping
     public ResponseEntity<ResponseFormat> updateProductDetail(
         @RequestBody ProductDetail productDetail
     ){        
@@ -29,7 +28,7 @@ public class ProductController {
 
         return ResponseEntity.ok().body(data);
     }
-    @PutMapping("/product")
+    @PutMapping
     public ResponseEntity<ResponseFormat> insertProductDetail(
         @RequestBody ProductDetail productDetail
     ){        
@@ -38,11 +37,11 @@ public class ProductController {
 
         return ResponseEntity.ok().body(data);
     }
-    @GetMapping("/product/{productID}")
+    @GetMapping("/{productID}")
     public ResponseEntity<ProductDetail> getProductDetail(
         @PathVariable Integer productID
     ){        
         ProductDetail product = productService.getProductDetail(productID);
         return ResponseEntity.ok().body(product);
-    }
+    } 
 }

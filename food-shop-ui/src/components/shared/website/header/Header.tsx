@@ -1,11 +1,11 @@
 import { getLogo } from "../../../../service/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { cartPath, categoriesPath, foodsPath } from "../../../../constant/FoodShoppingURL";
-import { Category, Product } from "../../../../model/Type";
+import { Category } from "../../../../model/Type";
 import { convertNameForUrl, nonBreakingSpace } from "../../../../service/convert";
 import Search from "../../functions/search/Search";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
-import { memo, useContext, useEffect, useRef } from "react";
+import { memo, useContext, useEffect, useRef, useState } from "react";
 import { LoginUrl } from "../../../../constant/FoodShoppingApiURL";
 import { logout } from "../../../../api/AuthorizationApi";
 import numberOfCartProductsContext from "../../../contexts/NumberOfCartProductsContext";
@@ -16,39 +16,33 @@ import UserInfoNav from "../../functions/userinfo-nav/UserInfoNav";
  
 interface Props{
     lstCategories: Category[]
-    searchInputValue: string,
-    searchResult: Product[],
-    handleSearchResult: any,
-    handleInputSearchChange: any,
-    isNavExpanded: boolean,
-    handleIsNavExpanded: any,
-    modal: Modal,
-    toggleModal: any
 }
 const HeaderComponent = memo(function HeaderComponent(prop: Props){
     const logo = getLogo();
     const lstCategories = prop.lstCategories;
-    const searchInputValue = prop.searchInputValue;
-    const searchResult = prop.searchResult;
-    const modal = prop.modal;
-    const isNavExpanded = prop.isNavExpanded;
     const  userInfo  = useContext(userInfoContext);
     const { numberOfCartProducts } = useContext(numberOfCartProductsContext);
+    const [isNavExpanded, setIsNavExpanded] = useState(false); 
 
     const navbarDropdownRef = useRef<HTMLDivElement>(null)
+    const [logoutModal, setLogoutModal] = useState<Modal>({
+        title: 'Confirm action',
+        message: 'Do you want to continute?',
+        isShowed: false
+    })
 
     useEffect(()=>{
         document.addEventListener('click', onClickOutSideNavBar)
     }, [])
 
     // logout
-    const onClickLogout = async ()=>{
-        prop.toggleModal();
+    const toggleModal = ()=>{
+        setLogoutModal(modal =>({...modal, isShowed:!modal.isShowed}))
+    }
+    const onClickToggleModal = async ()=>{
+        toggleModal();
     }
 
-    const onClickCloseModal = ()=>{
-        prop.toggleModal();
-    }
     const onClickConfirmModal = async ()=>{
         try {
             const res = await logout();
@@ -60,11 +54,15 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
         }
     }
     // expanded click
+    // expand navbar
+    const setNavExpandedStatus = (status:boolean)=>{
+        setIsNavExpanded(status)
+    }
     const onClickExpandNavBar = ()=>{
-        prop.handleIsNavExpanded(!isNavExpanded)
+        setNavExpandedStatus(!isNavExpanded)
     }
     const onClickCloseExpandNavBar = ()=>{
-        prop.handleIsNavExpanded(false)
+        setNavExpandedStatus(false)
     }
     
     const onClickOutSideNavBar = (event: any)=>{
@@ -85,9 +83,8 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
 					<div className="right-topbar">
                         {userInfo.user.username ?
                             <UserInfoNav 
-                                onClickLogout={onClickLogout} 
-                                userInfo={userInfo} />
-                            :
+                                onClickLogout={onClickToggleModal} 
+                                userInfo={userInfo} />:
                             <ul className="nav-fill nav">
                                 <li className="nav-item">
                                     <a href={LoginUrl} className="text-light nav-link">Log in</a>
@@ -106,11 +103,11 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
                     </a>
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
                         data-bs-target="#navbarToggleHeader" aria-controls="navbarToggleHeader" 
-                        aria-expanded={prop.isNavExpanded} aria-label="Toggle navigation"
+                        aria-expanded={isNavExpanded} aria-label="Toggle navigation"
                         onClick={onClickExpandNavBar}>
                         <span className="navbar-toggler-icon"></span>
                     </button>
-                    <div className={`bg-light collapse navbar-collapse ${prop.isNavExpanded?'show': ''}`} id="navbarToggleHeader">
+                    <div className={`bg-light collapse navbar-collapse ${isNavExpanded?'show': ''}`} id="navbarToggleHeader">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                             <li className="nav-item px-2">
                                 <a className="nav-link active" aria-current="page" href="/">Home</a>
@@ -141,9 +138,7 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
                         <div className="row">
                             <div className="col-10">
                                 <form className="form-inline my-2 my-lg-0 ml-0 ml-lg-4 mb-3 mb-lg-0 search-form">
-                                    <Search searchInputValue={searchInputValue} searchResult={searchResult}
-                                        handleInputSearchChange={prop.handleInputSearchChange}
-                                        handleSearchResult={prop.handleSearchResult}/>
+                                    <Search/>
                                 </form>
                             </div>
                             <div className="col-2">
@@ -162,7 +157,7 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
                     </div>
                 </div>
             </nav>
-            <ModalComponent modal={modal} handleCloseButton={onClickCloseModal} 
+            <ModalComponent modal={logoutModal} handleCloseButton={onClickToggleModal} 
                 handleConfirmButton={onClickConfirmModal}/>
         </header>
     )

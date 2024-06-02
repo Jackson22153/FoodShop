@@ -1,0 +1,20 @@
+package com.phucx.order.model;
+
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@ToString
+@Getter @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class ShipperDTO extends DataDTO{
+    private Integer shipperID;
+    private List<Integer> shipperIDs;
+    private Integer pageNumber;
+    private Integer pageSize;
+}   

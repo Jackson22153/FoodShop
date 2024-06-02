@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CustomerInfoUrl, CustomerOrdersUrl, CustomerNotificationsUrl, IsCustomerUrl } from "../constant/FoodShoppingApiURL";
+import { CustomerInfoUrl, CustomerOrdersUrl, CustomerNotificationsUrl, IsCustomerUrl, UploadUserImageUrl } from "../constant/FoodShoppingApiURL";
 
 export function isCustomer(){
     return axios.get(IsCustomerUrl,{
@@ -9,6 +9,7 @@ export function isCustomer(){
         }
     });
 }
+// get user info
 export async function updateUserInfo(userInfo){
     return axios.post(CustomerInfoUrl, JSON.stringify(userInfo), {
         withCredentials: true,
@@ -16,6 +17,19 @@ export async function updateUserInfo(userInfo){
             "Content-Type": 'application/json',
         }
     })
+}
+
+// upload user's image
+export function uploadUserImage(file){
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return axios.post(UploadUserImageUrl, formData, {
+        withCredentials: true,
+        headers:{
+            "Content-Type": "multipart/form-data",
+        }
+    });
 }
 
 export async function getCustomerOrders(pageNumber, type){

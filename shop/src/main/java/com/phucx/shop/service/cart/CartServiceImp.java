@@ -26,10 +26,9 @@ import com.phucx.shop.model.OrderItem;
 import com.phucx.shop.model.OrderItemDiscount;
 import com.phucx.shop.model.OrderWithProducts;
 import com.phucx.shop.model.Product;
-import com.phucx.shop.repository.CurrentProductRepository;
-import com.phucx.shop.repository.ProductRepository;
 import com.phucx.shop.service.bigdecimal.BigDecimalService;
 import com.phucx.shop.service.customer.CustomerService;
+import com.phucx.shop.service.product.ProductService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,9 +41,7 @@ public class CartServiceImp implements CartService{
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private CurrentProductRepository currentProductRepository;
+    private ProductService productService;
     @Autowired
     private BigDecimalService bigDecimalService;
     @Autowired
@@ -62,10 +59,9 @@ public class CartServiceImp implements CartService{
                 String cartJson = this.decodeCookie(encodedCartJson);
                 items = objectMapper.readValue(cartJson, typeRef);
             }
-            Product product = productRepository.findByProductIDAndDiscontinued(
-                orderProduct.getProductID(), ProductStatus.Coninuted.getStatus())
-                .orElseThrow(()-> new NotFoundException("Product " + orderProduct.getProductID() +" does not found"));
-
+            // fetch product 
+            Product product = this.productService.getProduct(
+                orderProduct.getProductID(), ProductStatus.Coninuted.getStatus());
             // check product's quantity with product's inStocks
             if(product.getUnitsInStock()<orderProduct.getQuantity())
                 throw new InsufficientResourcesException("Product " + product.getProductName() + " exceeds available stock");
@@ -138,8 +134,7 @@ public class CartServiceImp implements CartService{
             .map(CartOrderItem::getProductID)
             .collect(Collectors.toList());
         // fetch products from database
-        List<CurrentProduct> fetchedProducts = currentProductRepository
-            .findAllByProductIDOrderByProductIDAsc(productIDs);
+        List<CurrentProduct> fetchedProducts = this.productService.getCurrentProducts(productIDs);
         // convert 
         OrderWithProducts order = new OrderWithProducts();
         for (CartOrderItem product: products) {

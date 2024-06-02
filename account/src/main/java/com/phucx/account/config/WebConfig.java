@@ -55,7 +55,7 @@ public class WebConfig {
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/customer/**").hasRole("CUSTOMER")
             .requestMatchers("/employee/**").hasRole("EMPLOYEE")
-            .requestMatchers("/user/userInfo").permitAll()
+            .requestMatchers("/user/image/**").permitAll()
             .requestMatchers("/actuator/**").hasRole("ADMIN")
             .requestMatchers("/chat/**").permitAll()
             .anyRequest().authenticated());

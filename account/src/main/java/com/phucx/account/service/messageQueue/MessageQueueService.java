@@ -14,13 +14,11 @@ public interface MessageQueueService {
 
     // public Notification sendAndReceiveOrder(OrderWithProducts order);
 
-    public EventMessage<Object> sendAndReceiveData(Object message, String queueName, String routingKey);
-
     public void sendMessageToUser(String userID, Notification notificationMessage);
     // fetch data from other services
-    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> message, String queueName, String routingKey, Class<T> dataType) 
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> message, String exchange, String routingKey, Class<T> dataType) 
         throws JsonProcessingException;
-    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> message, String queueName, String routingKey, TypeReference<T> dataType) 
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> message, String exchange, String routingKey, TypeReference<T> dataType) 
         throws JsonProcessingException;
     
 }

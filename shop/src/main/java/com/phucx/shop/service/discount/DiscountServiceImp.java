@@ -22,7 +22,7 @@ import com.phucx.shop.model.ProductDiscountsDTO;
 import com.phucx.shop.repository.DiscountDetailRepository;
 import com.phucx.shop.repository.DiscountRepository;
 import com.phucx.shop.repository.DiscountTypeRepository;
-import com.phucx.shop.repository.ProductRepository;
+import com.phucx.shop.service.product.ProductService;
 
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
@@ -34,7 +34,7 @@ public class DiscountServiceImp implements DiscountService{
     @Autowired
     private DiscountRepository discountRepository;
     @Autowired
-    private ProductRepository productRepository;
+    private ProductService productService;
     @Autowired
     private DiscountTypeRepository discountTypeRepository;
     @Autowired
@@ -66,8 +66,7 @@ public class DiscountServiceImp implements DiscountService{
             throw new InvalidDiscountException("Invalid Discount start date and end date");
 
         // get product
-        Product product = productRepository.findById(productID)
-            .orElseThrow(()-> new NotFoundException("Product "+ productID +" does not found"));
+        Product product = this.productService.getProduct(productID);
         // save discount along with product
         Boolean check = discountDetailRepository.insertDiscount(
             newDiscountID, discount.getDiscountPercent(), 
@@ -205,8 +204,7 @@ public class DiscountServiceImp implements DiscountService{
     @Override
     public Page<DiscountDetail> getDiscountsByProduct(int productID, int pageNumber, int pageSize) {
         log.info("getDiscountsByProduct(productID={}, pageNumber={}, pageSize={})", productID, pageNumber, pageSize);
-        Product product = productRepository.findById(productID)
-            .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
+        Product product = this.productService.getProduct(productID);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<DiscountDetail> discounts = discountDetailRepository.findByProductID(product.getProductID(), pageable);
         return discounts;

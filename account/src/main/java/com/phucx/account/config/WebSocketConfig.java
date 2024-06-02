@@ -28,9 +28,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
@@ -89,15 +86,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.interceptors(new ChannelInterceptor(){
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
-                log.info("presend clientInboundChannel: {}", message.getPayload().getClass().getName());
+                // log.info("presend clientInboundChannel: {}", message.getPayload().getClass().getName());
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 if(StompCommand.CONNECT.equals(accessor.getCommand())){
-                    log.info("Message connected!");
+                    // log.info("Message connected!");
                     String token = accessor.getFirstNativeHeader("Authorization");
                     if(token!=null){
                         token = token.substring(7);
                         Jwt jwt =NimbusJwtDecoder.withJwkSetUri(jwtSetUri).build().decode(token);
-                        log.info("UserID: {}", jwt.getSubject());
+                        // log.info("UserID: {}", jwt.getSubject());
                         RoleConverter roleConverter = new RoleConverter();
                         JwtAuthenticationToken jwtAuthenticationToken = new JwtAuthenticationToken(jwt, roleConverter.convert(jwt));
                         // UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(

@@ -16,9 +16,9 @@ public interface MessageQueueService {
     public void sendNotificationToUser(String userID, Notification notificationMessage);
 
     // send and receive data from other services
-    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String queueName, 
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String exchange, 
         String routingKey, Class<T> dataType) throws JsonProcessingException;
     // send and receive data from other services
-    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String queueName, 
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String exchange, 
         String routingKey, TypeReference<T> dataType) throws JsonProcessingException;
 }

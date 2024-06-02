@@ -10,9 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import com.phucx.shop.model.CurrentProduct;
 
-
-
-
 @Repository
 public interface CurrentProductRepository extends JpaRepository<CurrentProduct, Integer>{
     @Query("""

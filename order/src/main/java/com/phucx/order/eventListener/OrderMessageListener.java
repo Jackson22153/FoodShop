@@ -31,7 +31,7 @@ public class OrderMessageListener {
 
     @RabbitHandler
     public String fetchOrderData(String message){
-        log.info("fetchOrderData(orderDOrderDTO={})", message);
+        log.info("fetchOrderData({})", message);
         String eventID = UUID.randomUUID().toString();
         EventMessage<Object> responseMessage= new EventMessage<>();
         responseMessage.setEventId(eventID);

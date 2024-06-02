@@ -6,26 +6,23 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { searchProducts } from "../../../../api/SearchApi";
 
-interface Props{
-    searchInputValue: string,
-    searchResult: Product[],
-    handleSearchResult: any,
-    handleInputSearchChange: any
-}
-export default function Search(prop: Props){
-    // const searchDropdownRef = useRef(null);
-    const [isShowed, setIsShowed] = useState(false);
-    const searchInputValue = prop.searchInputValue;
-    const searchResult = prop.searchResult;
 
+export default function Search(){
+    // const searchDropdownRef = useRef(null);
+    const [searchResult, setSearchResult] = useState<Product[]>([]);
+    const [searchInputValue, setSearchInputValue] = useState('');
+    const [isShowed, setIsShowed] = useState(false);
+  
     // setter for search result
     function handleSearchResult(searcResult: Product[]){
-        prop.handleSearchResult(searcResult);
+        setSearchResult(searcResult);
     }
     // update value for searchbar
     const handleInputSearchChange : ChangeEventHandler<HTMLInputElement> = event =>{
-        prop.handleInputSearchChange(event);
+        const value = event.target.value;
+        setSearchInputValue(value);
     }
+
     // add value to search bar
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (event) =>{
         const searchValue = event.target.value;

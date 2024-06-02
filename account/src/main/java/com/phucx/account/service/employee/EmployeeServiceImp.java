@@ -24,9 +24,11 @@ import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.EmployeeAccountRepository;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.repository.EmployeeRepository;
+import com.phucx.account.service.image.ImageService;
 import com.phucx.account.service.notification.NotificationService;
 import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.user.UserService;
+
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,6 +49,8 @@ public class EmployeeServiceImp implements EmployeeService {
     private EmployeeAccountRepository employeeAccountRepository;
     @Autowired
     private EmployeeDetailRepostiory employeeDetailRepostiory;
+    @Autowired
+    private ImageService imageService;
 
 	@Override
 	public EmployeeDetails getEmployeeByID(String employeeID) {
@@ -54,7 +58,9 @@ public class EmployeeServiceImp implements EmployeeService {
         Employee employee = employeeRepository.findById(employeeID)
             .orElseThrow(()-> new NotFoundException("Employee " + employeeID + " does not found"));
         UserInfo user = userService.getUserInfo(employee.getUserID());
-    
+        
+        imageService.setEmployeeImage(employee);
+
         EmployeeDetails employeeDetails = new EmployeeDetails(
             employee.getEmployeeID(), user, employee.getFirstName(), employee.getLastName(), 
             employee.getBirthDate(), employee.getHireDate(), employee.getHomePhone(), 
@@ -65,38 +71,28 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
 	@Override
-	public boolean createEmployee(Employee employee) {
-		var employeeOp = employeeRepository.findById(employee.getEmployeeID());
-        if(employeeOp.isEmpty()){
-            var e = employeeRepository.save(employee);
-            if(e!=null) return true;
-        }
-        return false;
-	} 
-
-	@Override
 	public Boolean updateEmployeeInfo(EmployeeDetail employee) {
         log.info("updateEmployeeInfo({})", employee.toString());
-		try {
-            Employee fetchedEmployee =employeeRepository.findById(employee.getEmployeeID())
-                .orElseThrow(()-> new NotFoundException("Employee " + employee.getEmployeeID() + " does not found"));
-            // update employee info
-            Boolean status = employeeDetailRepostiory.updateEmployeeInfo(
-                fetchedEmployee.getEmployeeID(), employee.getEmail(), employee.getFirstName(), 
-                employee.getLastName(), employee.getBirthDate(), employee.getAddress(), 
-                employee.getCity(), employee.getHomePhone(), employee.getPhoto());   
+        Employee fetchedEmployee =employeeRepository.findById(employee.getEmployeeID())
+            .orElseThrow(()-> new NotFoundException("Employee " + employee.getEmployeeID() + " does not found"));
+        
+        String picture = imageService.getImageName(employee.getPhoto());
+        
+        // update employee info
+        Boolean status = employeeDetailRepostiory.updateEmployeeInfo(
+            fetchedEmployee.getEmployeeID(), employee.getEmail(), employee.getFirstName(), 
+            employee.getLastName(), employee.getBirthDate(), employee.getAddress(), 
+            employee.getCity(), employee.getHomePhone(), picture);   
 
-            return status;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+        return status;
 	}
 
 	@Override
 	public Page<EmployeeAccount> getAllEmployees(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return employeeAccountRepository.findAll(pageable);
+        Page<EmployeeAccount> employees = employeeAccountRepository.findAll(pageable);
+        imageService.setEmployeeAccountImage(employees.getContent());
+        return employees;
 	}
 
 	@Override
@@ -108,12 +104,14 @@ public class EmployeeServiceImp implements EmployeeService {
             String employeeID = employeeAcc.getEmployeeID();
             EmployeeDetail employee = employeeDetailRepostiory.findById(employeeID)
                 .orElseThrow(()-> new NotFoundException("EmployeeID: " + employeeID + " does not found"));
+            imageService.setEmployeeDetailImage(employee);
             return employee;
         }else{
             String employeeID = UUID.randomUUID().toString();
             employeeAccountRepository.createEmployeeInfo(employeeID, username, username, username);
             EmployeeDetail employee = employeeDetailRepostiory.findById(employeeID)
                 .orElseThrow(()-> new NotFoundException("EmployeeID: " + employeeID + " does not found"));
+            imageService.setEmployeeDetailImage(employee);
             return employee;
         }
 	}
@@ -123,6 +121,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String searchParam = "%" + employeeID +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findByEmployeeIDLike(searchParam, page);
+        imageService.setEmployeeAccountImage(employees.getContent());
         return employees;
     }
 
@@ -131,6 +130,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String searchParam = "%" + firstName +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findByFirstNameLike(searchParam, page);
+        imageService.setEmployeeAccountImage(employees.getContent());
         return employees;
     }
 
@@ -139,6 +139,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String searchParam = "%" + lastName +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findByLastNameLike(searchParam, page);
+        imageService.setEmployeeAccountImage(employees.getContent());
         return employees;
     }
 
@@ -147,6 +148,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String searchParam = "%" + username +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findByUsernameLike(searchParam, page);
+        imageService.setEmployeeAccountImage(employees.getContent());
         return employees;
     }
 
@@ -155,6 +157,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String searchParam = "%" + email +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findByEmailLike(searchParam, page);
+        imageService.setEmployeeAccountImage(employees.getContent());
         return employees;
     }
 
@@ -163,9 +166,12 @@ public class EmployeeServiceImp implements EmployeeService {
         log.info("updateAdminEmployeeInfo({})", employee.toString());
         Employee fetchedEmployee = employeeRepository.findById(employee.getEmployeeID())
             .orElseThrow(()-> new NotFoundException("Employee " + employee.getEmployeeID() + " does not found"));
+
+        String picture = this.imageService.getImageName(employee.getPhoto());
+
         Boolean status = employeeRepository.updateAdminEmployeeInfo(
             fetchedEmployee.getEmployeeID(), employee.getFirstName(), employee.getLastName(), 
-            employee.getHireDate(), employee.getPhoto(), employee.getNotes());
+            employee.getHireDate(), picture, employee.getNotes());
         return status;
     }
 
@@ -176,8 +182,10 @@ public class EmployeeServiceImp implements EmployeeService {
 
     @Override
     public Employee getEmployee(String employeeID) {
-        return employeeRepository.findById(employeeID)
+        Employee employee = employeeRepository.findById(employeeID)
             .orElseThrow(()-> new NotFoundException("Employee " + employeeID + " does not found"));
+        imageService.setEmployeeImage(employee);
+        return employee;
     }
 
     @Override
@@ -201,9 +209,10 @@ public class EmployeeServiceImp implements EmployeeService {
         // add new employee
         String userID = UUID.randomUUID().toString();
         String employeeID = UUID.randomUUID().toString();
+
         return employeeAccountRepository.addNewEmployee(
             userID, employeeAccount.getUsername(), 
-            passwordEncoder.encode( WebConstant.DEFUALT_PASSWORD), 
+            passwordEncoder.encode(WebConstant.DEFUALT_PASSWORD), 
             employeeAccount.getEmail(), 
             employeeID, employeeAccount.getFirstName(), 
             employeeAccount.getLastName());

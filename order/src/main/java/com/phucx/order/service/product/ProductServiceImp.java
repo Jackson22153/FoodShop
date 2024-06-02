@@ -40,7 +40,7 @@ public class ProductServiceImp implements ProductService{
         // receive data
         TypeReference<List<Product>> typeReference = new TypeReference<List<Product>>() {};
         EventMessage<List<Product>> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.PRODUCT_QUEUE, 
+            eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
             MessageQueueConstant.PRODUCT_ROUTING_KEY,
             typeReference);
         log.info("response={}", response);
@@ -59,7 +59,7 @@ public class ProductServiceImp implements ProductService{
         eventMessage.setPayload(productDProductDTO);
         // receive data
         EventMessage<Product> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.PRODUCT_QUEUE, 
+            eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
             MessageQueueConstant.PRODUCT_ROUTING_KEY,
             Product.class);
         log.info("response={}", response);
@@ -78,7 +78,7 @@ public class ProductServiceImp implements ProductService{
         eventMessage.setPayload(productDProductDTO);
         // receive data
         EventMessage<ResponseFormat> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.PRODUCT_QUEUE, 
+            eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
             MessageQueueConstant.PRODUCT_ROUTING_KEY,
             ResponseFormat.class);
         log.info("response={}", response);

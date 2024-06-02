@@ -11,9 +11,9 @@ import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
 import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.Employee;
+import com.phucx.order.model.EmployeeDTO;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Notification;
-import com.phucx.order.model.UserDTO;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.notification.NotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -107,18 +107,18 @@ public class EmployeeServiceImp implements EmployeeService {
     public Employee getEmployeeByID(String employeeID) throws JsonProcessingException {
         log.info("getEmployeeByID(employeeID={})", employeeID);
         // create a request for user
-        UserDTO userDUserDTO = new UserDTO();
-        userDUserDTO.setEmployeeID(employeeID);
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        employeeDTO.setEmployeeID(employeeID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
         EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetEmployeeByID);
-        eventMessage.setPayload(userDUserDTO);
+        eventMessage.setPayload(employeeDTO);
         // receive data
         EventMessage<Employee> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.USER_QUEUE, 
-            MessageQueueConstant.USER_ROUTING_KEY,
+            eventMessage, MessageQueueConstant.ACCOUNT_EXCHANGE, 
+            MessageQueueConstant.EMPLOYEE_ROUTING_KEY,
             Employee.class);
         log.info("response={}", response);
         return  response.getPayload();

@@ -11,7 +11,7 @@ import com.phucx.order.constant.MessageQueueConstant;
 import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Shipper;
-import com.phucx.order.model.UserDTO;
+import com.phucx.order.model.ShipperDTO;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +26,14 @@ public class ShipperServiceImp implements ShipperService{
     public Shipper getShipper(Integer shipperID) throws JsonProcessingException {
         log.info("getShipper(shipperID={})", shipperID);
         // create a request for user
-        UserDTO userDUserDTO = new UserDTO();
-        userDUserDTO.setShipperID(shipperID);
+        ShipperDTO shipperDTO = new ShipperDTO();
+        shipperDTO.setShipperID(shipperID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
         EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetShipperByID);
-        eventMessage.setPayload(userDUserDTO);
+        eventMessage.setPayload(shipperDTO);
         // receive data
         return this.sendAndReceiveData(eventMessage);
     }
@@ -41,8 +41,8 @@ public class ShipperServiceImp implements ShipperService{
     // send and receive shipper from user queue
     private Shipper sendAndReceiveData(EventMessage<DataDTO> eventMessage) throws JsonProcessingException{
         EventMessage<Shipper> response = messageQueueService.sendAndReceiveData(
-            eventMessage, MessageQueueConstant.USER_QUEUE, 
-            MessageQueueConstant.USER_ROUTING_KEY,
+            eventMessage, MessageQueueConstant.ACCOUNT_EXCHANGE, 
+            MessageQueueConstant.SHIPPER_ROUTING_KEY,
             Shipper.class);
         log.info("response={}", response);
         return response.getPayload();

@@ -8,6 +8,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.shop.config.MessageQueueConfig;
 import com.phucx.shop.constant.EventType;
@@ -30,13 +31,15 @@ public class DiscountMessageListener {
     private ObjectMapper objectMapper;
     // get discount
     @RabbitHandler
-    public String fetchDiscount(EventMessage<DiscountDTO> eventMessage){
-        log.info("fetchDiscount({})", eventMessage);
+    public String fetchDiscount(String message){
+        log.info("fetchDiscount({})", message);
         String eventID = UUID.randomUUID().toString();
         EventMessage<Object> responseMessage = new EventMessage<>();
         responseMessage.setEventId(eventID);
-        DiscountDTO payload = eventMessage.getPayload();
         try {
+            TypeReference<EventMessage<DiscountDTO>> typeRef = new TypeReference<EventMessage<DiscountDTO>>() {};
+            EventMessage<DiscountDTO> eventMessage = objectMapper.readValue(message, typeRef);
+            DiscountDTO payload = eventMessage.getPayload();
             if(eventMessage.getEventType().equals(EventType.GetDiscountByID)){
                 // get discount by id
                 String discountID = payload.getDiscountID();

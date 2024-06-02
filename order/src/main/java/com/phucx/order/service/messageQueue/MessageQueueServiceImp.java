@@ -12,6 +12,7 @@ import org.springframework.util.MimeTypeUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.order.config.MessageQueueConfig;
 import com.phucx.order.constant.WebSocketConstant;
@@ -79,26 +80,26 @@ public class MessageQueueServiceImp implements MessageQueueService{
     }
 
     @Override
-    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String queueName,
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String exchange,
             String routingKey, Class<T> dataType) throws JsonProcessingException {
-        log.info("sendAndReceiveData(eventMessage={}, queueName={}, routingKey={}, className={})", 
-            eventMessage, queueName, routingKey, dataType.getName());
+        log.info("sendAndReceiveData(eventMessage={}, exchange={}, routingKey={}, className={})", 
+            eventMessage, exchange, routingKey, dataType.getName());
         String message = objectMapper.writeValueAsString(eventMessage);
         // send and receive message
-        String responseMessage = (String) this.rabbitTemplate.convertSendAndReceive(queueName, routingKey, message);
+        String responseMessage = (String) this.rabbitTemplate.convertSendAndReceive(exchange, routingKey, message);
         // convert message
-        TypeReference<EventMessage<T>> typeReference = new TypeReference<EventMessage<T>>() {};
-        EventMessage<T> response = objectMapper.readValue(responseMessage, typeReference);
+        JavaType type = objectMapper.getTypeFactory().constructParametricType(EventMessage.class, dataType);
+        EventMessage<T> response = objectMapper.readValue(responseMessage, type);
         return response;
     }
     @Override
-    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String queueName,
+    public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String exchange,
             String routingKey, TypeReference<T> dataType) throws JsonProcessingException {
-        log.info("sendAndReceiveData(eventMessage={}, queueName={}, routingKey={}, className={})", 
-        eventMessage, queueName, routingKey, dataType.toString());
+        log.info("sendAndReceiveData(eventMessage={}, exchange={}, routingKey={}, className={})", 
+        eventMessage, exchange, routingKey, dataType.toString());
         String message = objectMapper.writeValueAsString(eventMessage);
         // send and receive message
-        String responseMessage = (String) this.rabbitTemplate.convertSendAndReceive(queueName, routingKey, message);
+        String responseMessage = (String) this.rabbitTemplate.convertSendAndReceive(exchange, routingKey, message);
         // convert message
         TypeReference<EventMessage<T>> typeReference = new TypeReference<EventMessage<T>>() {};
         EventMessage<T> response = objectMapper.readValue(responseMessage, typeReference);
