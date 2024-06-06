@@ -94,8 +94,6 @@ export default function FoodComponent(){
         }
     }
 
-
-
     return(
         <>
             {foodInfo &&
@@ -103,8 +101,8 @@ export default function FoodComponent(){
                     <section className="py-5">
                         <div className="container">
                             <div className="row gx-5">
-                                <aside className="col-lg-5">
-                                    <div className="rounded-4 mb-3 img-large position-relative w-100">
+                                <aside className="col-lg-5 img-large">
+                                    <div className="rounded-4 mb-3 position-relative w-100 h-100">
                                         {foodInfo.discountID!=null && foodInfo.discountPercent>0 &&
                                             <div className="position-absolute mt-5">
                                                 <span className="badge rounded-pill badge-discount bg-danger ">
@@ -112,8 +110,8 @@ export default function FoodComponent(){
                                                 </span>
                                             </div>
                                         }
-                                        <img style={{maxWidth: "100%", margin: "auto"}} 
-                                            className="rounded-4 fit" src={displayProductImage(foodInfo.picture)} />
+                                        <img style={{maxWidth: "100%", margin: "auto"}} className="rounded-4 fit h-100" 
+                                            src={displayProductImage(foodInfo.picture)} />
                                     </div>
                                     {/* <div className="d-flex justify-content-center mb-3">
                                         <a data-fslightbox="mygalley" className="border mx-1 item-thumb rounded-2" target="_blank" data-type="image" href="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big1.webp">

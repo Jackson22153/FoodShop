@@ -27,7 +27,7 @@ public class DiscountController {
     @Autowired
     private DiscountService discountService;
      // discount
-    @PutMapping("/discount")
+    @PutMapping
     public ResponseEntity<ResponseFormat> insertDiscount(
         @RequestBody DiscountWithProduct discount
     ) throws InvalidDiscountException, RuntimeException{
@@ -38,7 +38,7 @@ public class DiscountController {
         return ResponseEntity.ok().body(data);
     }
 
-    @PostMapping("/discount")
+    @PostMapping
     public ResponseEntity<ResponseFormat> updateDiscount(
         @RequestBody DiscountWithProduct discount
     ) throws InvalidDiscountException{
@@ -47,7 +47,7 @@ public class DiscountController {
         return ResponseEntity.ok().body(data);
     }
 
-    @PostMapping("/discount/status")
+    @PostMapping("/status")
     public ResponseEntity<ResponseFormat> updateDiscountStatus(
         @RequestBody Discount discount
     ) throws InvalidDiscountException{
@@ -56,7 +56,7 @@ public class DiscountController {
         return ResponseEntity.ok().body(data);
     }
 
-    @GetMapping("/discount/product/{productID}")
+    @GetMapping("/product/{productID}")
     public ResponseEntity<Page<DiscountDetail>> getDiscountsByProductID(
         @PathVariable(name = "productID") Integer productID,
         @RequestParam(name = "page", required = false) Integer pageNumber
@@ -67,7 +67,7 @@ public class DiscountController {
         return ResponseEntity.ok().body(discounts);
     }
 
-    @GetMapping("/discount/{discountID}")
+    @GetMapping("/{discountID}")
     public ResponseEntity<DiscountDetail> getDiscountDetail(
         @PathVariable(name = "discountID") String discountID
     ){

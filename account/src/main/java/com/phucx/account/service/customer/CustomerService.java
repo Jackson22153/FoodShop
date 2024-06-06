@@ -10,7 +10,6 @@ import com.phucx.account.model.InvoiceDetails;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.model.Customer;
-import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetails;
 
 public interface CustomerService {
@@ -33,7 +32,4 @@ public interface CustomerService {
     public Page<CustomerAccount> searchCustomersByContactName(String contactName, int pageNumber, int pageSize);
     public Page<CustomerAccount> searchCustomersByUsername(String username, int pageNumber, int pageSize);
     public Page<CustomerAccount> searchCustomersByEmail(String email, int pageNumber, int pageSize);
-    // notification
-    Page<Notification> getNotifications(String userID, int pageNumber, int pageSize);
-    Boolean turnOffNotification(String notificationID, String userID);
 }

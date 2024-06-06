@@ -15,7 +15,6 @@ import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EmployeeDetails;
-import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.Employee;
@@ -25,7 +24,6 @@ import com.phucx.account.repository.EmployeeAccountRepository;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.repository.EmployeeRepository;
 import com.phucx.account.service.image.ImageService;
-import com.phucx.account.service.notification.NotificationService;
 import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.user.UserService;
 
@@ -35,8 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class EmployeeServiceImp implements EmployeeService {
-    @Autowired
-    private NotificationService notificationService;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -176,24 +172,11 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
     @Override
-    public Page<Notification> getNotifications(String userID, int pageNumber, int pageSize) {
-        return notificationService.getNotificationsByReceiverIDOrNull(userID, pageNumber, pageSize);
-    }
-
-    @Override
     public Employee getEmployee(String employeeID) {
         Employee employee = employeeRepository.findById(employeeID)
             .orElseThrow(()-> new NotFoundException("Employee " + employeeID + " does not found"));
         imageService.setEmployeeImage(employee);
         return employee;
-    }
-
-    @Override
-    public Boolean turnOffNotification(String notificationID, String userID) {
-        Notification notification = notificationService
-            .getNotificationByUserIDOrNullAndNotificationID(userID, notificationID);
-        return notificationService.updateNotificationActive(
-            notification.getNotificationID(), false);
     }
 
     @Override

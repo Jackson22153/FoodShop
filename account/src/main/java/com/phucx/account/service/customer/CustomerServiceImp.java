@@ -19,7 +19,6 @@ import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.CustomerDetails;
 import com.phucx.account.model.InvoiceDetails;
 import com.phucx.account.model.Customer;
-import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
@@ -27,7 +26,6 @@ import com.phucx.account.repository.CustomerAccountRepository;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.repository.CustomerRepository;
 import com.phucx.account.service.image.ImageService;
-import com.phucx.account.service.notification.NotificationService;
 import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.user.UserService;
 
@@ -41,8 +39,6 @@ public class CustomerServiceImp implements CustomerService {
     private CustomerRepository customerRepository;
     @Autowired
     private UserService userService;
-    @Autowired
-    private NotificationService notificationService;
     @Autowired
     private OrderService orderService;
     @Autowired
@@ -176,19 +172,7 @@ public class CustomerServiceImp implements CustomerService {
             customer.getCustomerID(), customer.getContactName(), customer.getPicture(), user);
         return customerDetail;
     }
-    @Override
-    public Page<Notification> getNotifications(String userID, int pageNumber, int pageSize) {
-        log.info("getNotifications(userID={}, pageNumber={}, pageSize={})", userID, pageNumber, pageSize);
-        return notificationService.getNotificationsByReceiverID(userID, pageNumber, pageSize);
-    }
-    @Override
-    public Boolean turnOffNotification(String notificationID, String userID) {
-        log.info("turnOffNotification(notificationID={}, userID={})", notificationID, userID);
-        Notification notification = notificationService
-            .getNotificationByUserIDAndNotificationID(userID, notificationID);
-        return notificationService.updateNotificationActive(
-            notification.getNotificationID(), false);
-    }
+
     @Override
     public Customer getCustomerByUserID(String userID) {
         log.info("getCustomerByUserID(userID={})", userID);

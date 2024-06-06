@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-// import './Customer.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation } from 'react-router-dom';
@@ -33,23 +32,20 @@ export default function EmployeeComponent(){
     const initial = ()=>{
         checkAuthenticationEmployee();
         const path = location.pathname;
-        // const subPath = path.substring(customerPath.length, path.length);
         if(path==employeeInfo){
-            // console.log(customerInfo)
             setSelectedPath(0);
         }else if(path===employeeOrder){
             setSelectedPath(1);
         }else if(path === employeeNotification){
             setSelectedPath(2);
         }
-        // console.log(subPath)
     }
 
 
     async function checkAuthenticationEmployee(){
         try {
             const res = await isEmployee();
-            if(res.status){
+            if(200<=res.status&&res.status<300){
                 const data = res.data;
                 const status = data.status;
                 if(!status) window.location.href="/"
@@ -63,7 +59,6 @@ export default function EmployeeComponent(){
     async function onClickLogoutButton(){
         toggleModal();
     }
-
 
     function onClickShowSideBar(){
         if(sidebarRef.current){
@@ -86,7 +81,7 @@ export default function EmployeeComponent(){
                 window.location.href="/";
             }
         } catch (error) {
-
+            window.location.href="/";
         }
     }
 
@@ -119,7 +114,13 @@ export default function EmployeeComponent(){
                                     </a>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href='/' className={`nav-link ${selectedPath===2?'active': ''}`}>
+                                    <a href={employeeNotification} className={`nav-link ${selectedPath===2?'active': ''}`}>
+                                        <i className="bx bx-bar-chart-alt-2 icon"></i>
+                                        <span className="link">Notifications</span>
+                                    </a>
+                                </li>
+                                <li className="list nav-item">
+                                    <a href='/' className={`nav-link ${selectedPath===3?'active': ''}`}>
                                         <i className="bx bx-bell icon"></i>
                                         <span className="link">Home</span>
                                     </a>

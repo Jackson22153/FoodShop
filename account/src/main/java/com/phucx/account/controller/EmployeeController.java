@@ -17,7 +17,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.EmployeeDetail;
-import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.employee.EmployeeService;
@@ -76,26 +75,5 @@ public class EmployeeController {
             employee.getEmployeeID(), status,
             pageNumber, WebConstant.PAGE_SIZE);
         return ResponseEntity.ok().body(orders);
-    }
-
-    // notification
-    @GetMapping("/notifications")
-    public ResponseEntity<Page<Notification>> getNotificationByReceiverID(
-        @RequestParam(name = "page", required = false) Integer pageNumber,
-        Authentication authentication
-    ){
-        logger.info("getNotificationByReceiverID(page={}, userID={})", pageNumber, authentication.getName());
-        pageNumber=pageNumber!=null?pageNumber:0;
-        Page<Notification> notifications = employeeService.getNotifications(
-            authentication.getName(), pageNumber, WebConstant.NOTIFICATION_PAGE_SIZE);
-        return ResponseEntity.ok().body(notifications);
-    }
-    @PostMapping("/notifications")
-    public ResponseEntity<ResponseFormat> turnOffNotification(
-        @RequestBody Notification notification, Authentication authentication
-    ){
-        Boolean status = employeeService.turnOffNotification(
-            notification.getNotificationID(), authentication.getName());
-        return ResponseEntity.ok().body(new ResponseFormat(status));
     }
 }

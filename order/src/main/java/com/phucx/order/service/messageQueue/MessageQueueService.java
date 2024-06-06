@@ -8,13 +8,10 @@ import com.phucx.order.model.Notification;
 import com.phucx.order.model.OrderWithProducts;
 
 public interface MessageQueueService {
-    // send message to message queues
-    public void sendNotification(Notification notification);
-    public void sendEmployeeNotificationOrderToTopic(Notification notification);
-    public Notification sendAndReceiveOrder(OrderWithProducts order);
-    public void sendMessageToUser(String userID, Notification notificationMessage);
-    public void sendNotificationToUser(String userID, Notification notificationMessage);
-
+    // send notification
+    public void sendNotification(Notification notification) throws JsonProcessingException;
+    // send order to message queue
+    public void sendOrder(OrderWithProducts order) throws JsonProcessingException;
     // send and receive data from other services
     public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String exchange, 
         String routingKey, Class<T> dataType) throws JsonProcessingException;

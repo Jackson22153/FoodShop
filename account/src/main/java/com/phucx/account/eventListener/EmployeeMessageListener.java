@@ -45,6 +45,8 @@ public class EmployeeMessageListener {
                 // set response message
                 responseMessage.setPayload(fetchedEmployee);
                 responseMessage.setEventType(EventType.ReturnEmployeeByID);
+            }else if(employeeDTO.getEventType().equals(EventType.GetEmployeeByUserID)){
+                
             }
             String response = objectMapper.writeValueAsString(responseMessage);
             return response;

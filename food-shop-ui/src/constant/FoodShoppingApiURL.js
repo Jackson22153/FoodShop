@@ -10,6 +10,7 @@ const AdminUrl = `${AccountService}/admin`;
 export const UserUrl = `${AccountService}/user`;
 export const UserInfoUrl = `${UserUrl}/userInfo`;
 export const UploadUserImageUrl = `${UserUrl}/upload`;
+
 // shop service
 const HomeUrl = `${ShopService}/home`;
 // product admin
@@ -19,12 +20,21 @@ export const ProductAdminUrl = `${ProductUrl}`;
 const CategoryUrl = `${ShopService}/category`;
 export const CategoryAdminUrl = `${CategoryUrl}`;
 const SearchUrl = `${ShopService}/search`;
+// discount admin
+export const DiscountAdminUrl = `${ShopService}/discount`
+export const DiscountsByProductAdminUrl = `${DiscountAdminUrl}/product`
 
-
-
-
-
-
+// notification service
+const NotificationService = `${ServerURL}/notification`;
+export const UserNotificationUrl = `${NotificationService}/notification`;
+// customer
+export const CustomerNotificationsUrl = `${NotificationService}/customer`;
+export const MarkAsReadCustomerNotificationUrl = `${CustomerNotificationsUrl}/mark-as-read`
+export const CustomerNotificationSummaryUrl = `${CustomerNotificationsUrl}/summary`
+// employee
+export const EmployeeNotificationsUrl = `${NotificationService}/employee`;
+export const MarkAsReadEmployeeNotificationUrl = `${EmployeeNotificationsUrl}/mark-as-read`
+export const EmployeeNotificationSummaryUrl = `${EmployeeNotificationsUrl}/summary`
 
 // ws prefix destination
 const AppPrefixDestinationUrl = `/app`;
@@ -60,8 +70,7 @@ export const ShippersUrl = `${HomeUrl}/shippers`;
 // adminurl
 export const IsAdminUrl = `${AdminUrl}/isAdmin`;
 
-export const DiscountAdminUrl = `${AdminUrl}/discount`
-export const DiscountsByProductAdminUrl = `${DiscountAdminUrl}/product`
+
 // export const CategoryAdminUrl = `${AdminUrl}/category`
 export const DiscountTypeAdminUrl = `${AdminUrl}/discountTypes`
 export const CustomersAdminUrl = `${AdminUrl}/customers`
@@ -78,14 +87,14 @@ export const CustomerUrl = `${AccountService}/customer`;
 export const IsCustomerUrl = `${CustomerUrl}/isCustomer`;
 export const CustomerInfoUrl = `${CustomerUrl}/info`;
 export const CustomerOrdersUrl = `${CustomerUrl}/orders`;
-export const CustomerNotificationsUrl = `${CustomerUrl}/notifications`;
+
 // employee
 export const EmployeeUrl = `${AccountService}/employee`;
 export const IsEmployeeUrl = `${EmployeeUrl}/isEmployee`;
 export const EmployeeInfoUrl = `${EmployeeUrl}/info`;
 export const EmployeeOrdersUrl = `${EmployeeUrl}/orders`;
 export const EmployeePendingOrdersUrl = `${EmployeeOrdersUrl}/pending`;
-export const EmployeeNotificationsUrl = `${EmployeeUrl}/notifications`;
+
 
 // cart
 export const CartUrl = `${ShopService}/cart`;

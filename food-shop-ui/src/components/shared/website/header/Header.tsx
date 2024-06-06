@@ -7,12 +7,9 @@ import Search from "../../functions/search/Search";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { memo, useContext, useEffect, useRef, useState } from "react";
 import { LoginUrl } from "../../../../constant/FoodShoppingApiURL";
-import { logout } from "../../../../api/AuthorizationApi";
 import numberOfCartProductsContext from "../../../contexts/NumberOfCartProductsContext";
-import userInfoContext from "../../../contexts/UserInfoContext";
-import ModalComponent from "../../functions/modal/Modal";
-import { Modal } from "../../../../model/WebType";
 import UserInfoNav from "../../functions/userinfo-nav/UserInfoNav";
+import userInfoContext from "../../../contexts/UserInfoContext";
  
 interface Props{
     lstCategories: Category[]
@@ -20,39 +17,16 @@ interface Props{
 const HeaderComponent = memo(function HeaderComponent(prop: Props){
     const logo = getLogo();
     const lstCategories = prop.lstCategories;
-    const  userInfo  = useContext(userInfoContext);
     const { numberOfCartProducts } = useContext(numberOfCartProductsContext);
     const [isNavExpanded, setIsNavExpanded] = useState(false); 
-
+    const userInfo = useContext(userInfoContext)
     const navbarDropdownRef = useRef<HTMLDivElement>(null)
-    const [logoutModal, setLogoutModal] = useState<Modal>({
-        title: 'Confirm action',
-        message: 'Do you want to continute?',
-        isShowed: false
-    })
 
     useEffect(()=>{
         document.addEventListener('click', onClickOutSideNavBar)
     }, [])
 
-    // logout
-    const toggleModal = ()=>{
-        setLogoutModal(modal =>({...modal, isShowed:!modal.isShowed}))
-    }
-    const onClickToggleModal = async ()=>{
-        toggleModal();
-    }
 
-    const onClickConfirmModal = async ()=>{
-        try {
-            const res = await logout();
-            if(res.status){
-                window.location.href="/";
-            }
-        } catch (error) {
-
-        }
-    }
     // expanded click
     // expand navbar
     const setNavExpandedStatus = (status:boolean)=>{
@@ -63,8 +37,7 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
     }
     const onClickCloseExpandNavBar = ()=>{
         setNavExpandedStatus(false)
-    }
-    
+    }    
     const onClickOutSideNavBar = (event: any)=>{
         if(navbarDropdownRef.current && !navbarDropdownRef.current.contains(event.target as Node)){
             onClickCloseExpandNavBar();
@@ -82,9 +55,7 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
 
 					<div className="right-topbar">
                         {userInfo.user.username ?
-                            <UserInfoNav 
-                                onClickLogout={onClickToggleModal} 
-                                userInfo={userInfo} />:
+                            <UserInfoNav userInfo={userInfo}/>:
                             <ul className="nav-fill nav">
                                 <li className="nav-item">
                                     <a href={LoginUrl} className="text-light nav-link">Log in</a>
@@ -157,8 +128,6 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
                     </div>
                 </div>
             </nav>
-            <ModalComponent modal={logoutModal} handleCloseButton={onClickToggleModal} 
-                handleConfirmButton={onClickConfirmModal}/>
         </header>
     )
 });

@@ -17,11 +17,8 @@ public class MessageQueueConfig {
     // order process queue 
     public final static String ORDER_PROCESSING_QUEUE = "orderprocessingqueue";
     public final static String ORDER_PROCESSING_ROUTING_KEY = "orderprocessingqueue";
-    // order notification queue
-    public final static String ORDER_NOTIFICATION_QUEUE = "ordernotification";
-    public final static String ORDER_NOTIFICATION_ROUTING_KEY = "ordernotification";
 
-    private final String ORDER_EXCHANGE = "orderservice";
+    public final static String ORDER_EXCHANGE = "orderservice";
     // creating exchange key for order service
     @Bean
     public DirectExchange orderExchange(){
@@ -48,21 +45,7 @@ public class MessageQueueConfig {
         return BindingBuilder.bind(orderProcessingQueue).to(orderExchange).with(ORDER_PROCESSING_QUEUE);
     }
 
-    // order notification queue
-    @Bean
-    public Queue notificationQueue(){
-        return new Queue(ORDER_NOTIFICATION_QUEUE, false);
-    }
-    @Bean
-    public Binding bindingNotificationQueue(Queue notificationQueue, DirectExchange orderExchange){
-        return BindingBuilder.bind(notificationQueue).to(orderExchange).with(ORDER_NOTIFICATION_ROUTING_KEY);
-    }
-
     // message queue configuration
-    // @Bean
-    // public MessageConverter jsonMessageConverter(){
-    //     return new Jackson2JsonMessageConverter();
-    // }
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);

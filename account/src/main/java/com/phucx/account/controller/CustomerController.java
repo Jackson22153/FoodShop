@@ -20,7 +20,6 @@ import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.Customer;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.InvoiceDetails;
-import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.customer.CustomerService;
@@ -86,25 +85,5 @@ public class CustomerController {
         Page<OrderDetails> orders = customerService.getOrders(
             pageNumber, WebConstant.PAGE_SIZE, customer.getCustomerID(), status);
         return ResponseEntity.ok().body(orders);
-    }
-
-    // notification
-    @GetMapping("/notifications")
-    public ResponseEntity<Page<Notification>> getNotificationByReceiverID(
-        @RequestParam(name = "page", required = false) Integer pageNumber,
-        Authentication authentication
-    ){
-        pageNumber=pageNumber!=null?pageNumber:0;
-        Page<Notification> notifications = customerService.getNotifications(
-            authentication.getName(), pageNumber, WebConstant.NOTIFICATION_PAGE_SIZE);
-        return ResponseEntity.ok().body(notifications);
-    }
-    @PostMapping("/notifications")
-    public ResponseEntity<ResponseFormat> turnOffNotification(
-        @RequestBody Notification notification, Authentication authentication
-    ){
-        Boolean status = customerService.turnOffNotification(
-            notification.getNotificationID(), authentication.getName());
-        return ResponseEntity.ok().body(new ResponseFormat(status));
     }
 }

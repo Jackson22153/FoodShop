@@ -7,6 +7,7 @@ public enum EventType {
     GetCustomersByIDs,
     // employee
     GetEmployeeByID,
+    GetEmployeeByUserID,
     // shipper
     GetShipperByID,
     // user
@@ -25,6 +26,7 @@ public enum EventType {
     ReturnCustomersByIDs,
     // employee
     ReturnEmployeeByID,
+    ReturnEmployeeByUserID,
     // usre
     ReturnUserByCustomerID,
     ReturnUserByEmployeeID,

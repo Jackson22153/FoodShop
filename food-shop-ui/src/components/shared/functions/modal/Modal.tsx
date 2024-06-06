@@ -30,14 +30,14 @@ export default function ModalComponent(prop: Props){
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="confirm-modal-label">{modal.title}</h5>
+                            <h5 className="modal-title text-black" id="confirm-modal-label">{modal.title}</h5>
                             <button type="button" onClick={handleCloseButton} className="close ml-auto" 
                                 data-dismiss="modal" aria-label="Close">
                                 <FontAwesomeIcon icon={faXmark} />
                             </button>
                         </div>
                         <div className="modal-body">
-                            <p>{message}</p>
+                            <p className="text-black">{message}</p>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-dismiss="modal"

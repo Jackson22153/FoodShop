@@ -90,8 +90,8 @@ public class OrderProcessingMessageListener {
         return notification;
     }
 
-    @LoggerAspect
     // validate order product's stocks
+    @LoggerAspect
     private Notification validateOrder(OrderWithProducts order, Notification notification, User user) 
         throws JsonProcessingException, InvalidDiscountException, InvalidOrderException{
 

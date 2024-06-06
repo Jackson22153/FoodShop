@@ -4,8 +4,10 @@ public enum EventType {
     // customer request
     GetCustomerByID,
     GetCustomersByIDs,
+    GetCustomerByUserID,
     // employee request
     GetEmployeeByID,
+    GetEmployeeByUserID,
     // user request
     GetUserByCustomerID,
     GetUserByEmployeeID,
@@ -43,8 +45,10 @@ public enum EventType {
     // customer response
     ReturnCustomerByID,
     ReturnCustomersByIDs,
+    ReturnCustomerByUserID,
     // employee response
     ReturnEmployeeByID,
+    ReturnEmployeeByUserID,
     // user response
     ReturnUserByCustomerID,
     ReturnUserByEmployeeID,

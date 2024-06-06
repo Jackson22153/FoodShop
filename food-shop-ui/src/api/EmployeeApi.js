@@ -1,7 +1,8 @@
 
 import axios from "axios";
 import { EmployeeInfoUrl, EmployeeNotificationsUrl, EmployeeOrdersUrl, 
-    EmployeePendingOrdersUrl, IsEmployeeUrl 
+    EmployeePendingOrdersUrl, IsEmployeeUrl, 
+    UserNotificationUrl
 } from "../constant/FoodShoppingApiURL";
 
 export function isEmployee(){
@@ -63,20 +64,4 @@ export function getPendingOrder(orderID){
         }
     });
 }
-// notification
-export async function getEmployeeNotifications(pageNumber){
-    return axios.get(`${EmployeeNotificationsUrl}?page=${pageNumber}`, {
-        withCredentials: true,
-        headers:{
-            "Content-Type": 'application/json',
-        }
-    })
-}
-export async function turnOffEmployeeNotification(data){
-    return axios.post(`${EmployeeNotificationsUrl}`, JSON.stringify(data), {
-        withCredentials: true,
-        headers:{
-            "Content-Type": 'application/json',
-        }
-    })
-}
+

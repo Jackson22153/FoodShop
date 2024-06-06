@@ -4,16 +4,11 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MessageQueueConfig {
-    // account notification 
-    public final static String NOTIFICATION_QUEUE = "accountnotification";
-    public final static String NOTIFICATION_ROUTING_KEY = "accountnotification";
     //  user queue
     public final static String USER_QUEUE = "userqueue";
     public final static String USER_ROUTING_KEY = "userqueue";
@@ -32,15 +27,6 @@ public class MessageQueueConfig {
     @Bean
     public DirectExchange accountExchange(){
         return new DirectExchange(ACCOUNT_EXCHANGE);
-    }
-    // notification queue
-    @Bean
-    public Queue notificationQueue(){
-        return new Queue(NOTIFICATION_QUEUE, false);
-    }
-    @Bean
-    public Binding bindingNotificationQueue(Queue notificationQueue, DirectExchange accountExchange){
-        return BindingBuilder.bind(notificationQueue).to(accountExchange).with(NOTIFICATION_ROUTING_KEY);
     }
     // user queue
     @Bean
@@ -86,9 +72,9 @@ public class MessageQueueConfig {
     //     return converter;
     // }
     // @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        // rabbitTemplate.setMessageConverter(messageConverter());
-        return rabbitTemplate;
-    }
+    // public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
+    //     RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+    //     // rabbitTemplate.setMessageConverter(messageConverter());
+    //     return rabbitTemplate;
+    // }
 }

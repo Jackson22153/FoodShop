@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EmployeeDetails;
-import com.phucx.account.model.Notification;
 import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.OrderWithProducts;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,7 +29,4 @@ public interface EmployeeService {
     // get order
     public Page<OrderDetails> getOrders(String employeeID, OrderStatus status, int pageNumber, int pageSize) throws JsonProcessingException;
     public OrderWithProducts getOrder(String orderID, String employeeID) throws JsonProcessingException;
-    // notification
-    public Page<Notification> getNotifications(String userID, int pageNumber, int pageSize);
-    Boolean turnOffNotification(String notificationID, String userID);
 }

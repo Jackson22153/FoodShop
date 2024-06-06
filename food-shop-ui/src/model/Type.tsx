@@ -171,7 +171,11 @@ export type Notification = {
     },
     status: string,
     active: boolean,
+    time: string,
     isShowed: boolean,
+}
+export type NotificationSummary = {
+    totalOfUnreadNotifications: number
 }
 // order
 export type Order = {

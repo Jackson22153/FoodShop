@@ -1,7 +1,7 @@
 export default function UserNotificationComponent(){
     return(
         <div>
-            User
+            Notification
         </div>
     );
 }
