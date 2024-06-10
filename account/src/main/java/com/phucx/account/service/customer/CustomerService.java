@@ -6,11 +6,7 @@ import org.springframework.data.domain.Page;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.CustomerDetails;
-import com.phucx.account.model.InvoiceDetails;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.model.Customer;
-import com.phucx.account.model.OrderDetails;
 
 public interface CustomerService {
     // get customer
@@ -22,8 +18,8 @@ public interface CustomerService {
     public Page<CustomerAccount> getAllCustomers(int pageNumber, int pageSize);
     public Customer getCustomerByUserID(String userID);
     // get order
-    public Page<OrderDetails> getOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus) throws JsonProcessingException;
-    public InvoiceDetails getInvoice(String orderID, String customerID) throws JsonProcessingException;
+    // public Page<OrderDetails> getOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus) throws JsonProcessingException;
+    // public InvoiceDetails getInvoice(String orderID, String customerID) throws JsonProcessingException;
     // create/ update customer
     public boolean addNewCustomer(CustomerAccount customer);
     public boolean updateCustomerInfo(CustomerDetail customer);

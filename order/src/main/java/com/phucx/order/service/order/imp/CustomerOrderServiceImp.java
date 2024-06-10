@@ -3,25 +3,30 @@ package com.phucx.order.service.order.imp;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.phucx.order.constant.NotificationBroadCast;
 import com.phucx.order.constant.NotificationStatus;
 import com.phucx.order.constant.NotificationTopic;
+import com.phucx.order.constant.OrderNotificationTitle;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.exception.InvalidOrderException;
 import com.phucx.order.model.Customer;
-import com.phucx.order.model.Notification;
+import com.phucx.order.model.InvoiceDetails;
+import com.phucx.order.model.NotificationDetail;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderItem;
 import com.phucx.order.model.OrderItemDiscount;
 import com.phucx.order.model.OrderWithProducts;
-import com.phucx.order.model.Topic;
+import com.phucx.order.model.User;
 import com.phucx.order.service.customer.CustomerService;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.order.CustomerOrderService;
 import com.phucx.order.service.order.OrderService;
+import com.phucx.order.service.user.UserService;
 
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +40,8 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
     private MessageQueueService messageQueueService;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private UserService userService;
     
     @Override
     public OrderDetails placeOrder(OrderWithProducts order, String userID) 
@@ -50,28 +57,30 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
             throw new RuntimeException("Error when placing an order");
         }
         // create and save notification back to user
-        Notification notificationToCustomer = new Notification(
-            "Place Order",
+        NotificationDetail notificationToCustomer = new NotificationDetail(
+            OrderNotificationTitle.PLACE_ORDER.getValue(),
             "Order #"+newOrder.getOrderID()+" has been placed successfully",
-            null, userID, new Topic(NotificationTopic.Order.name()),
-            NotificationStatus.SUCCESSFUL.name(), true);
+            null, userID, NotificationTopic.Order.name(),
+            NotificationStatus.SUCCESSFUL.name());
         // send message back to user
         messageQueueService.sendNotification(notificationToCustomer);
         // messageQueueService.sendNotificationToUser(customer.getUserID(), notificationToUser);
         // send message to notification message queue
-        Notification notificationToTopic = new Notification(
-            "Place Order",
+        NotificationDetail notificationToTopic = new NotificationDetail(
+            OrderNotificationTitle.PLACE_ORDER.getValue(),
             "Order #" + newOrder.getOrderID() + " has been placed", 
-            userID, null, new Topic(NotificationTopic.Order.name()), 
-            NotificationStatus.SUCCESSFUL.name(), true);
+            userID, NotificationBroadCast.ALL_EMPLOYEES.name(), 
+            NotificationTopic.Order.name(), 
+            NotificationStatus.SUCCESSFUL.name());
         messageQueueService.sendNotification(notificationToTopic);
-        // fetch saved order
+
         return orderService.getOrder(newOrder.getOrderID(), OrderStatus.Pending);
     }
 
         // order processing
     // validating and saving customer's order 
-    private OrderWithProducts orderProcessing(OrderWithProducts order) throws JsonProcessingException, InvalidDiscountException, InvalidOrderException {
+    private OrderWithProducts orderProcessing(OrderWithProducts order) 
+    throws JsonProcessingException, InvalidDiscountException, InvalidOrderException {
         log.info("orderProcessing({})", order);
         if(order.getCustomerID()==null){
             throw new NotFoundException("Customer does not found");
@@ -97,31 +106,56 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
     @Override
     public void receiveOrder(OrderWithProducts order) throws JsonProcessingException {
         log.info("receiveOrder(orderID={})", order.getOrderID());
-        
+        // get user 
+        User employeeUser = userService.getUserByEmployeeID(order.getEmployeeID());
+
         OrderDetails orderDetails = orderService.getOrder(order.getOrderID(), OrderStatus.Shipping);
         Boolean status = orderService.updateOrderStatus(orderDetails.getOrderID(), OrderStatus.Successful);
         // notification
-        Notification notification = new Notification();
-        notification.setTitle("Receive Order");
-        notification.setTopic(new Topic(NotificationTopic.Order.name()));
-        log.info("status: {}", status);
-        // if(status){
-        //     log.info("ssnotification: {}", notification);
-        //     notification.setMessage("Order #" + orderDetails.getOrderID() + " is received successully by customer " + orderDetails.getCustomerID());
-        //     notification.setStatus(NotificationStatus.SUCCESSFUL.name());
-        //     notification.setReceiverID(userService.getUserIdOfEmployeeID(orderDetails.getEmployeeID()));
-        //     log.info("ssnotification: {}", notification);
-        // }else {
-        //     notification.setMessage("Order #" + orderDetails.getOrderID() + " can not received by customer " + orderDetails.getCustomerID());
-        //     notification.setStatus(NotificationStatus.ERROR.name());
-        //     notification.setReceiverID(userService.getUserIdOfEmployeeID(orderDetails.getEmployeeID()));
-        // }
+        NotificationDetail notification = new NotificationDetail();
+        notification.setTitle(OrderNotificationTitle.RECEIVE_ORDER.getValue());
+        notification.setTopic(NotificationTopic.Order.name());
+        if(status){
+            notification.setMessage("Order #" + orderDetails.getOrderID() + " is received successully by customer " + orderDetails.getCustomerID());
+            notification.setStatus(NotificationStatus.SUCCESSFUL.name());
+            notification.setReceiverID(employeeUser.getUserID());
+        }else {
+            notification.setMessage("Order #" + orderDetails.getOrderID() + " can not received by customer " + orderDetails.getCustomerID());
+            notification.setStatus(NotificationStatus.ERROR.name());
+            notification.setReceiverID(employeeUser.getUserID());
+        }
         messageQueueService.sendNotification(notification);
         // send message to employee
         // messageQueueService.sendNotification(notificationMessage);
         // send message to customer
         // notificationMessage.setReceiverID(userService.getUserIdOfEmployeeID(order.getEmployeeID()));
         // messageQueueService.sendNotification(notificationMessage);
+    }
+
+    @Override
+    public Page<OrderDetails> getOrders(int pageNumber, int pageSize, String userID, OrderStatus orderStatus)
+            throws JsonProcessingException {
+        log.info("getOrders(pageNumber={}, pageSize={}, userID={}, orderStatus={})", pageNumber, pageSize, userID, orderStatus);
+        // fetch customer
+        Customer fetchedCustomer = customerService.getCustomerByUserID(userID);
+        Page<OrderDetails> orders = null;
+        if(orderStatus.equals(OrderStatus.All)){
+            orders = orderService.getOrdersByCustomerID(
+                fetchedCustomer.getCustomerID(), pageNumber, pageSize);
+        }else{
+            orders = orderService.getOrdersByCustomerID(
+                fetchedCustomer.getCustomerID(), orderStatus, pageNumber, pageSize);
+        }
+        return orders;
+    }
+
+    @Override
+    public InvoiceDetails getInvoice(String orderID, String userID) throws JsonProcessingException {
+        log.info("getInvoice(orderID={}, userID={})", orderID, userID);
+        // fetch customer
+        Customer fetchedCustomer = customerService.getCustomerByUserID(userID);
+        InvoiceDetails invoice = orderService.getInvoiceByCustomerID(fetchedCustomer.getCustomerID(), orderID);
+        return invoice;
     }
     
 }

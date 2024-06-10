@@ -23,11 +23,14 @@ public interface OrderService {
     // get order
     public OrderDetails getOrder(String orderID, OrderStatus status) throws JsonProcessingException;
     public OrderDetails getOrder(String orderID) throws JsonProcessingException;
+    public Page<OrderDetails> getOrders(OrderStatus status, Integer pageNumber, Integer pageSize) throws JsonProcessingException;
     public OrderWithProducts getPendingOrderDetail(String orderID) throws JsonProcessingException;
     // get customer's order
     public Page<OrderDetails> getOrdersByCustomerID(String customerID, Integer pageNumber, Integer pageSize) throws JsonProcessingException;
+    public Page<OrderDetails> getOrdersByCustomerID(String customerID, OrderStatus status, Integer pageNumber, Integer pageSize) throws JsonProcessingException;
     public InvoiceDetails getInvoiceByCustomerID(String customerID, String orderID) throws JsonProcessingException;
     // get employee's order
+    public Page<OrderDetails> getOrdersByEmployeeID(String employeeID, Integer pageNumber, Integer pageSize) throws JsonProcessingException;
     public Page<OrderDetails> getOrdersByEmployeeID(String employeeID, OrderStatus status, Integer pageNumber, Integer pageSize) throws JsonProcessingException;
     public OrderWithProducts getOrderByEmployeeID(String employeeID, String orderID) throws JsonProcessingException;
 

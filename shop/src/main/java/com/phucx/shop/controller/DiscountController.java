@@ -75,7 +75,7 @@ public class DiscountController {
         return ResponseEntity.ok().body(discount);
     }
 
-    @GetMapping("/discountTypes")
+    @GetMapping("/type")
     public ResponseEntity<Page<DiscountType>> getDiscountTypes(
         @RequestParam(name = "page", required = false) Integer pageNumber
     ){

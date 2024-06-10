@@ -9,14 +9,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EmployeeDetails;
-import com.phucx.account.model.OrderDetails;
-import com.phucx.account.model.OrderWithProducts;
 import com.phucx.account.model.Employee;
 import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
@@ -24,7 +20,6 @@ import com.phucx.account.repository.EmployeeAccountRepository;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.repository.EmployeeRepository;
 import com.phucx.account.service.image.ImageService;
-import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.user.UserService;
 
 import jakarta.ws.rs.NotFoundException;
@@ -39,8 +34,6 @@ public class EmployeeServiceImp implements EmployeeService {
     private EmployeeRepository employeeRepository;
     @Autowired
     private UserService userService;
-    @Autowired
-    private OrderService orderService;
     @Autowired
     private EmployeeAccountRepository employeeAccountRepository;
     @Autowired
@@ -199,17 +192,5 @@ public class EmployeeServiceImp implements EmployeeService {
             employeeAccount.getEmail(), 
             employeeID, employeeAccount.getFirstName(), 
             employeeAccount.getLastName());
-    }
-
-    @Override
-    public Page<OrderDetails> getOrders(String employeeID, OrderStatus status, int pageNumber, int pageSize) throws JsonProcessingException {
-        log.info("getOrders(employeeID={}, status={}, pageNumber={}, pageSize={})", employeeID, status, pageNumber, pageSize);
-        return orderService.getEmployeeOrders(employeeID, status, pageNumber, pageSize);
-    }
-
-    @Override
-    public OrderWithProducts getOrder(String orderID, String employeeID) throws JsonProcessingException{
-        log.info("getOrderDetail(orderID={}, employeeID={})", orderID, employeeID);
-        return orderService.getEmployeeOrder(orderID, employeeID);
     }
 }

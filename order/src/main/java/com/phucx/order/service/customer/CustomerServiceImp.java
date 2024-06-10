@@ -57,7 +57,8 @@ public class CustomerServiceImp implements CustomerService {
         eventMessage.setEventType(EventType.GetCustomersByIDs);
         eventMessage.setPayload(customerDTO);
         // receive data
-        TypeReference<List<Customer>> typeReference = new TypeReference<List<Customer>>() {};
+        TypeReference<EventMessage<List<Customer>>> typeReference = 
+            new TypeReference<EventMessage<List<Customer>>>() {};
         EventMessage<List<Customer>> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.ACCOUNT_EXCHANGE, 
             MessageQueueConstant.CUSTOMER_ROUTING_KEY,

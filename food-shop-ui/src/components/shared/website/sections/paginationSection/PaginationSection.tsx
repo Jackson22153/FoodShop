@@ -9,7 +9,7 @@ export default function PaginationSection(prop: Props){
 
     const totalPages = prop.pageable.totalPages;
     var currentPage = prop.pageable.number;
-    
+
     function navigatePage(page: number){
         searchParam.set('page', page.toString());
         
@@ -57,7 +57,7 @@ export default function PaginationSection(prop: Props){
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
-                {currentPage >= 2 &&
+                {currentPage >= 2 && totalPages > 3 &&
                     <>
                         <li className="page-item">
                             <a className="page-link" href={navigatePage(0)}>1</a>
@@ -73,7 +73,7 @@ export default function PaginationSection(prop: Props){
                     </li>
 
                 ))}
-                {currentPage <= totalPages -3 &&
+                {currentPage <= totalPages -3 && totalPages > 3 &&
                     <>
                         {currentPage < totalPages -3 &&
                             <li className="page-item"><a className="page-link">...</a></li>

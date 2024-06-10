@@ -51,7 +51,7 @@ public class ProductMessageListener {
                 List<Integer> productIds = payload.getProductIds();
                 List<Product> product = productService.getProducts(productIds);
                 // set response message
-                responseMessage.setEventType(EventType.ReturnProductByID);
+                responseMessage.setEventType(EventType.ReturnProductsByIDs);
                 responseMessage.setPayload(product);
             }
             return objectMapper.writeValueAsString(responseMessage);

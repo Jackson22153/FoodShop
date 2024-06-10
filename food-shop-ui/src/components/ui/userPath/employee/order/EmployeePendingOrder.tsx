@@ -4,7 +4,7 @@ import { OrderWithProduct } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/image";
 import { getPendingOrder } from "../../../../../api/EmployeeApi";
 import dayjs from "dayjs";
-import { AccountWSUrl, CancelOrderWsUrl, ConfirmOrderWsUrl, QUEUE_MESSAGES } from "../../../../../constant/FoodShoppingApiURL";
+import { CancelOrderWsUrl, ConfirmOrderWsUrl, QUEUE_MESSAGES } from "../../../../../constant/FoodShoppingApiURL";
 import { employeeOrder } from "../../../../../constant/FoodShoppingURL";
 import { CompatClient, Stomp } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
@@ -17,15 +17,15 @@ export default function EmployeePendingOrderComponent(){
 
     useEffect(()=>{
         fetchOrder();
-        connectEmployee();
+        // connectEmployee();
     }, [])
 
-    const connectEmployee = ()=>{
-        stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
-        stompClientAccount.current.connect({
-            "Authorization": `Bearer ${getAccessToken()}`,
-        }, onShopConnectEmployee, stompFailureCallback);
-    }
+    // const connectEmployee = ()=>{
+    //     stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
+    //     stompClientAccount.current.connect({
+    //         "Authorization": `Bearer ${getAccessToken()}`,
+    //     }, onShopConnectEmployee, stompFailureCallback);
+    // }
 
     function stompFailureCallback(error: any){
         if(stompClientAccount.current){

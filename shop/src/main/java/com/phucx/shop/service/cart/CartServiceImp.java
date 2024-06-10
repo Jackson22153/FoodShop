@@ -101,12 +101,12 @@ public class CartServiceImp implements CartService{
     public void removeProduct(Integer productID, String encodedcartJson, HttpServletResponse response) 
          throws JsonProcessingException {
         if(productID!=null){
-            TypeReference<List<OrderItem>> typeRef = new TypeReference<List<OrderItem>>() {};
-            List<OrderItem> items = new ArrayList<>();
+            TypeReference<List<CartOrderItem>> typeRef = new TypeReference<List<CartOrderItem>>() {};
+            List<CartOrderItem> items = new ArrayList<>();
             if(encodedcartJson!=null){
                 String cartJson = this.decodeCookie(encodedcartJson);
                 items = objectMapper.readValue(cartJson, typeRef);
-                List<OrderItem> orderItems = items.stream()
+                List<CartOrderItem> orderItems = items.stream()
                     .filter(item -> item.getProductID()!=productID)
                     .collect(Collectors.toList());
                 // convert into json format

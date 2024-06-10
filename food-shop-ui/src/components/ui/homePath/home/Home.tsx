@@ -22,8 +22,6 @@ import {getNumberOfCartProducts} from "../../../../service/cookie"
 function HomeComponent(){
     const [cookies] = useCookies();
     const [categories, setCategories] = useState<Category[]>([]);
-    
-    
     const [numberOfCartProducts, setNumberOfCartProducts] = useState(0);
     // const [isExpanded, setIsExpanded] = useState(false); 
 
@@ -31,9 +29,6 @@ function HomeComponent(){
     useEffect(()=>{
         initial();
     }, []);
-
-
-
 
     function initial(){
         // get categories

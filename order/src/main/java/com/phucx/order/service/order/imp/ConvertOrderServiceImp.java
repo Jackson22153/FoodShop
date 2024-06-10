@@ -62,12 +62,16 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
     @Override
     public InvoiceDetails convertInvoiceDetails(List<Invoice> invoices) throws JsonProcessingException {
         log.info("convertInvoiceDetails({})", invoices);
+        if(invoices.isEmpty()) return null;
         // fetch invoice
         Invoice invoice = invoices.get(0);
         // fetch employee
-        Employee fetchedEmployee = this.employeeService.getEmployeeByID(invoice.getEmployeeID());
-        if(fetchedEmployee==null) throw new NotFoundException("Employee " + invoice.getEmployeeID() + " does not found");
-        String salesperson = fetchedEmployee.getLastName() + " " + fetchedEmployee.getFirstName();
+        Employee fetchedEmployee = null;
+        if(invoice.getEmployeeID()!=null){
+            fetchedEmployee = this.employeeService.getEmployeeByID(invoice.getEmployeeID());
+            if(fetchedEmployee==null) throw new NotFoundException("Employee " + invoice.getEmployeeID() + " does not found");
+        }
+        String salesperson = fetchedEmployee!=null?fetchedEmployee.getLastName() + " " + fetchedEmployee.getFirstName():null;
         // fetch shipper
         Shipper fetchedShipper = this.shipperService.getShipper(invoice.getShipperID());
         if(fetchedShipper==null) throw new NotFoundException("Shipper " + invoice.getShipperID() + " does not found");
@@ -118,6 +122,7 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
     @Override
     public List<OrderDetails> convertOrders(List<OrderDetailExtended> orders) throws JsonProcessingException {
         log.info("convertOrders({})", orders);
+        if(orders.isEmpty()) return new ArrayList<>();
         // fetch products
         List<Integer> productIds = orders.stream().map(OrderDetailExtended::getProductID).collect(Collectors.toList());
         List<Product> fetchedProducts = this.productService.getProducts(productIds);
@@ -162,9 +167,9 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
     public OrderDetails convertOrderDetail(List<OrderDetailExtended> orderDetailExtendeds)
             throws JsonProcessingException {
         log.info("convertOrderDetail({})", orderDetailExtendeds);
+        if(orderDetailExtendeds.isEmpty()) return null;
         // get the first element inside orderproducts
         OrderDetailExtended firstElement = orderDetailExtendeds.get(0);
-
         // get customer
         String customerID = firstElement.getCustomerID();
         Customer fetchedCustomer = customerService.getCustomerByID(customerID);

@@ -11,22 +11,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.CustomerDetails;
-import com.phucx.account.model.InvoiceDetails;
 import com.phucx.account.model.Customer;
-import com.phucx.account.model.OrderDetails;
 import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.CustomerAccountRepository;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.repository.CustomerRepository;
 import com.phucx.account.service.image.ImageService;
-import com.phucx.account.service.order.OrderService;
 import com.phucx.account.service.user.UserService;
 
 import jakarta.ws.rs.NotFoundException;
@@ -39,8 +34,6 @@ public class CustomerServiceImp implements CustomerService {
     private CustomerRepository customerRepository;
     @Autowired
     private UserService userService;
-    @Autowired
-    private OrderService orderService;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -181,17 +174,7 @@ public class CustomerServiceImp implements CustomerService {
         imageService.setCustomerImage(customer);
         return customer;
     }
-    @Override
-    public Page<OrderDetails> getOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus) throws JsonProcessingException {
-        log.info("getOrders(pageNumber={}, pageSize={}, customerID={}, orderStatus={})", 
-            pageNumber, pageSize, customerID, orderStatus);
-        return orderService.getCustomerOrders(customerID, orderStatus, pageNumber, pageSize);
-    }
-    @Override
-    public InvoiceDetails getInvoice(String orderID, String customerID) throws JsonProcessingException {
-        log.info("getInvoice(orderID={}, customerID={})", orderID, customerID);
-        return orderService.getCustomerInvoice(orderID, customerID);
-    }
+
     @Override
     public List<Customer> getCustomersByIDs(List<String> customerIDs) {
         log.info("getCustomersByIDs(customerIDs={})", customerIDs);

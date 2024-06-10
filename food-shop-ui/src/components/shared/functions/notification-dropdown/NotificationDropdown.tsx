@@ -2,25 +2,41 @@ import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { displayProductImage } from "../../../../service/image";
 import { useContext, useEffect, useRef, useState } from "react";
-import { NotificationContext } from "../../../../model/WebType";
-import notificationMessagesContext from "../../../contexts/NotificationMessagesContext";
 import { Notification } from "../../../../model/Type";
-import { getCustomerSummaryNotifications, getEmployeeSummaryNotifications, markAsReadCustomerNotification, markAsReadEmployeeNotification } from "../../../../api/NotificationApi";
+import { getCustomerNotifications, getCustomerSummaryNotifications, 
+    getEmployeeNotifications, getEmployeeSummaryNotifications, 
+    markAsReadCustomerNotification, markAsReadEmployeeNotification } 
+    from "../../../../api/NotificationApi";
 import { ROLE } from "../../../../constant/config";
+import { customerNotification, employeeNotification } from "../../../../constant/FoodShoppingURL";
+import { getPageNumber } from "../../../../service/pageable";
+import notificationMessagesContext from "../../../contexts/NotificationMessagesContext";
 
 interface Props{
     roles: string[]
 }
 export default function NotificationDropdown(prop:Props){
     const [IsNotificationDropdownEnabled, setIsNotificationDropdownEnabled] = useState(false);
-    const {notifications: notifications} = useContext<NotificationContext>(notificationMessagesContext);
+    const [notifications, setNotifications] = useState<Notification[]>([])
+    const notificationMessage = useContext<Notification|undefined>(notificationMessagesContext)
     const [totalUnreadNotifications, setTotalUnreadNotifications] = useState(0);
     const notificationRef = useRef<HTMLDivElement>(null);
 
     useEffect(()=>{
+        initial();
+    }, [notificationMessage])
+
+    const initial = ()=>{
+        // add new notification message
+        if(notificationMessage) setNotifications([...notifications, notificationMessage])
+        // get user's notifications
+        const pageNumber = getPageNumber();
+        getUserNotifications(pageNumber);
+        // check number of unread notifications 
         checkNumberOfNotifications();
+        // add default event listener for notification dropdown
         document.addEventListener("click", onClickOutsideNotificationDropdown);
-    }, [])
+    }
 
     // toggle notification dropdown
     const onClickShowNotificationDropdown = ()=>{
@@ -39,21 +55,17 @@ export default function NotificationDropdown(prop:Props){
     }
 
     // onclickNotification
+    // mark notification as read
     const onClickNotification = (_event: any, notification: Notification)=>{
-        if(prop.roles.includes(ROLE.EMPLOYEE.toLowerCase()) && notification.active){
+        if(prop.roles.includes(ROLE.EMPLOYEE.toLowerCase()) && !notification.isRead){
             // employee click 
-            if(notification.active){
-                readEmployeeNotification(notification.notificationID);
-            }
-        }else if(prop.roles.includes(ROLE.CUSTOMER.toLowerCase()) && notification.active){
+            readEmployeeNotification(notification.notificationID);
+        }else if(prop.roles.includes(ROLE.CUSTOMER.toLowerCase()) && !notification.isRead){
             // customer click
-            if(notification.active){
-                readCustomerNotification(notification.notificationID);
-            }
+            readCustomerNotification(notification.notificationID);
         }
     }
-
-    
+    // mark as read for customer
     const readCustomerNotification = async (notificationID: string)=>{
         const data = {
             notificationID: notificationID
@@ -63,6 +75,7 @@ export default function NotificationDropdown(prop:Props){
             setTotalUnreadNotifications(value => value-1);
         }
     }
+    // mark as read for employee
     const readEmployeeNotification = async (notificationID: string)=>{
         const data = {
             notificationID: notificationID
@@ -70,6 +83,29 @@ export default function NotificationDropdown(prop:Props){
         const res = await markAsReadEmployeeNotification(data)
         if(200<=res.status && res.status<300){
             setTotalUnreadNotifications(value => value-1);
+        }
+    }
+
+    // get notifications
+    const getUserNotifications = (pageNumber: number)=>{
+        if(prop.roles.includes(ROLE.EMPLOYEE.toLowerCase())){
+            fetchEmployeeNotifications(pageNumber);
+        }else if(prop.roles.includes(ROLE.CUSTOMER.toLowerCase())){
+            fetchCustomerNotifications(pageNumber)
+        }
+    }
+    const fetchCustomerNotifications = async (pageNumber: number)=>{
+        const res = await getCustomerNotifications(pageNumber);
+        if(200<=res.status&&res.status<300){
+          const data = res.data;
+          setNotifications(data.content);
+        }
+    }
+    const fetchEmployeeNotifications = async (pageNumber: number)=>{
+        const res = await getEmployeeNotifications(pageNumber);
+        if(200<=res.status&&res.status<300){
+          const data = res.data;
+          setNotifications(data.content);
         }
     }
 
@@ -117,7 +153,6 @@ export default function NotificationDropdown(prop:Props){
             setTotalUnreadNotifications(data.totalOfUnreadNotifications)
         }
     }
-
     const fetchEmployeeSummaryNotifications = async ()=>{
         const res = await getEmployeeSummaryNotifications();
         if(200<=res.status&&res.status<300){
@@ -125,27 +160,36 @@ export default function NotificationDropdown(prop:Props){
             setTotalUnreadNotifications(data.totalOfUnreadNotifications)
         }
     }
+    // get notification url based on role
+    const getNotificationUrl = ()=>{
+        if(prop.roles.includes(ROLE.CUSTOMER.toLowerCase())){
+            return customerNotification;
+        }else if(prop.roles.includes(ROLE.EMPLOYEE.toLowerCase())){
+            return employeeNotification;
+        }
+    }
 
     return(
         <div className="wrapper" ref={notificationRef}>
             <div className="notification-wrap">
-                <div className="notification-icon" onClick={onClickShowNotificationDropdown}>
+                <div className={`notification-icon ${IsNotificationDropdownEnabled?'active':''}`} 
+                    onClick={onClickShowNotificationDropdown}>
                     <span className="nav-link cursor-pointer">
                         <FontAwesomeIcon icon={faBell}/>
                         {totalUnreadNotifications>0 &&
-                            <span className="position-absolute top-0 badge rounded-pill badge-notification bg-danger">
+                            <span className="position-absolute top-0 badge rounded-pill badge-notification bg-danger user-select-none">
                                 {totalUnreadNotifications}
                             </span>
                         }
                     </span>
                 </div>
-                <div className={`dropdown ${IsNotificationDropdownEnabled?'active':''}`}>
+                <div className={`dropdown position-absolute z-3 ${IsNotificationDropdownEnabled?'active':''}`}>
                     <div className="notify-body">
-                        {notifications.map((notification)=>(
-                            <div className={`notify-item cursor-pointer ${!notification.active?'read':''}`} 
-                                key={notification.notificationID} onClick={(e)=> onClickNotification(e, notification)}>
+                        {notifications.map((notification, index)=>(
+                            <div className={`notify-item cursor-pointer ${notification.isRead?'read':''}`} 
+                                key={index} onClick={(e)=> onClickNotification(e, notification)}>
                                 <div className="notify-img">
-                                    <img src={displayProductImage(null)} alt="profile-pic" style={{width: "50px"}}/>
+                                    <img src={displayProductImage(null)} alt="profile-pic"/>
                                 </div>
                                 <div className="notify_info">
                                     <p className="text-black">{notification.message}</p>
@@ -155,7 +199,7 @@ export default function NotificationDropdown(prop:Props){
                         ))}
                     </div>
                     <div className="notify-footer">
-                        <a href="#!" className="btn btn-success btn-block w-100">View All</a>
+                        <a href={getNotificationUrl()} className="btn btn-success btn-block w-100">View All</a>
                     </div>
                 </div>
             </div>

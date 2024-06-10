@@ -5,29 +5,33 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import javax.naming.NameNotFoundException;
-import com.phucx.notification.model.Notification;
+
+import com.phucx.notification.constant.NotificationBroadCast;
+import com.phucx.notification.model.NotificationDetail;
 
 public interface NotificationService {
     // update/ create notification
-    public Notification createNotification(Notification notification);    
-    public Boolean updateNotificationActive(String notificationID, Boolean status) throws NameNotFoundException;
+    public NotificationDetail createNotification(NotificationDetail notification);    
+    public Boolean updateNotificationReadStatusByNotificationID(String notificationID, Boolean status) throws NameNotFoundException;
+    public Boolean updateNotificationReadStatusByUserID(String userID, NotificationBroadCast broadCast, Boolean status);
     // get notification
-    public Notification getNotificationByUserIDAndNotificationID(String userID, String notificationID) throws NameNotFoundException;
-    public Notification getNotificationByUserIDOrNullAndNotificationID(String userID, String notificationID) throws NameNotFoundException;
-    public Notification getNotificationsByID(String notificationID) throws NameNotFoundException;
+    public NotificationDetail getNotificationByUserIDAndNotificationID(String userID, String notificationID) throws NameNotFoundException;
+    public NotificationDetail getNotificationByUserIDOrBroadCastAndNotificationID(String userID, NotificationBroadCast broadCast, String notificationID) throws NameNotFoundException;
+    public NotificationDetail getNotificationsByID(String notificationID) throws NameNotFoundException;
 
-    public Page<Notification> getNotificationsByTopicName(String topicName, int pageNumber, int pageSize);
-    public List<Notification> getNotificationsByTopicName(String topicName);
+    public Page<NotificationDetail> getNotificationsByTopicName(String topicName, int pageNumber, int pageSize);
+    public List<NotificationDetail> getNotificationsByTopicName(String topicName);
     
-    public Page<Notification> getNotificationsByReceiverID(String userID, int pageNumber, int pageSize);
-    public Page<Notification> getNotificationsByReceiverIDOrNull(String userID, int pageNumber, int pageSize);
-    public Page<Notification> getNotificationsByReceiverIDAndTopicName(String userID, String topicName, int pageNumber, int pageSize);
+    public Page<NotificationDetail> getNotificationsByReceiverID(String userID, int pageNumber, int pageSize);
+    public Page<NotificationDetail> getNotificationsByReceiverIDOrBroadCast(String userID, NotificationBroadCast broadCast, int pageNumber, int pageSize);
+    public Page<NotificationDetail> getNotificationsByReceiverIDAndTopicName(String userID, NotificationBroadCast broadCast, String topicName, int pageNumber, int pageSize);
 
     // mark as read
     public Boolean markAsReadEmployeeNotification(String notificationID, String userID) throws NameNotFoundException;
     public Boolean markAsReadCustomerNotification(String notificationID, String userID) throws NameNotFoundException;
+    public Boolean markAsReadEmployeeNotifications(String userID);
+    public Boolean markAsReadCustomerNotifications(String userID);
 
     // get number of notifications
-    public Long getEmployeeNumberOfNotifications(String userID);
-    public Long getCustomerNumberOfNotifications(String userID);
+    public Long getUserTotalNumberOfUnreadNotifications(String userID, NotificationBroadCast broadCast);
 }

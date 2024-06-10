@@ -18,7 +18,7 @@ public interface OrderDetailDiscountRepository extends JpaRepository<OrderDetail
     @Modifying
     @Transactional
     @Procedure("InsertOrderDetailDiscount")
-    Boolean insertOrderDetailDiscount(String orderID, Integer productID, String discountID, LocalDateTime appliedDate);
+    Boolean insertOrderDetailDiscount(String orderID, Integer productID, String discountID, Integer discountPercent, LocalDateTime appliedDate);
 
     @Query("""
         SELECT odd \

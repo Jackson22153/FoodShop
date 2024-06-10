@@ -1,10 +1,7 @@
 import { createContext } from "react";
-import { NotificationContext } from "../../model/WebType";
+import { Notification } from "../../model/Type";
 
-const notificationMessagesContext = createContext<NotificationContext>({
-    notifications: [],
-    setNotifications: ()=>{}
-});
+const notificationMessagesContext = createContext<Notification|undefined>(undefined);
 
 export const NotificationMessagesProvider = notificationMessagesContext.Provider
 export const NotificationMessagesConsumer = notificationMessagesContext.Consumer

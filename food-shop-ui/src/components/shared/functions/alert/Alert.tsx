@@ -33,7 +33,7 @@ export default function AlertComponent(prop: Props){
     }
     if(isShowed){
         return(
-            <div className={`alert  ${messageType(type)} alert-position`} role="alert">
+            <div className={`alert cursor-default ${messageType(type)} alert-position`} role="alert">
                 <p className="h5">{transform(message)}</p>
                 {/* <a className="close">&times;</a> */}
             </div>

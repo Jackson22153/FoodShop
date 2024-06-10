@@ -1,28 +1,29 @@
-import { ChangeEventHandler, useEffect, useState } from "react"
+import { ChangeEventHandler, useContext, useEffect, useState } from "react"
 import { OrderInfo } from "../../../../model/Type"
 import { displayProductImage, getError } from "../../../../service/image";
-import { getOrder, getProductsFromCart } from "../../../../api/CartApi";
+import { getOrder } from "../../../../api/CartApi";
 import { faLongArrowAltLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { cartPath } from "../../../../constant/FoodShoppingURL";
 import { Notification } from "../../../../model/Type";
-import { ALERT_TYPE, NOTIFICATION_TYPE } from "../../../../constant/config";
+import { NOTIFICATION_TYPE } from "../../../../constant/config";
 import { isCustomer } from "../../../../api/UserApi";
-import { connectCustomer, sendMessagePlaceOrder } from "../../../../api/OrderWsApi";
+import userInfoContext from "../../../contexts/UserInfoContext";
+import { placeOrder } from "../../../../api/OrderApi";
 
 export default function OrderComponent(){
     const [orderInfo, setOrderInfo] = useState<OrderInfo>();
+    const userInfo = useContext(userInfoContext);
     const [notification, setNotification] = useState<Notification>({
         notificationID: '',
         title: '',
         message: '',
         senderID: '',
         receiverID: '',
-        topic: {
-            topicName: ''
-        },
+        topic: '',
         status: '',
-        active: false,
+        isRead: false,
+        time: '',
         isShowed: false,
     })
 
@@ -32,14 +33,13 @@ export default function OrderComponent(){
 
     const initial = ()=>{
         checkAuthenticationCustomer();
-        connectCustomer(getNotification);
         fetchCartOrder();
     }
-
+    // check customer
     async function checkAuthenticationCustomer(){
         try {
             const res = await isCustomer();
-            if(res.status){
+            if(200<=res.status&&res.status<300){
                 const data = res.data;
                 const status = data.status;
                 if(!status) window.location.href="/"
@@ -49,11 +49,11 @@ export default function OrderComponent(){
         }
     }
 
+    // cart order
     async function fetchCartOrder(){
         const res = await getOrder();
         if(res.status){
             const data = res.data;
-            console.log(data)
             setOrderInfo(data);
         }
     }
@@ -66,7 +66,7 @@ export default function OrderComponent(){
             setOrderInfo({...orderInfo, [name]: value})
         }
     }
-
+    // place an order
     const onClickOrder = ()=>{
         if(orderInfo){
             const products =orderInfo.products.map(product =>{
@@ -86,17 +86,29 @@ export default function OrderComponent(){
                 phone: orderInfo.phone,
                 shipVia: 1
             }
-            // console.log(data)
-            sendMessagePlaceOrder(data);
+            userPlaceOrder(data);
         }
     }
 
-    function getNotification(message: any){
-        const statusMessage = message.status;
-        if(statusMessage.toLowerCase() === ALERT_TYPE.SUCCESS.toLowerCase()){
-            setNotification({...message, isShowed: true});
-        }else {
-            setNotification({...message, isShowed: true});
+    // place order
+    async function userPlaceOrder(order: any){
+        try {
+            const res = await placeOrder(order);
+            if(200<=res.status&&res.status<300){
+                const data = res.data
+                console.log(data)
+                setNotification({...notification,
+                    message: `Order has been placed successfully`,
+                    status: NOTIFICATION_TYPE.SUCCESSFUL,
+                    isShowed: true
+                })
+            }
+        } catch (error) {
+            setNotification({...notification,
+                message: `Order can not be placed`,
+                status: NOTIFICATION_TYPE.ERROR,
+                isShowed: true
+            })
         }
     }
 

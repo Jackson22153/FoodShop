@@ -10,7 +10,7 @@ import NotificationDropdown from "../notification-dropdown/NotificationDropdown"
 interface Props{
     userInfo: UserInfo
 }
-export default function UserInfoNav(prop: Props){
+function UserInfoNav(prop: Props) {
     const [isExpandedUserDropdown, setIsExpandedUserDropdown] = useState(false);
 
     // modal
@@ -94,3 +94,4 @@ export default function UserInfoNav(prop: Props){
         </div>
     )
 }
+export default UserInfoNav;

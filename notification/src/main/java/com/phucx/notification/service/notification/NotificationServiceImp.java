@@ -9,9 +9,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import com.phucx.notification.constant.NotificationActive;
-import com.phucx.notification.model.Notification;
+
+import com.phucx.notification.constant.NotificationBroadCast;
+import com.phucx.notification.constant.NotificationIsRead;
+import com.phucx.notification.model.NotificationDetail;
+import com.phucx.notification.repository.NotificationDetailRepository;
 import com.phucx.notification.repository.NotificationRepository;
+import com.phucx.notification.repository.NotificationUserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,103 +24,135 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationServiceImp implements NotificationService{
     @Autowired
     private NotificationRepository notificationRepository;
+    @Autowired
+    private NotificationDetailRepository notificationDetailRepository;
+    @Autowired
+    private NotificationUserRepository notificationUserRepository;
 
     @Override
-    public Notification createNotification(Notification notification) {
+    public NotificationDetail createNotification(NotificationDetail notification) {
         log.info("createNotification({})", notification.toString());
         String notificationID = UUID.randomUUID().toString();
         notificationRepository.createNotification(
-            notificationID, notification.getTitle(), notification.getMessage(), notification.getSenderID(), 
-            notification.getReceiverID(), notification.getTopic().getTopicName(), 
-            notification.getStatus(), notification.getActive(), notification.getTime());
+            notificationID, notification.getTitle(), 
+            notification.getMessage(), notification.getSenderID(), 
+            notification.getReceiverID(), notification.getTopic(), 
+            notification.getStatus(), notification.getIsRead(), 
+            notification.getTime());
         notification.setNotificationID(notificationID);
         return notification;
     }
 
     @Override
-    public Notification getNotificationsByID(String notificationID) throws NameNotFoundException {
-        return notificationRepository.findById(notificationID)
+    public NotificationDetail getNotificationsByID(String notificationID) throws NameNotFoundException {
+        return notificationDetailRepository.findById(notificationID)
             .orElseThrow(()-> new NameNotFoundException("Notification " + notificationID + " does not found"));
     }
 
     @Override
-    public Page<Notification> getNotificationsByTopicName(String topicName, int pageNumber, int pageSize) {
+    public Page<NotificationDetail> getNotificationsByTopicName(String topicName, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return notificationRepository.findByTopicName(topicName, pageable);
+        return notificationDetailRepository.findByTopicName(topicName, pageable);
     }
 
     @Override
-    public List<Notification> getNotificationsByTopicName(String topicName) {
-        return notificationRepository.findByTopicName(topicName);
+    public List<NotificationDetail> getNotificationsByTopicName(String topicName) {
+        return notificationDetailRepository.findByTopicName(topicName);
     }
 
     @Override
-    public Page<Notification> getNotificationsByReceiverID(String userID, int pageNumber, int pageSize) {
+    public Page<NotificationDetail> getNotificationsByReceiverID(String userID, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return notificationRepository.findByReceiverIDOrderByTimeDesc(userID, pageable);
+        return notificationDetailRepository.findByReceiverIDOrderByTimeDesc(userID, pageable);
     }
 
     @Override
-    public Boolean updateNotificationActive(String notificationID, Boolean status) throws NameNotFoundException {
-        log.info("updateNotificationActive(notificationID={}, status={})", notificationID, status);
-        Notification notification = this.getNotificationsByID(notificationID);
-        return notificationRepository.updateNotificationStatus(notification.getNotificationID(), status);
+    public Boolean updateNotificationReadStatusByNotificationID(String notificationID, Boolean isRead) 
+    throws NameNotFoundException {
+        log.info("updateNotificationReadStatusByNotificationID(notificationID={}, isRead={})", notificationID, isRead);
+        NotificationDetail notification = this.getNotificationsByID(notificationID);
+        return notificationUserRepository.updateNotificationReadStatusByNotificationIDAndUserID(
+            notification.getNotificationID(), notification.getReceiverID(), isRead);
     }
 
     @Override
-    public Page<Notification> getNotificationsByReceiverIDAndTopicName(
-        String userID, String topicName, int pageNumber, int pageSize) {
+    public Page<NotificationDetail> getNotificationsByReceiverIDAndTopicName(
+        String userID, NotificationBroadCast broadCast, String topicName, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return notificationRepository.findByTopicNameAndReceiverID(topicName, userID, pageable);
+        return notificationDetailRepository.findByTopicAndReceiverIDOrBroadCast(
+            topicName, userID, broadCast.name(), pageable);
     }
 
     @Override
-    public Page<Notification> getNotificationsByReceiverIDOrNull(String userID, int pageNumber, int pageSize) {
+    public Page<NotificationDetail> getNotificationsByReceiverIDOrBroadCast(
+        String userID, NotificationBroadCast broadCast, int pageNumber, int pageSize) {
+
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return notificationRepository.findByReceiverIDOrNullOrderByTimeDesc(userID, pageable);
+        return notificationDetailRepository.findByReceiverIDOrBroadCastOrderByTimeDesc(
+            userID, broadCast.name(), pageable);
     }
 
     @Override
-    public Notification getNotificationByUserIDAndNotificationID(String userID, String notificationID) throws NameNotFoundException {
-        Notification notification = notificationRepository.findByNotificationIDAndReceiverIDOrderByTimeDesc(notificationID, userID)
+    public NotificationDetail getNotificationByUserIDAndNotificationID(String userID, String notificationID) throws NameNotFoundException {
+        NotificationDetail notification = notificationDetailRepository.findByNotificationIDAndReceiverIDOrderByTimeDesc(notificationID, userID)
             .orElseThrow(()-> new NameNotFoundException("Notification " + notificationID + " of User " + userID + " does not found"));
         return notification;
     }
 
     @Override
-    public Notification getNotificationByUserIDOrNullAndNotificationID(String userID, String notificationID) throws NameNotFoundException {
-        Notification notification = notificationRepository.findByNotificationIDAndReceiverIDOrNullOrderByTimeDesc(notificationID, userID)
-            .orElseThrow(()-> new NameNotFoundException("Notification " + notificationID + " of User " + userID + " does not found"));
+    public NotificationDetail getNotificationByUserIDOrBroadCastAndNotificationID(String userID, NotificationBroadCast broadCast, String notificationID) 
+    throws NameNotFoundException {
+        NotificationDetail notification = notificationDetailRepository
+        .findByNotificationIDAndReceiverIDOrBroadCastOrderByTimeDesc(notificationID, userID, broadCast.name())
+        .orElseThrow(()-> new NameNotFoundException("Notification " + notificationID + " of User " + userID + " does not found"));
         return notification;
     }
 
     @Override
     public Boolean markAsReadEmployeeNotification(String notificationID, String userID) throws NameNotFoundException {
         log.info("markAsReadEmployeeNotification(notificationID={}, userID={})", notificationID, userID);
-        Notification notification = this.getNotificationByUserIDOrNullAndNotificationID(userID, notificationID);
-        return this.updateNotificationActive(notification.getNotificationID(), NotificationActive.INACTIVE.getValue());
+        NotificationDetail notification = this.getNotificationByUserIDOrBroadCastAndNotificationID(
+            userID, NotificationBroadCast.ALL_EMPLOYEES, notificationID);
+        return this.updateNotificationReadStatusByNotificationID(
+            notification.getNotificationID(), NotificationIsRead.YES.getValue());
     }
 
     @Override
     public Boolean markAsReadCustomerNotification(String notificationID, String userID) throws NameNotFoundException {
         log.info("markAsReadCustomerNotification(notificationID={}, userID={})", notificationID, userID);
-        Notification notification = this.getNotificationByUserIDAndNotificationID(userID, notificationID);
-        return this.updateNotificationActive(notification.getNotificationID(), NotificationActive.INACTIVE.getValue());
+        NotificationDetail notification = this.getNotificationByUserIDOrBroadCastAndNotificationID(
+            userID, NotificationBroadCast.ALL_CUSTOMERS, notificationID);
+        return this.updateNotificationReadStatusByNotificationID(
+            notification.getNotificationID(), NotificationIsRead.YES.getValue());
     }
 
     @Override
-    public Long getEmployeeNumberOfNotifications(String userID) {
-        Long numberOfUnreadNotifications = notificationRepository
-            .countNumberOfNotificationsByReceiverIDAndActive(
-                userID, NotificationActive.INACTIVE.getValue());
+    public Long getUserTotalNumberOfUnreadNotifications(String userID, NotificationBroadCast broadCast) {
+        Long numberOfUnreadNotifications = notificationDetailRepository
+            .countNumberOfNotificationsByReceiverIDOrBroadCastAndIsRead(
+                userID, NotificationIsRead.NO.getValue(), broadCast.name());
         return numberOfUnreadNotifications;
     }
 
     @Override
-    public Long getCustomerNumberOfNotifications(String userID) {
-        Long numberOfUnreadNotifications = notificationRepository
-            .countNumberOfNotificationsByReceiverIDAndActive(
-                userID, NotificationActive.INACTIVE.getValue());
-        return numberOfUnreadNotifications;
+    public Boolean markAsReadEmployeeNotifications(String userID) {
+        log.info("markAsReadEmployeeNotifications(userID={})", userID);
+        return this.updateNotificationReadStatusByUserID(
+            userID, NotificationBroadCast.ALL_EMPLOYEES, 
+            NotificationIsRead.YES.getValue());
+    }
+
+    @Override
+    public Boolean markAsReadCustomerNotifications(String userID) {
+        log.info("markAsReadCustomerNotifications(userID={})", userID);
+        return this.updateNotificationReadStatusByUserID(
+            userID, NotificationBroadCast.ALL_CUSTOMERS, 
+            NotificationIsRead.YES.getValue());
+    }
+
+    @Override
+    public Boolean updateNotificationReadStatusByUserID(String userID, NotificationBroadCast broadCast, Boolean status){
+        log.info("updateNotificationReadStatusByUserID(userID={}, status={})", userID, status);
+        return this.notificationUserRepository.updateNotificationReadStatusByUserID(userID, broadCast.name(), status);
     }
 }

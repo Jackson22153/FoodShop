@@ -18,7 +18,7 @@ import com.phucx.notification.config.WebSocketConfig;
 import com.phucx.notification.constant.WebSocketConstant;
 import com.phucx.notification.model.DataDTO;
 import com.phucx.notification.model.EventMessage;
-import com.phucx.notification.model.Notification;
+import com.phucx.notification.model.NotificationDetail;
 import com.phucx.notification.service.notification.NotificationService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,19 +36,19 @@ public class MessageQueueServiceImp implements MessageQueueService{
     private ObjectMapper objectMapper;
     
     @Override
-    public void sendNotification(Notification notification, String exchange, String routingKey) {
+    public void sendNotification(NotificationDetail notification, String exchange, String routingKey) {
         log.info("sendNotification(notification={}, exchange={}, routingKey={})", notification, exchange, routingKey);
         notificationService.createNotification(notification);
         this.rabbitTemplate.convertAndSend(exchange, routingKey, notification);
     }
 
     @Override
-    public void sendMessageToUser(String userID, Notification notificationMessage) {
-        log.info("sendMessageToUser(userID={}, notificationMessage={})", userID, notificationMessage.toString());
+    public void sendMessageToUser(String userID, NotificationDetail notification) {
+        log.info("sendMessageToUser(userID={}, notification={})", userID, notification.toString());
         // save notification
-        notificationService.createNotification(notificationMessage);
+        notificationService.createNotification(notification);
         // send notification
-        simpMessagingTemplate.convertAndSendToUser(userID, WebSocketConfig.QUEUE_MESSAGES, notificationMessage, getHeaders());
+        simpMessagingTemplate.convertAndSendToUser(userID, WebSocketConfig.QUEUE_MESSAGES, notification, getHeaders());
     }
     
     private Map<String, Object> getHeaders(){
@@ -59,7 +59,7 @@ public class MessageQueueServiceImp implements MessageQueueService{
     }
 
     @Override
-    public void sendOrderNotificationToEmployeeTopic(Notification notification) {
+    public void sendOrderNotificationToEmployeeTopic(NotificationDetail notification) {
         notificationService.createNotification(notification);
         // send notification to notification/order topic
         this.simpMessagingTemplate.convertAndSend(WebSocketConstant.TOPIC_EMPLOYEE_NOTIFICAITON_ORDER, notification);

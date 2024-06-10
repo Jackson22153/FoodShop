@@ -2,6 +2,7 @@ package com.phucx.order.service.messageQueue;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -9,11 +10,11 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.order.config.MessageQueueConfig;
 import com.phucx.order.constant.MessageQueueConstant;
+import com.phucx.order.constant.WebSocketConstant;
 import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.EventMessage;
-import com.phucx.order.model.Notification;
+import com.phucx.order.model.NotificationDetail;
 import com.phucx.order.model.OrderWithProducts;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -21,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 public class MessageQueueServiceImp implements MessageQueueService{
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -39,15 +42,14 @@ public class MessageQueueServiceImp implements MessageQueueService{
     }
     @Override
     public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String exchange,
-            String routingKey, TypeReference<T> dataType) throws JsonProcessingException {
+            String routingKey, TypeReference<EventMessage<T>> dataType) throws JsonProcessingException {
         log.info("sendAndReceiveData(eventMessage={}, exchange={}, routingKey={}, className={})", 
-        eventMessage, exchange, routingKey, dataType.toString());
+            eventMessage, exchange, routingKey, dataType.toString());
         String message = objectMapper.writeValueAsString(eventMessage);
         // send and receive message
         String responseMessage = (String) this.rabbitTemplate.convertSendAndReceive(exchange, routingKey, message);
         // convert message
-        TypeReference<EventMessage<T>> typeReference = new TypeReference<EventMessage<T>>() {};
-        EventMessage<T> response = objectMapper.readValue(responseMessage, typeReference);
+        EventMessage<T> response = objectMapper.readValue(responseMessage, dataType);
         return response;
     }
     @Override
@@ -58,9 +60,15 @@ public class MessageQueueServiceImp implements MessageQueueService{
         this.rabbitTemplate.convertAndSend(MessageQueueConfig.ORDER_EXCHANGE, MessageQueueConfig.ORDER_PROCESSING_ROUTING_KEY, message);
     }
     @Override
-    public void sendNotification(Notification notification) throws JsonProcessingException {
+    public void sendNotification(NotificationDetail notification) throws JsonProcessingException {
         log.info("sendNotification(notification={})", notification);
+        String message = objectMapper.writeValueAsString(notification);
         this.rabbitTemplate.convertAndSend(MessageQueueConstant.NOTIFICATION_EXCHANGE, 
-            MessageQueueConstant.NOTIFICATION_ORDER_ROUTING_KEY, notification);
+            MessageQueueConstant.NOTIFICATION_ORDER_ROUTING_KEY, message);
+    }
+    @Override
+    public void sendOrderNotificationToEmployeeTopic(NotificationDetail notification) {
+        log.info("sendOrderNotificationToEmployeeTopic({})", notification);
+        this.simpMessagingTemplate.convertAndSend(WebSocketConstant.TOPIC_EMPLOYEE_NOTIFICAITON_ORDER, notification);
     }
 }

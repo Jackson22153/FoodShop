@@ -1,6 +1,4 @@
-package com.phucx.order.model;
-
-import java.util.List;
+package com.phucx.notification.compositekey;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +8,7 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductsDiscountsDTO {
-    private List<ProductDiscountsDTO> productsDiscounts;
+public class NotificationUserKey {
+    private String notificationID;
+    private String userID;
 }

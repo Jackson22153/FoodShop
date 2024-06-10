@@ -1,9 +1,7 @@
 
 import axios from "axios";
-import { EmployeeInfoUrl, EmployeeNotificationsUrl, EmployeeOrdersUrl, 
-    EmployeePendingOrdersUrl, IsEmployeeUrl, 
-    UserNotificationUrl
-} from "../constant/FoodShoppingApiURL";
+import { EmployeeInfoUrl, EmployeeOrdersUrl, 
+    EmployeePendingOrdersUrl, IsEmployeeUrl} from "../constant/FoodShoppingApiURL";
 
 export function isEmployee(){
     return axios.get(IsEmployeeUrl,{

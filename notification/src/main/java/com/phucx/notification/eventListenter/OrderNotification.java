@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.notification.config.MessageQueueConfig;
-import com.phucx.notification.model.Notification;
+import com.phucx.notification.constant.NotificationBroadCast;
+import com.phucx.notification.model.NotificationDetail;
 import com.phucx.notification.service.messageQueue.MessageQueueService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +26,14 @@ public class OrderNotification {
     private void orderNotification(String message){
         log.info("orderNotification(message={})", message);
         try {
-            Notification notification = objectMapper.readValue(message, Notification.class);
-            if(notification.getReceiverID()!=null){
-                messageQueueService.sendMessageToUser(notification.getReceiverID(), notification);
-            }else{
+            NotificationDetail notification = objectMapper.readValue(message, NotificationDetail.class);
+            notification.setIsRead(false);
+            if(notification.getReceiverID().equalsIgnoreCase(NotificationBroadCast.ALL_EMPLOYEES.name())){
                 messageQueueService.sendOrderNotificationToEmployeeTopic(notification);
+            }else if(notification.getReceiverID().equalsIgnoreCase(NotificationBroadCast.ALL_CUSTOMERS.name())){
+
+            }else {
+                messageQueueService.sendMessageToUser(notification.getReceiverID(), notification);
             }
         } catch (Exception e) {
             log.error("Error: {}", e.getMessage());

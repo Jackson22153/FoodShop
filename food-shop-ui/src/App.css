@@ -550,11 +550,10 @@ ins{
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 	margin: 15px auto 0;
 	padding: 15px 10px;
-	position: absolute;
-  z-index: 9999;
 	display: none;
 }
 
+.notification-panel .notify-item,
 .notification-wrap .dropdown .notify-item{
 	display: flex;
 	align-items: center;
@@ -562,6 +561,7 @@ ins{
 	border-bottom: 1px solid #dbdaff;
 }
 
+.notification-panel .notify-item:hover,
 .notification-wrap .dropdown .notify-item:hover{
   background-color: #ddd;
 }
@@ -569,7 +569,7 @@ ins{
 .notification-wrap .dropdown .notify-item.read{
   opacity: 0.5;
 }
-
+.notification-panel .notify-item:last-child,
 .notification-wrap .dropdown .notify-item:last-child{
 	border-bottom: 0px;
 }
@@ -577,6 +577,9 @@ ins{
 .notification-wrap .dropdown .notify-item .notify-img{
 	margin-right: 15px;
 	margin-left: 10px;
+}
+.notification-wrap .dropdown .notify-item .notify-img img{
+  width: 50px;
 }
 
 .notification-wrap .dropdown .notify-item .notify_info p{
@@ -608,4 +611,19 @@ ins{
 }
 .notification-wrap .notification-icon.active{
   color: #605dff;
+}
+/* notification panel */
+.notification-panel{
+	height: auto;
+	background: #fff;
+	border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+	margin: 15px auto 0;
+	padding: 15px 10px;
+}
+.notification-panel .notify-item .notify-img img{
+  width: 100px;
+}
+.notification-panel .notify-item .notify-img{
+  margin-right: 15px;
 }

@@ -1,6 +1,7 @@
 import axios from "axios";
-import { LogoutUrl, UserInfoUrl, UsernameUrl } from "../constant/FoodShoppingApiURL";
+import { LogoutUrl, UserInfoUrl } from "../constant/FoodShoppingApiURL";
 
+// logout
 export async function logout(){
     return axios.post(LogoutUrl, null,{
         withCredentials: true,
@@ -9,17 +10,9 @@ export async function logout(){
         }
     })
 }
-
+// get userinfo
 export async function isAuthenticated(){
     return axios.get(UserInfoUrl, {
-        withCredentials: true,
-        headers:{
-            "Content-Type": 'application/json',
-        }
-    })
-}
-export async function getUsername(){
-    return axios.get(UsernameUrl, {
         withCredentials: true,
         headers:{
             "Content-Type": 'application/json',

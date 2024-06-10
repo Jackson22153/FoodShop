@@ -11,13 +11,14 @@ import com.phucx.order.annotations.LoggerAspect;
 import com.phucx.order.config.MessageQueueConfig;
 import com.phucx.order.constant.NotificationStatus;
 import com.phucx.order.constant.NotificationTopic;
+import com.phucx.order.constant.OrderNotificationTitle;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.exception.InvalidOrderException;
-import com.phucx.order.model.Notification;
+import com.phucx.order.model.NotificationDetail;
 import com.phucx.order.model.OrderWithProducts;
-import com.phucx.order.model.Topic;
 import com.phucx.order.model.User;
+import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.order.OrderService;
 import com.phucx.order.service.user.UserService;
 
@@ -33,27 +34,16 @@ public class OrderProcessingMessageListener {
     private UserService userService;
     @Autowired
     private ObjectMapper objectMapper;
-    // @Autowired
-    // private MessageQueueService messageQueueService;
-
-    // @LoggerAspect
-    // @RabbitHandler
-    // public void notificationOrderReceiver(Notification notification){
-    //     log.info("notificationReceiver: {}", notification);
-    //     if(notification.getReceiverID()!=null){
-    //         messageQueueService.sendMessageToUser(notification.getReceiverID(), notification);
-    //     }else{
-    //         messageQueueService.sendEmployeeNotificationOrderToTopic(notification);
-    //     }
-    // }
+    @Autowired
+    private MessageQueueService messageQueueService;
 
     @LoggerAspect
     @RabbitHandler
-    public Notification orderProcessing(String message){
+    public void orderProcessing(String message){
         log.info("orderProcessing(message={})", message);
-        Notification notification = new Notification();
-        notification.setTitle("Place Order");
-        notification.setTopic(new Topic(NotificationTopic.Order.name()));
+        NotificationDetail notification = new NotificationDetail();
+        notification.setTitle(OrderNotificationTitle.PLACE_ORDER.getValue());
+        notification.setTopic(NotificationTopic.Order.name());
         try {
             OrderWithProducts order = objectMapper.readValue(message, OrderWithProducts.class);
             User user = userService.getUserByCustomerID(order.getCustomerID());
@@ -83,21 +73,21 @@ public class OrderProcessingMessageListener {
                 notification.setReceiverID(user.getUserID());
                 // update order status
                 orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Canceled);
-            }
+                }
+            messageQueueService.sendNotification(notification);
         } catch (JsonProcessingException e) {
             log.error("Error: {}", e.getMessage());
         }
-        return notification;
     }
 
     // validate order product's stocks
     @LoggerAspect
-    private Notification validateOrder(OrderWithProducts order, Notification notification, User user) 
+    private NotificationDetail validateOrder(OrderWithProducts order, NotificationDetail notification, User user) 
         throws JsonProcessingException, InvalidDiscountException, InvalidOrderException{
 
         // Notification notification = new Notification();
-        notification.setTitle("Place Order");
-        notification.setTopic(new Topic(NotificationTopic.Order.name()));
+        notification.setTitle(OrderNotificationTitle.PLACE_ORDER.getValue());
+        notification.setTopic(NotificationTopic.Order.name());
         if(!orderService.isPendingOrder(order.getOrderID())){
             throw new InvalidOrderException("Order " + order.getOrderID() + " is not a pending order");
         }

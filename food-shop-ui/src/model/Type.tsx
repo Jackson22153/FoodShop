@@ -166,11 +166,9 @@ export type Notification = {
     message: string,
     senderID: string,
     receiverID: string,
-    topic: {
-        topicName: string
-    },
+    topic: string,
     status: string,
-    active: boolean,
+    isRead: boolean,
     time: string,
     isShowed: boolean,
 }

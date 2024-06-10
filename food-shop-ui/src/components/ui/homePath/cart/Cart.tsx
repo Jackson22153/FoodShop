@@ -15,6 +15,10 @@ export default function CartComponent(){
         initial();
     }, []);
 
+    function initial(){
+        fetchProductsInCart();
+    }
+
     // click to place order
     const onClickPlaceOrder = ()=>{
         window.location.href=orderPath;
@@ -37,8 +41,7 @@ export default function CartComponent(){
         if(order){
             const products = order.products;
             const quantity = products[index].quantity;
-            const unitsInStock = products[index].unitsInStock
-            // const newValue = quantity+1<=unitsInStock?quantity+1:unitsInStock;        
+            const unitsInStock = products[index].unitsInStock   
             if(quantity+1<=unitsInStock){
                 
                 products[index].quantity = quantity+1;
@@ -84,7 +87,6 @@ export default function CartComponent(){
     async function onClickAddToCart(cartProduct: CartProduct){
         const res = await addProductToCart(cartProduct);
         if(res.status){
-            // console.log(res.data)
         }
     }
 
@@ -98,16 +100,11 @@ export default function CartComponent(){
             setOrder({...order, products: products})
         }
     }
-    
-    function initial(){
-        fetchProductsInCart();
-    }
 
     async function fetchProductsInCart(){
         const res = await getProductsFromCart();
         if(res.status){
             const data = res.data;
-            console.log(data);
             setOrder(data);
             getTotalItems(data);
             setTotalPrice(data.totalPrice);

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
-import { getCustomerInvoice } from "../../../../../api/UserApi";
 import { OrderInfo } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/image";
+import { getCustomerInvoice } from "../../../../../api/OrderApi";
 
 export default function UserOrderComponent(){
     const { orderId } = useParams();
@@ -14,9 +14,8 @@ export default function UserOrderComponent(){
 
     const fetchedInvoice = async ()=>{
         const res = await getCustomerInvoice(orderId);
-        if(res.status){
+        if(200<=res.status&&res.status<300){
             const data = res.data;
-            console.log(data);
             setOrderInfo(data);
         }
     }

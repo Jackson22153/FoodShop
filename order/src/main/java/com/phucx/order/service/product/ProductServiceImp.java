@@ -38,7 +38,7 @@ public class ProductServiceImp implements ProductService{
         eventMessage.setEventType(EventType.GetProductsByIDs);
         eventMessage.setPayload(productDProductDTO);
         // receive data
-        TypeReference<List<Product>> typeReference = new TypeReference<List<Product>>() {};
+        TypeReference<EventMessage<List<Product>>> typeReference = new TypeReference<EventMessage<List<Product>>>() {};
         EventMessage<List<Product>> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
             MessageQueueConstant.PRODUCT_ROUTING_KEY,

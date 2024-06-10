@@ -42,7 +42,7 @@ import lombok.ToString;
             @StoredProcedureParameter(name="customerID", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="shipperID", mode = ParameterMode.IN, type = Integer.class),
-            @StoredProcedureParameter(name="result", mode = ParameterMode.IN, type = Boolean.class),
+            @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
         })
 })
 public class Order {

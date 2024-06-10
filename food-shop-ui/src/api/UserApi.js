@@ -32,23 +32,6 @@ export function uploadUserImage(file){
     });
 }
 
-export async function getCustomerOrders(pageNumber, type){
-    return axios.get(`${CustomerOrdersUrl}?page=${pageNumber}&type=${type}`, {
-        withCredentials: true,
-        headers:{
-            "Content-Type": 'application/json',
-        }
-    })
-}
-
-export async function getCustomerInvoice(orderID){
-    return axios.get(`${CustomerOrdersUrl}/${orderID}`, {
-        withCredentials: true,
-        headers:{
-            "Content-Type": 'application/json',
-        }
-    })
-}
 
 export async function getCustomerInfo(){
     return axios.get(CustomerInfoUrl, {

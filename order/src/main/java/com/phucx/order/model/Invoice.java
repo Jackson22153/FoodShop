@@ -14,11 +14,13 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
 @Data @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "Invoices")
 @IdClass(OrderDetailDiscountID.class)
 public class Invoice {

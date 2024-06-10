@@ -27,6 +27,7 @@ import lombok.ToString;
         @StoredProcedureParameter(name="orderID", type = String.class, mode = ParameterMode.IN),
         @StoredProcedureParameter(name="productID", type = Integer.class, mode = ParameterMode.IN),
         @StoredProcedureParameter(name="discountID", type = String.class, mode = ParameterMode.IN),
+        @StoredProcedureParameter(name="discountPercent", type = Integer.class, mode = ParameterMode.IN),
         @StoredProcedureParameter(name="appliedDate", type = LocalDateTime.class, mode = ParameterMode.IN),
         @StoredProcedureParameter(name="result", type = Boolean.class, mode = ParameterMode.OUT),
     })

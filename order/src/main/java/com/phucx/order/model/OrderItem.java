@@ -4,10 +4,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
 
 @Data @ToString
+@AllArgsConstructor
 public class OrderItem {
     private Integer productID;
     private String productName;
@@ -18,7 +20,6 @@ public class OrderItem {
     private BigDecimal extendedPrice;
 
 
-
     public OrderItem(Integer productID, String productName, Integer quantity, String picture, BigDecimal unitPrice) {
         this.productName=productName;
         this.productID = productID;
@@ -26,21 +27,6 @@ public class OrderItem {
         this.picture = picture;
         this.unitPrice = unitPrice;
     }
-
-
-
-    public OrderItem(Integer productID, String productName, Integer quantity, List<OrderItemDiscount> discounts, String picture,
-            BigDecimal unitPrice, BigDecimal extendedPrice) {
-        this.productName = productName;
-        this.productID = productID;
-        this.quantity = quantity;
-        this.discounts = discounts;
-        this.picture = picture;
-        this.unitPrice = unitPrice;
-        this.extendedPrice = extendedPrice;
-    }
-
-
 
     public OrderItem() {
         this.discounts = new ArrayList<>();

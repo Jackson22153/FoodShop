@@ -4,7 +4,7 @@ import { OrderWithProduct } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/image";
 import { getOrderDetail } from "../../../../../api/EmployeeApi";
 import dayjs from "dayjs";
-import { AccountWSUrl, CancelOrderWsUrl, FulfillOrderWsUrl, QUEUE_MESSAGES } from "../../../../../constant/FoodShoppingApiURL";
+import { CancelOrderWsUrl, FulfillOrderWsUrl, QUEUE_MESSAGES } from "../../../../../constant/FoodShoppingApiURL";
 import { employeeOrder } from "../../../../../constant/FoodShoppingURL";
 import { getAccessToken } from "../../../../../service/cookie";
 import { CompatClient, Stomp } from "@stomp/stompjs";
@@ -17,15 +17,15 @@ export default function EmployeeConfirmedOrderComponent(){
 
     useEffect(()=>{
         fetchOrder();
-        connectEmployee();
+        // connectEmployee();
     }, [])
 
-    const connectEmployee = ()=>{
-        stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
-        stompClientAccount.current.connect({
-            "Authorization": `Bearer ${getAccessToken()}`,
-        }, onEmployeeConnect, stompFailureCallback);
-    }
+    // const connectEmployee = ()=>{
+    //     stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
+    //     stompClientAccount.current.connect({
+    //         "Authorization": `Bearer ${getAccessToken()}`,
+    //     }, onEmployeeConnect, stompFailureCallback);
+    // }
 
     function stompFailureCallback(error: any){
         if(stompClientAccount.current){

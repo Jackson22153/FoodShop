@@ -9,7 +9,6 @@ import { ORDER_STATUS } from "../../../../../constant/config";
 import { CompatClient } from "@stomp/stompjs";
 import { CancelOrderWsUrl, ConfirmOrderWsUrl, FulfillOrderWsUrl } from "../../../../../constant/FoodShoppingApiURL";
 import { getAccessToken } from "../../../../../service/cookie";
-import { connectReceiveOrderEmployee } from "../../../../../api/EmployeeReceiveOrdersWsApi";
 
 export default function EmployeeOrdersComponent(){
     const [pendingOrders, setPendingOrders] = useState<OrderDetail[]>([])
@@ -31,9 +30,9 @@ export default function EmployeeOrdersComponent(){
     }, [])
 
     function initial(){
-        connectReceiveOrderEmployee(getNewPendingOrder);
+        // connectReceiveOrderEmployee(getNewPendingOrder);
         const pageNumber = getPageNumber();
-        fetchPendingOrders(pageNumber);
+        // fetchPendingOrders(pageNumber);
     }
 
     async function fetchOrders(pageNumber: number, type: string){
@@ -51,25 +50,25 @@ export default function EmployeeOrdersComponent(){
         }
     }
 
-    async function fetchPendingOrders(pageNumber: number){
-        const res = await getPendingOrders(pageNumber)
-        if(res.status){
-            const data = res.data;
-            setPendingOrders(data.content)
-            // console.log(data)
-            setPage({
-                first: data.first,
-                last: data.last,
-                number: data.number,
-                totalPages: data.totalPages
-            });
-        }
-    }
+    // async function fetchPendingOrders(pageNumber: number){
+    //     const res = await getPendingOrders(pageNumber)
+    //     if(res.status){
+    //         const data = res.data;
+    //         setPendingOrders(data.content)
+    //         // console.log(data)
+    //         setPage({
+    //             first: data.first,
+    //             last: data.last,
+    //             number: data.number,
+    //             totalPages: data.totalPages
+    //         });
+    //     }
+    // }
 
     // get new pending order
     function getNewPendingOrder(newOrder: any){
         if(newOrder){
-            fetchPendingOrders(page.number);
+            // fetchPendingOrders(page.number);
             setPendingOrders([...pendingOrders, newOrder]);
         }
     }
@@ -118,7 +117,8 @@ export default function EmployeeOrdersComponent(){
             // pending orders
             case 0:{
                 setIsPendingOrder(true);
-                fetchPendingOrders(page.number);
+                fetchOrders(page.number, ORDER_STATUS.PENDING);
+                // fetchPendingOrders(page.number);
                 break;
             }
             // confirmed orders

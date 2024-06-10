@@ -4,10 +4,6 @@ import org.springframework.data.domain.Page;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EmployeeDetails;
-import com.phucx.account.model.OrderDetails;
-import com.phucx.account.model.OrderWithProducts;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.phucx.account.constant.OrderStatus;
 import com.phucx.account.model.Employee;
 
 public interface EmployeeService {
@@ -26,7 +22,4 @@ public interface EmployeeService {
     public Page<EmployeeAccount> searchEmployeesByLastName(String lastName, int pageNumber, int pageSize);
     public Page<EmployeeAccount> searchEmployeesByUsername(String username, int pageNumber, int pageSize);
     public Page<EmployeeAccount> searchEmployeesByEmail(String email, int pageNumber, int pageSize);
-    // get order
-    public Page<OrderDetails> getOrders(String employeeID, OrderStatus status, int pageNumber, int pageSize) throws JsonProcessingException;
-    public OrderWithProducts getOrder(String orderID, String employeeID) throws JsonProcessingException;
 }

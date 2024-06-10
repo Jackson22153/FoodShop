@@ -1,11 +1,11 @@
 package com.phucx.notification.constant;
 
-public enum NotificationActive {
-    ACTIVE(true),
-    INACTIVE(false);
+public enum NotificationIsRead {
+    YES(true),
+    NO(false);
     
     private Boolean value;
-    private NotificationActive(Boolean value){
+    private NotificationIsRead(Boolean value){
         this.value = value;
     }
 

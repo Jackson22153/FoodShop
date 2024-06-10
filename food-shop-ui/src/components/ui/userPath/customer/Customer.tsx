@@ -35,8 +35,9 @@ export default function CustomerComponent(){
             setSelectedPath(0);
         }else if(path===customerOrder){
             setSelectedPath(1);
+        }else if(path === customerNotification){
+            setSelectedPath(2);
         }
-        // console.log(subPath)
     }
 
     async function checkAuthenticationCustomer(){
@@ -52,32 +53,29 @@ export default function CustomerComponent(){
         }
     }
 
-    async function onClickLogoutButton(){
-        toggleModal()
-    }
-
     function onClickShowSideBar(){
         if(sidebarRef.current){
             const sidebarEle = sidebarRef.current as HTMLDivElement;
             sidebarEle.classList.toggle('show-side-bar')
         }
     }
-
+    // logout
+    function onClickLogoutButton(){
+        toggleModal()
+    }
     const toggleModal = ()=>{
         setModal(modal =>({...modal, isShowed:!modal.isShowed}))
     }
 
-    const onClickCloseModal = ()=>{
-        toggleModal()
-    }
     const onClickConfirmModal = async ()=>{
         try {
             const res = await logout();
             if(res.status){
-                window.location.href="/";
             }
         } catch (error) {
 
+        }finally{
+            window.location.href="/";
         }
     }
 
@@ -128,7 +126,7 @@ export default function CustomerComponent(){
                                     <span className="nav-link" onClick={onClickLogoutButton}>
                                         <span className="link">Logout</span>
                                     </span>
-                                    <ModalComponent modal={modal} handleCloseButton={onClickCloseModal}
+                                    <ModalComponent modal={modal} handleCloseButton={toggleModal}
                                         handleConfirmButton={onClickConfirmModal}/>
                                 </li>
                             </ul>

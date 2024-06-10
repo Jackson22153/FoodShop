@@ -2,8 +2,8 @@ import axios from "axios";
 import { 
     CategoriesIDUrl, CategoriesNameUrl, CategoriesUrl, ProductsByCategories, ProductsByIdUrl, 
     ProductsByNameUrl, ProductsUrl, RecommendedProductsByCategoryUrl, RecommendedProductsUrl, 
-    SearchProductsUrl, ShippersUrl
-} from '../constant/FoodShoppingApiURL';
+    SearchProductsUrl} 
+    from '../constant/FoodShoppingApiURL';
 
 // const BASE_URL = `${UrlService.clientService}/search`
 
@@ -64,30 +64,3 @@ export async function getRecommendedProductsByCategory(categoryName, productID, 
         'Content-Type': 'application/json',
     })
 }
-
-// shippers
-export async function getShippers(page){
-    return axios.get(`${ShippersUrl}?page=${page}`,{
-        'Content-Type': 'application/json'
-    })
-}
-
-
-// export async function getRecommendedProducts(search){
-//     return axios.get(`${BASE_URL}/products/recommend?s=${search}`)
-// }
-// export async function searchProducts(searchValue, page){
-//     return axios.get(`${BASE_URL}/products/search?s=${searchValue}&page=${page}`,{
-//         withCredentials: true
-//     })
-// }
-
-// // shipper
-// export async function getShippers(page){
-//     return axios.get(`${BASE_URL}/shippers?page=${page}`,{
-//         withCredentials: true,
-//         headers:{
-//           'Content-Type': 'application/json'
-//         }
-//     })
-// }

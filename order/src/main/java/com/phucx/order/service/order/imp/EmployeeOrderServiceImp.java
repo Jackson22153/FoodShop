@@ -1,17 +1,18 @@
 package com.phucx.order.service.order.imp;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.constant.NotificationTopic;
+import com.phucx.order.constant.OrderNotificationTitle;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.exception.InvalidOrderException;
 import com.phucx.order.model.Employee;
-import com.phucx.order.model.Notification;
+import com.phucx.order.model.NotificationDetail;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderWithProducts;
-import com.phucx.order.model.Topic;
 import com.phucx.order.service.employee.EmployeeService;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.order.EmployeeOrderService;
@@ -30,9 +31,9 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
     private EmployeeService employeeService;
 
     @Override
-    public void confirmOrder(OrderWithProducts order, String userID) throws InvalidOrderException, JsonProcessingException {
-        log.info("confirmOrder(order={}, userID={})", order, userID);
-        OrderWithProducts orderWithProducts = orderService.getPendingOrderDetail(order.getOrderID());
+    public void confirmOrder(String orderID, String userID) throws InvalidOrderException, JsonProcessingException {
+        log.info("confirmOrder(orderID={}, userID={})", orderID, userID);
+        OrderWithProducts orderWithProducts = orderService.getPendingOrderDetail(orderID);
         // fetch employee
         Employee employee = employeeService.getEmployeeByUserID(userID);
 
@@ -55,9 +56,9 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         Boolean status = orderService.updateOrderStatus(orderDetail.getOrderID(), OrderStatus.Canceled);
         if(!status) throw new RuntimeException("Order #" + order.getOrderID() + " status can not be updated to canceled status");
         // notification
-        Notification notification = new Notification();
-        notification.setTitle("Cancel Order");
-        notification.setTopic(new Topic(NotificationTopic.Order.name()));
+        NotificationDetail notification = new NotificationDetail();
+        notification.setTitle(OrderNotificationTitle.CANCEL_ORDER.getValue());
+        notification.setTopic(NotificationTopic.Order.name());
 
         // if(status){
         //     String userID = userService.getUserIdOfCustomerID(order.getCustomerID());
@@ -81,9 +82,9 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         Boolean status = orderService.updateOrderStatus(fetchedOrder.getOrderID(), OrderStatus.Shipping);
         if(!status) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated to shipping status");
         // notification
-        Notification notification = new Notification();
-        notification.setTitle("Fulfill Order");
-        notification.setTopic(new Topic(NotificationTopic.Order.name()));
+        NotificationDetail notification = new NotificationDetail();
+        notification.setTitle(OrderNotificationTitle.FULFILL_ORDER.getValue());
+        notification.setTopic(NotificationTopic.Order.name());
         // if(status){
         //     String userID = userService.getUserIdOfCustomerID(order.getCustomerID());
         //     notification.setReceiverID(userID);
@@ -96,6 +97,45 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         //     notification.setStatus(NotificationStatus.ERROR.name());
         // }
         messageQueueService.sendNotification(notification);
+    }
+
+    @Override
+    public Page<OrderDetails> getOrders(String userID, OrderStatus status, int pageNumber, int pageSize)
+            throws JsonProcessingException {
+        log.info("getOrders(userID={}, status={}, pageNumber={}, pageSize={})", userID, status, pageNumber, pageSize);
+        Employee fetchedEmployee = employeeService.getEmployeeByUserID(userID);
+        Page<OrderDetails> orders = null;
+        if(status.equals(OrderStatus.All)){
+            orders = orderService.getOrdersByCustomerID(
+                fetchedEmployee.getEmployeeID(), 
+                pageNumber, pageSize);
+        }else if(status.equals(OrderStatus.Pending)){
+            orders = orderService.getOrders(OrderStatus.Pending, pageNumber, pageSize);
+        }else{
+            orders = orderService.getOrdersByEmployeeID(
+                fetchedEmployee.getEmployeeID(), 
+                status, pageNumber, pageSize);
+        }
+        return orders;
+    }
+
+    @Override
+    public OrderWithProducts getOrder(String orderID, String userID, OrderStatus status) throws JsonProcessingException {
+        log.info("getOrder(orderID={}, userID={})", orderID, userID);
+        Employee fetchedEmployee = employeeService.getEmployeeByUserID(userID);
+        OrderWithProducts order = null;
+        if(status.equals(OrderStatus.Pending)){
+            order = orderService.getPendingOrderDetail(orderID);
+        }else {
+            order = orderService.getOrderByEmployeeID(fetchedEmployee.getEmployeeID(), orderID);
+        }
+        return order;
+    }
+
+    @Override
+    public OrderWithProducts getPendingOrder(String orderID, String userID) throws JsonProcessingException {
+        log.info("getPendingOrder(orderID={}, userID={})", orderID, userID);
+        return orderService.getPendingOrderDetail(orderID);
     }
     
 }

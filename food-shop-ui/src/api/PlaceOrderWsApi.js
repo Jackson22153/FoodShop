@@ -1,4 +1,4 @@
-import { OrderServiceWSUrl, QUEUE_MESSAGES, PlaceOrderWsUrl } from "../constant/FoodShoppingApiURL";
+import { OrderServiceWSUrl, QUEUE_MESSAGES, PlaceOrderWsUrl, NotificationServiceWsUrl } from "../constant/FoodShoppingApiURL";
 import { Stomp } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 
@@ -9,7 +9,7 @@ export const connectCustomer = (getMessageCallback)=>{
 }
 function onOrderConnectCustomer(getMessageCallback) {
     if(stompClient){
-        console.log('Connected');
+        // console.log('Connected');
         stompClient.subscribe(QUEUE_MESSAGES,(payload) => onPrivateAccountOrderMessageReceived(payload, getMessageCallback), {
             'auto-delete': 'true'
         });

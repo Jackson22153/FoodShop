@@ -19,4 +19,5 @@ public class Product {
     private Integer unitsInStock;
     private Boolean discontinued;
     private String picture;
+    private String description;
 }
