@@ -4,6 +4,7 @@ import {
     ProductsByNameUrl, ProductsUrl, RecommendedProductsByCategoryUrl, RecommendedProductsUrl, 
     SearchProductsUrl} 
     from '../constant/FoodShoppingApiURL';
+import { convertNameForUrl } from "../service/convert";
 
 // const BASE_URL = `${UrlService.clientService}/search`
 
@@ -60,7 +61,8 @@ export async function getRecommendedProduct(){
     })
 }
 export async function getRecommendedProductsByCategory(categoryName, productID, page){
-    return axios.get(`${RecommendedProductsByCategoryUrl}/${categoryName}?page=${page}&productID=${productID}`,{
+    const convertedCategory = convertNameForUrl(categoryName)
+    return axios.get(`${RecommendedProductsByCategoryUrl}/${convertedCategory}?page=${page}&productID=${productID}`,{
         'Content-Type': 'application/json',
     })
 }

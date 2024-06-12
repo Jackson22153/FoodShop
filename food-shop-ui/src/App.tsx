@@ -8,8 +8,10 @@ import { useEffect, useState } from 'react';
 import { isAuthenticated } from './api/AuthorizationApi';
 import { Notification, UserInfo } from './model/Type';
 import { UserInfoProvider } from './components/contexts/UserInfoContext';
-import { notificationReceiveConnect } from './api/ReceiveNotificationWsApi';
 import { NotificationMessagesProvider } from './components/contexts/NotificationMessagesContext';
+import { ROLE } from './constant/config';
+import { employeeReceiveNotificationConnect } from './api/EmployeeReceiveNotificationWsApi';
+import { customerReceiveNotificationConnect } from './api/CustomerReceiveNotificationWsApi';
 
 function App() {
   const [userInfo, setUserInfo] = useState<UserInfo>({
@@ -36,16 +38,30 @@ function App() {
       const res = await isAuthenticated()
       if(200<=res.status && res.status<300){
         const data = res.data;
-        setUserInfo(data); 
-        notificationReceiveConnect(getNotification);
+        setUserInfo(data);
+        // convert role name to lowercase 
+        const roles = roleNames(data);
+        // receive notification
+        if(roles.includes(ROLE.CUSTOMER.toLowerCase())){
+          customerReceiveNotificationConnect(getNotification);
+        }else if(roles.includes(ROLE.EMPLOYEE.toLowerCase())){
+          employeeReceiveNotificationConnect(getNotification);
+        }
       }
     } catch (error) {
       
     }
   }
+
+    // USER ROLES
+    const roleNames = (userinfo: UserInfo)=>{
+      const arr = userinfo.roles.map(role => role.roleName.toLowerCase());
+      return arr;
+    }
   // receive notification from backend
   const getNotification = (message: any)=>{
     const notification = message as Notification;
+    console.log(notification)
     setNotification(notification)
   }
 

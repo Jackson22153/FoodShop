@@ -17,10 +17,12 @@ import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.model.Order;
 
 
+
 @Repository
 public interface OrderRepository extends JpaRepository<Order, String>{
 
     Optional<Order> findByOrderIDAndStatus(String orderID, OrderStatus status);
+    Optional<Order> findByOrderIDAndEmployeeIDAndStatus(String orderID, String employeeID, OrderStatus status);
 
     @Modifying
     @Transactional
@@ -68,4 +70,9 @@ public interface OrderRepository extends JpaRepository<Order, String>{
         SELECT o FROM Order o WHERE o.employeeID=?1 AND o.orderID=?2
             """)
     Optional<Order> findByEmployeeIDAndOrderID(String employeeID, String orderID);
+
+    @Query("""
+        SELECT COUNT(o) FROM Order o WHERE o.status=?1
+            """)
+    Optional<Long> countOrderByStatus(OrderStatus status);
 } 

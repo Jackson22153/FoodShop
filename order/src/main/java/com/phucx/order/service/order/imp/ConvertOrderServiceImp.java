@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.phucx.order.constant.DiscountConstant;
 import com.phucx.order.model.Customer;
 import com.phucx.order.model.DiscountBreifInfo;
 import com.phucx.order.model.DiscountDetail;
@@ -90,6 +91,7 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
             invoice.getFreight(), invoice.getStatus()); 
         // convert invoice of customer
         List<ProductWithBriefDiscount> products = invoiceDetails.getProducts();
+
         for(Invoice tempInvoice: invoices){
             // find product
             Product product = findProduct(fetchedProducts, tempInvoice.getProductID())
@@ -104,7 +106,7 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
                 products.add(productWithBriefDiscount);
             }
             // add new discount for product
-            if(tempInvoice.getDiscountID()!=null){
+            if(tempInvoice.getDiscountID()!=null && tempInvoice.getDiscountID().equalsIgnoreCase(DiscountConstant.NO_DISCOUNT.name())){
                 // find discount
                 DiscountDetail discount = this.findDiscount(fetchedDiscounts, tempInvoice.getDiscountID())
                     .orElseThrow(()-> new NotFoundException("Discount " + tempInvoice.getDiscountID() + " does not found"));

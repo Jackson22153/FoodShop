@@ -106,10 +106,11 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
     @Override
     public void receiveOrder(OrderWithProducts order) throws JsonProcessingException {
         log.info("receiveOrder(orderID={})", order.getOrderID());
-        // get user 
-        User employeeUser = userService.getUserByEmployeeID(order.getEmployeeID());
-
+        // get order
         OrderDetails orderDetails = orderService.getOrder(order.getOrderID(), OrderStatus.Shipping);
+        // get user 
+        User employeeUser = userService.getUserByEmployeeID(orderDetails.getEmployeeID());
+        // update order's status
         Boolean status = orderService.updateOrderStatus(orderDetails.getOrderID(), OrderStatus.Successful);
         // notification
         NotificationDetail notification = new NotificationDetail();

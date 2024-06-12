@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './Customer.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import UserInfomationComponent from './infomation/UserInfomation';
+import UserInformationComponent from './infomation/UserInfomation';
 import { customerInfo, customerNotification, customerOrder } from '../../../../constant/FoodShoppingURL';
 import UserOrdersComponent from './order/UserOrders';
 import UserOrderComponent from './order/UserOrder';
@@ -14,9 +14,8 @@ import ModalComponent from '../../../shared/functions/modal/Modal';
 import { isCustomer } from '../../../../api/UserApi';
 
 export default function CustomerComponent(){
-    // const [customerInfo, setCustomerInfo] = useState<Customer>();
-    const sidebarRef = useRef(null)
     const location = useLocation()
+    const [isShowedSideBar, setIsShowedSideBar] = useState(false)
     const [selectedPath, setSelectedPath] = useState(0);
     const [modal, setModal] = useState<Modal>({
         title: 'Confirm action',
@@ -39,11 +38,11 @@ export default function CustomerComponent(){
             setSelectedPath(2);
         }
     }
-
+    // check customer authentication
     async function checkAuthenticationCustomer(){
         try {
             const res = await isCustomer();
-            if(res.status){
+            if(200<=res.status&&res.status<300){
                 const data = res.data;
                 const status = data.status;
                 if(!status) window.location.href="/"
@@ -53,11 +52,12 @@ export default function CustomerComponent(){
         }
     }
 
+    // click side bar
     function onClickShowSideBar(){
-        if(sidebarRef.current){
-            const sidebarEle = sidebarRef.current as HTMLDivElement;
-            sidebarEle.classList.toggle('show-side-bar')
-        }
+        toggleIsShowedSideBar();
+    }
+    const toggleIsShowedSideBar = ()=>{
+        setIsShowedSideBar(status => !status);
     }
     // logout
     function onClickLogoutButton(){
@@ -67,10 +67,11 @@ export default function CustomerComponent(){
         setModal(modal =>({...modal, isShowed:!modal.isShowed}))
     }
 
+    // confirm logout 
     const onClickConfirmModal = async ()=>{
         try {
             const res = await logout();
-            if(res.status){
+            if(200<=res.status&&res.status<300){
             }
         } catch (error) {
 
@@ -84,11 +85,10 @@ export default function CustomerComponent(){
             <div className="container my-5">
                 <nav className='z-3'>
                     <div className="logo cursor-pointer" onClick={onClickShowSideBar}>
-                        {/* <i className="bx bx-menu menu-icon"></i> */}
                         <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
                         <span className="logo-name">Phucx</span>
                     </div>
-                    <div className="sidebar"  ref={sidebarRef}>
+                    <div className={`sidebar ${isShowedSideBar?'show-side-bar':''}`}>
                         <div className="sidebar-content py-0">
                             <div className="logo cursor-pointer mx-0" onClick={onClickShowSideBar}>
                                 <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
@@ -135,8 +135,8 @@ export default function CustomerComponent(){
                 </nav>
                 <div >
                     <Routes>
-                        <Route path='*' element={<UserInfomationComponent/>}></Route>
-                        <Route path='info' element={<UserInfomationComponent/>}></Route>
+                        <Route path='*' element={<UserInformationComponent/>}></Route>
+                        <Route path='info' element={<UserInformationComponent/>}></Route>
                         <Route path='order' element={<UserOrdersComponent/>}></Route>
                         <Route path='order/:orderId' element={<UserOrderComponent/>}></Route>
                         <Route path='notification' element={<UserNotificationComponent/>}></Route>

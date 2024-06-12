@@ -12,10 +12,9 @@ public interface EmployeeOrderService {
     // processing order of customer
     public void confirmOrder(String orderID, String userID) throws InvalidOrderException, JsonProcessingException;
     public void cancelOrder(OrderWithProducts order, String userID) throws JsonProcessingException;
-    public void fulfillOrder(OrderWithProducts order) throws JsonProcessingException;
+    public void fulfillOrder(OrderWithProducts order, String userID) throws JsonProcessingException;
     // get orders
     public Page<OrderDetails> getOrders(String userID, OrderStatus status, int pageNumber, int pageSize) throws JsonProcessingException;
     // get order
     public OrderWithProducts getOrder(String orderID, String userID, OrderStatus status) throws JsonProcessingException;
-    public OrderWithProducts getPendingOrder(String orderID, String userID) throws JsonProcessingException;
 }

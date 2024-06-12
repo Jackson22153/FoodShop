@@ -193,4 +193,11 @@ public class EmployeeServiceImp implements EmployeeService {
             employeeID, employeeAccount.getFirstName(), 
             employeeAccount.getLastName());
     }
+
+    @Override
+    public Employee getEmployeeByUserID(String userID) {
+        Employee fetchedEmployee = employeeRepository.findByUserID(userID)
+            .orElseThrow(()-> new NotFoundException("Employee with UserID: " + userID + " does not found"));
+        return imageService.setEmployeeImage(fetchedEmployee);
+    }
 }

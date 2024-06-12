@@ -12,8 +12,6 @@ public interface MessageQueueService {
     public void sendNotification(NotificationDetail notification) throws JsonProcessingException;
     // send order to message queue
     public void sendOrder(OrderWithProducts order) throws JsonProcessingException;
-    // send message to employee's topic
-    public void sendOrderNotificationToEmployeeTopic(NotificationDetail notification);
     // send and receive data from other services
     public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String exchange, 
         String routingKey, Class<T> dataType) throws JsonProcessingException;

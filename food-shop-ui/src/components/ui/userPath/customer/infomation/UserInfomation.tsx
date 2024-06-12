@@ -7,7 +7,7 @@ import ModalComponent from "../../../../shared/functions/modal/Modal";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import { UserImageChangeInput } from "../../../../shared/functions/user-image-change-input/UserImageChangeInput";
 
-export default function UserInfomationComponent(){
+export default function UserInformationComponent(){
 
     const [customerInfo, setCustomerInfo] = useState<Customer>();
     const [modal, setModal] = useState<Modal>({
@@ -23,13 +23,16 @@ export default function UserInfomationComponent(){
     })
 
     useEffect(()=>{
-        fetchCustomerInfo()
-
+        initial();
     }, [])
 
+    const initial = ()=>{
+        fetchCustomerInfo()
+    }
+    // get customerinfo
     const fetchCustomerInfo = async ()=>{
         const res = await getCustomerInfo();
-        if(res.status){
+        if(200<=res.status&&res.status<300){
             const data = res.data;
             const customer = {
                 customerID: data.customerID,
@@ -44,28 +47,28 @@ export default function UserInfomationComponent(){
             setCustomerInfo(customer)
         }
     }
-
+    // change customer's info
     const onChangeCustomerInfo :ChangeEventHandler<HTMLInputElement> = (event)=>{
         if(customerInfo){
             const name = event.target.name;
             const value = event.target.value;
-            // console.log(`name: ${name}, value:${value}`)
             setCustomerInfo({...customerInfo, [name]:value})
         }
     }
-
+    // change customer's picture
     const onChangePicture = (imageSrc: string)=>{
         setCustomerInfo({...customerInfo, ['picture']:imageSrc})
     }
-
+    // enable edit information
     const onClickEditInfo = ()=>{
         setEditable((edit) => !edit)
     }
-
+    // update customer's information
     const onClickUpdate = async (event: FormEvent)=>{
         event.preventDefault();
         toggleModal();
     }
+    // confirm modal
     const toggleModal = ()=>{
         setModal(modal =>({...modal, isShowed:!modal.isShowed}))
     }
@@ -123,9 +126,7 @@ export default function UserInfomationComponent(){
                     </div>
                     <div className="col-md 6">
                         <div className="profile-head">
-                            <h5>
-                                Username: {customerInfo.username}
-                            </h5>
+                            <h5>Username: {customerInfo.username}</h5>
                         </div>
                         <div className="profile-about">
                             <div className="row my-3 justify-content-end">
@@ -196,7 +197,7 @@ export default function UserInfomationComponent(){
                                         <div className="col-md-5 mt-2">
                                             <button className="btn btn-primary" type="submit" onClick={onClickUpdate}
                                                 disabled={editable}>
-                                                Update{`\u00A0`}Infomation
+                                                Update{`\u00A0`}Information
                                             </button>
                                             <ModalComponent modal={modal} handleCloseButton={onClickCloseModal}
                                                 handleConfirmButton={onClickConfirmModal}/>

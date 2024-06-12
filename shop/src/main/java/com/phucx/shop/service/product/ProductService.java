@@ -7,8 +7,11 @@ import org.springframework.data.domain.Page;
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
+import com.phucx.shop.model.ProductStockTableType;
 
 public interface ProductService {
+    // update product units in stock
+    public Boolean updateProductsInStock(List<ProductStockTableType> productIDs);
     // update product detail
     public boolean updateProductDetail(ProductDetail productDetail);
     // insert product
@@ -19,7 +22,7 @@ public interface ProductService {
     public Page<CurrentProduct> getCurrentProduct(int pageNumber, int pageSize);
     public Page<CurrentProduct> getCurrentProductsByCategoryName(String categoryName, int pageNumber, int pageSize);
     public ProductDetail getProductDetail(int productID);
-
+    
     public Product getProduct(int productID);
     public Product getProduct(Integer productID, Boolean discontinued);
     public List<Product> getProducts();

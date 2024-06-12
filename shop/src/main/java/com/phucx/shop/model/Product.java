@@ -1,12 +1,15 @@
 package com.phucx.shop.model;
 
 import java.math.BigDecimal;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedStoredProcedureQueries;
+import jakarta.persistence.NamedStoredProcedureQuery;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +20,20 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Products")
+@NamedStoredProcedureQueries({
+    @NamedStoredProcedureQuery(name = "Product.updateProductUnitsInStock", procedureName = "updateProductUnitsInStock",
+        parameters = {
+            @StoredProcedureParameter(name="productID", mode = ParameterMode.IN, type = Integer.class),
+            @StoredProcedureParameter(name="unitsInStock", mode = ParameterMode.IN, type = Integer.class),
+            @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
+        }),
+    @NamedStoredProcedureQuery(name = "Product.updateProductsUnitsInStock", procedureName = "updateProductUnitsInStock",
+        parameters = {
+            @StoredProcedureParameter(name="productIDs", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="unitsInStocks", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
+        })
+})
 public class Product {
     @Id
     @GeneratedValue(generator = "native", strategy = GenerationType.AUTO)

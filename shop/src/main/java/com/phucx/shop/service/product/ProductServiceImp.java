@@ -1,20 +1,20 @@
 package com.phucx.shop.service.product;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
+import com.phucx.shop.model.ProductStockTableType;
 import com.phucx.shop.repository.CurrentProductRepository;
 import com.phucx.shop.repository.ProductDetailRepository;
 import com.phucx.shop.repository.ProductRepository;
 import com.phucx.shop.service.image.ImageService;
-
 import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -150,12 +150,15 @@ public class ProductServiceImp implements ProductService{
     @Override
     public Page<CurrentProduct> getRecommendedProductsByCategory(
         int productID, String categoryName, int pageNumber, int pageSize) {
-
+        
         log.info("getRecommendedProductsByCategory(productID={}, categoryName={}, pageNumber={}, pageSize={})", 
             productID, categoryName, pageNumber, pageSize);
+        // replace '-' with "_" for like syntax in sql server
+        categoryName = categoryName.replaceAll("-", "_");
+            
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CurrentProduct> products = currentProductRepository
-            .findRandomByCategoryName(productID, categoryName, page);
+            .findRandomLikeCategoryNameWithoutProductID(productID, categoryName, page);
         imageService.setCurrentProductsImage(products.getContent());
         return products;
     }
@@ -214,6 +217,22 @@ public class ProductServiceImp implements ProductService{
         log.info("getCurrentProducts(productIDs={})", productIDs);
         List<CurrentProduct> products = this.currentProductRepository.findAll();
         return this.imageService.setCurrentProductsImage(products);
+    }
+
+    @Override
+    public Boolean updateProductsInStock(List<ProductStockTableType> productStocks) {
+        log.info("updateProductsInStock(productStocks={})", productStocks);
+        List<String> productIDs = new ArrayList<>();
+        List<String> unitsInStocks = new ArrayList<>();
+        for (ProductStockTableType productStock : productStocks) {
+            productIDs.add(String.valueOf(productStock.getProductID()));
+            unitsInStocks.add(String.valueOf(productStock.getUnitsInStock()));
+        }
+        String productIDsStr = String.join(",", productIDs);
+        String unitsInStocksStr = String.join(",", unitsInStocks);
+        
+        Boolean status = productRepository.updateProductsUnitsInStock(productIDsStr, unitsInStocksStr);
+        return status;
     }
 
 }

@@ -15,6 +15,6 @@ import lombok.ToString;
 public class ProductDTO extends DataDTO{
     private Integer productID;
     private List<Integer> productIds;
-    private List<Product> products;
+    private List<ProductStockTableType> productStocks;
 
 }

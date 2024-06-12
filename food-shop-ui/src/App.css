@@ -118,6 +118,8 @@ ins{
   position: absolute;
   left: 10px;
 }
+
+.order-badge,
 .cart-badge{
   position: absolute !important;
   top: -8px !important;

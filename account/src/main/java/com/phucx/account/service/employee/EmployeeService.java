@@ -9,6 +9,7 @@ import com.phucx.account.model.Employee;
 public interface EmployeeService {
     // get employee
     public Employee getEmployee(String employeeID);
+    public Employee getEmployeeByUserID(String userID);
     public EmployeeDetails getEmployeeByID(String employeeID);
     public EmployeeDetail getEmployeeDetail(String username);
     public Page<EmployeeAccount> getAllEmployees(int pageNumber, int pageSize);

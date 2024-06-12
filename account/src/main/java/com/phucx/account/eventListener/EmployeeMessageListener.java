@@ -14,7 +14,10 @@ import com.phucx.account.constant.EventType;
 import com.phucx.account.model.Employee;
 import com.phucx.account.model.EmployeeDTO;
 import com.phucx.account.model.EventMessage;
+import com.phucx.account.model.User;
 import com.phucx.account.service.employee.EmployeeService;
+import com.phucx.account.service.user.UserService;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 public class EmployeeMessageListener {
     @Autowired
     private EmployeeService employeeService;
+    @Autowired
+    private UserService userService;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -46,7 +51,19 @@ public class EmployeeMessageListener {
                 responseMessage.setPayload(fetchedEmployee);
                 responseMessage.setEventType(EventType.ReturnEmployeeByID);
             }else if(employeeDTO.getEventType().equals(EventType.GetEmployeeByUserID)){
-                
+                // get employee by id
+                String userID = payload.getUserID();
+                Employee fetchedEmployee = employeeService.getEmployeeByUserID(userID);
+                // set response message
+                responseMessage.setPayload(fetchedEmployee);
+                responseMessage.setEventType(EventType.ReturnEmployeeByUserID);
+            }else if(employeeDTO.getEventType().equals(EventType.GetUserByEmployeeID)){
+                // get user by employeeID
+                String employeeID = payload.getEmployeeID();
+                User fetchedUser = userService.getUserByEmployeeID(employeeID);
+                // set response message
+                responseMessage.setPayload(fetchedUser);
+                responseMessage.setEventType(EventType.ReturnUserByEmployeeID);
             }
             String response = objectMapper.writeValueAsString(responseMessage);
             return response;

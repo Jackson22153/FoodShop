@@ -28,7 +28,9 @@ export default function NotificationDropdown(prop:Props){
 
     const initial = ()=>{
         // add new notification message
-        if(notificationMessage) setNotifications([...notifications, notificationMessage])
+        if(notificationMessage) {
+            setNotifications([...notifications, notificationMessage])
+        }
         // get user's notifications
         const pageNumber = getPageNumber();
         getUserNotifications(pageNumber);

@@ -1,7 +1,7 @@
 
 import axios from "axios";
-import { EmployeeInfoUrl, EmployeeOrdersUrl, 
-    EmployeePendingOrdersUrl, IsEmployeeUrl} from "../constant/FoodShoppingApiURL";
+import { EmployeeInfoUrl, IsEmployeeUrl} 
+    from "../constant/FoodShoppingApiURL";
 
 export function isEmployee(){
     return axios.get(IsEmployeeUrl,{
@@ -26,40 +26,5 @@ export function updateEmployeeInfo(employeeInfo){
             'Content-Type': 'application/json',
         }
     })
-}
-// get orders
-export function getOrders(pageNumber, type){
-    return axios.get(`${EmployeeOrdersUrl}?page=${pageNumber}&type=${type}`, {
-        withCredentials: true,
-        headers:{
-            'Content-Type': 'application/json',
-        }
-    });
-}
-// get order detail
-export function getOrderDetail(orderID){
-    return axios.get(`${EmployeeOrdersUrl}/${orderID}`, {
-        withCredentials: true,
-        headers:{
-            'Content-Type': 'application/json',
-        }
-    });
-}
-// get all pending order
-export function getPendingOrders(pageNumber){
-    return axios.get(`${EmployeePendingOrdersUrl}?page=${pageNumber}`, {
-        withCredentials: true,
-        headers:{
-            'Content-Type': 'application/json',
-        }
-    });
-}
-export function getPendingOrder(orderID){
-    return axios.get(`${EmployeePendingOrdersUrl}/${orderID}`, {
-        withCredentials: true,
-        headers:{
-            'Content-Type': 'application/json',
-        }
-    });
 }
 

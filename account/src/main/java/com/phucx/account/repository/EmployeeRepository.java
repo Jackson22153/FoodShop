@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.phucx.account.model.Employee;
 
 import jakarta.validation.constraints.Size;
+import java.util.Optional;
+
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, String>{
@@ -33,4 +35,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, String>{
     Integer updateEmployee(@Size(max = 10)String firstName, @Size(max = 20) String lastName, 
         LocalDate birthDate, @Size(max = 200)String address,@Size(max = 50) String city,
         @Size(max = 24)String homePhone, String photo, @Size(min = 36, max = 36) String employeeID);
+
+    Optional<Employee> findByUserID(String userID);
 }

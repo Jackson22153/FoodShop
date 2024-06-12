@@ -11,11 +11,12 @@ public enum EventType {
     // product
     GetProductByID,
     GetProductsByIDs,
-    
+    UpdateProductsUnitsInStock,
     // return
     // product
     ReturnProductByID,
     ReturnProductsByIDs,
+    ReturnUpdateProductsUnitsInStock,
     // customer
     ReturnCustomerByUserID,
     ReturnCustomersByIDs,

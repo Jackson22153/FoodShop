@@ -3,7 +3,7 @@ import { Stomp } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 
 var stompClient = null;
-export const notificationReceiveConnect = (getMessageCallback)=>{
+export const customerReceiveNotificationConnect = (getMessageCallback)=>{
     stompClient = Stomp.over(()=> new SockJS(NotificationServiceWsUrl));
     stompClient.connect({},()=> onConnectNotification(getMessageCallback), onConnectFailure);
 }

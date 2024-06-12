@@ -20,7 +20,7 @@ public enum EventType {
     // product request
     GetProductByID,
     GetProductsByIDs,
-    UpdateProductInStocks,
+    UpdateProductsUnitsInStock,
     // order request
     GetOrderInvoiceByIdAndCustomerID,
     GetOrdersByCustomerID,
@@ -39,7 +39,7 @@ public enum EventType {
     // product response
     ReturnProductByID,
     ReturnProductsByIDs,
-    ReturnUpdateProductInStocks,
+    ReturnUpdateProductsUnitsInStock,
     // shipper response
     ReturnShipperByID,
     // customer response

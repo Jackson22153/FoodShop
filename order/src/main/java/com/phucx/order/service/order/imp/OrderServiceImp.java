@@ -25,11 +25,13 @@ import com.phucx.order.model.Invoice;
 import com.phucx.order.model.InvoiceDetails;
 import com.phucx.order.model.OrderItem;
 import com.phucx.order.model.OrderItemDiscount;
+import com.phucx.order.model.OrderSummary;
 import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.model.Order;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderDetailExtended;
 import com.phucx.order.model.ProductDiscountsDTO;
+import com.phucx.order.model.ProductStockTableType;
 import com.phucx.order.model.Product;
 import com.phucx.order.repository.InvoiceRepository;
 import com.phucx.order.repository.OrderDetailDiscountRepository;
@@ -138,7 +140,7 @@ public class OrderServiceImp implements OrderService{
         log.info("validateAndProcessOrder({})", order.toString());
         if(order!=null && order.getProducts().size()>0){
             // store product's new instock
-            List<Product> updateProductsInStock = new ArrayList<>();
+            List<ProductStockTableType> updateProductsInStock = new ArrayList<>();
             // get product in order
             List<OrderItem> products = order.getProducts();
             List<Integer> productIds = products.stream().map(OrderItem::getProductID).collect(Collectors.toList());
@@ -172,13 +174,13 @@ public class OrderServiceImp implements OrderService{
                     throw new RuntimeException("Product "+product.getProductName()+" does not have enough stocks in inventory");
                 }
                 // add product new in stock
-                Product newProduct = new Product();
-                newProduct.setProductID(product.getProductID());
-                newProduct.setUnitsInStock(inStocks-orderQuantity);
-                updateProductsInStock.add(newProduct);
+                ProductStockTableType newProductStock = new ProductStockTableType();
+                newProductStock.setProductID(product.getProductID());
+                newProductStock.setUnitsInStock(inStocks-orderQuantity);
+                updateProductsInStock.add(newProductStock);
             }
             // update product's instocks
-            Boolean status = productService.updateProductInStocks(updateProductsInStock);
+            Boolean status = productService.updateProductsInStocks(updateProductsInStock);
             if(!status) throw new RuntimeException("Can not update product in stocks");
             return true;
         }
@@ -309,6 +311,7 @@ public class OrderServiceImp implements OrderService{
         List<Invoice> invoices = invoiceRepository.findByOrderIDAndCustomerID(orderID, customerID);
         if(invoices==null || invoices.isEmpty()) 
             throw new NotFoundException("Invoice " + orderID + " of customer "+ customerID + " does not found");
+        log.info("Invoices: {}", invoices);
         InvoiceDetails invoice = convertOrderService.convertInvoiceDetails(invoices);
         return invoice;
     }
@@ -374,5 +377,30 @@ public class OrderServiceImp implements OrderService{
             .findAllByStatusOrderByDesc(status, pageable);
         List<OrderDetails> orderDetailss = convertOrderService.convertOrders(orders.getContent());
         return new PageImpl<>(orderDetailss, pageable, orders.getTotalElements());
+    }
+
+    @Override
+    public OrderWithProducts getOrderByEmployeeID(String employeeID, String orderID, OrderStatus orderStatus)
+            throws JsonProcessingException {
+        log.info("getOrderByEmployeeID(employeeID={}, orderID={}, orderStatus={})", employeeID, orderID, orderStatus);
+        Order order = orderRepository.findByOrderIDAndEmployeeIDAndStatus(orderID, employeeID, orderStatus)
+            .orElseThrow(()-> new NotFoundException("Order " + orderID + " of employee "+ employeeID + " does not found"));
+        return convertOrderService.convertOrderWithProducts(order);
+    }
+
+
+    private Long countOrderByStatus(OrderStatus status) {
+        Long totalOrders = orderRepository.countOrderByStatus(status)
+        .orElseThrow(()-> new RuntimeException("Error occured while counting orders"));
+        return totalOrders;
+    }
+
+    @Override
+    public OrderSummary getOrderSummary() {
+        OrderSummary summary = new OrderSummary();
+        // total pending orders
+        Long totalOfPendingOrders = this.countOrderByStatus(OrderStatus.Pending);
+        summary.setTotalPendingOrders(totalOfPendingOrders);
+        return summary;
     }
 }

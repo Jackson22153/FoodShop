@@ -9,8 +9,6 @@ public class MessageQueueConstant {
     public final static String PRODUCT_ROUTING_KEY = "productqueue";
     // discount routing key
     public final static String DISCOUNT_ROUTING_KEY = "discountqueue";
-    // user routing key
-    public final static String USER_ROUTING_KEY = "userqueue";
     //  customer routing key
     public final static String CUSTOMER_ROUTING_KEY = "customerqueue";
     //  employee routing key

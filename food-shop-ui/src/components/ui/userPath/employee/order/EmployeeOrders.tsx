@@ -1,20 +1,20 @@
-import { useEffect, useRef, useState } from "react";
-import { OrderDetail, Pageable } from "../../../../../model/Type";
+import { useContext, useEffect, useRef, useState } from "react";
+import { Notification, OrderDetail, OrderSummary, Pageable } from "../../../../../model/Type";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
 import { getPageNumber } from "../../../../../service/pageable";
 import { displayProductImage, displayUserImage } from "../../../../../service/image";
 import { employeeConfirmedOrder, employeeOrder, employeePendingOrder } from "../../../../../constant/FoodShoppingURL";
-import { getOrders, getPendingOrders } from "../../../../../api/EmployeeApi";
 import { ORDER_STATUS } from "../../../../../constant/config";
-import { CompatClient } from "@stomp/stompjs";
-import { CancelOrderWsUrl, ConfirmOrderWsUrl, FulfillOrderWsUrl } from "../../../../../constant/FoodShoppingApiURL";
-import { getAccessToken } from "../../../../../service/cookie";
+import { cancelOrder, confirmOrder, fulfillOrder, getOrderSummary, getOrders } from "../../../../../api/OrderApi";
+import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
 
 export default function EmployeeOrdersComponent(){
-    const [pendingOrders, setPendingOrders] = useState<OrderDetail[]>([])
     const [listOrders, setListOrders] = useState<OrderDetail[]>([])
+    const [orderSummary, setOrderSummary] = useState<OrderSummary>({
+        totalPendingOrders: 0
+    })
+    const notificationMessage = useContext<Notification|undefined>(notificationMessagesContext)
     const navHeaderRef = useRef(null)
-    const stompClientAccount = useRef<CompatClient | null>(null);
     const pendingOrdersRef = useRef<any>(null);
     const [selectedTagOrder, setSelectedTagOrder] = useState(0); 
     const [page, setPage] = useState<Pageable>({
@@ -27,18 +27,19 @@ export default function EmployeeOrdersComponent(){
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [notificationMessage])
 
     function initial(){
-        // connectReceiveOrderEmployee(getNewPendingOrder);
+        if(notificationMessage) console.log(notificationMessage)
         const pageNumber = getPageNumber();
-        // fetchPendingOrders(pageNumber);
+        fetchOrderSummary();
+        fetchOrders(pageNumber, ORDER_STATUS.PENDING);
     }
 
+    // get orders
     async function fetchOrders(pageNumber: number, type: string){
         const res = await getOrders(pageNumber, type)
         if(res.status){
-            // console.log(res.data)
             const data = res.data;
             setListOrders(data.content)
             setPage({
@@ -50,64 +51,85 @@ export default function EmployeeOrdersComponent(){
         }
     }
 
-    // async function fetchPendingOrders(pageNumber: number){
-    //     const res = await getPendingOrders(pageNumber)
-    //     if(res.status){
-    //         const data = res.data;
-    //         setPendingOrders(data.content)
-    //         // console.log(data)
-    //         setPage({
-    //             first: data.first,
-    //             last: data.last,
-    //             number: data.number,
-    //             totalPages: data.totalPages
-    //         });
-    //     }
-    // }
-
-    // get new pending order
-    function getNewPendingOrder(newOrder: any){
-        if(newOrder){
-            // fetchPendingOrders(page.number);
-            setPendingOrders([...pendingOrders, newOrder]);
+    // get order summary
+    const fetchOrderSummary = async ()=>{
+        const res = await getOrderSummary();
+        if(200<=res.status&&res.status<300){
+            const data = res.data;
+            setOrderSummary(data);
+            console.log(data);
         }
     }
-
 
     // process order
+    // click confirm order
     const onClickConfirmOrder = (order: OrderDetail)=>{
-        if(stompClientAccount.current && order){
-            stompClientAccount.current.send(ConfirmOrderWsUrl, {
-                "Authorization": `Bearer ${getAccessToken()}`
-            }, JSON.stringify({
+        employeeConfirmOrder(order)
+    }
+    // confirm order
+    const employeeConfirmOrder = async (order: OrderDetail)=>{
+        try {
+            const data = {
                 orderID: order.orderID,
                 customerID: order.customerID
-            }))
+            }
+            const res = await confirmOrder(data);
+            if(200<=res.status&&res.status<300){
+    
+            }
+        } catch (error) {
+            
+        } finally{
             window.location.reload();
         }
     }
+
+    // fullfill order
     const onClickFullFillOrder = (order: OrderDetail)=>{
-        if(stompClientAccount.current && order){
-            stompClientAccount.current.send(FulfillOrderWsUrl, {
-                "Authorization": `Bearer ${getAccessToken()}`
-            }, JSON.stringify({
+        employeeFullfillOrder(order);
+    }
+    // fullfill order
+    const employeeFullfillOrder = async (order: OrderDetail)=>{
+        try {
+            const data = {
                 orderID: order.orderID,
                 customerID: order.customerID
-            }))
+            }
+            const res = await fulfillOrder(data);
+            if(200<=res.status&&res.status<300){
+    
+            }
+        } catch (error) {
+            
+        } finally{
             window.location.reload();
         }
     }
+
+    // cancel order
     const onClickCancelOrder = (order: OrderDetail)=>{
-        if(stompClientAccount.current && order){
-            stompClientAccount.current.send(CancelOrderWsUrl, {
-                "Authorization": `Bearer ${getAccessToken()}`
-            }, JSON.stringify({
+        employeeCancelOrder(order);
+    }
+    // cancel order
+    const employeeCancelOrder = async (order: OrderDetail)=>{
+        try {
+            const data = {
                 orderID: order.orderID,
                 customerID: order.customerID
-            }))
+            }
+            const res = await cancelOrder(data);
+            if(200<=res.status&&res.status<300){
+    
+            }
+        } catch (error) {
+            
+        } finally{
             window.location.reload();
         }
     }
+
+
+
     // select order tab
     const onClickNavTab = (tab: number)=>{
         setIsPendingOrder(false);
@@ -118,7 +140,6 @@ export default function EmployeeOrdersComponent(){
             case 0:{
                 setIsPendingOrder(true);
                 fetchOrders(page.number, ORDER_STATUS.PENDING);
-                // fetchPendingOrders(page.number);
                 break;
             }
             // confirmed orders
@@ -155,7 +176,14 @@ export default function EmployeeOrdersComponent(){
   
                 <li className="nav-item" role="presentation">
                     <span className={`nav-link text-dark ${selectedTagOrder===0 ?'active':''}`}
-                        id="pending-order-tab" role="tab" onClick={(_e)=>onClickNavTab(0)}>Pending Orders</span>
+                        id="pending-order-tab" role="tab" onClick={(_e)=>onClickNavTab(0)}>
+                        Pending Orders
+                        {orderSummary.totalPendingOrders>0 &&
+                            <span className="order-badge badge rounded-pill badge-notification bg-danger z-1">
+                                {orderSummary.totalPendingOrders}
+                            </span>
+                        }
+                    </span>
                 </li>
                 <li className="nav-item" role="presentation">
                     <span className={`nav-link text-dark ${selectedTagOrder===1 ?'active':''}`}
@@ -182,8 +210,8 @@ export default function EmployeeOrdersComponent(){
 
                 {selectedTagOrder===0 ?
                     <ul className={`list-group pending-orders fade ${isPendingOrder?'show':''}`} ref={pendingOrdersRef}>
-                        {pendingOrders.length>0 ?
-                            pendingOrders.map((order) =>(
+                        {listOrders.length>0 ?
+                            listOrders.map((order) =>(
                                 <li className="list-group-item cursor-default my-2 box-shadow-default py-3 order-item" key={order.orderID}>
                                     <div className="d-flex align-items-center">
                                         <p className="h6 mx-3">OrderID: #{order.orderID}</p>

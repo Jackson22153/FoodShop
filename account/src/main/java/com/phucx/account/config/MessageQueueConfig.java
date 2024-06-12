@@ -9,9 +9,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MessageQueueConfig {
-    //  user queue
-    public final static String USER_QUEUE = "userqueue";
-    public final static String USER_ROUTING_KEY = "userqueue";
     //  customer queue
     public final static String CUSTOMER_QUEUE = "customerqueue";
     public final static String CUSTOMER_ROUTING_KEY = "customerqueue";
@@ -27,15 +24,6 @@ public class MessageQueueConfig {
     @Bean
     public DirectExchange accountExchange(){
         return new DirectExchange(ACCOUNT_EXCHANGE);
-    }
-    // user queue
-    @Bean
-    public Queue userQueue(){
-        return new Queue(USER_QUEUE, false);
-    }
-    @Bean
-    public Binding bindingUserQueue(Queue userQueue, DirectExchange accountExchange){
-        return BindingBuilder.bind(userQueue).to(accountExchange).with(USER_ROUTING_KEY);
     }
     // customer queue
     @Bean
@@ -64,17 +52,4 @@ public class MessageQueueConfig {
     public Binding bindingShipperQueue(Queue shipperQueue, DirectExchange accountExchange){
         return BindingBuilder.bind(shipperQueue).to(accountExchange).with(SHIPPER_ROUTING_KEY);
     }
-
-    // // message queue configuration
-    // @Bean
-    // public MessageConverter messageConverter() {
-    //     Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
-    //     return converter;
-    // }
-    // @Bean
-    // public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
-    //     RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-    //     // rabbitTemplate.setMessageConverter(messageConverter());
-    //     return rabbitTemplate;
-    // }
 }

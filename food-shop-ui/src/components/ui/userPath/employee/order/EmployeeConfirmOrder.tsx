@@ -1,76 +1,75 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
 import { OrderWithProduct } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/image";
-import { getOrderDetail } from "../../../../../api/EmployeeApi";
 import dayjs from "dayjs";
-import { CancelOrderWsUrl, FulfillOrderWsUrl, QUEUE_MESSAGES } from "../../../../../constant/FoodShoppingApiURL";
-import { employeeOrder } from "../../../../../constant/FoodShoppingURL";
-import { getAccessToken } from "../../../../../service/cookie";
-import { CompatClient, Stomp } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
+import { cancelOrder, confirmOrder, getOrderDetail } from "../../../../../api/OrderApi";
+import { ORDER_STATUS } from "../../../../../constant/config";
 
 export default function EmployeeConfirmedOrderComponent(){
     const { orderId } = useParams();
     const [orderInfo, setOrderInfo] = useState<OrderWithProduct>();
-    const stompClientAccount = useRef<CompatClient | null>(null);
 
     useEffect(()=>{
-        fetchOrder();
-        // connectEmployee();
+        initial();
     }, [])
 
-    // const connectEmployee = ()=>{
-    //     stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
-    //     stompClientAccount.current.connect({
-    //         "Authorization": `Bearer ${getAccessToken()}`,
-    //     }, onEmployeeConnect, stompFailureCallback);
-    // }
-
-    function stompFailureCallback(error: any){
-        if(stompClientAccount.current){
-            console.error(error)
-        }
+    const initial = ()=>{
+        fetchOrder();
     }
-
-    const onEmployeeConnect = ()=>{
-        if(stompClientAccount.current){
-            // console.log(stompClientAccount.current)
-            stompClientAccount.current.subscribe(QUEUE_MESSAGES, onMessageRecieveSuccessfully, {
-                "Authorization": `Bearer ${getAccessToken()}`,
-                'auto-delete': 'true'
-            })
-        }
-    }
-
-    const onMessageRecieveSuccessfully = (payload: any)=>{
-        const message = JSON.parse(payload.body);
-        console.log(message)
-    }
-
+    // get order
     const fetchOrder = async ()=>{
-        const res = await getOrderDetail(orderId);
+        const res = await getOrderDetail(orderId, ORDER_STATUS.CONFIRMED);
         if(res.status){
             const data = res.data;
             setOrderInfo(data);
         }
     }
-    // confirm 
-    const onClickConfirmButton = ()=>{
-        if(stompClientAccount.current && orderInfo){
-            stompClientAccount.current.send(FulfillOrderWsUrl, {
-                "Authorization": `Bearer ${getAccessToken()}`,
-            }, JSON.stringify(orderInfo));
-            window.location.href=employeeOrder;
+
+    // confirm order
+    // click confirm order
+    const onClickConfirmOrder = (event: any)=>{
+        event.preventDefault();
+        employeeConfirmOrder(orderInfo)
+    }
+    // confirm order
+    const employeeConfirmOrder = async (order: OrderWithProduct)=>{
+        try {
+            const data = {
+                orderID: order.orderID,
+                customerID: order.customerID
+            }
+            const res = await confirmOrder(data);
+            if(200<=res.status&&res.status<300){
+    
+            }
+        } catch (error) {
+            
+        } finally{
+            window.location.reload()
         }
     }
-    // cancel
-    const onClickCancelButton = ()=>{
-        if(stompClientAccount.current && orderInfo){
-            stompClientAccount.current.send(CancelOrderWsUrl, {
-                "Authorization": `Bearer ${getAccessToken()}`,
-            }, JSON.stringify(orderInfo));
-            window.location.href=employeeOrder;
+
+    // cancel order
+    const onClickCancelOrder = (event: any)=>{
+        event.preventDefault();
+        employeeCancelOrder(orderInfo);
+    }
+    // cancel order
+    const employeeCancelOrder = async (order: OrderWithProduct)=>{
+        try {
+            const data = {
+                orderID: order.orderID,
+                customerID: order.customerID
+            }
+            const res = await cancelOrder(data);
+            if(200<=res.status&&res.status<300){
+    
+            }
+        } catch (error) {
+            
+        } finally{
+            window.location.reload();
         }
     }
 
@@ -197,8 +196,8 @@ export default function EmployeeConfirmedOrderComponent(){
                             </div>
                         </div>
                         <div className="d-flex justify-content-end">
-                            <button className="btn mx-3 btn-primary" onClick={onClickCancelButton}>Cancel</button>
-                            <button className="btn btn-primary" onClick={onClickConfirmButton}>FullFil Order</button>
+                            <button className="btn mx-3 btn-primary" onClick={onClickCancelOrder}>Cancel</button>
+                            <button className="btn btn-primary" onClick={onClickConfirmOrder}>FullFil Order</button>
                         </div>
                     </div>
                 </div>

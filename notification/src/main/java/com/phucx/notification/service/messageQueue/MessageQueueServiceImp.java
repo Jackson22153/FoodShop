@@ -60,6 +60,7 @@ public class MessageQueueServiceImp implements MessageQueueService{
 
     @Override
     public void sendOrderNotificationToEmployeeTopic(NotificationDetail notification) {
+        log.info("sendOrderNotificationToEmployeeTopic({})", notification);
         notificationService.createNotification(notification);
         // send notification to notification/order topic
         this.simpMessagingTemplate.convertAndSend(WebSocketConstant.TOPIC_EMPLOYEE_NOTIFICAITON_ORDER, notification);

@@ -2,7 +2,6 @@ package com.phucx.order.service.messageQueue;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -10,7 +9,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.order.config.MessageQueueConfig;
 import com.phucx.order.constant.MessageQueueConstant;
-import com.phucx.order.constant.WebSocketConstant;
 import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.NotificationDetail;
@@ -22,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MessageQueueServiceImp implements MessageQueueService{
     @Autowired
     private RabbitTemplate rabbitTemplate;
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -65,10 +61,5 @@ public class MessageQueueServiceImp implements MessageQueueService{
         String message = objectMapper.writeValueAsString(notification);
         this.rabbitTemplate.convertAndSend(MessageQueueConstant.NOTIFICATION_EXCHANGE, 
             MessageQueueConstant.NOTIFICATION_ORDER_ROUTING_KEY, message);
-    }
-    @Override
-    public void sendOrderNotificationToEmployeeTopic(NotificationDetail notification) {
-        log.info("sendOrderNotificationToEmployeeTopic({})", notification);
-        this.simpMessagingTemplate.convertAndSend(WebSocketConstant.TOPIC_EMPLOYEE_NOTIFICAITON_ORDER, notification);
     }
 }

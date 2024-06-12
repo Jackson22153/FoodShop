@@ -15,6 +15,8 @@ import com.phucx.shop.constant.EventType;
 import com.phucx.shop.model.EventMessage;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDTO;
+import com.phucx.shop.model.ProductStockTableType;
+import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.service.product.ProductService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +55,11 @@ public class ProductMessageListener {
                 // set response message
                 responseMessage.setEventType(EventType.ReturnProductsByIDs);
                 responseMessage.setPayload(product);
+            }else if(eventMessage.getEventType().equals(EventType.UpdateProductsUnitsInStock)){
+                List<ProductStockTableType> productStocks = payload.getProductStocks();
+                Boolean status = productService.updateProductsInStock(productStocks);
+                responseMessage.setEventType(EventType.ReturnUpdateProductsUnitsInStock);
+                responseMessage.setPayload(new ResponseFormat(status));
             }
             return objectMapper.writeValueAsString(responseMessage);
         } catch (Exception e) {

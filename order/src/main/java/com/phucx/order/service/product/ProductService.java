@@ -4,10 +4,11 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.model.Product;
+import com.phucx.order.model.ProductStockTableType;
 
 public interface ProductService {
     // update product's instocks
-    public Boolean updateProductInStocks(List<Product> products) throws JsonProcessingException;
+    public Boolean updateProductsInStocks(List<ProductStockTableType> productStocks) throws JsonProcessingException;
     // get product
     public List<Product> getProducts(List<Integer> productIDs) throws JsonProcessingException;
     public Product getProduct(int productID) throws JsonProcessingException;

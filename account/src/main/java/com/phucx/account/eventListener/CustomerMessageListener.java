@@ -17,7 +17,9 @@ import com.phucx.account.constant.EventType;
 import com.phucx.account.model.Customer;
 import com.phucx.account.model.CustomerDTO;
 import com.phucx.account.model.EventMessage;
+import com.phucx.account.model.User;
 import com.phucx.account.service.customer.CustomerService;
+import com.phucx.account.service.user.UserService;
 
 @Slf4j
 @Component
@@ -25,6 +27,8 @@ import com.phucx.account.service.customer.CustomerService;
 public class CustomerMessageListener {
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private UserService userService;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -61,6 +65,13 @@ public class CustomerMessageListener {
                 // set response message
                 responseMessage.setPayload(fetchedCustomer);
                 responseMessage.setEventType(EventType.ReturnCustomerByUserID);
+            }else if(customerDTO.getEventType().equals(EventType.GetUserByCustomerID)){
+                // get user by customerID
+                String customerID = payload.getCustomerID();
+                User fetchedUser = userService.getUserByCustomerID(customerID);
+                // set response message
+                responseMessage.setPayload(fetchedUser);
+                responseMessage.setEventType(EventType.ReturnUserByCustomerID);
             }
             String response = objectMapper.writeValueAsString(responseMessage);
             return response;

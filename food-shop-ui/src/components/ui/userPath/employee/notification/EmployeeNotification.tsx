@@ -29,7 +29,9 @@ export default function EmployeeNotificationComponent(){
     }, [notificationMessage])
 
     const initial = ()=>{
-        if(notificationMessage) setNotifications([...notifications, notificationMessage])
+        if(notificationMessage) {
+            setNotifications([...notifications, notificationMessage])
+        }
         const pageNumber = getPageNumber();
         fetchNotifications(pageNumber);
     }
@@ -86,7 +88,6 @@ export default function EmployeeNotificationComponent(){
             const res = await markAllAsReadEmployeeNotifications();
             if(200<=res.status && res.status<300){
                 const data = res.data
-                console.log(data)
                 const status = data.status;
                 setAlert({
                     message: status?'All messages have been marked as read': 'All messages can not be marked as read',

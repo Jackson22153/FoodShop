@@ -14,6 +14,7 @@ import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Product;
 import com.phucx.order.model.ProductDTO;
+import com.phucx.order.model.ProductStockTableType;
 import com.phucx.order.model.ResponseFormat;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 
@@ -66,16 +67,16 @@ public class ProductServiceImp implements ProductService{
         return response.getPayload();
     }
     @Override
-    public Boolean updateProductInStocks(List<Product> products) throws JsonProcessingException {
-        log.info("updateProductInStocks(products={})", products);
-        ProductDTO productDProductDTO = new ProductDTO();
-        productDProductDTO.setProducts(products);
+    public Boolean updateProductsInStocks(List<ProductStockTableType> productStocks) throws JsonProcessingException {
+        log.info("updateProductInStocks(productStocks={})", productStocks);
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setProductStocks(productStocks);
         // create a request message
         String eventID = UUID.randomUUID().toString();
         EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
-        eventMessage.setEventType(EventType.GetProductByID);
-        eventMessage.setPayload(productDProductDTO);
+        eventMessage.setEventType(EventType.UpdateProductsUnitsInStock);
+        eventMessage.setPayload(productDTO);
         // receive data
         EventMessage<ResponseFormat> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
@@ -84,18 +85,4 @@ public class ProductServiceImp implements ProductService{
         log.info("response={}", response);
         return response.getPayload().getStatus();
     }
-
-    // @Override
-    // public Boolean updateProductInStocks(int productID, int value) {
-    //     Product product = this.getProduct(productID);
-    //     Integer check = productRepository.updateProductInStocks(product.getProductID(), value);
-    //     if(check>0) return true;
-    //     return false;
-    // }
-
-    // @Override
-    // public List<Product> getProducts(List<Integer> productIDs) {
-    //     return productRepository.findAllById(productIDs);
-    // }
-    
 }

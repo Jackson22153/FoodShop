@@ -33,15 +33,14 @@ public class MessageQueueServiceImp implements MessageQueueService{
     }
     @Override
     public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> message, String exchange,
-            String routingKey, TypeReference<T> dataType) throws JsonProcessingException {
+            String routingKey, TypeReference<EventMessage<T>> dataType) throws JsonProcessingException {
         log.info("sendAndReceiveData(message={}, exchange={}, routingKey={}, className={})", 
             message, exchange, routingKey, dataType.toString());
         String messageJson = objectMapper.writeValueAsString(message);
         // send and receive message
         String responseMessage = (String) this.rabbitTemplate.convertSendAndReceive(exchange, routingKey, messageJson);
         // convert message
-        TypeReference<EventMessage<T>> typeReference = new TypeReference<EventMessage<T>>() {};
-        EventMessage<T> response = objectMapper.readValue(responseMessage, typeReference);
+        EventMessage<T> response = objectMapper.readValue(responseMessage, dataType);
         return response;
     }
 }

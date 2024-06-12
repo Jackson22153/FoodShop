@@ -5,9 +5,6 @@ public class MessageQueueConstant {
     public final static String ORDER_EXCHANGE = "orderservice";
     // account exchange
     public final static String ACCOUNT_EXCHANGE = "accountservice";
-    
-    // user routing key
-    public final static String USER_ROUTING_KEY = "userqueue";
     //  customer routing key
     public final static String CUSTOMER_ROUTING_KEY = "customerqueue";
     //  employee routing key

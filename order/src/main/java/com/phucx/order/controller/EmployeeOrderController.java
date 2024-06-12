@@ -18,15 +18,18 @@ import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.constant.WebConstant;
 import com.phucx.order.exception.InvalidOrderException;
 import com.phucx.order.model.OrderDetails;
+import com.phucx.order.model.OrderSummary;
 import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.service.order.EmployeeOrderService;
+import com.phucx.order.service.order.OrderService;
 
 @RestController
 @RequestMapping("/employee")
 public class EmployeeOrderController {
     @Autowired
     private EmployeeOrderService employeeOrderService;
-
+    @Autowired
+    private OrderService orderService;
     // CONFIRM AN ORDER
     @LoggerAspect
     @PostMapping("/order/confirm")
@@ -53,11 +56,10 @@ public class EmployeeOrderController {
     @LoggerAspect
     @PostMapping("/order/fulfill")
     public ResponseEntity<Void> fulfillOrder(
-        @RequestBody OrderWithProducts order, 
-        Authentication authentication
+        @RequestBody OrderWithProducts order, Authentication authentication
     ) throws JsonProcessingException{
         // update order status
-        employeeOrderService.fulfillOrder(order);
+        employeeOrderService.fulfillOrder(order, authentication.getName());
         return ResponseEntity.ok().build();
     }
 
@@ -89,5 +91,12 @@ public class EmployeeOrderController {
         Page<OrderDetails> orders = employeeOrderService.getOrders(
             authentication.getName(), status, pageNumber, WebConstant.PAGE_SIZE);
         return ResponseEntity.ok().body(orders);
+    }
+
+    // get order summary
+    @GetMapping("/summary")
+    public ResponseEntity<OrderSummary> getSummaryOrders(){
+        OrderSummary summary = orderService.getOrderSummary();
+        return ResponseEntity.ok().body(summary);
     }
 }

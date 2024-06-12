@@ -51,7 +51,12 @@ public class UserServiceImp implements UserService {
         eventMessage.setEventType(EventType.GetUserByCustomerID);
         eventMessage.setPayload(userDTO);
         // receive data
-        return sendAndReceiveUserData(eventMessage);
+        EventMessage<User> response = this.messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConstant.ACCOUNT_EXCHANGE, 
+            MessageQueueConstant.CUSTOMER_ROUTING_KEY,
+            User.class);
+        log.info("response={}", response);
+        return response.getPayload();
     }
     @Override
     public User getUserByEmployeeID(String employeeID) throws JsonProcessingException{
@@ -66,14 +71,9 @@ public class UserServiceImp implements UserService {
         eventMessage.setEventType(EventType.GetUserByEmployeeID);
         eventMessage.setPayload(userDTO);
         // receive data
-        return sendAndReceiveUserData(eventMessage);
-    }
-
-    // send and receive user data from user queue
-    private User sendAndReceiveUserData(EventMessage<DataDTO> eventMessage) throws JsonProcessingException{
         EventMessage<User> response = this.messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.ACCOUNT_EXCHANGE, 
-            MessageQueueConstant.USER_ROUTING_KEY,
+            MessageQueueConstant.EMPLOYEE_ROUTING_KEY,
             User.class);
         log.info("response={}", response);
         return response.getPayload();

@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
 import { OrderWithProduct } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/image";
-import { getOrderDetail } from "../../../../../api/EmployeeApi";
 import dayjs from "dayjs";
+import { getOrderDetail } from "../../../../../api/OrderApi";
 
 export default function EmployeeOrderComponent(){
     const { orderId } = useParams();

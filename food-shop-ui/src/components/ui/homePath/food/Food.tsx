@@ -30,6 +30,13 @@ export default function FoodComponent(){
         initial();
     }, []);
 
+    function initial(){
+        const productID = urlParams.get('sp');
+        if(productID){
+            fetchProduct(productID);
+        }
+    }
+
     // handle product
     function handleClickMinusBtn(){
         setCartProduct((product)=>({
@@ -61,19 +68,10 @@ export default function FoodComponent(){
         setCartProduct({...cartProduct, quantity: quantity});
       };
 
-
-    function initial(){
-        const productID = urlParams.get('sp');
-        if(productID){
-            fetchProduct(productID);
-        }
-    }
-
     async function fetchSimilarProducts(productID: string, categoryName: string, page: number){
         const res = await getRecommendedProductsByCategory(categoryName, productID, page);
-        if(res.status===200){
+        if(200<=res.status&&res.status<300){
             const data = res.data;
-            console.log(data);
             setSimilarFoods(data.content);
         }
     }
@@ -89,7 +87,6 @@ export default function FoodComponent(){
                 quantity: 1,
             })
             setFoodInfo(data);
-
             fetchSimilarProducts(data.productID, data.categoryName, 0);
         }
     }

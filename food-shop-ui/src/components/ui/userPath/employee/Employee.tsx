@@ -15,8 +15,7 @@ import EmployeeConfirmedOrderComponent from './order/EmployeeConfirmOrder';
 import { isEmployee } from '../../../../api/EmployeeApi';
 
 export default function EmployeeComponent(){
-    // const [customerInfo, setCustomerInfo] = useState<Customer>();
-    const sidebarRef = useRef(null)
+    const [isShowedSideBar, setIsShowedSideBar] = useState(false)
     const location = useLocation()
     const [selectedPath, setSelectedPath] = useState(0);
     const [modal, setModal] = useState<Modal>({
@@ -60,11 +59,12 @@ export default function EmployeeComponent(){
         toggleModal();
     }
 
+    // click side bar
     function onClickShowSideBar(){
-        if(sidebarRef.current){
-            const sidebarEle = sidebarRef.current as HTMLDivElement;
-            sidebarEle.classList.toggle('show-side-bar')
-        }
+        toggleIsShowedSideBar();
+    }
+    const toggleIsShowedSideBar = ()=>{
+        setIsShowedSideBar(status => !status);
     }
 
     const toggleModal = ()=>{
@@ -94,7 +94,7 @@ export default function EmployeeComponent(){
                         <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
                         <span className="logo-name">Phucx</span>
                     </div>
-                    <div className="sidebar"  ref={sidebarRef}>
+                    <div className={`sidebar ${isShowedSideBar?'show-side-bar':''}`}>
                         <div className="sidebar-content py-0">
                             <div className="logo cursor-pointer mx-0" onClick={onClickShowSideBar}>
                                 <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>

@@ -248,7 +248,9 @@ export type OrderDetail = {
     products: ProductWithDiscount[]
     freight: number,
 }
-
+export type OrderSummary = {
+    totalPendingOrders: number
+}
 // discount
 export type DiscountInfo = {
     discountID: string,
@@ -316,11 +318,6 @@ export type User = {
     username: string,
     email: string,
 }
-// export type UserInfo = {
-//     userID: string,
-//     username: string,
-//     isAuthenticated: boolean
-// }
 
 export type Role = {
     roleID: number,

@@ -1,19 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { OrderDetail, Pageable } from "../../../../../model/Type";
 import { ORDER_STATUS } from "../../../../../constant/config";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
 import { getPageNumber } from "../../../../../service/pageable";
 import { customerOrder } from "../../../../../constant/FoodShoppingURL";
 import { displayProductImage } from "../../../../../service/image";
-import { ReceiveOrderWsUrl } from "../../../../../constant/FoodShoppingApiURL";
-import { CompatClient } from "@stomp/stompjs";
-import { getCustomerOrders } from "../../../../../api/OrderApi";
+import { getCustomerOrders, receiveOrder } from "../../../../../api/OrderApi";
+import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
 
 export default function UserOrdersComponent(){
     const [listOrders, setListOrders] = useState<OrderDetail[]>([])
-    const navHeaderRef = useRef(null)
+    const notificationMessage = useContext(notificationMessagesContext)
     const [selectedTagOrder, setSelectedTagOrder] = useState(0)
-    const stompClientAccount = useRef<CompatClient | null>(null);
     const [page, setPage] = useState<Pageable>({
         first: true,
         last: true,
@@ -23,14 +21,14 @@ export default function UserOrdersComponent(){
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [notificationMessage])
 
     function initial(){
         const pageNumber = getPageNumber();
         fetchOrders(pageNumber, ORDER_STATUS.PENDING);
     }
     
-
+    // get orders
     async function fetchOrders(pageNumber: number, type:string){
         const res = await getCustomerOrders(pageNumber, type)
         if(200<=res.status&&res.status<300){
@@ -44,7 +42,7 @@ export default function UserOrdersComponent(){
             });
         }
     }
-
+    // click select nav tab
     const onClickNavTab = (tab: number)=>{
         setSelectedTagOrder(tab)
         // get orders
@@ -84,46 +82,30 @@ export default function UserOrdersComponent(){
 
     // shipping order
     const onClickReceive = (order: OrderDetail)=>{
-        if(stompClientAccount.current && order){
-            stompClientAccount.current.send(ReceiveOrderWsUrl, {}, JSON.stringify({
-                orderID: order.orderID
-            }))
+        customerReceiveOrder(order)
+    }
+    // cancel order
+    const customerReceiveOrder = async (order: OrderDetail)=>{
+        try {
+            const data = {
+                orderID: order.orderID,
+                customerID: order.customerID
+            }
+            const res = await receiveOrder(data);
+            if(200<=res.status&&res.status<300){
+    
+            }
+        } catch (error) {
+            
+        } finally{
             window.location.reload();
         }
     }
 
-    // stomp
-    // const connectCustomer = ()=>{
-    //     stompClientAccount.current = Stomp.over(()=> new SockJS(AccountWSUrl));
-    //     stompClientAccount.current.connect({
-    //         "Authorization": `Bearer ${getAccessToken()}`,
-    //     }, onShopConnectEmployee, stompFailureCallback);
-    // }
-    // const onShopConnectEmployee = ()=>{
-    //     if(stompClientAccount.current){
-    //         stompClientAccount.current.subscribe(QUEUE_MESSAGES, onMessageRecieveSuccessfully, {
-    //             "Authorization": `Bearer ${getAccessToken()}`,
-    //             "auto-delete": "true"
-    //         })
-    //     }
-    // }
-
-    // const onMessageRecieveSuccessfully = (payload: any)=>{
-    //     const message = JSON.parse(payload.body);
-    //     console.log(message)
-    // }
-
-    // function stompFailureCallback(_error: any){
-    //     if(stompClientAccount.current){
-    //         console.log(_error)
-    //         stompClientAccount.current.deactivate;
-    //     }
-    // }
-
     return(
         <>
             <ul className="nav nav-fill nav-tabs emp-profile p-0 mb-3 cursor-pointer box-shadow-default" 
-                role="tablist" ref={navHeaderRef}>
+                role="tablist">
                 <li className="nav-item" role="presentation">
                     <span className={`nav-link text-dark ${selectedTagOrder===0 ?'active':''}`}
                         id="pending-order-tab" role="tab" onClick={(_e)=>onClickNavTab(0)}>Pending Orders</span>
