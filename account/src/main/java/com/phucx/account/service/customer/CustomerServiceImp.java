@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.phucx.account.constant.EmailVerified;
+import com.phucx.account.constant.UserStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
@@ -87,11 +89,11 @@ public class CustomerServiceImp implements CustomerService {
         String userID = UUID.randomUUID().toString();
         String customerID = UUID.randomUUID().toString();
         
+        String hashedPassword = passwordEncoder.encode(WebConstant.DEFUALT_PASSWORD);
+
         return customerAccountRepository.addNewCustomer(
-            userID, customer.getUsername(), 
-            passwordEncoder.encode(WebConstant.DEFUALT_PASSWORD), 
-            customer.getEmail(), customerID, 
-            customer.getContactName());
+            userID, customer.getUsername(), hashedPassword, customer.getEmail(), EmailVerified.YES.getValue(), 
+            UserStatus.ENABLED.getValue() ,customerID, customer.getContactName());
     }
 	
     @Override
@@ -108,7 +110,6 @@ public class CustomerServiceImp implements CustomerService {
         imageService.setCustomerImage(customer);
         return customer;
 	}
-    
     
     @Override
     public Customer getCustomerByUsername(String username) {

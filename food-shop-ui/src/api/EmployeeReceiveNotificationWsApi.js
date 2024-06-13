@@ -1,4 +1,4 @@
-import { NotificationServiceWsUrl, EmployeeNotificationOrderWsUrl, QUEUE_MESSAGES } from "../constant/FoodShoppingApiURL";
+import { NotificationServiceWsUrl, EmployeeNotificationOrderWsUrl, QUEUE_MESSAGES, EmployeeNotificationAccountWsUrl } from "../constant/FoodShoppingApiURL";
 import { Stomp } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 
@@ -14,11 +14,15 @@ function onConnectNotification(getMessageCallback) {
             (payload) => onPrivateNotificationMessageReceived(payload, getMessageCallback), {
             'auto-delete': 'true'
         });
+        // receive account message
+        stompClient.subscribe(EmployeeNotificationAccountWsUrl,
+            (payload) => onPrivateNotificationMessageReceived(payload, getMessageCallback), {
+            'auto-delete': 'true'
+        });
         // receive message
         stompClient.subscribe(QUEUE_MESSAGES,(payload) => onPrivateNotificationMessageReceived(payload, getMessageCallback), {
             'auto-delete': 'true'
         });
-
         stompClient.reconnect_delay=500
     }
 }

@@ -10,7 +10,7 @@ import { PickerChangeHandlerContext, DateValidationError } from "@mui/x-date-pic
 import ModalComponent from "../../../../shared/functions/modal/Modal";
 import { Alert, Modal } from "../../../../../model/WebType";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
-import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/config";
+import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/WebConstant";
 import { UserImageChangeInput } from "../../../../shared/functions/user-image-change-input/UserImageChangeInput";
 
 export default function AdminEmployeeComponent(){

@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { getProductsByCategory } from "../../../../api/SearchApi";
 import { CurrentProduct, Pageable } from "../../../../model/Type";
 import PaginationSection from "../../../shared/website/sections/paginationSection/PaginationSection";
-import { getPageNumber } from "../../../../service/pageable";
+import { getPageNumber } from "../../../../service/Pageable";
 import FoodCardDeck from "../../../shared/functions/foodCardDeck/FoodCardDeck";
 import { PathProvider } from "../../../contexts/PathContext";
 import { foodsPath } from "../../../../constant/FoodShoppingURL";

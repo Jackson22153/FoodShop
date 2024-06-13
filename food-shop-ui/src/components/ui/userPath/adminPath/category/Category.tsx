@@ -5,7 +5,7 @@ import { Category } from '../../../../../model/Type';
 import { ProductImageChangeInput } from '../../../../shared/functions/product-image-change-input/ProductImageChangeInput';
 import { updateCategory } from '../../../../../api/AdminApi';
 import AlertComponent from '../../../../shared/functions/alert/Alert';
-import { ALERT_TIMEOUT, ALERT_TYPE } from '../../../../../constant/config';
+import { ALERT_TIMEOUT, ALERT_TYPE } from '../../../../../constant/WebConstant';
 import { Alert, Modal } from '../../../../../model/WebType';
 import ModalComponent from '../../../../shared/functions/modal/Modal';
 

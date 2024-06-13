@@ -1,6 +1,6 @@
 import { UserInfo } from "../../../../model/Type";
 import { useState } from "react";
-import { ROLE } from "../../../../constant/config";
+import { ROLE } from "../../../../constant/WebConstant";
 import { adminPath, customerPath, employeePath } from "../../../../constant/FoodShoppingURL";
 import { Modal } from "../../../../model/WebType";
 import ModalComponent from "../modal/Modal";

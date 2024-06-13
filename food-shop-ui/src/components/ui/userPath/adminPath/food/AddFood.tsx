@@ -5,7 +5,7 @@ import { getCategories } from '../../../../../api/SearchApi';
 import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import TextEditor from '../../../../shared/functions/editor/Editor';
 import { ProductImageChangeInput } from '../../../../shared/functions/product-image-change-input/ProductImageChangeInput';
-import { ALERT_TIMEOUT, ALERT_TYPE } from '../../../../../constant/config';
+import { ALERT_TIMEOUT, ALERT_TYPE } from '../../../../../constant/WebConstant';
 import { Alert, Modal } from '../../../../../model/WebType';
 import AlertComponent from '../../../../shared/functions/alert/Alert';
 import ModalComponent from '../../../../shared/functions/modal/Modal';

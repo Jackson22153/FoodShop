@@ -1,5 +1,6 @@
 package com.phucx.account.service.employee;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +10,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.phucx.account.constant.EmailVerified;
+import com.phucx.account.constant.NotificationStatus;
+import com.phucx.account.constant.NotificationTitle;
+import com.phucx.account.constant.NotificationTopic;
+import com.phucx.account.constant.UserStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EmployeeDetails;
+import com.phucx.account.model.NotificationDetail;
 import com.phucx.account.model.Employee;
 import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
@@ -20,6 +28,7 @@ import com.phucx.account.repository.EmployeeAccountRepository;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.repository.EmployeeRepository;
 import com.phucx.account.service.image.ImageService;
+import com.phucx.account.service.messageQueue.MessageQueueService;
 import com.phucx.account.service.user.UserService;
 
 import jakarta.ws.rs.NotFoundException;
@@ -38,6 +47,8 @@ public class EmployeeServiceImp implements EmployeeService {
     private EmployeeAccountRepository employeeAccountRepository;
     @Autowired
     private EmployeeDetailRepostiory employeeDetailRepostiory;
+    @Autowired
+    private MessageQueueService messageQueueService;
     @Autowired
     private ImageService imageService;
 
@@ -151,7 +162,7 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
     @Override
-    public Boolean updateAdminEmployeeInfo(Employee employee) {
+    public Boolean updateAdminEmployeeInfo(Employee employee) throws JsonProcessingException {
         log.info("updateAdminEmployeeInfo({})", employee.toString());
         Employee fetchedEmployee = employeeRepository.findById(employee.getEmployeeID())
             .orElseThrow(()-> new NotFoundException("Employee " + employee.getEmployeeID() + " does not found"));
@@ -161,6 +172,25 @@ public class EmployeeServiceImp implements EmployeeService {
         Boolean status = employeeRepository.updateAdminEmployeeInfo(
             fetchedEmployee.getEmployeeID(), employee.getFirstName(), employee.getLastName(), 
             employee.getHireDate(), picture, employee.getNotes());
+
+        NotificationDetail notification = new NotificationDetail();
+        if(status){
+            notification.setTitle(NotificationTitle.USER_INFO_UPDATE.getValue());
+            notification.setMessage("Your information has been updated by Admin");
+            notification.setStatus(NotificationStatus.SUCCESSFUL.name());
+            notification.setReceiverID(fetchedEmployee.getUserID());
+            notification.setTopic(NotificationTopic.Account.name());
+            notification.setTime(LocalDateTime.now());
+        }else{
+            notification.setTitle(NotificationTitle.USER_INFO_UPDATE.getValue());
+            notification.setMessage("Error: Your information can not be updated by Admin");
+            notification.setStatus(NotificationStatus.ERROR.name());
+            notification.setReceiverID(fetchedEmployee.getUserID());
+            notification.setTopic(NotificationTopic.Account.name());
+            notification.setTime(LocalDateTime.now());
+        }
+        messageQueueService.sendNotification(notification);
+
         return status;
     }
 
@@ -185,13 +215,14 @@ public class EmployeeServiceImp implements EmployeeService {
         // add new employee
         String userID = UUID.randomUUID().toString();
         String employeeID = UUID.randomUUID().toString();
-
+        // hash password
+        String hashedPassword = passwordEncoder.encode(WebConstant.DEFUALT_PASSWORD);
+        log.info("User: {}, hashedPassword: {}", employeeAccount.getUsername(), hashedPassword);
+        // add new employee account
         return employeeAccountRepository.addNewEmployee(
-            userID, employeeAccount.getUsername(), 
-            passwordEncoder.encode(WebConstant.DEFUALT_PASSWORD), 
-            employeeAccount.getEmail(), 
-            employeeID, employeeAccount.getFirstName(), 
-            employeeAccount.getLastName());
+            userID, employeeAccount.getUsername(), hashedPassword, employeeAccount.getEmail(), 
+            EmailVerified.YES.getValue(), UserStatus.ENABLED.getValue(), employeeID, 
+            employeeAccount.getFirstName(), employeeAccount.getLastName());
     }
 
     @Override

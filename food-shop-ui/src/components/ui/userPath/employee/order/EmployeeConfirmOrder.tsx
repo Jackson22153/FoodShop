@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
 import { OrderWithProduct } from "../../../../../model/Type";
-import { displayProductImage } from "../../../../../service/image";
+import { displayProductImage } from "../../../../../service/Image";
 import dayjs from "dayjs";
 import { cancelOrder, confirmOrder, getOrderDetail } from "../../../../../api/OrderApi";
-import { ORDER_STATUS } from "../../../../../constant/config";
+import { ORDER_STATUS } from "../../../../../constant/WebConstant";
 
 export default function EmployeeConfirmedOrderComponent(){
     const { orderId } = useParams();

@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EmployeeDetails;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.model.Employee;
 
 public interface EmployeeService {
@@ -15,7 +16,7 @@ public interface EmployeeService {
     public Page<EmployeeAccount> getAllEmployees(int pageNumber, int pageSize);
     // update / create employee
     public Boolean updateEmployeeInfo(EmployeeDetail employee);
-    public Boolean updateAdminEmployeeInfo(Employee employee);
+    public Boolean updateAdminEmployeeInfo(Employee employee) throws JsonProcessingException;
     public Boolean addNewEmployee(EmployeeAccount employeeAccount);
     // search
     public Page<EmployeeAccount> searchEmployeesByEmployeeID(String employeeID, int pageNumber, int pageSize);

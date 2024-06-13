@@ -16,7 +16,9 @@ import com.phucx.notification.constant.WebConstant;
 import com.phucx.notification.model.NotificationDetail;
 import com.phucx.notification.model.NotificationSummary;
 import com.phucx.notification.model.ResponseFormat;
+import com.phucx.notification.service.notification.MarkUserNotificationService;
 import com.phucx.notification.service.notification.NotificationService;
+
 import javax.naming.NameNotFoundException;
 
 @RestController
@@ -24,22 +26,20 @@ import javax.naming.NameNotFoundException;
 public class CustomerNotificationController {
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private MarkUserNotificationService markUserNotificationService;
 
-    @PostMapping("/mark-as-read")
+    @PostMapping("/notification/mark")
     public ResponseEntity<ResponseFormat> markAsReadNotification(
-        @RequestBody NotificationDetail notification, Authentication authentication
+        @RequestParam(name = "type", required = true) String marktype,
+        @RequestBody NotificationDetail notification, 
+        Authentication authentication
     ) throws NameNotFoundException{
-        Boolean status = notificationService.markAsReadCustomerNotification(
-            notification.getNotificationID(), authentication.getName());
+        Boolean status = markUserNotificationService.markAsReadForCustomer(
+            notification.getNotificationID(), authentication.getName(), marktype);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
 
-    @PostMapping("/mark-all-as-read")
-    public ResponseEntity<ResponseFormat> markAsReadNotifications(Authentication authentication) throws NameNotFoundException{
-        Boolean status = notificationService.markAsReadCustomerNotifications(
-            authentication.getName());
-        return ResponseEntity.ok().body(new ResponseFormat(status));
-    }
     // GET NOTIFICATIONS
     @GetMapping("/notifications")
     public ResponseEntity<Page<NotificationDetail>> getNotifications(

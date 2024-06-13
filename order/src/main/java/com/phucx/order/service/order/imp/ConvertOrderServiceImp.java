@@ -254,7 +254,7 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
             String orderID = orderDetail.getOrderID();
             Integer productID = orderDetail.getProductID();
             List<OrderDetailDiscount> orderDetailDiscounts = orderDetailDiscountRepository
-                .findByOrderDetail(orderID, productID);
+                .findByOrderIDAndProductID(orderID, productID);
             // get discounts of product
             List<String> discountIds = orderDetailDiscounts.stream().map(OrderDetailDiscount::getDiscountID).collect(Collectors.toList());
             List<DiscountDetail> fetchedDiscounts = discountService.getDiscounts(discountIds);

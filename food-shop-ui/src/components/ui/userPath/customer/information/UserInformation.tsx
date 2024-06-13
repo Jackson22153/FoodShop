@@ -2,7 +2,7 @@ import { ChangeEventHandler, FormEvent, useEffect, useState } from "react";
 import { Customer } from "../../../../../model/Type";
 import { getCustomerInfo, updateUserInfo } from "../../../../../api/UserApi";
 import { Alert, Modal } from "../../../../../model/WebType";
-import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/config";
+import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/WebConstant";
 import ModalComponent from "../../../../shared/functions/modal/Modal";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import { UserImageChangeInput } from "../../../../shared/functions/user-image-change-input/UserImageChangeInput";

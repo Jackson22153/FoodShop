@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
 import { OrderWithProduct } from "../../../../../model/Type";
-import { displayProductImage } from "../../../../../service/image";
+import { displayProductImage } from "../../../../../service/Image";
 import dayjs from "dayjs";
 import { getOrderDetail } from "../../../../../api/OrderApi";
 

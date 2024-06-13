@@ -1,4 +1,4 @@
-import { getIcon } from "../../../../service/image";
+import { getIcon } from "../../../../service/Image";
 
 export default function FooterComponent(){
 

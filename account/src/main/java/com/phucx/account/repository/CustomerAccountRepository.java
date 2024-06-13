@@ -34,6 +34,8 @@ public interface CustomerAccountRepository extends JpaRepository<CustomerAccount
             @Param("username") String username,
             @Param("password") String password,
             @Param("email") String email,
+            @Param("emailVerified") Boolean emailVerified,
+            @Param("enabled") Boolean enabled,
             @Param("customerID") String customerID, 
             @Param("contactName") String contactName);
 

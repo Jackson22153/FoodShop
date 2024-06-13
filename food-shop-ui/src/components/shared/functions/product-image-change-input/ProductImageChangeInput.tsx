@@ -1,5 +1,5 @@
 import { ChangeEventHandler } from "react";
-import { displayProductImage } from "../../../../service/image";
+import { displayProductImage } from "../../../../service/Image";
 import { uploadProductImage } from "../../../../api/ProductApi";
 
 interface Props{

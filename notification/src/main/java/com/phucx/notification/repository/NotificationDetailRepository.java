@@ -43,6 +43,8 @@ public interface NotificationDetailRepository extends JpaRepository<Notification
             """)
     List<NotificationDetail> findByTopicName(String topicName);
 
+    Optional<NotificationDetail> findByNotificationIDAndReceiverID(String notificationID, String receiverID);
+
     @Query("""
         SELECT n FROM NotificationDetail n \
         WHERE (receiverID=?1 OR receiverID=?2) \

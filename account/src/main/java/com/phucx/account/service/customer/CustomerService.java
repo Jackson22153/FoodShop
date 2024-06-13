@@ -17,9 +17,6 @@ public interface CustomerService {
     public CustomerDetail getCustomerDetail(String username);
     public Page<CustomerAccount> getAllCustomers(int pageNumber, int pageSize);
     public Customer getCustomerByUserID(String userID);
-    // get order
-    // public Page<OrderDetails> getOrders(int pageNumber, int pageSize, String customerID, OrderStatus orderStatus) throws JsonProcessingException;
-    // public InvoiceDetails getInvoice(String orderID, String customerID) throws JsonProcessingException;
     // create/ update customer
     public boolean addNewCustomer(CustomerAccount customer);
     public boolean updateCustomerInfo(CustomerDetail customer);

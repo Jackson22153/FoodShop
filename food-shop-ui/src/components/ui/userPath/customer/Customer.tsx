@@ -3,7 +3,7 @@ import './Customer.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import UserInformationComponent from './infomation/UserInfomation';
+import UserInformationComponent from './information/UserInformation';
 import { customerInfo, customerNotification, customerOrder } from '../../../../constant/FoodShoppingURL';
 import UserOrdersComponent from './order/UserOrders';
 import UserOrderComponent from './order/UserOrder';
@@ -98,7 +98,7 @@ export default function CustomerComponent(){
                                 <li className="list nav-item">
                                     <a href={customerInfo} className={`nav-link ${selectedPath===0?'active': ''}`}>
                                         <i className="bx bx-home-alt icon"></i>
-                                        <span className="link">User{`\u00A0`}Infomation</span>
+                                        <span className="link">User{`\u00A0`}Information</span>
                                     </a>
                                 </li>
                                 <li className="list nav-item">

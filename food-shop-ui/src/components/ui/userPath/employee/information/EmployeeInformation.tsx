@@ -8,11 +8,11 @@ import dayjs, { Dayjs } from "dayjs";
 import { Alert, Modal } from "../../../../../model/WebType";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import ModalComponent from "../../../../shared/functions/modal/Modal";
-import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/config";
+import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/WebConstant";
 import { UserImageChangeInput } from "../../../../shared/functions/user-image-change-input/UserImageChangeInput";
 
 
-export default function EmployeeInfomationComponent(){
+export default function EmployeeInformationComponent(){
     const [employeeInfo, setEmployeeInfo] = useState<Employee>();
     const [employeeInfoAlter, setEmployeeInfoAlter] = useState<Employee>()
     const [editable, setEditable] = useState(true)
@@ -28,13 +28,16 @@ export default function EmployeeInfomationComponent(){
     })
 
     useEffect(()=>{
-        fetchEmployeeInfo();
-
+        initial();
     }, [])
 
+    const initial = ()=>{
+        fetchEmployeeInfo();
+    }
+    // get employee's information
     const fetchEmployeeInfo = async ()=>{
         const res = await getEmployeeInfo();
-        if(res.status){
+        if(200<=res.status&&res.status<300){
             const data = res.data;
             // console.log(data);
             const employee = {

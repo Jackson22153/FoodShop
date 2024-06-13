@@ -55,7 +55,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         // fetch employee
         Employee employee = employeeService.getEmployeeByUserID(userID);
         order.setEmployeeID(employee.getEmployeeID());
-        Boolean check = orderService.updateOrderEmployee(order.getOrderID(), employee.getUserID());
+        Boolean check = orderService.updateOrderEmployee(order.getOrderID(), employee.getEmployeeID());
         if(!check) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated");
         // update order status as canceled
         Boolean status = orderService.updateOrderStatus(orderDetail.getOrderID(), OrderStatus.Canceled);

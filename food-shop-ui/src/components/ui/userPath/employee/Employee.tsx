@@ -4,7 +4,7 @@ import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { employeeInfo, employeeNotification, employeeOrder } from '../../../../constant/FoodShoppingURL';
 import { logout } from '../../../../api/AuthorizationApi';
-import EmployeeInfomationComponent from './infomation/EmployeeInfomation';
+import EmployeeInformationComponent from './information/EmployeeInformation';
 import EmployeeOrdersComponent from './order/EmployeeOrders';
 import EmployeeOrderComponent from './order/EmployeeOrder';
 import EmployeeNotificationComponent from './notification/EmployeeNotification';
@@ -104,7 +104,7 @@ export default function EmployeeComponent(){
                                 <li className="list nav-item">
                                     <a href={employeeInfo} className={`nav-link ${selectedPath===0?'active': ''}`}>
                                         <i className="bx bx-home-alt icon"></i>
-                                        <span className="link">User{`\u00A0`}Infomation</span>
+                                        <span className="link">User{`\u00A0`}Information</span>
                                     </a>
                                 </li>
                                 <li className="list nav-item">
@@ -141,8 +141,8 @@ export default function EmployeeComponent(){
                 </nav>
                 <div >
                     <Routes>
-                        <Route path='*' element={<EmployeeInfomationComponent/>}></Route>
-                        <Route path='info' element={<EmployeeInfomationComponent/>}></Route>
+                        <Route path='*' element={<EmployeeInformationComponent/>}></Route>
+                        <Route path='info' element={<EmployeeInformationComponent/>}></Route>
                         <Route path='order' element={<EmployeeOrdersComponent/>}></Route>
                         <Route path='order/:orderId' element={<EmployeeOrderComponent/>}></Route>
                         <Route path='order/pending/:orderId' element={<EmployeePendingOrderComponent/>} ></Route>

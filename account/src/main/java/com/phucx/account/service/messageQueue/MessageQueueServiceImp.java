@@ -7,8 +7,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phucx.account.constant.MessageQueueConstant;
 import com.phucx.account.model.DataDTO;
 import com.phucx.account.model.EventMessage;
+import com.phucx.account.model.NotificationDetail;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -42,5 +45,12 @@ public class MessageQueueServiceImp implements MessageQueueService{
         // convert message
         EventMessage<T> response = objectMapper.readValue(responseMessage, dataType);
         return response;
+    }
+    @Override
+    public void sendNotification(NotificationDetail notification) throws JsonProcessingException {
+        log.info("sendNotification(notification={})", notification);
+        String message = objectMapper.writeValueAsString(notification);
+        rabbitTemplate.convertAndSend(MessageQueueConstant.NOTIFICATION_EXCHANGE, 
+            MessageQueueConstant.EMPLOYEE_NOTIFICATION_ROUTING_KEY, message);
     }
 }

@@ -1,16 +1,17 @@
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { displayProductImage } from "../../../../service/image";
+import { displayProductImage } from "../../../../service/Image";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Notification } from "../../../../model/Type";
 import { getCustomerNotifications, getCustomerSummaryNotifications, 
     getEmployeeNotifications, getEmployeeSummaryNotifications, 
     markAsReadCustomerNotification, markAsReadEmployeeNotification } 
     from "../../../../api/NotificationApi";
-import { ROLE } from "../../../../constant/config";
+import { ROLE } from "../../../../constant/WebConstant";
 import { customerNotification, employeeNotification } from "../../../../constant/FoodShoppingURL";
-import { getPageNumber } from "../../../../service/pageable";
+import { getPageNumber } from "../../../../service/Pageable";
 import notificationMessagesContext from "../../../contexts/NotificationMessagesContext";
+import { getUrlFromNotification } from "../../../../service/Notification";
 
 interface Props{
     roles: string[]
@@ -60,6 +61,7 @@ export default function NotificationDropdown(prop:Props){
     // mark notification as read
     const onClickNotification = (_event: any, notification: Notification)=>{
         if(prop.roles.includes(ROLE.EMPLOYEE.toLowerCase()) && !notification.isRead){
+            console.log("employee")
             // employee click 
             readEmployeeNotification(notification.notificationID);
         }else if(prop.roles.includes(ROLE.CUSTOMER.toLowerCase()) && !notification.isRead){
@@ -188,16 +190,18 @@ export default function NotificationDropdown(prop:Props){
                 <div className={`dropdown position-absolute z-3 ${IsNotificationDropdownEnabled?'active':''}`}>
                     <div className="notify-body">
                         {notifications.map((notification, index)=>(
-                            <div className={`notify-item cursor-pointer ${notification.isRead?'read':''}`} 
-                                key={index} onClick={(e)=> onClickNotification(e, notification)}>
-                                <div className="notify-img">
-                                    <img src={displayProductImage(null)} alt="profile-pic"/>
+                            <a href={getUrlFromNotification(notification, prop.roles)} key={index} >
+                                <div className={`notify-item cursor-pointer ${notification.isRead?'read':''}`} 
+                                    onClick={(e)=> onClickNotification(e, notification)}>
+                                    <div className="notify-img">
+                                        <img src={displayProductImage(null)} alt="profile-pic"/>
+                                    </div>
+                                    <div className="notify_info">
+                                        <p className="text-black">{notification.message}</p>
+                                        <span className="notify-time">{subtractTime(notification.time)} ago</span>
+                                    </div>
                                 </div>
-                                <div className="notify_info">
-                                    <p className="text-black">{notification.message}</p>
-                                    <span className="notify-time">{subtractTime(notification.time)} ago</span>
-                                </div>
-                            </div>
+                            </a>
                         ))}
                     </div>
                     <div className="notify-footer">

@@ -1,12 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import { Notification, Pageable } from "../../../../../model/Type";
-import { displayProductImage } from "../../../../../service/image";
-import { getPageNumber } from "../../../../../service/pageable";
+import { displayProductImage } from "../../../../../service/Image";
+import { getPageNumber } from "../../../../../service/Pageable";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
 import { getCustomerNotifications, markAllAsReadCustomerNotifications } 
     from "../../../../../api/NotificationApi";
 import { Alert } from "../../../../../model/WebType";
-import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/config";
+import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/WebConstant";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
 
@@ -111,7 +111,7 @@ export default function UserNotificationComponent(){
         <div className="container w-100">
             <AlertComponent alert={alert}/>
             <div className="notification-wrap">
-                <div className="notification-panel px-3 me-5 ms-5 mb-3">
+                <div className="notification-panel px-3 me-md-5 ms-md-5 mb-3">
                     <div className="notify-header d-flex justify-content-end">
                         <button onClick={onClickMarkAllAsRead}>Mark as read</button>
                     </div>

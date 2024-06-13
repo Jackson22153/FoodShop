@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetails;
@@ -42,7 +43,9 @@ public class AdminController {
 
     @GetMapping("/isAdmin")
     public ResponseEntity<ResponseFormat> isAdmin(){
-        return ResponseEntity.ok().body(new ResponseFormat(true));
+        ResponseFormat format = new ResponseFormat();
+        format.setStatus(true);
+        return ResponseEntity.ok().body(format);
     }
 // customers
     @PutMapping("/customers")
@@ -116,7 +119,7 @@ public class AdminController {
     @PostMapping("/employees")
     public ResponseEntity<ResponseFormat> updateEmployeeDetail(
         @RequestBody Employee employee
-    ){
+    ) throws JsonProcessingException{
         Boolean status = employeeService.updateAdminEmployeeInfo(employee);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }

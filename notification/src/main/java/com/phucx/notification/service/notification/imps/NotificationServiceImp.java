@@ -1,4 +1,4 @@
-package com.phucx.notification.service.notification;
+package com.phucx.notification.service.notification.imps;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +16,7 @@ import com.phucx.notification.model.NotificationDetail;
 import com.phucx.notification.repository.NotificationDetailRepository;
 import com.phucx.notification.repository.NotificationRepository;
 import com.phucx.notification.repository.NotificationUserRepository;
+import com.phucx.notification.service.notification.NotificationService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,13 +34,16 @@ public class NotificationServiceImp implements NotificationService{
     public NotificationDetail createNotification(NotificationDetail notification) {
         log.info("createNotification({})", notification.toString());
         String notificationID = UUID.randomUUID().toString();
-        notificationRepository.createNotification(
-            notificationID, notification.getTitle(), 
-            notification.getMessage(), notification.getSenderID(), 
-            notification.getReceiverID(), notification.getTopic(), 
-            notification.getStatus(), notification.getIsRead(), 
+    
+        Boolean status = notificationRepository.createNotification(
+            notificationID, notification.getTitle(), notification.getMessage(), 
+            notification.getSenderID(), notification.getReceiverID(), 
+            notification.getTopic(), notification.getStatus(), false, 
             notification.getTime());
+
+        if(!status) throw new RuntimeException("Error during saving the notification: " + notification.toString());
         notification.setNotificationID(notificationID);
+
         return notification;
     }
 
@@ -67,12 +71,12 @@ public class NotificationServiceImp implements NotificationService{
     }
 
     @Override
-    public Boolean updateNotificationReadStatusByNotificationID(String notificationID, Boolean isRead) 
+    public Boolean updateNotificationReadStatus(String notificationID, String userID, Boolean isRead) 
     throws NameNotFoundException {
-        log.info("updateNotificationReadStatusByNotificationID(notificationID={}, isRead={})", notificationID, isRead);
+        log.info("updateNotificationReadStatus(notificationID={}, userID={}, isRead={})", notificationID, userID, isRead);
         NotificationDetail notification = this.getNotificationsByID(notificationID);
         return notificationUserRepository.updateNotificationReadStatusByNotificationIDAndUserID(
-            notification.getNotificationID(), notification.getReceiverID(), isRead);
+            notification.getNotificationID(), userID, isRead);
     }
 
     @Override
@@ -109,24 +113,6 @@ public class NotificationServiceImp implements NotificationService{
     }
 
     @Override
-    public Boolean markAsReadEmployeeNotification(String notificationID, String userID) throws NameNotFoundException {
-        log.info("markAsReadEmployeeNotification(notificationID={}, userID={})", notificationID, userID);
-        NotificationDetail notification = this.getNotificationByUserIDOrBroadCastAndNotificationID(
-            userID, NotificationBroadCast.ALL_EMPLOYEES, notificationID);
-        return this.updateNotificationReadStatusByNotificationID(
-            notification.getNotificationID(), NotificationIsRead.YES.getValue());
-    }
-
-    @Override
-    public Boolean markAsReadCustomerNotification(String notificationID, String userID) throws NameNotFoundException {
-        log.info("markAsReadCustomerNotification(notificationID={}, userID={})", notificationID, userID);
-        NotificationDetail notification = this.getNotificationByUserIDOrBroadCastAndNotificationID(
-            userID, NotificationBroadCast.ALL_CUSTOMERS, notificationID);
-        return this.updateNotificationReadStatusByNotificationID(
-            notification.getNotificationID(), NotificationIsRead.YES.getValue());
-    }
-
-    @Override
     public Long getUserTotalNumberOfUnreadNotifications(String userID, NotificationBroadCast broadCast) {
         Long numberOfUnreadNotifications = notificationDetailRepository
             .countNumberOfNotificationsByReceiverIDOrBroadCastAndIsRead(
@@ -135,24 +121,30 @@ public class NotificationServiceImp implements NotificationService{
     }
 
     @Override
-    public Boolean markAsReadEmployeeNotifications(String userID) {
-        log.info("markAsReadEmployeeNotifications(userID={})", userID);
-        return this.updateNotificationReadStatusByUserID(
-            userID, NotificationBroadCast.ALL_EMPLOYEES, 
-            NotificationIsRead.YES.getValue());
-    }
-
-    @Override
-    public Boolean markAsReadCustomerNotifications(String userID) {
-        log.info("markAsReadCustomerNotifications(userID={})", userID);
-        return this.updateNotificationReadStatusByUserID(
-            userID, NotificationBroadCast.ALL_CUSTOMERS, 
-            NotificationIsRead.YES.getValue());
-    }
-
-    @Override
-    public Boolean updateNotificationReadStatusByUserID(String userID, NotificationBroadCast broadCast, Boolean status){
-        log.info("updateNotificationReadStatusByUserID(userID={}, status={})", userID, status);
+    public Boolean updateNotificationsReadStatus(String userID, NotificationBroadCast broadCast, Boolean status){
+        log.info("updateNotificationReadStatus(userID={}, status={})", userID, status);
         return this.notificationUserRepository.updateNotificationReadStatusByUserID(userID, broadCast.name(), status);
+    }
+
+    @Override
+    public Boolean updateNotificationReadStatus(String notificationID, NotificationBroadCast broadCast, Boolean status)
+            throws NameNotFoundException {
+        log.info("updateNotificationReadStatus(notificationID={}, broadCast={}, status={})", notificationID, broadCast, status);
+        // fetch notifiation from db
+        NotificationDetail fetchedNotificationDetail = this.notificationDetailRepository
+            .findByNotificationIDAndReceiverID(notificationID, broadCast.name())
+            .orElseThrow(()-> new NameNotFoundException("Notification " + notificationID + " for " + broadCast.name() + " does not found"));
+        // update read status of that notification for all broadcasted users
+        return notificationUserRepository.updateNotificationReadStatusByUserID(
+            fetchedNotificationDetail.getNotificationID(), 
+            fetchedNotificationDetail.getReceiverID(), status);
+    }
+
+    @Override
+    public NotificationDetail getNotificationByNotificationIDAndReceiverID(String notificationID, String receiverID)
+            throws NameNotFoundException {
+        return this.notificationDetailRepository
+        .findByNotificationIDAndReceiverID(notificationID, receiverID)
+        .orElseThrow(()-> new NameNotFoundException("Notification " + notificationID + " of " + receiverID + " does not found"));
     }
 }

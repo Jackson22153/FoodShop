@@ -1,4 +1,3 @@
-// import './sb-admin-2.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faClipboardList, faComments, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 

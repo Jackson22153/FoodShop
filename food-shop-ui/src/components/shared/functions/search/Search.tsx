@@ -1,5 +1,5 @@
 import { ChangeEventHandler, FormEventHandler, MouseEventHandler, useState } from "react";
-import { onUserInput } from "../../../../service/search";
+import { onUserInput } from "../../../../service/Search";
 import { Product } from "../../../../model/Type";
 import { FoodPath, SearchFoodsPath } from "../../../../constant/FoodShoppingURL";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

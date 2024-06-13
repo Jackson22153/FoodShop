@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { OrderWithProduct } from "../../../../model/Type";
-import { displayProductImage } from "../../../../service/image";
+import { displayProductImage } from "../../../../service/Image";
 
 interface Prop{
     orderInfo: OrderWithProduct

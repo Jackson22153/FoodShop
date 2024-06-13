@@ -3,7 +3,7 @@ import { getProducts } from '../../../../../api/SearchApi';
 import { useEffect, useState } from 'react';
 import { CurrentProduct, Pageable } from '../../../../../model/Type';
 import PaginationSection from '../../../../shared/website/sections/paginationSection/PaginationSection';
-import { getPageNumber } from '../../../../../service/pageable';
+import { getPageNumber } from '../../../../../service/Pageable';
 import { PathProvider } from '../../../../contexts/PathContext';
 import { adminProducts } from '../../../../../constant/FoodShoppingURL';
 

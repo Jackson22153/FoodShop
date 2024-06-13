@@ -17,14 +17,12 @@ import { useCookies } from 'react-cookie'
 import { NumberOfCartProductsProvider } from "../../../contexts/NumberOfCartProductsContext";
 import { CategoriesProvider } from "../../../contexts/CategoriesContext";
 import OrderComponent from "../order/Order";
-import {getNumberOfCartProducts} from "../../../../service/cookie"
+import {getNumberOfCartProducts} from "../../../../service/Cookie"
 
 function HomeComponent(){
     const [cookies] = useCookies();
     const [categories, setCategories] = useState<Category[]>([]);
     const [numberOfCartProducts, setNumberOfCartProducts] = useState(0);
-    // const [isExpanded, setIsExpanded] = useState(false); 
-
 
     useEffect(()=>{
         initial();

@@ -7,16 +7,14 @@ import { CartProduct, CurrentProduct, CurrentProductDetail } from '../../../../m
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { addProductToCart } from '../../../../api/CartApi';
-import { displayProductImage } from '../../../../service/image';
+import { displayProductImage } from '../../../../service/Image';
 import numberOfCartProductsContext from '../../../contexts/NumberOfCartProductsContext';
-import { ceilRound } from '../../../../service/convert';
+import { ceilRound } from '../../../../service/Convert';
 import { foodsPath } from '../../../../constant/FoodShoppingURL';
-import { numberOfProductsInCart } from '../../../../service/cart';
+import { numberOfProductsInCart } from '../../../../service/Cart';
 
 export default function FoodComponent(){
     const urlParams = new URLSearchParams(window.location.search);
-    // const {foodName} = useParams();
-    // const cre = "https://mdbootstrap.com/snippets/standard/mdbootstrap/4852176?view=project"
     const [foodInfo, setFoodInfo] = useState<CurrentProductDetail>();
     const [similarFoods, setSimilarFoods] = useState<CurrentProduct[]>([]);
     const {  setNumberOfCartProducts } = useContext(numberOfCartProductsContext);
@@ -24,8 +22,7 @@ export default function FoodComponent(){
         productID: 0,
         quantity: 1
     })
-    // let stompClient: CompatClient | undefined;
-
+    
     useEffect(()=>{
         initial();
     }, []);

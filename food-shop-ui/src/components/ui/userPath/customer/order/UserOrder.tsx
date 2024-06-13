@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
 import { OrderInfo } from "../../../../../model/Type";
-import { displayProductImage } from "../../../../../service/image";
+import { displayProductImage } from "../../../../../service/Image";
 import { getCustomerInvoice } from "../../../../../api/OrderApi";
 
 export default function UserOrderComponent(){

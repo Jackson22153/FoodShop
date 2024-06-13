@@ -9,7 +9,7 @@ import { isAuthenticated } from './api/AuthorizationApi';
 import { Notification, UserInfo } from './model/Type';
 import { UserInfoProvider } from './components/contexts/UserInfoContext';
 import { NotificationMessagesProvider } from './components/contexts/NotificationMessagesContext';
-import { ROLE } from './constant/config';
+import { ROLE } from './constant/WebConstant';
 import { employeeReceiveNotificationConnect } from './api/EmployeeReceiveNotificationWsApi';
 import { customerReceiveNotificationConnect } from './api/CustomerReceiveNotificationWsApi';
 

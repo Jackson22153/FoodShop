@@ -1,5 +1,5 @@
 import { ChangeEventHandler } from "react";
-import { displayUserImage } from "../../../../service/image";
+import { displayUserImage } from "../../../../service/Image";
 import { uploadUserImage } from "../../../../api/UserApi";
 
 interface Props{

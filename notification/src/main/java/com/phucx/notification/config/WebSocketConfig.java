@@ -32,12 +32,13 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    public static String REGISTER_ENDPOINT = "/chat";
-    public static String APPLICATION_ENDPOINT = "/app";
-    public static String QUEUE_MESSAGES = "/queue/messages";
-    public static String SIMP_USER = "simpUser";
-    public static String TOPIC_ORDER = "/topic/order";
-    public static String TOPIC_EMPLOYEE_NOTIFICAITON_ORDER = "/topic/employee.notification.order";
+    public final static String REGISTER_ENDPOINT = "/chat";
+    public final static String APPLICATION_ENDPOINT = "/app";
+    public final static String QUEUE_MESSAGES = "/queue/messages";
+    public final static String SIMP_USER = "simpUser";
+    public final static String TOPIC_ORDER = "/topic/order";
+    public final static String TOPIC_EMPLOYEE_NOTIFICAITON_ORDER = "/topic/employee.notification.order";
+    public final static String TOPIC_EMPLOYEE_NOTIFICAITON_ACCOUNT = "/topic/employee.notification.account";
 
     @Value("${spring.rabbitmq.username}")
     private String rabbitmqAdminUsername;
@@ -48,8 +49,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwtSetUri;
-
-    // private Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -64,8 +63,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             .setRelayHost(rabbitmqHost).setRelayPort(61613)
             .setSystemLogin(rabbitmqAdminUsername).setSystemPasscode(rabbitmqAdminPassword)
             .setClientLogin(rabbitmqAdminUsername).setClientPasscode(rabbitmqAdminPassword);
-        registry.setUserDestinationPrefix("/user");
-        // registry.enableSimpleBroker("/user", "/topic");    
+        registry.setUserDestinationPrefix("/user");   
     }
     @Override
     public boolean configureMessageConverters(List<MessageConverter> messageConverters) {

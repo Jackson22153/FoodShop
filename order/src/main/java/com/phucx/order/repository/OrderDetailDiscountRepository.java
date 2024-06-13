@@ -25,5 +25,5 @@ public interface OrderDetailDiscountRepository extends JpaRepository<OrderDetail
         FROM  OrderDetailDiscount odd \
         WHERE odd.orderID=?1 AND odd.productID=?2 
         """)
-    List<OrderDetailDiscount> findByOrderDetail(String orderID, Integer productID);
+    List<OrderDetailDiscount> findByOrderIDAndProductID(String orderID, Integer productID);
 }

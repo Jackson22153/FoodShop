@@ -1,4 +1,4 @@
-import { convertNameForUrl } from "../service/convert";
+import { convertNameForUrl } from "../service/Convert";
 
 // home path
 export const homePath = "";

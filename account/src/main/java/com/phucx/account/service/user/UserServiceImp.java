@@ -60,17 +60,19 @@ public class UserServiceImp implements UserService {
 
     @Override
     public UserInfo getUserInfo(String userID) {
+        log.info("getUserInfo(userID={})", userID);
         List<UserRole> userRoles = userRoleRepository.findByUserID(userID);
-        if(userRoles!=null && userRoles.size()>0){
-            UserRole firstEntity = userRoles.get(0);
-            User user = new User(firstEntity.getUserID(), firstEntity.getUsername(), firstEntity.getEmail());
-            List<Role> roles = userRoles.stream().map(userRole ->{
-                return new Role(userRole.getRoleID(), userRole.getRoleName());
-            }).collect(Collectors.toList());
-
-            return new UserInfo(user, roles);
+        if(userRoles==null || userRoles.isEmpty()){
+            throw new NotFoundException("User " + userID + " does not found");
         }
-        throw new NotFoundException("User " + userID + " does not found");
+        UserRole firstEntity = userRoles.get(0);
+        log.info("firstEntity: {}", firstEntity);
+        User user = new User(firstEntity.getUserID(), firstEntity.getUsername(), firstEntity.getEmail());
+        List<Role> roles = userRoles.stream().map(userRole ->{
+            return new Role(userRole.getRoleID(), userRole.getRoleName());
+        }).collect(Collectors.toList());
+        log.info("roles: {}", roles);
+        return new UserInfo(user, roles);
     }
     @Override
     public String getUsername(Authentication authentication) {

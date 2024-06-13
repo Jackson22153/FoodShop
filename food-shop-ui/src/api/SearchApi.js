@@ -4,7 +4,7 @@ import {
     ProductsByNameUrl, ProductsUrl, RecommendedProductsByCategoryUrl, RecommendedProductsUrl, 
     SearchProductsUrl} 
     from '../constant/FoodShoppingApiURL';
-import { convertNameForUrl } from "../service/convert";
+import { convertNameForUrl } from "../service/Convert";
 
 // const BASE_URL = `${UrlService.clientService}/search`
 

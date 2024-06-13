@@ -12,7 +12,7 @@ public interface MessageQueueService {
     // send message to user
     public void sendMessageToUser(String userID, NotificationDetail notification);
     // send message to employee's topic
-    public void sendOrderNotificationToEmployeeTopic(NotificationDetail notification);
+    public void sendNotificationToTopic(NotificationDetail notification, String topic);
     // fetch data from other services
     public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> message, String exchange, String routingKey, Class<T> dataType) 
         throws JsonProcessingException;

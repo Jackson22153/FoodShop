@@ -1,4 +1,4 @@
-import { getSlide } from "../../../../service/image";
+import { getSlide } from "../../../../service/Image";
 import { useContext, useEffect, useState } from "react";
 import { getRecommendedProduct } from "../../../../api/SearchApi";
 import CategoriesSection from "../../../shared/website/sections/categoriesSection/CategoriesSection";

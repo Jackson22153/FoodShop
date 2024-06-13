@@ -4,9 +4,9 @@ import { Alert, Modal } from "../../../../../model/WebType";
 import { getCustomer, resetPassword } from "../../../../../api/AdminApi";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import ModalComponent from "../../../../shared/functions/modal/Modal";
-import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/config";
+import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/WebConstant";
 import { useParams } from "react-router-dom";
-import { displayUserImage } from "../../../../../service/image";
+import { displayUserImage } from "../../../../../service/Image";
 
 export default function AdminCustomerComponent(){
     const { customerID } = useParams();

@@ -1,8 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { displayProductImage } from "../../../../service/image";
+import { displayProductImage } from "../../../../service/Image";
 import { ProductWithDiscount } from "../../../../model/Type";
-import { ceilRound } from "../../../../service/convert";
+import { ceilRound } from "../../../../service/Convert";
 interface Props{
     number: number,
     product: ProductWithDiscount,

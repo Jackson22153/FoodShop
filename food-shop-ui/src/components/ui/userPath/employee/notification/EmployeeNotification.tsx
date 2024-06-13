@@ -1,14 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import { Notification, Pageable } from "../../../../../model/Type";
-import { displayProductImage } from "../../../../../service/image";
-import { getPageNumber } from "../../../../../service/pageable";
+import { displayProductImage } from "../../../../../service/Image";
+import { getPageNumber } from "../../../../../service/Pageable";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
 import { getEmployeeNotifications, markAllAsReadEmployeeNotifications } 
     from "../../../../../api/NotificationApi";
-import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/config";
+import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/WebConstant";
 import { Alert } from "../../../../../model/WebType";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
+import { getUrlFromNotification } from "../../../../../service/Notification";
 
 export default function EmployeeNotificationComponent(){
     const [notifications, setNotifications] = useState<Notification[]>([])
@@ -40,6 +41,7 @@ export default function EmployeeNotificationComponent(){
         const res = await getEmployeeNotifications(pageNumber);
         if(200<=res.status&&res.status<300){
             const data = res.data;
+            // console.log(data.content)
             setNotifications(data.content);
             setPageable({
                 first: data.first,

@@ -1,7 +1,7 @@
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
 import { getCustomers, getCustomersBySearchParam, getEmployees, getEmployeesBySearchParam, getUsers, getUsersBySearchParam } 
     from '../../../../../api/AdminApi';
-import { getPageNumber } from '../../../../../service/pageable';
+import { getPageNumber } from '../../../../../service/Pageable';
 import { CustomerAccount, EmployeeAccount, Pageable, UserRole } from '../../../../../model/Type';
 import UserTable from '../../../../shared/functions/table/UserTable';
 import EmployeeTable from '../../../../shared/functions/table/EmployeeTable';

@@ -1,7 +1,7 @@
 import { useContext } from "react";
-import { ceilRound, convertNameForUrl } from "../../../../service/convert";
+import { ceilRound, convertNameForUrl } from "../../../../service/Convert";
 import foodPathContext from "../../../contexts/PathContext";
-import { displayProductImage } from "../../../../service/image";
+import { displayProductImage } from "../../../../service/Image";
 import { CurrentProduct } from "../../../../model/Type";
 import { categoriesPath } from "../../../../constant/FoodShoppingURL";
 

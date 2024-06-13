@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.notification.config.WebSocketConfig;
-import com.phucx.notification.constant.WebSocketConstant;
 import com.phucx.notification.model.DataDTO;
 import com.phucx.notification.model.EventMessage;
 import com.phucx.notification.model.NotificationDetail;
@@ -59,11 +58,11 @@ public class MessageQueueServiceImp implements MessageQueueService{
     }
 
     @Override
-    public void sendOrderNotificationToEmployeeTopic(NotificationDetail notification) {
-        log.info("sendOrderNotificationToEmployeeTopic({})", notification);
+    public void sendNotificationToTopic(NotificationDetail notification, String topic) {
+        log.info("sendNotificationToTopic(notification={}, topic={})", notification, topic);
         notificationService.createNotification(notification);
         // send notification to notification/order topic
-        this.simpMessagingTemplate.convertAndSend(WebSocketConstant.TOPIC_EMPLOYEE_NOTIFICAITON_ORDER, notification);
+        this.simpMessagingTemplate.convertAndSend(topic, notification);
     }
 
     @Override

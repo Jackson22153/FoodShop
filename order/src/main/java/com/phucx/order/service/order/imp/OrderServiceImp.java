@@ -300,7 +300,7 @@ public class OrderServiceImp implements OrderService{
             customerID, status, pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<OrderDetailExtended> orders = orderDetailExtendedRepository
-            .findAllByCustomerIDAndStatusOrderByDesc(customerID, status, pageable);
+            .findAllByCustomerIDAndStatusOrderByOrderDateDesc(customerID, status, pageable);
         List<OrderDetails> orderDetailss = convertOrderService.convertOrders(orders.getContent());
         return new PageImpl<>(orderDetailss, pageable, orders.getTotalElements());
     }
@@ -323,7 +323,7 @@ public class OrderServiceImp implements OrderService{
             employeeID, status, pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<OrderDetailExtended> orders = orderDetailExtendedRepository
-            .findAllByEmployeeIDAndStatusOrderByDesc(employeeID, status, pageable);
+            .findAllByEmployeeIDAndStatusOrderByOrderDateDesc(employeeID, status, pageable);
         List<OrderDetails> orderDetailss = convertOrderService.convertOrders(orders.getContent());
         return new PageImpl<>(orderDetailss, pageable, orders.getTotalElements());
     }
@@ -352,7 +352,7 @@ public class OrderServiceImp implements OrderService{
             customerID, pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<OrderDetailExtended> orders = orderDetailExtendedRepository
-            .findAllByCustomerIDOrderByOrderIDDesc(customerID, pageable);
+            .findAllByCustomerIDOrderByOrderDateDesc(customerID, pageable);
         List<OrderDetails> orderDetailss = convertOrderService.convertOrders(orders.getContent());
         return new PageImpl<>(orderDetailss, pageable, orders.getTotalElements());
     }
@@ -364,7 +364,7 @@ public class OrderServiceImp implements OrderService{
             employeeID, pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<OrderDetailExtended> orders = orderDetailExtendedRepository
-            .findAllByEmployeeIDOrderByOrderIDDesc(employeeID, pageable);
+            .findAllByEmployeeIDOrderByOrderDateDesc(employeeID, pageable);
         List<OrderDetails> orderDetailss = convertOrderService.convertOrders(orders.getContent());
         return new PageImpl<>(orderDetailss, pageable, orders.getTotalElements());
     }
@@ -374,7 +374,7 @@ public class OrderServiceImp implements OrderService{
         log.info("getOrders(status={}, pageNumber={}, pageSize={})", status, pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<OrderDetailExtended> orders = orderDetailExtendedRepository
-            .findAllByStatusOrderByDesc(status, pageable);
+            .findAllByStatusOrderByOrderDateDesc(status, pageable);
         List<OrderDetails> orderDetailss = convertOrderService.convertOrders(orders.getContent());
         return new PageImpl<>(orderDetailss, pageable, orders.getTotalElements());
     }

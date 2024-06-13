@@ -1,10 +1,10 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Notification, OrderDetail, OrderSummary, Pageable } from "../../../../../model/Type";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
-import { getPageNumber } from "../../../../../service/pageable";
-import { displayProductImage, displayUserImage } from "../../../../../service/image";
+import { getPageNumber } from "../../../../../service/Pageable";
+import { displayProductImage, displayUserImage } from "../../../../../service/Image";
 import { employeeConfirmedOrder, employeeOrder, employeePendingOrder } from "../../../../../constant/FoodShoppingURL";
-import { ORDER_STATUS } from "../../../../../constant/config";
+import { ORDER_STATUS } from "../../../../../constant/WebConstant";
 import { cancelOrder, confirmOrder, fulfillOrder, getOrderSummary, getOrders } from "../../../../../api/OrderApi";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
 

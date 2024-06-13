@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CurrentProduct, Pageable } from "../../../../model/Type";
 import { getProducts, searchProducts } from "../../../../api/SearchApi";
 import PaginationSection from "../../../shared/website/sections/paginationSection/PaginationSection";
-import { getPageNumber } from "../../../../service/pageable";
+import { getPageNumber } from "../../../../service/Pageable";
 import { PathProvider } from "../../../contexts/PathContext";
 import { foodsPath } from "../../../../constant/FoodShoppingURL";
 import FoodCardDeck from "../../../shared/functions/foodCardDeck/FoodCardDeck";

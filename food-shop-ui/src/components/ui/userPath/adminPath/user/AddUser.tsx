@@ -3,7 +3,7 @@ import { CustomerAccount, EmployeeAccount } from '../../../../../model/Type';
 import AlertComponent from '../../../../shared/functions/alert/Alert';
 import ModalComponent from '../../../../shared/functions/modal/Modal';
 import { Alert, Modal } from '../../../../../model/WebType';
-import { ALERT_TIMEOUT, ALERT_TYPE } from '../../../../../constant/config';
+import { ALERT_TIMEOUT, ALERT_TYPE } from '../../../../../constant/WebConstant';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { addNewCustomer, addNewEmployee } from '../../../../../api/AdminApi';
 

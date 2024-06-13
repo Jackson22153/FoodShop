@@ -3,7 +3,7 @@ import CartCard from '../../../shared/functions/cartCard/CartCard';
 import { useEffect, useState } from 'react';
 import { CartProduct, OrderInfo, ProductWithDiscount } from '../../../../model/Type';
 import { addProductToCart, deleteProductToCart, getProductsFromCart } from '../../../../api/CartApi';
-import { ceilRound } from '../../../../service/convert';
+import { ceilRound } from '../../../../service/Convert';
 import { orderPath } from '../../../../constant/FoodShoppingURL';
 
 export default function CartComponent(){

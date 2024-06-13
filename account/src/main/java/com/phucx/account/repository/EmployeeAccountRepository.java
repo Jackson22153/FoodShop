@@ -36,6 +36,8 @@ public interface EmployeeAccountRepository extends JpaRepository<EmployeeAccount
         @Param("username") String username, 
         @Param("password") String password, 
         @Param("email") String email,
+        @Param("emailVerified") Boolean emailVerified,
+        @Param("enabled") Boolean enabled,
         @Param("employeeID") String employeeID, 
         @Param("firstName") String firstName,
         @Param("lastName") String lastName);

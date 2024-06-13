@@ -1,12 +1,12 @@
 import { ChangeEventHandler, useContext, useEffect, useState } from "react"
 import { OrderInfo } from "../../../../model/Type"
-import { displayProductImage, getError } from "../../../../service/image";
+import { displayProductImage, getError } from "../../../../service/Image";
 import { getOrder } from "../../../../api/CartApi";
 import { faLongArrowAltLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { cartPath } from "../../../../constant/FoodShoppingURL";
 import { Notification } from "../../../../model/Type";
-import { NOTIFICATION_TYPE } from "../../../../constant/config";
+import { NOTIFICATION_TYPE } from "../../../../constant/WebConstant";
 import { isCustomer } from "../../../../api/UserApi";
 import userInfoContext from "../../../contexts/UserInfoContext";
 import { placeOrder } from "../../../../api/OrderApi";

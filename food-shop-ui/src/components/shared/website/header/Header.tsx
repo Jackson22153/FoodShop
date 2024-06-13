@@ -1,8 +1,8 @@
-import { getLogo } from "../../../../service/image";
+import { getLogo } from "../../../../service/Image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { cartPath, categoriesPath, foodsPath } from "../../../../constant/FoodShoppingURL";
 import { Category } from "../../../../model/Type";
-import { convertNameForUrl, nonBreakingSpace } from "../../../../service/convert";
+import { convertNameForUrl, nonBreakingSpace } from "../../../../service/Convert";
 import Search from "../../functions/search/Search";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { memo, useContext, useEffect, useRef, useState } from "react";

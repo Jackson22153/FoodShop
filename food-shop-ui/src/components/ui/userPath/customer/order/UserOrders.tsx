@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { OrderDetail, Pageable } from "../../../../../model/Type";
-import { ORDER_STATUS } from "../../../../../constant/config";
+import { ORDER_STATUS } from "../../../../../constant/WebConstant";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
-import { getPageNumber } from "../../../../../service/pageable";
+import { getPageNumber } from "../../../../../service/Pageable";
 import { customerOrder } from "../../../../../constant/FoodShoppingURL";
-import { displayProductImage } from "../../../../../service/image";
+import { displayProductImage } from "../../../../../service/Image";
 import { getCustomerOrders, receiveOrder } from "../../../../../api/OrderApi";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
 
