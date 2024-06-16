@@ -10,20 +10,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.constant.NotificationBroadCast;
 import com.phucx.order.constant.NotificationStatus;
 import com.phucx.order.constant.NotificationTopic;
-import com.phucx.order.constant.OrderNotificationTitle;
+import com.phucx.order.constant.NotificationTitle;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.exception.InvalidOrderException;
 import com.phucx.order.model.Customer;
 import com.phucx.order.model.InvoiceDetails;
-import com.phucx.order.model.NotificationDetail;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderItem;
 import com.phucx.order.model.OrderItemDiscount;
+import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.model.User;
 import com.phucx.order.service.customer.CustomerService;
-import com.phucx.order.service.messageQueue.MessageQueueService;
+import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.CustomerOrderService;
 import com.phucx.order.service.order.OrderService;
 import com.phucx.order.service.user.UserService;
@@ -37,7 +37,7 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
     @Autowired
     private OrderService orderService;
     @Autowired
-    private MessageQueueService messageQueueService;
+    private NotificationService notificationService;
     @Autowired
     private CustomerService customerService;
     @Autowired
@@ -56,23 +56,24 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
         if(newOrder ==null){
             throw new RuntimeException("Error when placing an order");
         }
+
+        // customer
         // create and save notification back to user
-        NotificationDetail notificationToCustomer = new NotificationDetail(
-            OrderNotificationTitle.PLACE_ORDER.getValue(),
-            "Order #"+newOrder.getOrderID()+" has been placed successfully",
-            null, userID, NotificationTopic.Order.name(),
-            NotificationStatus.SUCCESSFUL.name());
+        OrderNotificationDTO customerNotification = new OrderNotificationDTO(
+            newOrder.getOrderID(), NotificationTitle.PLACE_ORDER, 
+            userID, NotificationTopic.Order, NotificationStatus.SUCCESSFUL);
+        customerNotification.setMessage("Your order #" + newOrder.getOrderID() + " has been placed successfully");
         // send message back to user
-        messageQueueService.sendNotification(notificationToCustomer);
-        // messageQueueService.sendNotificationToUser(customer.getUserID(), notificationToUser);
+        notificationService.sendNotification(customerNotification);
+
+        // employee
         // send message to notification message queue
-        NotificationDetail notificationToTopic = new NotificationDetail(
-            OrderNotificationTitle.PLACE_ORDER.getValue(),
-            "Order #" + newOrder.getOrderID() + " has been placed", 
+        OrderNotificationDTO employeeNotification = new OrderNotificationDTO(
+            newOrder.getOrderID(), NotificationTitle.PLACE_ORDER, 
             userID, NotificationBroadCast.ALL_EMPLOYEES.name(), 
-            NotificationTopic.Order.name(), 
-            NotificationStatus.SUCCESSFUL.name());
-        messageQueueService.sendNotification(notificationToTopic);
+            NotificationTopic.Order, NotificationStatus.SUCCESSFUL);
+        employeeNotification.setMessage("A new order #" + newOrder.getOrderID() + " has been placed");
+        notificationService.sendNotification(employeeNotification);
 
         return orderService.getOrder(newOrder.getOrderID(), OrderStatus.Pending);
     }
@@ -113,24 +114,20 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
         // update order's status
         Boolean status = orderService.updateOrderStatus(orderDetails.getOrderID(), OrderStatus.Successful);
         // notification
-        NotificationDetail notification = new NotificationDetail();
-        notification.setTitle(OrderNotificationTitle.RECEIVE_ORDER.getValue());
-        notification.setTopic(NotificationTopic.Order.name());
+        OrderNotificationDTO notification = new OrderNotificationDTO();
+        notification.setTitle(NotificationTitle.RECEIVE_ORDER);
+        notification.setTopic(NotificationTopic.Order);
+        notification.setOrderID(orderDetails.getOrderID());
         if(status){
             notification.setMessage("Order #" + orderDetails.getOrderID() + " is received successully by customer " + orderDetails.getCustomerID());
-            notification.setStatus(NotificationStatus.SUCCESSFUL.name());
+            notification.setStatus(NotificationStatus.SUCCESSFUL);
             notification.setReceiverID(employeeUser.getUserID());
         }else {
             notification.setMessage("Order #" + orderDetails.getOrderID() + " can not received by customer " + orderDetails.getCustomerID());
-            notification.setStatus(NotificationStatus.ERROR.name());
+            notification.setStatus(NotificationStatus.ERROR);
             notification.setReceiverID(employeeUser.getUserID());
         }
-        messageQueueService.sendNotification(notification);
-        // send message to employee
-        // messageQueueService.sendNotification(notificationMessage);
-        // send message to customer
-        // notificationMessage.setReceiverID(userService.getUserIdOfEmployeeID(order.getEmployeeID()));
-        // messageQueueService.sendNotification(notificationMessage);
+        notificationService.sendNotification(notification);
     }
 
     @Override

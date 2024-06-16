@@ -1,6 +1,9 @@
 package com.phucx.account.constant;
 
 public enum EventType {
+    // notification
+    SendCustomerNotificationToUser,
+    SendEmployeeNotificationToUser,
     // customer
     GetCustomerByUserID,
     GetCustomerByID,

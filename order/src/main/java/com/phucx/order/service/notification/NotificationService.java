@@ -1,5 +1,11 @@
 package com.phucx.order.service.notification;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.phucx.order.model.OrderNotificationDTO;
+
 public interface NotificationService {
-    
+    // send notification to notification service
+    public void sendNotification(OrderNotificationDTO notification) throws JsonProcessingException;
+    // mark pending order as confirmed for all employees
+    public void markAsReadForConfirmedOrderNotification(OrderNotificationDTO notification) throws JsonProcessingException;
 }

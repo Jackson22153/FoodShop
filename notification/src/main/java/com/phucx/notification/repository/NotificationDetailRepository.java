@@ -59,4 +59,10 @@ public interface NotificationDetailRepository extends JpaRepository<Notification
         WHERE (receiverID=?1 OR receiverID=?3) AND isRead=?2
             """)
     Long countNumberOfNotificationsByReceiverIDOrBroadCastAndIsRead(String receiverID, Boolean isRead, String broadCast);
+
+    @Query("""
+        SELECT n FROM NotificationDetail n \
+        WHERE title=?1 AND receiverID=?2 AND message LIKE ?3
+            """)
+    Optional<NotificationDetail> findByTitleAndReceiverIDAndMessageLike(String title, String receiverID, String message);
 }

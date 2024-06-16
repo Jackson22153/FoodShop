@@ -42,7 +42,10 @@ export const RecommendedProductsUrl = `${ProductsUrl}/recommended`;
 export function ProductsByCategories(categoryName){
     return `${CategoriesUrl}/${categoryName}/products`;
 }
-export const UploadProductImageUrl = `${HomeUrl}/upload`;
+// image
+const ShopImageURl = `${ShopService}/image`;
+export const UploadProductImageUrl = `${ShopImageURl}/product/upload`;
+export const UploadCategoryImageUrl = `${ShopImageURl}/category/upload`;
 // categories
 export const CategoriesUrl = `${HomeUrl}/categories`;
 export const CategoriesIDUrl = `${CategoriesUrl}/id`;
@@ -72,15 +75,13 @@ export const CartOrderUrl = `${CartUrl}/order`;
 const NotificationService = `${ServerURL}/notification`;
 // customer
 const NotificationCustomerUrl = `${NotificationService}/customer`;
-export const CustomerNotificationsUrl = `${NotificationCustomerUrl}/notifications`
-export const MarkAsReadCustomerNotificationUrl = `${NotificationCustomerUrl}/mark-as-read`
-export const MarkAllAsReadCustomerNotificationUrl = `${NotificationCustomerUrl}/mark-all-as-read`
+export const CustomerNotificationsUrl = `${NotificationCustomerUrl}/notification`
+export const MarkAsReadCustomerNotificationUrl = `${CustomerNotificationsUrl}/mark`
 export const CustomerSummaryNotificationUrl = `${NotificationCustomerUrl}/summary`
 // employee
 const NotificationEmployeeUrl = `${NotificationService}/employee`;
-export const EmployeeNotificationsUrl = `${NotificationEmployeeUrl}/notifications`;
-export const MarkAsReadEmployeeNotificationUrl = `${NotificationEmployeeUrl}/mark-as-read`
-export const MarkAllAsReadEmployeeNotificationUrl = `${NotificationEmployeeUrl}/mark-all-as-read`
+export const EmployeeNotificationsUrl = `${NotificationEmployeeUrl}/notification`;
+export const MarkAsReadEmployeeNotificationUrl = `${EmployeeNotificationsUrl}/mark`
 export const EmployeeSummaryNotificationUrl = `${NotificationEmployeeUrl}/summary`
 // websocket
 export const NotificationServiceWsUrl = `${NotificationService}/chat`;

@@ -33,3 +33,8 @@ export const NOTIFICATION_TOPIC = {
     ORDER: 'Order',
     ACCOUNT: 'Account'
 }
+export const MARK_NOTIFICATION_TYPE = {
+    ALL: 'All',
+    NOTIFICATION: 'Notification',
+    BROADCAST: 'Broadcast'
+}

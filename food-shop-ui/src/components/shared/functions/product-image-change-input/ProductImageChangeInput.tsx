@@ -20,9 +20,8 @@ export const ProductImageChangeInput = (prop: Props)=>{
 
     const uploadImage = async (file: File)=>{
         const res = await uploadProductImage(file);
-        if(res.status){
+        if(200<=res.status&&res.status<300){
             const data = res.data;
-            console.log(data)
             prop.onChangePicture(data.imageUrl);
         }
     }

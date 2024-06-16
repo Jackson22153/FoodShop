@@ -11,14 +11,14 @@ import com.phucx.order.annotations.LoggerAspect;
 import com.phucx.order.config.MessageQueueConfig;
 import com.phucx.order.constant.NotificationStatus;
 import com.phucx.order.constant.NotificationTopic;
-import com.phucx.order.constant.OrderNotificationTitle;
+import com.phucx.order.constant.NotificationTitle;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.exception.InvalidOrderException;
-import com.phucx.order.model.NotificationDetail;
+import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.model.User;
-import com.phucx.order.service.messageQueue.MessageQueueService;
+import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.OrderService;
 import com.phucx.order.service.user.UserService;
 
@@ -35,26 +35,26 @@ public class OrderProcessingMessageListener {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private MessageQueueService messageQueueService;
+    private NotificationService notificationService;
 
     @LoggerAspect
     @RabbitHandler
     public void orderProcessing(String message){
         log.info("orderProcessing(message={})", message);
-        NotificationDetail notification = new NotificationDetail();
-        notification.setTitle(OrderNotificationTitle.PLACE_ORDER.getValue());
-        notification.setTopic(NotificationTopic.Order.name());
+        OrderNotificationDTO notification = new OrderNotificationDTO();
+        notification.setTitle(NotificationTitle.PLACE_ORDER);
+        notification.setTopic(NotificationTopic.Order);
         try {
             OrderWithProducts order = objectMapper.readValue(message, OrderWithProducts.class);
             User user = userService.getUserByCustomerID(order.getCustomerID());
             try {
-                // order = objectMapper.readValue(message, OrderWithProducts.class);
+                notification.setOrderID(order.getOrderID());
                 notification = this.validateOrder(order, notification, user);
             } catch (RuntimeException e) {
                 log.warn("Error: {}", e.getMessage());
                 // notification
                 notification.setMessage("Order #"+order.getOrderID()+" has been canceled");
-                notification.setStatus(NotificationStatus.FAILED.name());
+                notification.setStatus(NotificationStatus.FAILED);
                 notification.setReceiverID(user.getUserID());
                 // update order status
                 orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Canceled);
@@ -62,19 +62,19 @@ public class OrderProcessingMessageListener {
                 log.warn("Error: Discount is invalid {}", e.getMessage());
                 // notification
                 notification.setMessage("Order #"+order.getOrderID()+" has been canceled due to invalid discount");
-                notification.setStatus(NotificationStatus.FAILED.name());
+                notification.setStatus(NotificationStatus.FAILED);
                 notification.setReceiverID(user.getUserID());
                 // update order status
                 orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Canceled);
             } catch(InvalidOrderException e){
                 log.warn("Error: Order is invalid {}", e.getMessage());
                 notification.setMessage("Order #"+order.getOrderID()+" has been canceled due to invalid order");
-                notification.setStatus(NotificationStatus.FAILED.name());
+                notification.setStatus(NotificationStatus.FAILED);
                 notification.setReceiverID(user.getUserID());
                 // update order status
                 orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Canceled);
                 }
-            messageQueueService.sendNotification(notification);
+            notificationService.sendNotification(notification);
         } catch (JsonProcessingException e) {
             log.error("Error: {}", e.getMessage());
         }
@@ -82,12 +82,12 @@ public class OrderProcessingMessageListener {
 
     // validate order product's stocks
     @LoggerAspect
-    private NotificationDetail validateOrder(OrderWithProducts order, NotificationDetail notification, User user) 
+    private OrderNotificationDTO validateOrder(OrderWithProducts order, OrderNotificationDTO notification, User user) 
         throws JsonProcessingException, InvalidDiscountException, InvalidOrderException{
 
         // Notification notification = new Notification();
-        notification.setTitle(OrderNotificationTitle.PLACE_ORDER.getValue());
-        notification.setTopic(NotificationTopic.Order.name());
+        notification.setTitle(NotificationTitle.PLACE_ORDER);
+        notification.setTopic(NotificationTopic.Order);
         if(!orderService.isPendingOrder(order.getOrderID())){
             throw new InvalidOrderException("Order " + order.getOrderID() + " is not a pending order");
         }
@@ -95,8 +95,7 @@ public class OrderProcessingMessageListener {
             throw new InvalidOrderException("Order " + order.getOrderID() + " is invalid due to missing customer or employee");
         }
         // update employeeID for order
-        boolean employeeUpdateCheck = orderService.updateOrderEmployee(
-            order.getOrderID(), order.getEmployeeID());
+        boolean employeeUpdateCheck = orderService.updateOrderEmployee(order.getOrderID(), order.getEmployeeID());
         if(employeeUpdateCheck){
             // validate and update product instock
             boolean check = orderService.validateAndProcessOrder(order);
@@ -105,10 +104,13 @@ public class OrderProcessingMessageListener {
             }
             // notification
             notification.setMessage("Order #"+ order.getOrderID() +" has been confirmed");
-            notification.setStatus(NotificationStatus.SUCCESSFUL.name());
+            notification.setStatus(NotificationStatus.SUCCESSFUL);
             notification.setReceiverID(user.getUserID());
             // update order status
             orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Confirmed);
+
+            // update read status for pending order after validating
+            notificationService.markAsReadForConfirmedOrderNotification(notification);
         } else {
             log.warn("Can not update employeeID for order " + order.getOrderID());
             throw new RuntimeException("Can not update employeeID for order "+ order.getOrderID());

@@ -31,4 +31,15 @@ public class NotificationDetail {
     private Boolean isRead;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime time;
+    public NotificationDetail(String title, String message, String senderID, String receiverID, String topic,
+            String status, Boolean isRead, LocalDateTime time) {
+        this.title = title;
+        this.message = message;
+        this.senderID = senderID;
+        this.receiverID = receiverID;
+        this.topic = topic;
+        this.status = status;
+        this.isRead = isRead;
+        this.time = time;
+    }
 }

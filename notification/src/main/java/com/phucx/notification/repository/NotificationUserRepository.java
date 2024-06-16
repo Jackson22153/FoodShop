@@ -19,5 +19,10 @@ public interface NotificationUserRepository extends JpaRepository<NotificationUs
     @Modifying
     @Transactional
     @Procedure("UpdateNotificationReadStatusByUserID")
-    Boolean updateNotificationReadStatusByUserID(String userID, String broadcast, Boolean isRead);
+    Boolean updateNotificationReadStatusByUserID(String userID, Boolean isRead);
+
+    @Modifying
+    @Transactional
+    @Procedure("UpdateNotificationReadStatusByNotificationID")
+    Boolean updateNotificationReadStatusByNotificationID(String notificationID, Boolean isRead);
 }

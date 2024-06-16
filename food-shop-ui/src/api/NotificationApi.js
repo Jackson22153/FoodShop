@@ -1,23 +1,12 @@
 import axios from "axios";
 import { CustomerNotificationsUrl, CustomerSummaryNotificationUrl, EmployeeNotificationsUrl, 
-    EmployeeSummaryNotificationUrl, MarkAllAsReadCustomerNotificationUrl, 
-    MarkAllAsReadEmployeeNotificationUrl, MarkAsReadCustomerNotificationUrl, 
-    MarkAsReadEmployeeNotificationUrl } 
-    from "../constant/FoodShoppingApiURL";
+    EmployeeSummaryNotificationUrl, MarkAsReadCustomerNotificationUrl, MarkAsReadEmployeeNotificationUrl 
+} from "../constant/FoodShoppingApiURL";
 
 // customer
 // mark a specific notification as read
-export async function markAsReadCustomerNotification(notification){
-    return axios.post(`${MarkAsReadCustomerNotificationUrl}`, JSON.stringify(notification), {
-        withCredentials: true,
-        headers:{
-            "Content-Type": 'application/json',
-        }
-    })
-}
-// mark all as read
-export async function markAllAsReadCustomerNotifications(){
-    return axios.post(`${MarkAllAsReadCustomerNotificationUrl}`, null, {
+export async function markAsReadCustomerNotification(notification, markType){
+    return axios.post(`${MarkAsReadCustomerNotificationUrl}?type=${markType}`, JSON.stringify(notification), {
         withCredentials: true,
         headers:{
             "Content-Type": 'application/json',
@@ -45,17 +34,8 @@ export async function getCustomerSummaryNotifications(){
 
 // employee
 // mark as read
-export async function markAsReadEmployeeNotification(notification){
-    return axios.post(`${MarkAsReadEmployeeNotificationUrl}`, JSON.stringify(notification), {
-        withCredentials: true,
-        headers:{
-            "Content-Type": 'application/json',
-        }
-    })
-}
-// mark all as read
-export async function markAllAsReadEmployeeNotifications(){
-    return axios.post(`${MarkAllAsReadEmployeeNotificationUrl}`, null, {
+export async function markAsReadEmployeeNotification(notification, markType){
+    return axios.post(`${MarkAsReadEmployeeNotificationUrl}?type=${markType}`, JSON.stringify(notification), {
         withCredentials: true,
         headers:{
             "Content-Type": 'application/json',

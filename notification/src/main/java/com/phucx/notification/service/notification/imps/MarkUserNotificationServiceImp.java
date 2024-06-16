@@ -25,7 +25,8 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
         log.info("markAsReadEmployeeNotification(notificationID={}, userID={})", notificationID, userID);
         NotificationDetail notification = this.notificationService.getNotificationByUserIDOrBroadCastAndNotificationID(
             userID, NotificationBroadCast.ALL_EMPLOYEES, notificationID);
-        return this.notificationService.updateNotificationReadStatus(notification.getNotificationID(), userID, NotificationIsRead.YES.getValue());
+        return this.notificationService.updateNotificationReadStatusOfUser(
+            notification.getNotificationID(), userID, NotificationIsRead.YES.getValue());
     }
 
     @Override
@@ -33,23 +34,22 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
         log.info("markAsReadCustomerNotification(notificationID={}, userID={})", notificationID, userID);
         NotificationDetail notification = this.notificationService.getNotificationByUserIDOrBroadCastAndNotificationID(
             userID, NotificationBroadCast.ALL_CUSTOMERS, notificationID);
-        return this.notificationService.updateNotificationReadStatus(notification.getNotificationID(), userID, NotificationIsRead.YES.getValue());
+        return this.notificationService.updateNotificationReadStatusOfUser(
+            notification.getNotificationID(), userID, NotificationIsRead.YES.getValue());
     }
 
     @Override
     public Boolean markAsReadCustomerNotifications(String userID) {
         log.info("markAsReadCustomerNotifications(userID={})", userID);
         return this.notificationService.updateNotificationsReadStatus(
-            userID, NotificationBroadCast.ALL_CUSTOMERS, 
-            NotificationIsRead.YES.getValue());
+            userID, NotificationIsRead.YES.getValue());
     }
 
     @Override
     public Boolean markAsReadEmployeeNotifications(String userID) {
         log.info("markAsReadEmployeeNotifications(userID={})", userID);
         return this.notificationService.updateNotificationsReadStatus(
-            userID, NotificationBroadCast.ALL_EMPLOYEES, 
-            NotificationIsRead.YES.getValue());
+            userID, NotificationIsRead.YES.getValue());
     }
 
     @Override
@@ -58,9 +58,9 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
         NotificationDetail fetchedNotification = this.notificationService
             .getNotificationByNotificationIDAndReceiverID(
                 notifiationID, NotificationBroadCast.ALL_EMPLOYEES.name());
-        return notificationService.updateNotificationReadStatus(
+        return notificationService.updateNotificationReadStatusOfBroadcast(
             fetchedNotification.getNotificationID(), 
-            NotificationBroadCast.ALL_EMPLOYEES.name(), 
+            NotificationBroadCast.ALL_EMPLOYEES, 
             NotificationIsRead.YES.getValue());
     }
 
@@ -70,9 +70,9 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
         NotificationDetail fetchedNotification = this.notificationService
             .getNotificationByNotificationIDAndReceiverID(
                 notifiationID, NotificationBroadCast.ALL_CUSTOMERS.name());
-        return notificationService.updateNotificationReadStatus(
+        return notificationService.updateNotificationReadStatusOfBroadcast(
             fetchedNotification.getNotificationID(), 
-            NotificationBroadCast.ALL_EMPLOYEES.name(), 
+            NotificationBroadCast.ALL_CUSTOMERS, 
             NotificationIsRead.YES.getValue());
     }
 
@@ -106,6 +106,13 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
             status = this.markAsReadCustomerBroadcastNotification(notificationID);
         }
         return status;
+    }
+
+    @Override
+    public Boolean markAsReadForNotification(String notificationID) {
+        log.info("markAsReadForNotification({})", notificationID);
+        return this.notificationService.updateNotificationReadStatus(
+            notificationID, NotificationIsRead.YES.getValue());
     }
 
 }

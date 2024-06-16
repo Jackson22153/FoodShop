@@ -15,6 +15,8 @@ import com.phucx.shop.repository.CurrentProductRepository;
 import com.phucx.shop.repository.ProductDetailRepository;
 import com.phucx.shop.repository.ProductRepository;
 import com.phucx.shop.service.image.ImageService;
+import com.phucx.shop.service.image.ProductImageService;
+
 import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +32,14 @@ public class ProductServiceImp implements ProductService{
     private ProductDetailRepository productDetailRepository;
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private ProductImageService productImageService;
 
     @Override
     public List<Product> getProducts() {
         log.info("getProducts()");
         List<Product> products = productRepository.findAll();
-        return imageService.setProductsImage(products);
+        return productImageService.setProductsImage(products);
     }
 
     @Override
@@ -44,7 +48,7 @@ public class ProductServiceImp implements ProductService{
         Pageable page = PageRequest.of(pageNumber, pageSize);
         
         Page<Product> productsPageable = productRepository.findAll(page);
-        imageService.setProductsImage(productsPageable.getContent());
+        productImageService.setProductsImage(productsPageable.getContent());
         return productsPageable;
     }
 
@@ -53,7 +57,7 @@ public class ProductServiceImp implements ProductService{
         log.info("getProduct(productID={}", productID);
         Product product = productRepository.findById(productID)
             .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
-        this.imageService.setProductImage(product);
+        this.productImageService.setProductImage(product);
         return product;
     }
 
@@ -61,7 +65,7 @@ public class ProductServiceImp implements ProductService{
     public List<Product> getProducts(String productName) {
         log.info("getProducts(productName={}", productName);
         List<Product> products = productRepository.findByProductName(productName);
-        return this.imageService.setProductsImage(products);
+        return this.productImageService.setProductsImage(products);
     }
 
     @Override
@@ -69,7 +73,7 @@ public class ProductServiceImp implements ProductService{
         log.info("getProductsByName(productName={}, pageNumber={}, pageSize={}", productName, pageNumber, pageSize);
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<Product> productsPageable = productRepository.findByProductName(productName, page);
-        this.imageService.setProductsImage(productsPageable.getContent());
+        this.productImageService.setProductsImage(productsPageable.getContent());
         return productsPageable;
     }
 
@@ -78,7 +82,7 @@ public class ProductServiceImp implements ProductService{
         log.info("getProductsByCategoryName(categoryName={}, pageNumber={}, pageSize={}", categoryName, pageNumber, pageSize);
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<Product> productsPageable = productRepository.findByCategoryNameLike(categoryName, page);
-        this.imageService.setProductsImage(productsPageable.getContent());
+        this.productImageService.setProductsImage(productsPageable.getContent());
         return productsPageable;
     }
 
@@ -87,7 +91,7 @@ public class ProductServiceImp implements ProductService{
         log.info("getRecommendedProducts(pageNumber={}, pageSize={})", pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<CurrentProduct> productsPageable = currentProductRepository.findProductsRandom(pageable);
-        return this.imageService.setCurrentProductsImage(productsPageable.getContent());
+        return this.productImageService.setCurrentProductsImage(productsPageable.getContent());
     }
 
     @Override
@@ -95,7 +99,7 @@ public class ProductServiceImp implements ProductService{
         log.info("getCurrentProduct(productID={})", productID);
         CurrentProduct product = currentProductRepository.findById(productID)
             .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
-        return this.imageService.setCurrentProductImage(product);
+        return this.productImageService.setCurrentProductImage(product);
     }
 
     
@@ -104,7 +108,7 @@ public class ProductServiceImp implements ProductService{
     public List<CurrentProduct> getCurrentProduct() {
         log.info("getCurrentProduct()");
         List<CurrentProduct> products = currentProductRepository.findAll();
-        return this.imageService.setCurrentProductsImage(products);
+        return this.productImageService.setCurrentProductsImage(products);
     }
 
     @Override
@@ -112,7 +116,7 @@ public class ProductServiceImp implements ProductService{
         log.info("getCurrentProduct(pageNumber={}, pageSize={})", pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<CurrentProduct> productsPageable = currentProductRepository.findAll(pageable);
-        imageService.setCurrentProductsImage(productsPageable.getContent());
+        productImageService.setCurrentProductsImage(productsPageable.getContent());
         return productsPageable;
     }
 
@@ -123,7 +127,7 @@ public class ProductServiceImp implements ProductService{
         String searchValue = "%"+productName+"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CurrentProduct> productsPageable = currentProductRepository.findByProductNameLike(searchValue, page);
-        imageService.setCurrentProductsImage(productsPageable.getContent());
+        productImageService.setCurrentProductsImage(productsPageable.getContent());
         return productsPageable;
     }
 
@@ -135,7 +139,7 @@ public class ProductServiceImp implements ProductService{
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CurrentProduct> products = currentProductRepository
             .findByCategoryNameLike(categoryName, page);
-        imageService.setCurrentProductsImage(products.getContent());
+        productImageService.setCurrentProductsImage(products.getContent());
         return products;
     }
 
@@ -144,7 +148,7 @@ public class ProductServiceImp implements ProductService{
         log.info("getProductDetail(productID={})", productID);
         ProductDetail product = productDetailRepository.findById(productID)
             .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
-        return imageService.setProductDetailImage(product);
+        return productImageService.setProductDetailImage(product);
     }
 
     @Override
@@ -159,7 +163,7 @@ public class ProductServiceImp implements ProductService{
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CurrentProduct> products = currentProductRepository
             .findRandomLikeCategoryNameWithoutProductID(productID, categoryName, page);
-        imageService.setCurrentProductsImage(products.getContent());
+        productImageService.setCurrentProductsImage(products.getContent());
         return products;
     }
 
@@ -201,7 +205,7 @@ public class ProductServiceImp implements ProductService{
     public List<Product> getProducts(List<Integer> productIDs) {
         log.info("getProducts(productIds={})", productIDs);
         List<Product> products = productRepository.findAllById(productIDs);
-        return this.imageService.setProductsImage(products);
+        return this.productImageService.setProductsImage(products);
     }
 
     @Override
@@ -209,14 +213,14 @@ public class ProductServiceImp implements ProductService{
         log.info("getProduct(productID={}, discontinued={})", productID, discontinued);
         Product product = productRepository.findByProductIDAndDiscontinued(productID, discontinued)
             .orElseThrow(()-> new NotFoundException("Product " + productID + " with discontinued "+ discontinued +" does not found"));
-        return this.imageService.setProductImage(product);
+        return this.productImageService.setProductImage(product);
     }
 
     @Override
     public List<CurrentProduct> getCurrentProducts(List<Integer> productIDs) {
         log.info("getCurrentProducts(productIDs={})", productIDs);
         List<CurrentProduct> products = this.currentProductRepository.findAll();
-        return this.imageService.setCurrentProductsImage(products);
+        return this.productImageService.setCurrentProductsImage(products);
     }
 
     @Override

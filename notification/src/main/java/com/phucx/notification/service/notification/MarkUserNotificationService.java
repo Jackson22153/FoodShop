@@ -23,4 +23,6 @@ public interface MarkUserNotificationService {
 
     public Boolean markAsReadForCustomer(String notificationID, String userID, String markType) throws NameNotFoundException;
 
+    public Boolean markAsReadForNotification(String notificationID);
+
 }

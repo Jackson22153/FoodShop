@@ -1,6 +1,11 @@
 package com.phucx.order.constant;
 
 public enum EventType {
+    // notification
+    SendOrderNotificationToUser,
+    // udpate order status
+    MarkOrderAsConfirmed,
+    ReturnStatusMarkOrderAsConfirmed,
     // customer request
     GetCustomerByID,
     GetCustomersByIDs,
@@ -26,6 +31,8 @@ public enum EventType {
     GetOrdersByCustomerID,
     GetOrderByEmployeeID,
     GetOrdersByEmployeeID,
+
+
 
     // discount response 
     ReturnDiscountByID,

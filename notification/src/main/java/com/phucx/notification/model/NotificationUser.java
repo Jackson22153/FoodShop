@@ -36,7 +36,15 @@ import lombok.ToString;
         procedureName = "UpdateNotificationReadStatusByUserID",
         parameters = {
             @StoredProcedureParameter(name="userID", mode = ParameterMode.IN, type = String.class),
-            @StoredProcedureParameter(name="broadcast", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="isRead", mode = ParameterMode.IN, type = Boolean.class),
+            @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class)
+        }
+    ),
+    @NamedStoredProcedureQuery(
+        name = "NotificationUser.UpdateNotificationReadStatusByNotificationID",
+        procedureName = "UpdateNotificationReadStatusByNotificationID",
+        parameters = {
+            @StoredProcedureParameter(name="notificationID", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="isRead", mode = ParameterMode.IN, type = Boolean.class),
             @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class)
         }

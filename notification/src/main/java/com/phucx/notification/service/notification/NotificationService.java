@@ -13,17 +13,22 @@ public interface NotificationService {
     // update/ create notification
     public NotificationDetail createNotification(NotificationDetail notification);    
     // update read status for specific notificationID and userID
-    public Boolean updateNotificationReadStatus(String notificationID, String userID, Boolean status) throws NameNotFoundException;
+    public Boolean updateNotificationReadStatusOfUser(String notificationID, String userID, Boolean status) throws NameNotFoundException;
     // update read status for userID
-    public Boolean updateNotificationsReadStatus(String userID, NotificationBroadCast broadCast, Boolean status);
+    public Boolean updateNotificationsReadStatus(String userID, Boolean status);
+    // update read status for notification for all users
+    public Boolean updateNotificationReadStatus(String notificationID, Boolean status);
     // update read status for broadcast notification for users
-    public Boolean updateNotificationReadStatus(String notificationID, NotificationBroadCast broadCast, Boolean status) throws NameNotFoundException;
+    public Boolean updateNotificationReadStatusOfBroadcast(String notificationID, NotificationBroadCast broadCast, Boolean status) throws NameNotFoundException;
+    public Boolean updateNotificationReadStatusOfBroadcast(String title, String message, NotificationBroadCast broadCast, Boolean status) throws NameNotFoundException;
+    
     // get notification
+
     public NotificationDetail getNotificationByNotificationIDAndReceiverID(String notificationID, String receiverID) throws NameNotFoundException;
     public NotificationDetail getNotificationByUserIDAndNotificationID(String userID, String notificationID) throws NameNotFoundException;
     public NotificationDetail getNotificationByUserIDOrBroadCastAndNotificationID(String userID, NotificationBroadCast broadCast, String notificationID) throws NameNotFoundException;
     public NotificationDetail getNotificationsByID(String notificationID) throws NameNotFoundException;
-
+    // get notifications by topic
     public Page<NotificationDetail> getNotificationsByTopicName(String topicName, int pageNumber, int pageSize);
     public List<NotificationDetail> getNotificationsByTopicName(String topicName);
     

@@ -3,12 +3,13 @@ import { Notification, Pageable } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/Image";
 import { getPageNumber } from "../../../../../service/Pageable";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
-import { getCustomerNotifications, markAllAsReadCustomerNotifications } 
-    from "../../../../../api/NotificationApi";
+import { getCustomerNotifications, markAsReadCustomerNotification 
+} from "../../../../../api/NotificationApi";
 import { Alert } from "../../../../../model/WebType";
-import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/WebConstant";
+import { ALERT_TIMEOUT, ALERT_TYPE, MARK_NOTIFICATION_TYPE } from "../../../../../constant/WebConstant";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
+import { getCustomerUrlFromNotification } from "../../../../../service/Notification";
 
 export default function UserNotificationComponent(){
     const [notifications, setNotifications] = useState<Notification[]>([])
@@ -83,10 +84,10 @@ export default function UserNotificationComponent(){
 
     const markAllAsRead = async ()=>{
         try {
-            const res = await markAllAsReadCustomerNotifications();
+            const res = await markAsReadCustomerNotification({}, MARK_NOTIFICATION_TYPE.ALL);
             if(200<=res.status && res.status<300){
                 const data = res.data
-                console.log(data)
+                // console.log(data)
                 const status = data.status;
                 setAlert({
                     message: status?'All messages have been marked as read': 'All messages can not be marked as read',
@@ -96,7 +97,7 @@ export default function UserNotificationComponent(){
             }
         } catch (error) {
             setAlert({
-                message: "Category can not be updated",
+                message: "All messages can not be marked as read",
                 type: ALERT_TYPE.DANGER,
                 isShowed: true
             }) 
@@ -105,6 +106,19 @@ export default function UserNotificationComponent(){
                 setAlert({...alert, isShowed: false});
             }, ALERT_TIMEOUT)
         } 
+    }
+    const onClickNotification = (_event: any, notification: Notification)=>{
+        readCustomerNotification(notification.notificationID);
+    }
+    // mark as read for customer
+    const readCustomerNotification = async (notificationID: string)=>{
+        const data = {
+            notificationID: notificationID
+        }
+        const res = await markAsReadCustomerNotification(data, MARK_NOTIFICATION_TYPE.NOTIFICATION)
+        if(200<=res.status && res.status<300){
+            // setTotalUnreadNotifications(value => value-1);
+        }
     }
 
     return(
@@ -117,16 +131,18 @@ export default function UserNotificationComponent(){
                     </div>
                     <div className="notify-body">
                         {notifications.map((notification, index)=>(
-                            <div className={`notify-item cursor-pointer px-3 ${notification.isRead?'read':''}`} 
-                                key={index}>
-                                <div className="notify-img">
-                                    <img src={displayProductImage(null)} alt="profile-pic"/>
+                            <a href={getCustomerUrlFromNotification(notification)} key={index}>
+                                <div className={`notify-item cursor-pointer px-3 ${notification.isRead?'read':''}`} 
+                                    onClick={(e)=> onClickNotification(e, notification)}>
+                                    <div className="notify-img">
+                                        <img src={displayProductImage(null)} alt="profile-pic"/>
+                                    </div>
+                                    <div className={`notify_info`}>
+                                        <p className={`text-black ${notification.isRead?'opacity-50':''}`}>{notification.message}</p>
+                                        <span className="notify-time">{subtractTime(notification.time)} ago</span>
+                                    </div>
                                 </div>
-                                <div className="notify_info">
-                                    <p className="text-black">{notification.message}</p>
-                                    <span className="notify-time">{subtractTime(notification.time)} ago</span>
-                                </div>
-                            </div>
+                            </a>
                         ))}
                     </div>
                     <div className="notification-footer mt-3">

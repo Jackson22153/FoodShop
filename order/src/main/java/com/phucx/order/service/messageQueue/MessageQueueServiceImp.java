@@ -8,10 +8,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.order.config.MessageQueueConfig;
-import com.phucx.order.constant.MessageQueueConstant;
 import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.EventMessage;
-import com.phucx.order.model.NotificationDetail;
+import com.phucx.order.model.NotificationDTO;
 import com.phucx.order.model.OrderWithProducts;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,16 +49,17 @@ public class MessageQueueServiceImp implements MessageQueueService{
     }
     @Override
     public void sendOrder(OrderWithProducts order) throws JsonProcessingException {
-        log.info("sendAndReceiveOrder({})", order);
+        log.info("sendOrder({})", order);
         String message = objectMapper.writeValueAsString(order);
         // send order to message queue
         this.rabbitTemplate.convertAndSend(MessageQueueConfig.ORDER_EXCHANGE, MessageQueueConfig.ORDER_PROCESSING_ROUTING_KEY, message);
     }
+
     @Override
-    public void sendNotification(NotificationDetail notification) throws JsonProcessingException {
-        log.info("sendNotification(notification={})", notification);
+    public void sendNotification(EventMessage<NotificationDTO> notification, String exchange, String routingKey) throws JsonProcessingException {
+        log.info("sendNotification(notification={}, exchange={}, routingKey={})", notification, exchange, routingKey);
+        // convert and send message to a message queue
         String message = objectMapper.writeValueAsString(notification);
-        this.rabbitTemplate.convertAndSend(MessageQueueConstant.NOTIFICATION_EXCHANGE, 
-            MessageQueueConstant.NOTIFICATION_ORDER_ROUTING_KEY, message);
+        this.rabbitTemplate.convertAndSend(exchange, routingKey, message);
     }
 }

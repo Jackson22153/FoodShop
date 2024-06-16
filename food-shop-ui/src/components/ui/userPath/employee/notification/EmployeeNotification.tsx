@@ -3,13 +3,13 @@ import { Notification, Pageable } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/Image";
 import { getPageNumber } from "../../../../../service/Pageable";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
-import { getEmployeeNotifications, markAllAsReadEmployeeNotifications } 
-    from "../../../../../api/NotificationApi";
-import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/WebConstant";
+import { getEmployeeNotifications, markAsReadCustomerNotification, markAsReadEmployeeNotification 
+} from "../../../../../api/NotificationApi";
+import { ALERT_TIMEOUT, ALERT_TYPE, MARK_NOTIFICATION_TYPE } from "../../../../../constant/WebConstant";
 import { Alert } from "../../../../../model/WebType";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
-import { getUrlFromNotification } from "../../../../../service/Notification";
+import { getEmployeeUrlFromNotification } from "../../../../../service/Notification";
 
 export default function EmployeeNotificationComponent(){
     const [notifications, setNotifications] = useState<Notification[]>([])
@@ -80,6 +80,23 @@ export default function EmployeeNotificationComponent(){
         }
     }
 
+    // onclickNotification
+    // mark notification as read
+    const onClickNotification = (_event: any, notification: Notification)=>{
+        readEmployeeNotification(notification.notificationID);
+    }
+
+    // mark as read for employee
+    const readEmployeeNotification = async (notificationID: string)=>{
+        const data = {
+            notificationID: notificationID
+        }
+        const res = await markAsReadEmployeeNotification(data, MARK_NOTIFICATION_TYPE.NOTIFICATION)
+        if(200<=res.status && res.status<300){
+            // setTotalUnreadNotifications(value => value-1);
+        }
+    }
+
     // mark all as read
     const onClickMarkAllAsRead = ()=>{
         markAllAsRead();
@@ -87,7 +104,7 @@ export default function EmployeeNotificationComponent(){
 
     const markAllAsRead = async ()=>{
         try {
-            const res = await markAllAsReadEmployeeNotifications();
+            const res = await markAsReadEmployeeNotification({}, MARK_NOTIFICATION_TYPE.ALL);
             if(200<=res.status && res.status<300){
                 const data = res.data
                 const status = data.status;
@@ -99,7 +116,7 @@ export default function EmployeeNotificationComponent(){
             }
         } catch (error) {
             setAlert({
-                message: "Category can not be updated",
+                message: "All messages can not be marked as read",
                 type: ALERT_TYPE.DANGER,
                 isShowed: true
             }) 
@@ -114,22 +131,24 @@ export default function EmployeeNotificationComponent(){
         <div className="container w-100">
             <AlertComponent alert={alert}/>
             <div className="notification-wrap">
-                <div className="notification-panel px-3 me-5 ms-5 mb-3">
+                <div className="notification-panel px-3 mme-md-5 ms-md-5 mb-3">
                     <div className="notify-header d-flex justify-content-end">
                         <button onClick={onClickMarkAllAsRead}>Mark as read</button>
                     </div>
                     <div className="notify-body">
                         {notifications.map((notification)=>(
-                            <div className={`notify-item cursor-pointer px-3 ${notification.isRead?'read':''}`} 
-                                key={notification.notificationID}>
-                                <div className="notify-img">
-                                    <img src={displayProductImage(null)} alt="profile-pic"/>
+                            <a href={getEmployeeUrlFromNotification(notification)} key={notification.notificationID}>
+                                <div className={`notify-item cursor-pointer px-3 ${notification.isRead?'read':''}`} 
+                                    onClick={(e)=> onClickNotification(e, notification)}>
+                                    <div className="notify-img">
+                                        <img src={displayProductImage(null)} alt="profile-pic"/>
+                                    </div>
+                                    <div className="notify_info">
+                                        <p className={`text-black ${notification.isRead?'opacity-50':''}`}>{notification.message}</p>
+                                        <span className="notify-time">{subtractTime(notification.time)} ago</span>
+                                    </div>
                                 </div>
-                                <div className="notify_info">
-                                    <p className="text-black">{notification.message}</p>
-                                    <span className="notify-time">{subtractTime(notification.time)} ago</span>
-                                </div>
-                            </div>
+                            </a>
                         ))}
                     </div>
                     <div className="notification-footer mt-3">

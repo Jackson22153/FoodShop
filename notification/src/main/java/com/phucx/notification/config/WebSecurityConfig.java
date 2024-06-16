@@ -45,7 +45,6 @@ public class WebSecurityConfig {
         http.csrf(csrf-> csrf.disable());
         http.headers(header -> header.frameOptions(frame -> frame.sameOrigin()));
         http.authorizeHttpRequests(request -> request
-            .requestMatchers("/notifications/**").hasAnyRole("CUSTOMER", "EMPLOYEE")
             .requestMatchers("/customer/**").hasRole("CUSTOMER")
             .requestMatchers("/employee/**").hasRole("EMPLOYEE")
             .requestMatchers("/actuator/**").hasRole("ADMIN")

@@ -41,7 +41,7 @@ public class CustomerNotificationController {
     }
 
     // GET NOTIFICATIONS
-    @GetMapping("/notifications")
+    @GetMapping("/notification")
     public ResponseEntity<Page<NotificationDetail>> getNotifications(
         @RequestParam(name = "page", required = false) Integer pageNumber,
         Authentication authentication

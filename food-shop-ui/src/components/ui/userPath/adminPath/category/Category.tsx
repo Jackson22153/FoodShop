@@ -8,6 +8,7 @@ import AlertComponent from '../../../../shared/functions/alert/Alert';
 import { ALERT_TIMEOUT, ALERT_TYPE } from '../../../../../constant/WebConstant';
 import { Alert, Modal } from '../../../../../model/WebType';
 import ModalComponent from '../../../../shared/functions/modal/Modal';
+import { CategoryImageChangeInput } from '../../../../shared/functions/category-image-change/CategoryImageChangeInput';
 
 export default function AdminCategoryComponent(){
     const { categoryID } = useParams();
@@ -121,7 +122,7 @@ export default function AdminCategoryComponent(){
                 <form action="" className='box-shadow-default bg-white py-4 px-3 rounded-4'>
                     <div className="row">
                         <div className="col-md-5">
-                            <ProductImageChangeInput imageSrc={categoryChange.picture} disable={!editable}
+                            <CategoryImageChangeInput imageSrc={categoryChange.picture} disable={!editable}
                                 onChangePicture={onChangeCategoryPicture}/>
                         </div>
                         <div className="col-md-7">

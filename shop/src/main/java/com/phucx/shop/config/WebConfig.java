@@ -40,7 +40,7 @@ public class WebConfig {
         http.csrf(csrf -> csrf.disable());
         http.cors(Customizer.withDefaults());
         http.authorizeHttpRequests(request -> request
-            .requestMatchers("/home/**", "/chat/**", "/search/**").permitAll()
+            .requestMatchers("/home/**", "/image/**", "/search/**").permitAll()
             .requestMatchers("/discount/**", "/category/**", "/product/**", "/actuator/**").hasRole("ADMIN")
             .requestMatchers("/cart/**").hasRole("CUSTOMER")
             .anyRequest().authenticated());

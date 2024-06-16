@@ -7,16 +7,17 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.constant.NotificationStatus;
 import com.phucx.order.constant.NotificationTopic;
-import com.phucx.order.constant.OrderNotificationTitle;
+import com.phucx.order.constant.NotificationTitle;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.exception.InvalidOrderException;
 import com.phucx.order.model.Employee;
-import com.phucx.order.model.NotificationDetail;
+import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.model.User;
 import com.phucx.order.service.employee.EmployeeService;
 import com.phucx.order.service.messageQueue.MessageQueueService;
+import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.EmployeeOrderService;
 import com.phucx.order.service.order.OrderService;
 import com.phucx.order.service.user.UserService;
@@ -28,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 public class EmployeeOrderServiceImp implements EmployeeOrderService {
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private NotificationService notificationService;
     @Autowired
     private MessageQueueService messageQueueService;
     @Autowired
@@ -43,8 +46,9 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         Employee employee = employeeService.getEmployeeByUserID(userID);
 
         orderWithProducts.setEmployeeID(employee.getEmployeeID());
-        // send order for server to validate it
+        // send to order message queue for validating
         messageQueueService.sendOrder(orderWithProducts);
+        
     }
 
     @Override
@@ -61,24 +65,23 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         Boolean status = orderService.updateOrderStatus(orderDetail.getOrderID(), OrderStatus.Canceled);
         if(!status) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated to canceled status");
         // notification
-        NotificationDetail notification = new NotificationDetail();
-        notification.setTitle(OrderNotificationTitle.CANCEL_ORDER.getValue());
-        notification.setTopic(NotificationTopic.Order.name());
-
+        OrderNotificationDTO notification = new OrderNotificationDTO();
+        notification.setTitle(NotificationTitle.CANCEL_ORDER);
+        notification.setTopic(NotificationTopic.Order);
+        notification.setOrderID(order.getOrderID());
         if(status){
             // send message to customer
             User fetchedUser = userService.getUserByCustomerID(order.getCustomerID());
             notification.setReceiverID(fetchedUser.getUserID());
             notification.setMessage("Order #" + order.getOrderID() + " has been canceled");
-            notification.setStatus(NotificationStatus.SUCCESSFUL.name());
+            notification.setStatus(NotificationStatus.SUCCESSFUL);
         }else {
             // send message to employee
             notification.setReceiverID(userID);
             notification.setMessage("Error: Order #" + order.getOrderID() + " can not be canceled");
-            notification.setStatus(NotificationStatus.ERROR.name());
+            notification.setStatus(NotificationStatus.ERROR);
         }
-
-        messageQueueService.sendNotification(notification);
+        notificationService.sendNotification(notification);
     }
 
     @Override
@@ -88,22 +91,23 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         Boolean status = orderService.updateOrderStatus(fetchedOrder.getOrderID(), OrderStatus.Shipping);
         if(!status) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated to shipping status");
         // notification
-        NotificationDetail notification = new NotificationDetail();
-        notification.setTitle(OrderNotificationTitle.FULFILL_ORDER.getValue());
-        notification.setTopic(NotificationTopic.Order.name());
+        OrderNotificationDTO notification = new OrderNotificationDTO();
+        notification.setTitle(NotificationTitle.FULFILL_ORDER);
+        notification.setTopic(NotificationTopic.Order);
+        notification.setOrderID(order.getOrderID());
         if(status){
             // send message to customer
             User fetchedUser = userService.getUserByCustomerID(order.getCustomerID());
             notification.setReceiverID(fetchedUser.getUserID());
-            notification.setMessage("Order #" + order.getOrderID() + " has been fulfilled");
-            notification.setStatus(NotificationStatus.SUCCESSFUL.name());
+            notification.setMessage("Order #" + order.getOrderID() + " has been fullfilled");
+            notification.setStatus(NotificationStatus.SUCCESSFUL);
         }else {
             // send message to employee
             notification.setReceiverID(userID);
             notification.setMessage("Error: Order #" + order.getOrderID() + " can not be fulfilled");
-            notification.setStatus(NotificationStatus.ERROR.name());
+            notification.setStatus(NotificationStatus.ERROR);
         }
-        messageQueueService.sendNotification(notification);
+        notificationService.sendNotification(notification);
     }
 
     @Override

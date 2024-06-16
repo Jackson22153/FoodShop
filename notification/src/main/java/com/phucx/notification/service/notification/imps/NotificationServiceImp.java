@@ -1,6 +1,7 @@
 package com.phucx.notification.service.notification.imps;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.naming.NameNotFoundException;
 
@@ -71,12 +72,10 @@ public class NotificationServiceImp implements NotificationService{
     }
 
     @Override
-    public Boolean updateNotificationReadStatus(String notificationID, String userID, Boolean isRead) 
+    public Boolean updateNotificationReadStatusOfUser(String notificationID, String userID, Boolean isRead) 
     throws NameNotFoundException {
         log.info("updateNotificationReadStatus(notificationID={}, userID={}, isRead={})", notificationID, userID, isRead);
-        NotificationDetail notification = this.getNotificationsByID(notificationID);
-        return notificationUserRepository.updateNotificationReadStatusByNotificationIDAndUserID(
-            notification.getNotificationID(), userID, isRead);
+        return updateNotificationReadStatus(notificationID, userID, isRead);
     }
 
     @Override
@@ -121,23 +120,27 @@ public class NotificationServiceImp implements NotificationService{
     }
 
     @Override
-    public Boolean updateNotificationsReadStatus(String userID, NotificationBroadCast broadCast, Boolean status){
+    public Boolean updateNotificationsReadStatus(String userID, Boolean status){
         log.info("updateNotificationReadStatus(userID={}, status={})", userID, status);
-        return this.notificationUserRepository.updateNotificationReadStatusByUserID(userID, broadCast.name(), status);
+        return this.notificationUserRepository.updateNotificationReadStatusByUserID(userID, status);
     }
 
     @Override
-    public Boolean updateNotificationReadStatus(String notificationID, NotificationBroadCast broadCast, Boolean status)
+    public Boolean updateNotificationReadStatusOfBroadcast(String notificationID, NotificationBroadCast broadCast, Boolean status)
             throws NameNotFoundException {
-        log.info("updateNotificationReadStatus(notificationID={}, broadCast={}, status={})", notificationID, broadCast, status);
+        log.info("updateNotificationReadStatusOfBroadcast(notificationID={}, broadCast={}, status={})", notificationID, broadCast, status);
+        return updateNotificationReadStatus(notificationID, broadCast.name(), status);
+    }
+
+    private Boolean updateNotificationReadStatus(String notificationID, String receiverID, Boolean isRead) throws NameNotFoundException{
+        log.info("updateNotificationReadStatus(notificationID={}, receiverID={}, isRead={})", notificationID, receiverID, isRead);
         // fetch notifiation from db
         NotificationDetail fetchedNotificationDetail = this.notificationDetailRepository
-            .findByNotificationIDAndReceiverID(notificationID, broadCast.name())
-            .orElseThrow(()-> new NameNotFoundException("Notification " + notificationID + " for " + broadCast.name() + " does not found"));
-        // update read status of that notification for all broadcasted users
-        return notificationUserRepository.updateNotificationReadStatusByUserID(
-            fetchedNotificationDetail.getNotificationID(), 
-            fetchedNotificationDetail.getReceiverID(), status);
+            .findByNotificationIDAndReceiverID(notificationID, receiverID)
+            .orElseThrow(()-> new NameNotFoundException("Notification " + notificationID + " of " + receiverID + " does not found"));
+        // update read statu for receiverID
+        return notificationUserRepository.updateNotificationReadStatusByNotificationIDAndUserID(
+            fetchedNotificationDetail.getNotificationID(), receiverID, isRead);
     }
 
     @Override
@@ -146,5 +149,29 @@ public class NotificationServiceImp implements NotificationService{
         return this.notificationDetailRepository
         .findByNotificationIDAndReceiverID(notificationID, receiverID)
         .orElseThrow(()-> new NameNotFoundException("Notification " + notificationID + " of " + receiverID + " does not found"));
+    }
+
+    @Override
+    public Boolean updateNotificationReadStatus(String notificationID, Boolean status) {
+        log.info("updateNotificationReadStatus(notificationID={}, status={})", notificationID, status);
+        return this.notificationUserRepository.updateNotificationReadStatusByNotificationID(notificationID, status);
+    }
+
+    @Override
+    public Boolean updateNotificationReadStatusOfBroadcast(String title, String message,
+            NotificationBroadCast broadCast, Boolean status) throws NameNotFoundException {
+        log.info("updateNotificationReadStatusOfBroadcast(title={}, message={}, broadCast={}, status={})", title, message, broadCast, status);
+        
+        Optional<NotificationDetail> optionalNotificationDetail = notificationDetailRepository
+            .findByTitleAndReceiverIDAndMessageLike(title, broadCast.name(), "%" + message + "%");
+
+        log.info("Notification: {}", optionalNotificationDetail.get());
+        
+        NotificationDetail fetchedNotification = notificationDetailRepository
+            .findByTitleAndReceiverIDAndMessageLike(title, broadCast.name(), "%" + message + "%")
+            .orElseThrow(()-> new NameNotFoundException("Notification with title " + title + " and message "+ message + " of " + broadCast.name() + " does not found"));
+                
+        return this.notificationUserRepository.updateNotificationReadStatusByNotificationID(
+            fetchedNotification.getNotificationID(), status);
     }
 }

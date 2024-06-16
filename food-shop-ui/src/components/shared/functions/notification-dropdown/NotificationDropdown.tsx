@@ -7,7 +7,7 @@ import { getCustomerNotifications, getCustomerSummaryNotifications,
     getEmployeeNotifications, getEmployeeSummaryNotifications, 
     markAsReadCustomerNotification, markAsReadEmployeeNotification } 
     from "../../../../api/NotificationApi";
-import { ROLE } from "../../../../constant/WebConstant";
+import { MARK_NOTIFICATION_TYPE, ROLE } from "../../../../constant/WebConstant";
 import { customerNotification, employeeNotification } from "../../../../constant/FoodShoppingURL";
 import { getPageNumber } from "../../../../service/Pageable";
 import notificationMessagesContext from "../../../contexts/NotificationMessagesContext";
@@ -61,7 +61,6 @@ export default function NotificationDropdown(prop:Props){
     // mark notification as read
     const onClickNotification = (_event: any, notification: Notification)=>{
         if(prop.roles.includes(ROLE.EMPLOYEE.toLowerCase()) && !notification.isRead){
-            console.log("employee")
             // employee click 
             readEmployeeNotification(notification.notificationID);
         }else if(prop.roles.includes(ROLE.CUSTOMER.toLowerCase()) && !notification.isRead){
@@ -74,7 +73,7 @@ export default function NotificationDropdown(prop:Props){
         const data = {
             notificationID: notificationID
         }
-        const res = await markAsReadCustomerNotification(data)
+        const res = await markAsReadCustomerNotification(data, MARK_NOTIFICATION_TYPE.NOTIFICATION)
         if(200<=res.status && res.status<300){
             setTotalUnreadNotifications(value => value-1);
         }
@@ -84,7 +83,7 @@ export default function NotificationDropdown(prop:Props){
         const data = {
             notificationID: notificationID
         }
-        const res = await markAsReadEmployeeNotification(data)
+        const res = await markAsReadEmployeeNotification(data, MARK_NOTIFICATION_TYPE.NOTIFICATION)
         if(200<=res.status && res.status<300){
             setTotalUnreadNotifications(value => value-1);
         }

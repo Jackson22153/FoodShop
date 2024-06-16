@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.phucx.shop.model.Category;
 import com.phucx.shop.repository.CategoryRepository;
+import com.phucx.shop.service.image.CategoryImageService;
 import com.phucx.shop.service.image.ImageService;
 
 import jakarta.persistence.EntityExistsException;
@@ -25,16 +26,18 @@ public class CategoryServiceImp implements CategoryService{
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
+    private CategoryImageService categoryImageService;
+    @Autowired
     private ImageService imageService;
 
     public List<Category> getCategories(){
-        return imageService.setCategoriesImage(categoryRepository.findAll());
+        return categoryImageService.setCategoriesImage(categoryRepository.findAll());
     }
 
     public Page<Category> getCategories(int pageNumber, int pageSize){
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<Category> categories = categoryRepository.findAll(page);
-        imageService.setCategoriesImage(categories.getContent());
+        categoryImageService.setCategoriesImage(categories.getContent());
         return categories;
     }
 
@@ -42,14 +45,14 @@ public class CategoryServiceImp implements CategoryService{
     public Category getCategory(int categoryID) {
         Category category = categoryRepository.findById(categoryID)
         .orElseThrow(()-> new NotFoundException("Category " + categoryID + " does not found"));
-        return imageService.setCategoryImage(category);
+        return categoryImageService.setCategoryImage(category);
     }
 
     @Override
     public Category getCategory(String categoryName) {
         Category category = categoryRepository.findByCategoryName(categoryName)
             .orElseThrow(()-> new NotFoundException("Category " + categoryName + " does not found"));
-        return imageService.setCategoryImage(category);
+        return categoryImageService.setCategoryImage(category);
     }
 
 	@Override
