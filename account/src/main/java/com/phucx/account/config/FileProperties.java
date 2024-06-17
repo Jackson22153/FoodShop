@@ -14,5 +14,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @ConfigurationProperties(prefix = "file")
 public class FileProperties {
-    private String imageStoredLocation;
+    private String customerImageLocation;
+    private String employeeImageLocation;
 }

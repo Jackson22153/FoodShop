@@ -23,6 +23,7 @@ import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.CustomerAccountRepository;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.repository.CustomerRepository;
+import com.phucx.account.service.image.CustomerImageService;
 import com.phucx.account.service.image.ImageService;
 import com.phucx.account.service.user.UserService;
 
@@ -44,6 +45,8 @@ public class CustomerServiceImp implements CustomerService {
     private CustomerDetailRepository customerDetailRepository;
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private CustomerImageService customerImageService;
 
 	@Override
 	public boolean updateCustomerInfo(CustomerDetail customer) {
@@ -64,14 +67,14 @@ public class CustomerServiceImp implements CustomerService {
             String customerID = customerAcc.getCustomerID();
             CustomerDetail customer = customerDetailRepository.findById(customerID)
                 .orElseThrow(()-> new NotFoundException("CustomerID: " + customerID + " does not found"));
-            imageService.setCustomerDetailImage(customer);
+            customerImageService.setCustomerDetailImage(customer);
             return customer;
         }else{
             String customerID = UUID.randomUUID().toString();
             customerAccountRepository.createCustomerInfo(customerID, username, username);
             CustomerDetail customer = customerDetailRepository.findById(customerID)
                 .orElseThrow(()-> new NotFoundException("CustomerID: " + customerID + " does not found"));
-            imageService.setCustomerDetailImage(customer);
+            customerImageService.setCustomerDetailImage(customer);
             return customer;
         }
     }
@@ -100,14 +103,14 @@ public class CustomerServiceImp implements CustomerService {
 	public Page<CustomerAccount> getAllCustomers(int pageNumber, int pageSize) {
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CustomerAccount> result = customerAccountRepository.findAll(page);
-        imageService.setCustomerAccountImage(result.getContent());
+        customerImageService.setCustomerAccountImage(result.getContent());
 		return result;
 	}
 	@Override
 	public Customer getCustomerByID(String customerID) {
 		Customer customer = customerRepository.findById(customerID)
             .orElseThrow(()-> new NotFoundException("Customer " + customerID + " does not found"));
-        imageService.setCustomerImage(customer);
+        customerImageService.setCustomerImage(customer);
         return customer;
 	}
     
@@ -118,7 +121,7 @@ public class CustomerServiceImp implements CustomerService {
             String customerID = customerAccount.getCustomerID();
             Customer customer = customerRepository.findById(customerID)
                 .orElseThrow(()-> new NotFoundException("Customer: " + customerID + " does not found"));
-            imageService.setCustomerImage(customer);
+            customerImageService.setCustomerImage(customer);
             return customer;
         }else throw new NotFoundException(username + "does not found");
     }
@@ -127,7 +130,7 @@ public class CustomerServiceImp implements CustomerService {
         String searchParam = "%" + customerID +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CustomerAccount> customers = customerAccountRepository.findByCustomerIDLike(searchParam, page);
-        imageService.setCustomerAccountImage(customers.getContent());
+        customerImageService.setCustomerAccountImage(customers.getContent());
         return customers;
     }
     @Override
@@ -135,7 +138,7 @@ public class CustomerServiceImp implements CustomerService {
         String searchParam = "%" + contactName +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CustomerAccount> customers = customerAccountRepository.findByContactNameLike(searchParam, page);
-        imageService.setCustomerAccountImage(customers.getContent());
+        customerImageService.setCustomerAccountImage(customers.getContent());
         return customers;
     }
     @Override
@@ -143,7 +146,7 @@ public class CustomerServiceImp implements CustomerService {
         String searchParam = "%" + username +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CustomerAccount> customers = customerAccountRepository.findByUsernameLike(searchParam, page);
-        imageService.setCustomerAccountImage(customers.getContent());
+        customerImageService.setCustomerAccountImage(customers.getContent());
         return customers;
     }
     @Override
@@ -151,7 +154,7 @@ public class CustomerServiceImp implements CustomerService {
         String searchParam = "%" + email +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CustomerAccount> customers = customerAccountRepository.findByEmailLike(searchParam, page);
-        imageService.setCustomerAccountImage(customers.getContent());
+        customerImageService.setCustomerAccountImage(customers.getContent());
         return customers;
     }
     @Override
@@ -160,7 +163,7 @@ public class CustomerServiceImp implements CustomerService {
             .orElseThrow(()-> new NotFoundException("Customer " + customerID + " does not found"));
         UserInfo user = userService.getUserInfo(customer.getUserID());
         
-        imageService.setCustomerImage(customer);
+        customerImageService.setCustomerImage(customer);
 
         CustomerDetails customerDetail = new CustomerDetails(
             customer.getCustomerID(), customer.getContactName(), customer.getPicture(), user);
@@ -172,7 +175,7 @@ public class CustomerServiceImp implements CustomerService {
         log.info("getCustomerByUserID(userID={})", userID);
         Customer customer = customerRepository.findByUserID(userID).orElseThrow(
             ()-> new NotFoundException("Customer with userID " + userID + " does not found"));
-        imageService.setCustomerImage(customer);
+        customerImageService.setCustomerImage(customer);
         return customer;
     }
 
@@ -180,7 +183,7 @@ public class CustomerServiceImp implements CustomerService {
     public List<Customer> getCustomersByIDs(List<String> customerIDs) {
         log.info("getCustomersByIDs(customerIDs={})", customerIDs);
         List<Customer> customers = customerRepository.findAllById(customerIDs);
-        imageService.setCustomerImage(customers);
+        customerImageService.setCustomerImage(customers);
         return customers;
     }
 }

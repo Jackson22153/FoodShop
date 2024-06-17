@@ -1,5 +1,6 @@
 FROM openjdk:17
 COPY target/account-0.0.1-SNAPSHOT.jar account-0.0.1-SNAPSHOT.jar
 COPY entrypoint.sh ./entrypoint.sh
-VOLUME [ "/usr/src/app/images" ]
+VOLUME [ "/usr/src/app/image/customer" ]
+VOLUME [ "/usr/src/app/image/employee" ]
 ENTRYPOINT [ "bash", "./entrypoint.sh" ]

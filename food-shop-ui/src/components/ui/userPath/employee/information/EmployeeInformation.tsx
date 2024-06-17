@@ -9,7 +9,8 @@ import { Alert, Modal } from "../../../../../model/WebType";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import ModalComponent from "../../../../shared/functions/modal/Modal";
 import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/WebConstant";
-import { UserImageChangeInput } from "../../../../shared/functions/user-image-change-input/UserImageChangeInput";
+import { UserImageChangeInput } from "../../../../shared/functions/user-image-change/UserImageChangeInput";
+import { EmployeeImageChangeInput } from "../../../../shared/functions/employee-image-change/EmployeeImageChangeInput";
 
 
 export default function EmployeeInformationComponent(){
@@ -144,7 +145,7 @@ export default function EmployeeInformationComponent(){
             {employeeInfo && employeeInfoAlter &&
                 <div className="row">
                     <div className="col-md-4">
-                        <UserImageChangeInput imageSrc={employeeInfoAlter.photo} disable={editable} 
+                        <EmployeeImageChangeInput imageSrc={employeeInfoAlter.photo} disable={editable} 
                             onChangePicture={onChangePicture}/>
                     </div>
                     <div className="col-md 6">

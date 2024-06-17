@@ -11,7 +11,8 @@ import ModalComponent from "../../../../shared/functions/modal/Modal";
 import { Alert, Modal } from "../../../../../model/WebType";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/WebConstant";
-import { UserImageChangeInput } from "../../../../shared/functions/user-image-change-input/UserImageChangeInput";
+import { UserImageChangeInput } from "../../../../shared/functions/user-image-change/UserImageChangeInput";
+import { EmployeeImageChangeInput } from "../../../../shared/functions/employee-image-change/EmployeeImageChangeInput";
 
 export default function AdminEmployeeComponent(){
     const {employeeID} = useParams();
@@ -290,7 +291,7 @@ export default function AdminEmployeeComponent(){
                 <>
                     <div className="row emp-profile box-shadow-default mb-5">
                         <div className="col-md-4">
-                            <UserImageChangeInput imageSrc={employeeInfo.photo} disable={!editable}
+                            <EmployeeImageChangeInput imageSrc={employeeInfo.photo} disable={!editable}
                                 onChangePicture={onChangePicture}/>
                         </div>
                         <div className="col-md 6">

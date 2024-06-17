@@ -19,16 +19,15 @@ export const ResetPasswordAdminUrl = (userID)=>{
 export const CustomerUrl = `${AccountService}/customer`;
 export const IsCustomerUrl = `${CustomerUrl}/isCustomer`;
 export const CustomerInfoUrl = `${CustomerUrl}/info`;
-
+export const UploadCustomerImageUrl= `${CustomerUrl}/image/upload`;
 // employee
 export const EmployeeUrl = `${AccountService}/employee`;
 export const IsEmployeeUrl = `${EmployeeUrl}/isEmployee`;
 export const EmployeeInfoUrl = `${EmployeeUrl}/info`;
+export const UploadEmployeeImageUrl= `${EmployeeUrl}/image/upload`;
 // user
 export const UserUrl = `${AccountService}/user`;
 export const UserInfoUrl = `${UserUrl}/userInfo`;
-export const UploadUserImageUrl = `${UserUrl}/upload`;
-
 
 // shop service
 const ShopService = `${ServerURL}/shop`;

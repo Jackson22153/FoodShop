@@ -1,5 +1,7 @@
 import axios from "axios";
-import { CustomerInfoUrl, CustomerOrdersUrl, CustomerNotificationsUrl, IsCustomerUrl, UploadUserImageUrl } from "../constant/FoodShoppingApiURL";
+import { CustomerInfoUrl, CustomerNotificationsUrl, IsCustomerUrl, 
+    UploadCustomerImageUrl, UploadEmployeeImageUrl 
+} from "../constant/FoodShoppingApiURL";
 
 export function isCustomer(){
     return axios.get(IsCustomerUrl,{
@@ -24,7 +26,20 @@ export function uploadUserImage(file){
     const formData = new FormData();
     formData.append('file', file);
     
-    return axios.post(UploadUserImageUrl, formData, {
+    return axios.post(UploadCustomerImageUrl, formData, {
+        withCredentials: true,
+        headers:{
+            "Content-Type": "multipart/form-data",
+        }
+    });
+}
+
+// upload employee's image
+export function uploadEmployeeImage(file){
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return axios.post(UploadEmployeeImageUrl, formData, {
         withCredentials: true,
         headers:{
             "Content-Type": "multipart/form-data",

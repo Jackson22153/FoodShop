@@ -1,6 +1,6 @@
 import { ChangeEventHandler } from "react";
 import { displayUserImage } from "../../../../service/Image";
-import { uploadUserImage } from "../../../../api/UserApi";
+import { uploadEmployeeImage } from "../../../../api/UserApi";
 
 interface Props{
     imageSrc: string,
@@ -8,7 +8,7 @@ interface Props{
     onChangePicture: any
     
 }
-export const UserImageChangeInput = (prop: Props)=>{
+export const EmployeeImageChangeInput = (prop: Props)=>{
     const imageSrc = prop.imageSrc;
     const disable= prop.disable;
 
@@ -18,10 +18,10 @@ export const UserImageChangeInput = (prop: Props)=>{
     }
 
     const uploadImage = async (file: File)=>{
-        const res = await uploadUserImage(file);
+        const res = await uploadEmployeeImage(file);
         if(res.status){
             const data = res.data;
-            console.log(data)
+            // console.log(data)
             prop.onChangePicture(data.imageUrl);
         }
     }

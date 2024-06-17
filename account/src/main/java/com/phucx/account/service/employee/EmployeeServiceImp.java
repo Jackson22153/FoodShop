@@ -26,6 +26,7 @@ import com.phucx.account.model.UserInfo;
 import com.phucx.account.repository.EmployeeAccountRepository;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.repository.EmployeeRepository;
+import com.phucx.account.service.image.EmployeeImageService;
 import com.phucx.account.service.image.ImageService;
 import com.phucx.account.service.notification.NotificationService;
 import com.phucx.account.service.user.UserService;
@@ -50,6 +51,8 @@ public class EmployeeServiceImp implements EmployeeService {
     private NotificationService notificationService;
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private EmployeeImageService employeeImageService;
 
 	@Override
 	public EmployeeDetails getEmployeeByID(String employeeID) {
@@ -58,7 +61,7 @@ public class EmployeeServiceImp implements EmployeeService {
             .orElseThrow(()-> new NotFoundException("Employee " + employeeID + " does not found"));
         UserInfo user = userService.getUserInfo(employee.getUserID());
         
-        imageService.setEmployeeImage(employee);
+        employeeImageService.setEmployeeImage(employee);
 
         EmployeeDetails employeeDetails = new EmployeeDetails(
             employee.getEmployeeID(), user, employee.getFirstName(), employee.getLastName(), 
@@ -90,7 +93,7 @@ public class EmployeeServiceImp implements EmployeeService {
 	public Page<EmployeeAccount> getAllEmployees(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findAll(pageable);
-        imageService.setEmployeeAccountImage(employees.getContent());
+        employeeImageService.setEmployeeAccountImage(employees.getContent());
         return employees;
 	}
 
@@ -103,14 +106,14 @@ public class EmployeeServiceImp implements EmployeeService {
             String employeeID = employeeAcc.getEmployeeID();
             EmployeeDetail employee = employeeDetailRepostiory.findById(employeeID)
                 .orElseThrow(()-> new NotFoundException("EmployeeID: " + employeeID + " does not found"));
-            imageService.setEmployeeDetailImage(employee);
+            employeeImageService.setEmployeeDetailImage(employee);
             return employee;
         }else{
             String employeeID = UUID.randomUUID().toString();
             employeeAccountRepository.createEmployeeInfo(employeeID, username, username, username);
             EmployeeDetail employee = employeeDetailRepostiory.findById(employeeID)
                 .orElseThrow(()-> new NotFoundException("EmployeeID: " + employeeID + " does not found"));
-            imageService.setEmployeeDetailImage(employee);
+            employeeImageService.setEmployeeDetailImage(employee);
             return employee;
         }
 	}
@@ -120,7 +123,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String searchParam = "%" + employeeID +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findByEmployeeIDLike(searchParam, page);
-        imageService.setEmployeeAccountImage(employees.getContent());
+        employeeImageService.setEmployeeAccountImage(employees.getContent());
         return employees;
     }
 
@@ -129,7 +132,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String searchParam = "%" + firstName +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findByFirstNameLike(searchParam, page);
-        imageService.setEmployeeAccountImage(employees.getContent());
+        employeeImageService.setEmployeeAccountImage(employees.getContent());
         return employees;
     }
 
@@ -138,7 +141,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String searchParam = "%" + lastName +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findByLastNameLike(searchParam, page);
-        imageService.setEmployeeAccountImage(employees.getContent());
+        employeeImageService.setEmployeeAccountImage(employees.getContent());
         return employees;
     }
 
@@ -147,7 +150,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String searchParam = "%" + username +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findByUsernameLike(searchParam, page);
-        imageService.setEmployeeAccountImage(employees.getContent());
+        employeeImageService.setEmployeeAccountImage(employees.getContent());
         return employees;
     }
 
@@ -156,7 +159,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String searchParam = "%" + email +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<EmployeeAccount> employees = employeeAccountRepository.findByEmailLike(searchParam, page);
-        imageService.setEmployeeAccountImage(employees.getContent());
+        employeeImageService.setEmployeeAccountImage(employees.getContent());
         return employees;
     }
 
@@ -195,7 +198,7 @@ public class EmployeeServiceImp implements EmployeeService {
     public Employee getEmployee(String employeeID) {
         Employee employee = employeeRepository.findById(employeeID)
             .orElseThrow(()-> new NotFoundException("Employee " + employeeID + " does not found"));
-        imageService.setEmployeeImage(employee);
+        employeeImageService.setEmployeeImage(employee);
         return employee;
     }
 
@@ -226,6 +229,6 @@ public class EmployeeServiceImp implements EmployeeService {
     public Employee getEmployeeByUserID(String userID) {
         Employee fetchedEmployee = employeeRepository.findByUserID(userID)
             .orElseThrow(()-> new NotFoundException("Employee with UserID: " + userID + " does not found"));
-        return imageService.setEmployeeImage(fetchedEmployee);
+        return employeeImageService.setEmployeeImage(fetchedEmployee);
     }
 }

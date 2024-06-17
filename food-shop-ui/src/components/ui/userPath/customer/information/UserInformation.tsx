@@ -5,7 +5,7 @@ import { Alert, Modal } from "../../../../../model/WebType";
 import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/WebConstant";
 import ModalComponent from "../../../../shared/functions/modal/Modal";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
-import { UserImageChangeInput } from "../../../../shared/functions/user-image-change-input/UserImageChangeInput";
+import { UserImageChangeInput } from "../../../../shared/functions/user-image-change/UserImageChangeInput";
 
 export default function UserInformationComponent(){
 
