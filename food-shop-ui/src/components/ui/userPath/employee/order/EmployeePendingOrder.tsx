@@ -34,11 +34,9 @@ export default function EmployeePendingOrderComponent(){
             }
             const res = await confirmOrder(data);
             if(200<=res.status&&res.status<300){
-    
+                window.location.href=EMPLOYEE_ORDER
             }
         } catch (error) {
-            
-        } finally{
             window.location.href=EMPLOYEE_ORDER
         }
     }
@@ -57,12 +55,10 @@ export default function EmployeePendingOrderComponent(){
             }
             const res = await cancelOrder(data);
             if(200<=res.status&&res.status<300){
-    
+                window.location.href=EMPLOYEE_ORDER
             }
         } catch (error) {
-            
-        } finally{
-            window.location.href=EMPLOYEE_ORDER
+            window.location.href=EMPLOYEE_ORDER   
         }
     }
 

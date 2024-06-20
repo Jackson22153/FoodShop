@@ -5,8 +5,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.phucx.account.exception.InvalidDiscountException;
-import com.phucx.account.exception.InvalidOrderException;
+import com.phucx.account.exception.CustomerNotFoundException;
+import com.phucx.account.exception.EmployeeNotFoundException;
+import com.phucx.account.exception.InvalidUserException;
+import com.phucx.account.exception.RoleNotFoundException;
+import com.phucx.account.exception.ShipperNotFoundException;
+import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.ResponseFormat;
 
 import jakarta.persistence.EntityExistsException;
@@ -17,8 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 @ControllerAdvice
 public class ExceptionController extends ResponseEntityExceptionHandler{
 
-    @ExceptionHandler(value = InvalidDiscountException.class)
-    protected ResponseEntity<ResponseFormat> handleInvalidDiscountException(InvalidDiscountException exception){
+    @ExceptionHandler(value = InvalidUserException.class)
+    protected ResponseEntity<ResponseFormat> handleInvalidUserException(InvalidUserException exception){
         log.error("Error: {}", exception.getMessage());
         ResponseFormat response = new ResponseFormat();
         response.setStatus(false);
@@ -26,8 +30,44 @@ public class ExceptionController extends ResponseEntityExceptionHandler{
         return ResponseEntity.badRequest().body(response);
     }
 
-    @ExceptionHandler(value = InvalidOrderException.class)
-    protected ResponseEntity<ResponseFormat> handleInvalidOrderException(InvalidOrderException exception){
+    @ExceptionHandler(value = UserNotFoundException.class)
+    protected ResponseEntity<ResponseFormat> handleUserNotFoundException(UserNotFoundException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(value = CustomerNotFoundException.class)
+    protected ResponseEntity<ResponseFormat> handleCustomerNotFoundException(CustomerNotFoundException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(value = EmployeeNotFoundException.class)
+    protected ResponseEntity<ResponseFormat> handleEmployeeNotFoundException(EmployeeNotFoundException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(value = ShipperNotFoundException.class)
+    protected ResponseEntity<ResponseFormat> handleShipperNotFoundException(ShipperNotFoundException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(value = RoleNotFoundException.class)
+    protected ResponseEntity<ResponseFormat> handleRoleNotFoundException(RoleNotFoundException exception){
         log.error("Error: {}", exception.getMessage());
         ResponseFormat response = new ResponseFormat();
         response.setStatus(false);

@@ -1,6 +1,11 @@
 package com.phucx.account.constant;
 
 public enum EventType {
+
+    CustomerNotFoundException,
+    EmployeeNotFoundException,
+    ShipperNotFoundException,
+
     // notification
     SendCustomerNotificationToUser,
     SendEmployeeNotificationToUser,

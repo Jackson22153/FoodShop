@@ -41,11 +41,9 @@ export default function EmployeeConfirmedOrderComponent(){
             }
             const res = await confirmOrder(data);
             if(200<=res.status&&res.status<300){
-    
+                window.location.reload()
             }
         } catch (error) {
-            
-        } finally{
             window.location.reload()
         }
     }
@@ -64,12 +62,10 @@ export default function EmployeeConfirmedOrderComponent(){
             }
             const res = await cancelOrder(data);
             if(200<=res.status&&res.status<300){
-    
+                window.location.reload()
             }
         } catch (error) {
-            
-        } finally{
-            window.location.reload();
+            window.location.reload()
         }
     }
 

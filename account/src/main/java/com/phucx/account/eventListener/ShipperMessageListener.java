@@ -9,11 +9,14 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.constant.EventType;
+import com.phucx.account.exception.ShipperNotFoundException;
 import com.phucx.account.model.EventMessage;
+import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.model.Shipper;
 import com.phucx.account.model.ShipperDTO;
 import com.phucx.account.service.shipper.ShipperService;
@@ -49,9 +52,29 @@ public class ShipperMessageListener {
             }
             String response = objectMapper.writeValueAsString(responseMessage);
             return response;
-        } catch (Exception e) {
-           log.error("Error: {}", e.getMessage());
-           return null;
+        } catch (ShipperNotFoundException e){
+            log.error("Error: {}", e.getMessage());
+            try {
+                EventMessage<ResponseFormat> eventMessage = this.createResponseMessage(ResponseFormat.class);
+                ResponseFormat payload = new ResponseFormat(false, e.getMessage());
+                eventMessage.setPayload(payload);
+                eventMessage.setEventType(EventType.ShipperNotFoundException);
+                String responsemessage = objectMapper.writeValueAsString(eventMessage);
+                return responsemessage;
+            } catch (Exception exception) {
+                log.error("Error: {}", e.getMessage());
+                return null;
+            }
+        } catch (JsonProcessingException e) {
+            log.error("Error: {}", e.getMessage());
+            return null;
         }
+    }
+
+    private <T> EventMessage<T> createResponseMessage(Class<T> type){
+        EventMessage<T> responseMessage = new EventMessage<>();
+        String eventID = UUID.randomUUID().toString();
+        responseMessage.setEventId(eventID);
+        return responseMessage;
     }
 }

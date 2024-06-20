@@ -7,13 +7,16 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.constant.EventType;
+import com.phucx.account.exception.EmployeeNotFoundException;
 import com.phucx.account.model.Employee;
 import com.phucx.account.model.EmployeeDTO;
 import com.phucx.account.model.EventMessage;
+import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.model.User;
 import com.phucx.account.service.employee.EmployeeService;
 import com.phucx.account.service.user.UserService;
@@ -35,9 +38,7 @@ public class EmployeeMessageListener {
     public String fetchEmployee(String message){
         log.info("fetchEmployee({})", message);
         // create response message
-        String eventID = UUID.randomUUID().toString();
-        EventMessage<Object> responseMessage = new EventMessage<>();
-        responseMessage.setEventId(eventID);
+        EventMessage<Object> responseMessage = this.createResponseMessage(Object.class);
         try {
             TypeReference<EventMessage<EmployeeDTO>> typeRef = new TypeReference<EventMessage<EmployeeDTO>>() {};
             EventMessage<EmployeeDTO> employeeDTO = objectMapper.readValue(message, typeRef);
@@ -67,9 +68,29 @@ public class EmployeeMessageListener {
             }
             String response = objectMapper.writeValueAsString(responseMessage);
             return response;
-        } catch (Exception e) {
+        } catch (EmployeeNotFoundException e){
+            log.error("Error: {}", e.getMessage());
+            try {
+                EventMessage<ResponseFormat> eventMessage = this.createResponseMessage(ResponseFormat.class);
+                ResponseFormat payload = new ResponseFormat(false, e.getMessage());
+                eventMessage.setPayload(payload);
+                eventMessage.setEventType(EventType.EmployeeNotFoundException);
+                String responsemessage = objectMapper.writeValueAsString(eventMessage);
+                return responsemessage;
+            } catch (Exception exception) {
+                log.error("Error: {}", e.getMessage());
+                return null;
+            }
+        } catch (JsonProcessingException e) {
            log.error("Error: {}", e.getMessage());
            return null;
         }
+    }
+
+    private <T> EventMessage<T> createResponseMessage(Class<T> type){
+        EventMessage<T> responseMessage = new EventMessage<>();
+        String eventID = UUID.randomUUID().toString();
+        responseMessage.setEventId(eventID);
+        return responseMessage;
     }
 }

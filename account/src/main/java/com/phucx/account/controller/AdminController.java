@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.constant.WebConstant;
+import com.phucx.account.exception.EmployeeNotFoundException;
+import com.phucx.account.exception.InvalidUserException;
+import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetails;
 import com.phucx.account.model.Employee;
@@ -51,7 +54,7 @@ public class AdminController {
     @PutMapping("/customers")
     public ResponseEntity<ResponseFormat> addCustomer(
         @RequestBody CustomerAccount customerAccount
-    ){
+    ) throws InvalidUserException{
         Boolean status = customerService.addNewCustomer(customerAccount);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
@@ -76,7 +79,7 @@ public class AdminController {
     @GetMapping("/customers/{customerID}")
     public ResponseEntity<CustomerDetails> getUserByCustomerID(
         @PathVariable(name = "customerID") String customerID
-    ){
+    ) throws UserNotFoundException{
         CustomerDetails customer = customerService.getCustomerDetailByCustomerID(customerID);
         return ResponseEntity.ok().body(customer);
     }
@@ -84,7 +87,7 @@ public class AdminController {
     @PutMapping("/employees")
     public ResponseEntity<ResponseFormat> addEmployee(
         @RequestBody EmployeeAccount employeeAccount
-    ){
+    ) throws InvalidUserException{
         Boolean status = employeeService.addNewEmployee(employeeAccount);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
@@ -111,7 +114,7 @@ public class AdminController {
     @GetMapping("/employees/{employeeID}")
     public ResponseEntity<EmployeeDetails> getEmployeeDetail(
         @PathVariable(name = "employeeID") String employeeID
-    ){
+    ) throws UserNotFoundException{
         EmployeeDetails employee = employeeService.getEmployeeByID(employeeID);
         return ResponseEntity.ok().body(employee);
     }
@@ -119,7 +122,7 @@ public class AdminController {
     @PostMapping("/employees")
     public ResponseEntity<ResponseFormat> updateEmployeeDetail(
         @RequestBody Employee employee
-    ) throws JsonProcessingException{
+    ) throws JsonProcessingException, EmployeeNotFoundException{
         Boolean status = employeeService.updateAdminEmployeeInfo(employee);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
@@ -145,7 +148,7 @@ public class AdminController {
     @PostMapping("/users/{userID}/password")
     public ResponseEntity<ResponseFormat> resetPassword(
         @PathVariable(name = "userID") String userID
-    ){
+    ) throws UserNotFoundException{
         Boolean status = userService.resetPassword(userID);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
@@ -153,7 +156,7 @@ public class AdminController {
     @PostMapping("/users/roles")
     public ResponseEntity<ResponseFormat> assignRoles(
         @RequestBody UserInfo user
-    ){
+    ) throws UserNotFoundException{
         Boolean status = userService.assignUserRoles(user);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }

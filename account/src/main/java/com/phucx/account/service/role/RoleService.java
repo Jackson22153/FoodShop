@@ -4,10 +4,11 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import com.phucx.account.exception.RoleNotFoundException;
 import com.phucx.account.model.Role;
 
 public interface RoleService {
-    Role getRole(String roleName);
+    Role getRole(String roleName) throws RoleNotFoundException;
     Page<Role> getRoles(Integer pageNumber, Integer pageSize);
     Page<Role> getRolesWithoutCustomer(Integer pageNumber, Integer pageSize);
     List<Role> getRoles(List<Integer> roleIDs);

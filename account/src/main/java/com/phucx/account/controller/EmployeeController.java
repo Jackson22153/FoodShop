@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.phucx.account.exception.EmployeeNotFoundException;
+import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.ImageFormat;
 import com.phucx.account.model.ResponseFormat;
@@ -38,7 +40,7 @@ public class EmployeeController {
     }
     // GET EMPLOYEE'S INFORMATION
     @GetMapping("/info")
-    public ResponseEntity<EmployeeDetail> getUserInfo(Authentication authentication){
+    public ResponseEntity<EmployeeDetail> getUserInfo(Authentication authentication) throws UserNotFoundException{
         String username = userService.getUsername(authentication);
         EmployeeDetail employee = employeeService.getEmployeeDetail(username);
         return ResponseEntity.ok().body(employee);
@@ -47,7 +49,7 @@ public class EmployeeController {
     @PostMapping("/info")
     public ResponseEntity<ResponseFormat> updateUserInfo(
         @RequestBody EmployeeDetail employee
-    ){
+    ) throws EmployeeNotFoundException{
         Boolean status = employeeService.updateEmployeeInfo(employee);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }

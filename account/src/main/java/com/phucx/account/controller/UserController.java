@@ -6,6 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.service.user.UserService;
@@ -17,7 +19,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/userInfo")
-    public ResponseEntity<UserInfo> getUserInfo(Authentication authentication){
+    public ResponseEntity<UserInfo> getUserInfo(Authentication authentication) throws UserNotFoundException{
         UserInfo user = new UserInfo();
         user.setUser(new User());
         if(authentication!=null){

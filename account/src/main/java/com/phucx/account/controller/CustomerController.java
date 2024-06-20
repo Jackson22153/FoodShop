@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.phucx.account.exception.CustomerNotFoundException;
+import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.ImageFormat;
 import com.phucx.account.model.ResponseFormat;
@@ -37,7 +39,7 @@ public class CustomerController {
     }
     // GET CUSTOMER'S INFOMATION
     @GetMapping("/info")
-    public ResponseEntity<CustomerDetail> getUserInfo(Authentication authentication){
+    public ResponseEntity<CustomerDetail> getUserInfo(Authentication authentication) throws UserNotFoundException{
         String username = userService.getUsername(authentication);
         CustomerDetail customer = customerService.getCustomerDetail(username);
         return ResponseEntity.ok().body(customer);
@@ -47,7 +49,7 @@ public class CustomerController {
     public ResponseEntity<ResponseFormat> updateUserInfo(
         Authentication authentication,
         @RequestBody CustomerDetail customer
-    ){
+    ) throws CustomerNotFoundException{
         boolean check = customerService.updateCustomerInfo(customer);
         return ResponseEntity.ok().body(new ResponseFormat(check));
     }

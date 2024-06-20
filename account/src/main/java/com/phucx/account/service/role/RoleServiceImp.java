@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.constant.RoleConstant;
+import com.phucx.account.exception.RoleNotFoundException;
 import com.phucx.account.model.Role;
 import com.phucx.account.repository.RoleRepository;
 
@@ -21,9 +22,9 @@ public class RoleServiceImp implements RoleService{
     @Autowired
     private RoleRepository roleRepository;
     @Override
-    public Role getRole(String roleName) {
+    public Role getRole(String roleName) throws RoleNotFoundException {
         Role role = roleRepository.findByRoleName(roleName)
-            .orElseThrow(()-> new NotFoundException("Role " + roleName + " does not found"));
+            .orElseThrow(()-> new RoleNotFoundException("Role " + roleName + " does not found"));
         return role;
     }
     @Override

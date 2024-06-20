@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import com.phucx.account.constant.EmailVerified;
 import com.phucx.account.constant.UserStatus;
 import com.phucx.account.constant.WebConstant;
+import com.phucx.account.exception.CustomerNotFoundException;
+import com.phucx.account.exception.InvalidUserException;
+import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.CustomerDetails;
@@ -27,7 +30,6 @@ import com.phucx.account.service.image.CustomerImageService;
 import com.phucx.account.service.image.ImageService;
 import com.phucx.account.service.user.UserService;
 
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -49,45 +51,45 @@ public class CustomerServiceImp implements CustomerService {
     private CustomerImageService customerImageService;
 
 	@Override
-	public boolean updateCustomerInfo(CustomerDetail customer) {
+	public boolean updateCustomerInfo(CustomerDetail customer) throws CustomerNotFoundException {
         log.info("updateCustomerInfo({})", customer.toString());
         Customer fetchedCustomer = customerRepository.findById(customer.getCustomerID())
-            .orElseThrow(()->new NotFoundException("Customer " + customer.getCustomerID() + " does not found"));
+            .orElseThrow(()->new CustomerNotFoundException("Customer " + customer.getCustomerID() + " does not found"));
         String picture = this.imageService.getImageName(customer.getPicture());
         Boolean result = customerDetailRepository.updateCustomerInfo(fetchedCustomer.getCustomerID(), customer.getEmail(),
             customer.getContactName(), customer.getAddress(), customer.getCity(), customer.getPhone(), picture);
         return result;
 	}
 	@Override
-	public CustomerDetail getCustomerDetail(String username) {
+	public CustomerDetail getCustomerDetail(String username) throws UserNotFoundException {
         User user = userService.getUser(username);
         Optional<CustomerAccount> customerAccOp = customerAccountRepository.findByUserID(user.getUserID());
         if(customerAccOp.isPresent()){
             CustomerAccount customerAcc = customerAccOp.get();
             String customerID = customerAcc.getCustomerID();
             CustomerDetail customer = customerDetailRepository.findById(customerID)
-                .orElseThrow(()-> new NotFoundException("CustomerID: " + customerID + " does not found"));
+                .orElseThrow(()-> new CustomerNotFoundException("CustomerID: " + customerID + " does not found"));
             customerImageService.setCustomerDetailImage(customer);
             return customer;
         }else{
             String customerID = UUID.randomUUID().toString();
             customerAccountRepository.createCustomerInfo(customerID, username, username);
             CustomerDetail customer = customerDetailRepository.findById(customerID)
-                .orElseThrow(()-> new NotFoundException("CustomerID: " + customerID + " does not found"));
+                .orElseThrow(()-> new CustomerNotFoundException("CustomerID: " + customerID + " does not found"));
             customerImageService.setCustomerDetailImage(customer);
             return customer;
         }
     }
     
     @Override
-    public boolean addNewCustomer(CustomerAccount customer){
+    public boolean addNewCustomer(CustomerAccount customer) throws InvalidUserException{
         log.info("addNewCustomer({})", customer);
         if(customer.getUsername() == null || customer.getEmail()==null || customer.getContactName()==null)
-            throw new RuntimeException("Missing some customer's information");
+            throw new InvalidUserException("Missing username or email or contact name");
         CustomerAccount fetchedCustomer= customerAccountRepository.findByUsername(customer.getUsername());
-        if(fetchedCustomer!=null) throw new RuntimeException("Customer " + customer.getUsername() + " already exists");
+        if(fetchedCustomer!=null) throw new InvalidUserException("User " + customer.getUsername() + " already exists");
         var fetchedCustomerByEmail= customerAccountRepository.findByEmail(customer.getEmail());
-        if(fetchedCustomerByEmail.isPresent()) throw new RuntimeException("Customer " + customer.getEmail() + " already exists");
+        if(fetchedCustomerByEmail.isPresent()) throw new InvalidUserException("User with email " + customer.getEmail() + " already exists");
         // add new customer
         String userID = UUID.randomUUID().toString();
         String customerID = UUID.randomUUID().toString();
@@ -107,23 +109,24 @@ public class CustomerServiceImp implements CustomerService {
 		return result;
 	}
 	@Override
-	public Customer getCustomerByID(String customerID) {
+	public Customer getCustomerByID(String customerID) throws CustomerNotFoundException {
 		Customer customer = customerRepository.findById(customerID)
-            .orElseThrow(()-> new NotFoundException("Customer " + customerID + " does not found"));
+            .orElseThrow(()-> new CustomerNotFoundException("Customer " + customerID + " does not found"));
         customerImageService.setCustomerImage(customer);
         return customer;
 	}
     
     @Override
-    public Customer getCustomerByUsername(String username) {
+    public Customer getCustomerByUsername(String username) throws CustomerNotFoundException {
         CustomerAccount customerAccount = customerAccountRepository.findByUsername(username);
-        if(customerAccount!=null){
-            String customerID = customerAccount.getCustomerID();
-            Customer customer = customerRepository.findById(customerID)
-                .orElseThrow(()-> new NotFoundException("Customer: " + customerID + " does not found"));
-            customerImageService.setCustomerImage(customer);
-            return customer;
-        }else throw new NotFoundException(username + "does not found");
+        if(customerAccount==null){
+            throw new CustomerNotFoundException("Customer with username " + username + "does not found");
+        }
+        String customerID = customerAccount.getCustomerID();
+        Customer customer = customerRepository.findById(customerID)
+            .orElseThrow(()-> new CustomerNotFoundException("Customer: " + customerID + " does not found"));
+        customerImageService.setCustomerImage(customer);
+        return customer;
     }
     @Override
     public Page<CustomerAccount> searchCustomersByCustomerID(String customerID, int pageNumber, int pageSize) {
@@ -158,9 +161,9 @@ public class CustomerServiceImp implements CustomerService {
         return customers;
     }
     @Override
-    public CustomerDetails getCustomerDetailByCustomerID(String customerID) {
+    public CustomerDetails getCustomerDetailByCustomerID(String customerID) throws UserNotFoundException {
         Customer customer = customerRepository.findById(customerID)
-            .orElseThrow(()-> new NotFoundException("Customer " + customerID + " does not found"));
+            .orElseThrow(()-> new CustomerNotFoundException("Customer " + customerID + " does not found"));
         UserInfo user = userService.getUserInfo(customer.getUserID());
         
         customerImageService.setCustomerImage(customer);
@@ -171,10 +174,10 @@ public class CustomerServiceImp implements CustomerService {
     }
 
     @Override
-    public Customer getCustomerByUserID(String userID) {
+    public Customer getCustomerByUserID(String userID) throws CustomerNotFoundException {
         log.info("getCustomerByUserID(userID={})", userID);
-        Customer customer = customerRepository.findByUserID(userID).orElseThrow(
-            ()-> new NotFoundException("Customer with userID " + userID + " does not found"));
+        Customer customer = customerRepository.findByUserID(userID)
+            .orElseThrow(()-> new CustomerNotFoundException("Customer with userID " + userID + " does not found"));
         customerImageService.setCustomerImage(customer);
         return customer;
     }

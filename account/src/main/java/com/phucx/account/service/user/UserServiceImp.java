@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import com.phucx.account.config.WebConfig;
 import com.phucx.account.constant.RoleConstant;
 import com.phucx.account.constant.WebConstant;
+import com.phucx.account.exception.CustomerNotFoundException;
+import com.phucx.account.exception.EmployeeNotFoundException;
+import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.Role;
@@ -46,32 +49,30 @@ public class UserServiceImp implements UserService {
     @Autowired
     private EmployeeAccountRepository employeeAccountRepository;
     @Override
-    public User getUser(String username) {
+    public User getUser(String username) throws UserNotFoundException {
         User user = userRepository.findByUsername(username)
-            .orElseThrow(()-> new NotFoundException("User " + username + " does not found"));
+            .orElseThrow(()-> new UserNotFoundException("User " + username + " does not found"));
         return user;
     }
     @Override
-    public User getUserByID(String userID) {
+    public User getUserByID(String userID) throws UserNotFoundException {
         User user = userRepository.findById(userID)
-            .orElseThrow(()-> new NotFoundException("User " + userID + " does not found"));
+            .orElseThrow(()-> new UserNotFoundException("User " + userID + " does not found"));
         return user;
     }
 
     @Override
-    public UserInfo getUserInfo(String userID) {
+    public UserInfo getUserInfo(String userID) throws UserNotFoundException {
         log.info("getUserInfo(userID={})", userID);
         List<UserRole> userRoles = userRoleRepository.findByUserID(userID);
         if(userRoles==null || userRoles.isEmpty()){
-            throw new NotFoundException("User " + userID + " does not found");
+            throw new UserNotFoundException("User " + userID + " does not found");
         }
         UserRole firstEntity = userRoles.get(0);
-        log.info("firstEntity: {}", firstEntity);
         User user = new User(firstEntity.getUserID(), firstEntity.getUsername(), firstEntity.getEmail());
         List<Role> roles = userRoles.stream().map(userRole ->{
             return new Role(userRole.getRoleID(), userRole.getRoleName());
         }).collect(Collectors.toList());
-        log.info("roles: {}", roles);
         return new UserInfo(user, roles);
     }
     @Override
@@ -87,15 +88,15 @@ public class UserServiceImp implements UserService {
         return userID;
     }
     @Override
-    public String getUserIdOfCustomerID(String customerID) {
+    public String getUserIdOfCustomerID(String customerID) throws CustomerNotFoundException {
         CustomerAccount customerAccount = customerAccountRepository.findByCustomerID(customerID)
-            .orElseThrow(()-> new NotFoundException("Customer "+customerID+" does not found"));
+            .orElseThrow(()-> new CustomerNotFoundException("Customer "+customerID+" does not found"));
         return customerAccount.getUserID();
     }
     @Override
-    public String getUserIdOfEmployeeID(String employeeID) {
+    public String getUserIdOfEmployeeID(String employeeID) throws EmployeeNotFoundException {
         EmployeeAccount employeeAccount = employeeAccountRepository.findByEmployeeID(employeeID)
-            .orElseThrow(()-> new NotFoundException("Employee "+ employeeID +" does not found"));
+            .orElseThrow(()-> new EmployeeNotFoundException("Employee "+ employeeID +" does not found"));
         return employeeAccount.getUserID();
     }
     @Override
@@ -132,18 +133,17 @@ public class UserServiceImp implements UserService {
         return users;
     }
     @Override
-    public boolean resetPassword(String userID) {
+    public boolean resetPassword(String userID) throws UserNotFoundException {
         log.info("resetPassword(userID={})", userID);
         User user = userRepository.findById(userID)
-            .orElseThrow(()-> new NotFoundException("User " + userID + " does not found"));
+            .orElseThrow(()-> new UserNotFoundException("User " + userID + " does not found"));
         Boolean status = userRepository.updateUserPassword(
             user.getUserID(), passwordEncoder.encode(WebConstant.DEFUALT_PASSWORD));
         return status;
     }
     @Override
-    public boolean assignUserRoles(UserInfo user) {
+    public boolean assignUserRoles(UserInfo user) throws UserNotFoundException {
         log.info("assignUserRoles({})", user.toString());
-        log.info("userroles {}", user.getRoles().size());
         // check input data 
         if(user.getRoles().size()>0){
             User fetchedUser = this.getUserByID(user.getUser().getUserID());
@@ -168,7 +168,7 @@ public class UserServiceImp implements UserService {
         throw new NotFoundException("Does not found any roles for user " + user.getUser().getUserID());
     }
     @Override
-    public UserInfo getUserAuthenticationInfo(String userID) {
+    public UserInfo getUserAuthenticationInfo(String userID) throws UserNotFoundException {
         log.info("getUserAuthenticationInfo(userID={})", userID);
         User user = this.getUserByID(userID);
         // get and convert form userRoles to Role
@@ -181,19 +181,19 @@ public class UserServiceImp implements UserService {
         .collect(Collectors.toList());
         // check if user has any roles
         if(roles==null || roles.size()==0){
-            throw new NotFoundException("User " + userID + " does not have any roles");
+            throw new UserNotFoundException("User " + userID + " does not have any roles");
         }
 
         return new UserInfo(user, roles);
     }
     @Override
-    public User getUserByCustomerID(String customerID) {
+    public User getUserByCustomerID(String customerID) throws CustomerNotFoundException {
         return userRepository.findByCustomerID(customerID)
-            .orElseThrow(()-> new NotFoundException("User with Customer "+ customerID + " does not found"));
+            .orElseThrow(()-> new CustomerNotFoundException("User with Customer "+ customerID + " does not found"));
     }
     @Override
-    public User getUserByEmployeeID(String employeeID) {
+    public User getUserByEmployeeID(String employeeID) throws EmployeeNotFoundException {
         return userRepository.findByEmployeeID(employeeID)
-            .orElseThrow(()-> new NotFoundException("User with Employee "+ employeeID + " does not found"));
+            .orElseThrow(()-> new EmployeeNotFoundException("User with Employee "+ employeeID + " does not found"));
     }
 }

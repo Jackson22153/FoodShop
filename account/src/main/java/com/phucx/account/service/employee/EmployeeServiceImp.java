@@ -16,6 +16,9 @@ import com.phucx.account.constant.NotificationTitle;
 import com.phucx.account.constant.NotificationTopic;
 import com.phucx.account.constant.UserStatus;
 import com.phucx.account.constant.WebConstant;
+import com.phucx.account.exception.EmployeeNotFoundException;
+import com.phucx.account.exception.InvalidUserException;
+import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EmployeeDetails;
@@ -31,7 +34,6 @@ import com.phucx.account.service.image.ImageService;
 import com.phucx.account.service.notification.NotificationService;
 import com.phucx.account.service.user.UserService;
 
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -55,10 +57,10 @@ public class EmployeeServiceImp implements EmployeeService {
     private EmployeeImageService employeeImageService;
 
 	@Override
-	public EmployeeDetails getEmployeeByID(String employeeID) {
+	public EmployeeDetails getEmployeeByID(String employeeID) throws UserNotFoundException {
         log.info("getEmployeeByID(employeeID={})", employeeID);
         Employee employee = employeeRepository.findById(employeeID)
-            .orElseThrow(()-> new NotFoundException("Employee " + employeeID + " does not found"));
+            .orElseThrow(()-> new EmployeeNotFoundException("Employee " + employeeID + " does not found"));
         UserInfo user = userService.getUserInfo(employee.getUserID());
         
         employeeImageService.setEmployeeImage(employee);
@@ -73,10 +75,10 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
 	@Override
-	public Boolean updateEmployeeInfo(EmployeeDetail employee) {
+	public Boolean updateEmployeeInfo(EmployeeDetail employee) throws EmployeeNotFoundException {
         log.info("updateEmployeeInfo({})", employee.toString());
         Employee fetchedEmployee =employeeRepository.findById(employee.getEmployeeID())
-            .orElseThrow(()-> new NotFoundException("Employee " + employee.getEmployeeID() + " does not found"));
+            .orElseThrow(()-> new EmployeeNotFoundException("Employee " + employee.getEmployeeID() + " does not found"));
         
         String picture = imageService.getImageName(employee.getPhoto());
         
@@ -98,21 +100,21 @@ public class EmployeeServiceImp implements EmployeeService {
 	}
 
 	@Override
-	public EmployeeDetail getEmployeeDetail(String username) {
+	public EmployeeDetail getEmployeeDetail(String username) throws UserNotFoundException {
         User user = userService.getUser(username);
         Optional<EmployeeAccount> employeeAccOp = employeeAccountRepository.findByUserID(user.getUserID());
         if(employeeAccOp.isPresent()){
             EmployeeAccount employeeAcc = employeeAccOp.get();
             String employeeID = employeeAcc.getEmployeeID();
             EmployeeDetail employee = employeeDetailRepostiory.findById(employeeID)
-                .orElseThrow(()-> new NotFoundException("EmployeeID: " + employeeID + " does not found"));
+                .orElseThrow(()-> new EmployeeNotFoundException("EmployeeID: " + employeeID + " does not found"));
             employeeImageService.setEmployeeDetailImage(employee);
             return employee;
         }else{
             String employeeID = UUID.randomUUID().toString();
             employeeAccountRepository.createEmployeeInfo(employeeID, username, username, username);
             EmployeeDetail employee = employeeDetailRepostiory.findById(employeeID)
-                .orElseThrow(()-> new NotFoundException("EmployeeID: " + employeeID + " does not found"));
+                .orElseThrow(()-> new EmployeeNotFoundException("EmployeeID: " + employeeID + " does not found"));
             employeeImageService.setEmployeeDetailImage(employee);
             return employee;
         }
@@ -164,10 +166,10 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
     @Override
-    public Boolean updateAdminEmployeeInfo(Employee employee) throws JsonProcessingException {
+    public Boolean updateAdminEmployeeInfo(Employee employee) throws JsonProcessingException, EmployeeNotFoundException {
         log.info("updateAdminEmployeeInfo({})", employee.toString());
         Employee fetchedEmployee = employeeRepository.findById(employee.getEmployeeID())
-            .orElseThrow(()-> new NotFoundException("Employee " + employee.getEmployeeID() + " does not found"));
+            .orElseThrow(()-> new EmployeeNotFoundException("Employee " + employee.getEmployeeID() + " does not found"));
         // get image
         String picture = this.imageService.getImageName(employee.getPhoto());
         // update employee's information
@@ -195,29 +197,31 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
     @Override
-    public Employee getEmployee(String employeeID) {
+    public Employee getEmployee(String employeeID) throws EmployeeNotFoundException {
         Employee employee = employeeRepository.findById(employeeID)
-            .orElseThrow(()-> new NotFoundException("Employee " + employeeID + " does not found"));
+            .orElseThrow(()-> new EmployeeNotFoundException("Employee " + employeeID + " does not found"));
         employeeImageService.setEmployeeImage(employee);
         return employee;
     }
 
     @Override
-    public Boolean addNewEmployee(EmployeeAccount employeeAccount) {
+    public Boolean addNewEmployee(EmployeeAccount employeeAccount) throws InvalidUserException {
         log.info("addNewEmployee({})", employeeAccount);
-        if(employeeAccount.getUsername() == null || employeeAccount.getEmail()==null || 
-            employeeAccount.getFirstName()==null || employeeAccount.getLastName()==null)
-            throw new RuntimeException("Missing some employee's information");
+        if(employeeAccount.getUsername() == null)
+            throw new InvalidUserException("user's username is null");
+        if(employeeAccount.getEmail()==null)
+            throw new InvalidUserException("user's email is null");
+        if(employeeAccount.getFirstName()==null || employeeAccount.getLastName()==null)
+            throw new InvalidUserException("User's first name or last name is null");
         EmployeeAccount fetchedEmployeeByUsername= employeeAccountRepository.findByUsername(employeeAccount.getUsername());
-        if(fetchedEmployeeByUsername!=null) throw new RuntimeException("Employee " + fetchedEmployeeByUsername.getUsername() + " already exists");
+        if(fetchedEmployeeByUsername!=null) throw new InvalidUserException("User " + fetchedEmployeeByUsername.getUsername() + " already exists");
         var fetchedCustomerByEmail= employeeAccountRepository.findByEmail(employeeAccount.getEmail());
-        if(fetchedCustomerByEmail.isPresent()) throw new RuntimeException("Employee " + employeeAccount.getEmail() + " already exists");
+        if(fetchedCustomerByEmail.isPresent()) throw new InvalidUserException("User with email " + employeeAccount.getEmail() + " already exists");
         // add new employee
         String userID = UUID.randomUUID().toString();
         String employeeID = UUID.randomUUID().toString();
         // hash password
         String hashedPassword = passwordEncoder.encode(WebConstant.DEFUALT_PASSWORD);
-        log.info("User: {}, hashedPassword: {}", employeeAccount.getUsername(), hashedPassword);
         // add new employee account
         return employeeAccountRepository.addNewEmployee(
             userID, employeeAccount.getUsername(), hashedPassword, employeeAccount.getEmail(), 
@@ -226,9 +230,9 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
     @Override
-    public Employee getEmployeeByUserID(String userID) {
+    public Employee getEmployeeByUserID(String userID) throws EmployeeNotFoundException {
         Employee fetchedEmployee = employeeRepository.findByUserID(userID)
-            .orElseThrow(()-> new NotFoundException("Employee with UserID: " + userID + " does not found"));
+            .orElseThrow(()-> new EmployeeNotFoundException("Employee with UserID: " + userID + " does not found"));
         return employeeImageService.setEmployeeImage(fetchedEmployee);
     }
 }

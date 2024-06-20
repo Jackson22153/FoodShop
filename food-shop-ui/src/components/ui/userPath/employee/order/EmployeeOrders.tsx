@@ -76,11 +76,9 @@ export default function EmployeeOrdersComponent(){
             }
             const res = await confirmOrder(data);
             if(200<=res.status&&res.status<300){
-    
+                window.location.reload();
             }
         } catch (error) {
-            
-        } finally{
             window.location.reload();
         }
     }
@@ -98,11 +96,9 @@ export default function EmployeeOrdersComponent(){
             }
             const res = await fulfillOrder(data);
             if(200<=res.status&&res.status<300){
-    
+                window.location.reload();
             }
         } catch (error) {
-            
-        } finally{
             window.location.reload();
         }
     }
@@ -120,16 +116,12 @@ export default function EmployeeOrdersComponent(){
             }
             const res = await cancelOrder(data);
             if(200<=res.status&&res.status<300){
-    
+                window.location.reload();
             }
         } catch (error) {
-            
-        } finally{
             window.location.reload();
         }
     }
-
-
 
     // select order tab
     const onClickNavTab = (tab: number)=>{
@@ -261,8 +253,7 @@ export default function EmployeeOrdersComponent(){
                                     </div>
                                     <hr />
                                     <div className="d-flex justify-content-end">
-                                        <a href={`${EMPLOYEE_PENDING_ORDER}
-                                /${order.orderID}`} 
+                                        <a href={`${EMPLOYEE_PENDING_ORDER}/${order.orderID}`} 
                                             className="btn btn-info text-light mx-2">View Order</a>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickCancelOrder(order)}>Cancel</button>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickConfirmOrder(order)}>Confirm</button>
