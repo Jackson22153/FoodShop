@@ -1,16 +1,25 @@
 import './Cart.css';
 import CartCard from '../../../shared/functions/cartCard/CartCard';
 import { useEffect, useState } from 'react';
-import { CartProduct, OrderInfo, ProductWithDiscount } from '../../../../model/Type';
-import { addProductToCart, deleteProductToCart, getProductsFromCart } from '../../../../api/CartApi';
+import { CartInfo, CartProduct, CartProductInfo } from '../../../../model/Type';
+import { deleteAllCartProducts, deleteCartProduct, getProductsFromCart, updateProductInCart } from '../../../../api/CartApi';
 import { ceilRound } from '../../../../service/Convert';
-import { orderPath } from '../../../../constant/FoodShoppingURL';
+import { ORDER_PATH } from '../../../../constant/FoodShoppingURL';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Modal } from '../../../../model/WebType';
+import ModalComponent from '../../../shared/functions/modal/Modal';
 
 export default function CartComponent(){
-    const [order, setOrder] = useState<OrderInfo>();
+    const [cartOrder, setCartOrder] = useState<CartInfo>();
     const [totalItems, setTotalItems] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
-
+    const [isSelectedAllItems, setIsSelectedAllItems] = useState(false);
+    const [removeAllModal, setRemoveAllModal] = useState<Modal>({
+        title: "Remove all products",
+        message: "Do you want to remove all products ?",
+        isShowed: false
+    })
     useEffect(()=>{
         initial();
     }, []);
@@ -21,103 +30,203 @@ export default function CartComponent(){
 
     // click to place order
     const onClickPlaceOrder = ()=>{
-        window.location.href=orderPath;
+        window.location.href=ORDER_PATH;
     }
 
     // calculate totalprice
-    async function calculateTotalPrice(products: ProductWithDiscount[]){
+    async function calculateTotalPrice(products: CartProductInfo[]){
         var totalPrice = 0;
         products.forEach(product =>{
-            var totalDiscount = 0;
-            product.discounts.forEach((discount) => {
-                totalDiscount+=discount.discountPercent;
-            });
-            totalPrice += product.unitPrice*product.quantity*(1-totalDiscount/100);
+            if(product.isSelected){
+                var totalDiscount = 0;
+                product.discounts.forEach((discount) => {
+                    totalDiscount+=discount.discountPercent;
+                });
+                totalPrice += product.unitPrice*product.quantity*(1-totalDiscount/100);
+            }
         })
         setTotalPrice(totalPrice)
     }
 
+    // increase product's quantity
     function onClickIncrementQuantity(index: number){
-        if(order){
-            const products = order.products;
+        if(cartOrder){
+            const products = cartOrder.products;
             const quantity = products[index].quantity;
             const unitsInStock = products[index].unitsInStock   
             if(quantity+1<=unitsInStock){
                 
                 products[index].quantity = quantity+1;
-                setOrder({...order, products: products})
+                setCartOrder({...cartOrder, products: products})
                 const cartProduct = {
                     productID: products[index].productID,
-                    quantity: 1
+                    quantity: quantity+1,
+                    isSelected: products[index].isSelected
                 }
-                onClickAddToCart(cartProduct);
+                updateCart([cartProduct]);
 
                 calculateTotalPrice(products)
             }
         }
     }
     
+    // decrease product's quantity
     function onClickDecrementQuantity(index: number){
-        if(order){
-            const products = order.products;
+        if(cartOrder){
+            const products = cartOrder.products;
             const quantity = products[index].quantity;
             // const newValue = quantity-1>1?quantity-1:1;
             if(quantity-1>=1){
                 products[index].quantity = quantity-1;
-                setOrder({...order, products: products})
+                setCartOrder({...cartOrder, products: products})
                 const cartProduct = {
                     productID: products[index].productID,
-                    quantity: -1
+                    quantity: quantity-1,
+                    isSelected: products[index].isSelected
                 }
-                onClickAddToCart(cartProduct);
+                updateCart([cartProduct]);
                 calculateTotalPrice(products)
             }
         }
     }
+
+    // remove product from cart
     async function onClickRemoveCartProduct(index: number){
-        if(order){
-            const products = order.products;
-            const res = await deleteProductToCart(products[index].productID);
-            if(res){
-              window.location.reload()  
-            }
+        if(cartOrder){
+            const products = cartOrder.products;
+            const productID = products[index].productID
+            const updatedProducts = products.filter(p => p.productID!=productID);
+            calculateTotalPrice(updatedProducts)
+            getTotalItems(updatedProducts)
+            removeCartProduct(productID);
+        }
+    }
+    const removeCartProduct = async (productID: number)=>{
+        const res = await deleteCartProduct(productID);
+        if(200<=res.status&&res.status<300){
+            const data = res.data;
+            setCartOrder(data)
+        }
+    }
+    // remove all products
+    function onClickRemoveAllCartProducts(){
+        if(cartOrder){
+            setRemoveAllModal(modal => ({...modal, isShowed: true}))
         }
     }
 
-    async function onClickAddToCart(cartProduct: CartProduct){
-        const res = await addProductToCart(cartProduct);
-        if(res.status){
+    const removeAllCartProducts = async ()=>{
+        const res = await deleteAllCartProducts();
+        if(200<=res.status&&res.status<300){
+            setCartOrder(res.data)
+        }
+    }
+    // add product to cart
+    async function updateCart(cartProducts: CartProduct[]){
+        const res = await updateProductInCart(cartProducts);
+        if(200<=res.status && res.status<300){
+            console.log(res.data)
+            const data = res.data;
+            setCartOrder(data)
         }
     }
 
+    // change product's quantity
     const onChangeQuantityProduct = (event: any, index: number)=>{
-        if(order){
+        if(cartOrder){
             const quantity = event.target.value;
-            const products = order.products;
+            const products = cartOrder.products;
             products[index] = {
                 ...products[index], quantity: quantity
             }
-            setOrder({...order, products: products})
+            setCartOrder({...cartOrder, products: products})
         }
     }
 
+    // get products in cart
     async function fetchProductsInCart(){
         const res = await getProductsFromCart();
-        if(res.status){
+        if(200<=res.status&&res.status<300){
             const data = res.data;
-            setOrder(data);
-            getTotalItems(data);
+            setCartOrder(data);
+            getTotalItems(data.products);
             setTotalPrice(data.totalPrice);
         }
     }
-
-    function getTotalItems(order: OrderInfo){
+    // get total products in cart
+    function getTotalItems(products: CartProductInfo[]){
         var totalItems = 0;
-        if(order){
-            order.products.forEach((_product) =>{
+        Array.from(products).forEach((product) =>{
+            if(product.isSelected)
                 totalItems+=1;
-            })
-            setTotalItems(totalItems)
+        })
+        // check selected items
+        if(totalItems===products.length && totalItems>0){
+            setIsSelectedAllItems(true)
+        }else if(totalItems < products.length){
+            setIsSelectedAllItems(false)
+        }
+        setTotalItems(totalItems)
+    }
+
+    // change selected product
+    const onChangeCheckedProduct = (index: number) => {
+        // event.preventDefault();
+        // Create a new array with updated product
+        const updatedProducts = cartOrder.products.map((product, i) =>
+            i === index ? { ...product, isSelected: !product.isSelected } : product
+        );
+
+        // Set the new array to state
+        setCartOrder(prevCartOrder => ({
+            ...prevCartOrder,
+            products: updatedProducts
+        }));
+        // update total items 
+        getTotalItems(updatedProducts)
+        // calculate order price
+        calculateTotalPrice(updatedProducts)
+        // update cart
+        const updatedCartProduct = {
+            productID: updatedProducts[index].productID,
+            quantity: updatedProducts[index].quantity,
+            isSelected: updatedProducts[index].isSelected
+        }
+        updateCart([updatedCartProduct])
+    }
+
+    const onChangeCheckedProducts = () => {
+        if(cartOrder.products.length>0){
+            const updatedProducts = cartOrder.products.map((product) =>{
+               const updatedProduct = {
+                productID: product.productID,
+                quantity: product.quantity,
+                isSelected: !isSelectedAllItems
+               }
+               return updatedProduct
+            });
+            const updatedProductInfos = cartOrder.products.map((product) =>{
+                const updatedProduct = {
+                    ...product, isSelected: !isSelectedAllItems
+                }
+                return updatedProduct
+             });
+            setCartOrder({...cartOrder, products: updatedProductInfos})
+            getTotalItems(updatedProductInfos)
+            updateCart(updatedProducts)
+            calculateTotalPrice(updatedProductInfos)
+            setIsSelectedAllItems(!isSelectedAllItems)
+        }
+    }
+
+    // remove all button
+    const onClickCloseModal = ()=>{
+        setRemoveAllModal(modal => ({...modal, isShowed: false}))
+    }
+    const onClickConfirmModal = ()=>{
+        if(cartOrder){
+            removeAllCartProducts();
+            setTotalPrice(0)
         }
     }
 
@@ -129,18 +238,41 @@ export default function CartComponent(){
                         <div className="card card-registration card-registration-2">
                             <div className="card-body p-0">
                                 <div className="row g-0">
-                                    {order &&
+                                    {cartOrder &&
                                         <>
                                             <div className="col-lg-8">
                                                 <div className="p-5">
                                                     <div className="d-flex justify-content-between align-items-center mb-5">
                                                         <h1 className="fw-bold mb-0 text-black">Shopping Cart</h1>
-                                                        <h6 className="mb-0 text-muted">{totalItems} items</h6>
+                                                        <h6 className="mb-0 text-muted">{totalItems} {totalItems!=1?'items':'item'}</h6>
+                                                    </div>
+                                                    <div className="row d-flex justify-content-between align-items-center">
+                                                        <input className="form-check-input cart-item-check-input" type="checkbox" 
+                                                            checked={isSelectedAllItems} onChange={onChangeCheckedProducts}/>
+                                                        <div className="col-md-2 col-lg-2 col-xl-2">
+                                                            <span>All</span>
+                                                        </div>
+                                                        <div className="col-md-3 col-lg-3 col-xl-3">
+                                                            <span>Product</span>
+                                                        </div>
+                                                        <div className="col-md-3 col-lg-3 col-xl-2 d-flex p-0 justify-content-center">
+                                                            <span>Quantity</span>
+                                                        </div>
+                                                        <div className="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                                                            <span>Price</span>
+                                                        </div>
+                                                        <div className="col-md-1 col-lg-1 col-xl-1 text-end">
+                                                            <button className="text-muted btn btn-light" onClick={onClickRemoveAllCartProducts}>
+                                                                <FontAwesomeIcon icon={faTrash}/>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                     <hr className="my-4"/>
-                                                    {order.products.map((product, index)=>(
-                                                        <div key={product.productID}>
-                                                            <div  className="row mb-4 d-flex justify-content-between align-items-center">
+                                                    {cartOrder.products.map((product, index)=>(
+                                                        <div className='cart-item' key={index}>
+                                                            <div className="row mb-4 d-flex justify-content-between align-items-center">
+                                                                <input className="form-check-input cart-item-check-input" type="checkbox" 
+                                                                    checked={product.isSelected} onChange={(_e)=>onChangeCheckedProduct(index)}/>
                                                                 <CartCard product={product} number={index}
                                                                     onChangeQuantity={onChangeQuantityProduct}
                                                                     onClickDecrementQuantity={onClickDecrementQuantity}
@@ -148,15 +280,9 @@ export default function CartComponent(){
                                                                     onClickRemoveProduct={onClickRemoveCartProduct}
                                                                 />
                                                             </div>
-        
                                                             <hr className="my-4"/>
                                                         </div>
                                                     ))}
-                                                    {/* <div className="pt-5">
-                                                        <h6 className="mb-0"><a href="#!" className="text-body">
-                                                            <FontAwesomeIcon icon={faLongArrowAltLeft}/> Back to shop</a>
-                                                        </h6>
-                                                    </div> */}
                                                 </div>
                                             </div>
                                             <div className="col-lg-4 bg-grey">
@@ -193,10 +319,10 @@ export default function CartComponent(){
 
                                                     <div className="d-flex justify-content-between mb-5">
                                                         <h5 className="text-uppercase">Total price</h5>
-                                                        <h5>$ {ceilRound(totalPrice + order.freight)}</h5>
+                                                        <h5>$ {ceilRound(totalPrice + cartOrder.freight)}</h5>
                                                     </div>
                                                     <button type="button" className="btn btn-dark btn-block btn-lg"
-                                                        onClick={onClickPlaceOrder} disabled={order.products.length>0?false:true}
+                                                        onClick={onClickPlaceOrder} disabled={cartOrder.products.length>0?false:true}
                                                         data-mdb-ripple-color="dark">
                                                             Order
                                                     </button>
@@ -210,6 +336,8 @@ export default function CartComponent(){
                     </div>
                 </div>
             </div>
+            <ModalComponent modal={removeAllModal} handleConfirmButton={onClickConfirmModal} 
+                handleCloseButton={onClickCloseModal}/>
         </section>
     );
 }

@@ -9,7 +9,6 @@ import { Alert, Modal } from "../../../../../model/WebType";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import ModalComponent from "../../../../shared/functions/modal/Modal";
 import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/WebConstant";
-import { UserImageChangeInput } from "../../../../shared/functions/user-image-change/UserImageChangeInput";
 import { EmployeeImageChangeInput } from "../../../../shared/functions/employee-image-change/EmployeeImageChangeInput";
 
 

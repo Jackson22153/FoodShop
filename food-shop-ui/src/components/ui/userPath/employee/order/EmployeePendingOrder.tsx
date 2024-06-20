@@ -5,7 +5,7 @@ import { displayProductImage } from "../../../../../service/Image";
 import dayjs from "dayjs";
 import { ORDER_STATUS } from "../../../../../constant/WebConstant";
 import { cancelOrder, confirmOrder, getOrderDetail } from "../../../../../api/OrderApi";
-import { employeeOrder } from "../../../../../constant/FoodShoppingURL";
+import { EMPLOYEE_ORDER } from "../../../../../constant/FoodShoppingURL";
 
 export default function EmployeePendingOrderComponent(){
     const { orderId } = useParams();
@@ -39,7 +39,7 @@ export default function EmployeePendingOrderComponent(){
         } catch (error) {
             
         } finally{
-            window.location.href=employeeOrder
+            window.location.href=EMPLOYEE_ORDER
         }
     }
 
@@ -62,7 +62,7 @@ export default function EmployeePendingOrderComponent(){
         } catch (error) {
             
         } finally{
-            window.location.href=employeeOrder
+            window.location.href=EMPLOYEE_ORDER
         }
     }
 

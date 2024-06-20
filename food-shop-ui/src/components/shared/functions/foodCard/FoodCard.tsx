@@ -3,7 +3,6 @@ import { ceilRound, convertNameForUrl } from "../../../../service/Convert";
 import foodPathContext from "../../../contexts/PathContext";
 import { displayProductImage } from "../../../../service/Image";
 import { CurrentProduct } from "../../../../model/Type";
-import { categoriesPath } from "../../../../constant/FoodShoppingURL";
 
 interface Props{
     foodInfo: CurrentProduct

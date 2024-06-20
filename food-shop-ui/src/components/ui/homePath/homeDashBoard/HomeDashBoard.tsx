@@ -5,7 +5,7 @@ import CategoriesSection from "../../../shared/website/sections/categoriesSectio
 import SlideSection from "../../../shared/website/sections/slideSection/SlideSection";
 import FoodSection from "../../../shared/website/sections/foodSection/FoodSection";
 import { PathProvider } from "../../../contexts/PathContext";
-import { foodsPath } from "../../../../constant/FoodShoppingURL";
+import { FOODS_PATH } from "../../../../constant/FoodShoppingURL";
 import CategoriesContext from "../../../contexts/CategoriesContext";
 import { Category, CurrentProduct } from "../../../../model/Type";
 
@@ -49,7 +49,7 @@ function HomeDashBoardComponent(){
 
             {/* <!-- service section --> */}
             {recommendedProducts &&
-                <PathProvider value={foodsPath}>
+                <PathProvider value={FOODS_PATH}>
                     <FoodSection lstFoodProducts={recommendedProducts} sectionTitle="Recommended Foods"/>
                 </PathProvider>
             }

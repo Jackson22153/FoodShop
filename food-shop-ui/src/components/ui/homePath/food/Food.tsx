@@ -10,7 +10,7 @@ import { addProductToCart } from '../../../../api/CartApi';
 import { displayProductImage } from '../../../../service/Image';
 import numberOfCartProductsContext from '../../../contexts/NumberOfCartProductsContext';
 import { ceilRound } from '../../../../service/Convert';
-import { foodsPath } from '../../../../constant/FoodShoppingURL';
+import { FOODS_PATH } from '../../../../constant/FoodShoppingURL';
 import { numberOfProductsInCart } from '../../../../service/Cart';
 
 export default function FoodComponent(){
@@ -20,7 +20,8 @@ export default function FoodComponent(){
     const {  setNumberOfCartProducts } = useContext(numberOfCartProductsContext);
     const [cartProduct, setCartProduct] = useState<CartProduct>({
         productID: 0,
-        quantity: 1
+        quantity: 1,
+        isSelected: true
     })
     
     useEffect(()=>{
@@ -53,7 +54,7 @@ export default function FoodComponent(){
     }
 
     async function onClickAddToCart(){
-        const res = await addProductToCart(cartProduct);
+        const res = await addProductToCart([cartProduct]);
         if(res.status){
             const numberProducts = numberOfProductsInCart();
             setNumberOfCartProducts(numberProducts)
@@ -221,7 +222,7 @@ export default function FoodComponent(){
 
                                                 {similarFoods.map((food) =>(
                                                     <div className="d-flex mb-3" key={food.productID}>
-                                                        <a href={`${foodsPath}/${food.productName}?sp=${food.productID}`} className="me-3">
+                                                        <a href={`${FOODS_PATH}/${food.productName}?sp=${food.productID}`} className="me-3">
                                                             <img src={displayProductImage(food.picture)} style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
                                                         </a>
                                                         <div className="cart-text w-100">
@@ -229,7 +230,7 @@ export default function FoodComponent(){
                                                                 <div className='col-md-2'>
 
                                                                 </div>
-                                                                <a href={`${foodsPath}/${food.productName}?sp=${food.productID}`} className="nav-link mb-1">
+                                                                <a href={`${FOODS_PATH}/${food.productName}?sp=${food.productID}`} className="nav-link mb-1">
                                                                     {food.productName}
                                                                 </a>
                                                                 <div className='d-flex'>

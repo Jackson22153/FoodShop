@@ -55,9 +55,12 @@ public class ProductImageServiceImp implements ProductImageService{
     public List<Product> setProductsImage(List<Product> products) {
         products.stream().forEach(product ->{
             if(product.getPicture()!=null && product.getPicture().length()>0){
+                String picture = product.getPicture();
                 // setting image with image uri
                 String uri = "/" + serverName + imageUri;
-                product.setPicture(uri + "/" + product.getPicture());
+                if(!picture.contains(uri)){
+                    product.setPicture(uri + "/" + product.getPicture());
+                }
             }
         });
         return products;
@@ -68,8 +71,12 @@ public class ProductImageServiceImp implements ProductImageService{
         // filtering product 
         if(!(product.getPicture()!=null && product.getPicture().length()>0)) return product;
         // product has image
-        String imageUrl = "/" + serverName + imageUri;
-        product.setPicture(imageUrl + "/" + product.getPicture());
+        String picture = product.getPicture();
+        // setting image with image uri
+        String uri = "/" + serverName + imageUri;
+        if(!picture.contains(uri)){
+            product.setPicture(uri + "/" + product.getPicture());
+        }
         return product;
     }
 
@@ -77,9 +84,12 @@ public class ProductImageServiceImp implements ProductImageService{
     public CurrentProduct setCurrentProductImage(CurrentProduct product) {
         // filtering product 
         if(!(product.getPicture()!=null && product.getPicture().length()>0)) return product;
-        // product has image
-        String imageUrl = "/" + serverName + imageUri;
-        product.setPicture(imageUrl + "/" + product.getPicture());
+        String picture = product.getPicture();
+        // setting image with image uri
+        String uri = "/" + serverName + imageUri;
+        if(!picture.contains(uri)){
+            product.setPicture(uri + "/" + product.getPicture());
+        }
         return product;
     }
 
@@ -87,9 +97,12 @@ public class ProductImageServiceImp implements ProductImageService{
     public List<CurrentProduct> setCurrentProductsImage(List<CurrentProduct> products) {
         products.stream().forEach(product ->{
             if(product.getPicture()!=null && product.getPicture().length()>0){
+                String picture = product.getPicture();
                 // setting image with image uri
                 String uri = "/" + serverName + imageUri;
-                product.setPicture(uri + "/" + product.getPicture());
+                if(!picture.contains(uri)){
+                    product.setPicture(uri + "/" + product.getPicture());
+                }
             }
         });
         return products;
@@ -99,9 +112,12 @@ public class ProductImageServiceImp implements ProductImageService{
     public ProductDetail setProductDetailImage(ProductDetail product) {
         // filtering product 
         if(!(product.getPicture()!=null && product.getPicture().length()>0)) return product;
-        // product has image
-        String imageUrl = "/" + serverName + imageUri;
-        product.setPicture(imageUrl + "/" + product.getPicture());
+        String picture = product.getPicture();
+        // setting image with image uri
+        String uri = "/" + serverName + imageUri;
+        if(!picture.contains(uri)){
+            product.setPicture(uri + "/" + product.getPicture());
+        }
         return product;
     }
 
@@ -109,9 +125,12 @@ public class ProductImageServiceImp implements ProductImageService{
     public List<ProductDetail> setProductDetailsImage(List<ProductDetail> products) {
         products.stream().forEach(product ->{
             if(product.getPicture()!=null && product.getPicture().length()>0){
+                String picture = product.getPicture();
                 // setting image with image uri
                 String uri = "/" + serverName + imageUri;
-                product.setPicture(uri + "/" + product.getPicture());
+                if(!picture.contains(uri)){
+                    product.setPicture(uri + "/" + product.getPicture());
+                }
             }
         });
         return products;

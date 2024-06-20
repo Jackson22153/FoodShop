@@ -1,5 +1,7 @@
 package com.phucx.shop.controller;
 
+import java.util.List;
+
 import javax.naming.InsufficientResourcesException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.shop.constant.CookieConstant;
-import com.phucx.shop.model.CartOrderItem;
+import com.phucx.shop.exceptions.EmptyCartException;
+import com.phucx.shop.exceptions.InvalidOrderException;
+import com.phucx.shop.model.CartOrderInfo;
+import com.phucx.shop.model.CartProduct;
 import com.phucx.shop.model.CartProductsCookie;
 import com.phucx.shop.model.OrderWithProducts;
 import com.phucx.shop.service.cart.CartService;
@@ -30,28 +35,45 @@ public class CartController {
     private CartService cartService;
 
     @PostMapping
-    public ResponseEntity<Void> updateCookie(
-        HttpServletResponse response, @RequestBody CartOrderItem OrderItem,
+    public ResponseEntity<CartOrderInfo> updateCartCookie(
+        HttpServletResponse response, @RequestBody List<CartProduct> products,
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson
     ) throws JsonProcessingException, InsufficientResourcesException {
-        cartService.updateCookie(cartJson, OrderItem, response);
-        return ResponseEntity.ok().build();
+        CartOrderInfo cartOrder = cartService.updateCartCookie(cartJson, products, response);
+        return ResponseEntity.ok().body(cartOrder);
     }
 
-    @DeleteMapping("/{productID}")
-    public ResponseEntity<Void> deleteCookie(HttpServletResponse response, 
+    @PostMapping("/product")
+    public ResponseEntity<CartOrderInfo> addProduct(
+        HttpServletResponse response, @RequestBody List<CartProduct> products,
+        @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson
+    ) throws JsonProcessingException, InsufficientResourcesException {
+        CartOrderInfo cartOrder = cartService.addProduct(cartJson, products, response);
+        return ResponseEntity.ok().body(cartOrder);
+    }
+
+    @DeleteMapping("/product/{productID}")
+    public ResponseEntity<CartOrderInfo> deleteCartProductCookie(HttpServletResponse response, 
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson,
         @PathVariable("productID") Integer productID
     ) throws JsonProcessingException{
-        cartService.removeProduct(productID, cartJson, response);
-        return ResponseEntity.ok().build(); 
+        CartOrderInfo cartOrder = cartService.removeProduct(productID, cartJson, response);
+        return ResponseEntity.ok().body(cartOrder); 
+    }
+
+    @DeleteMapping
+    public ResponseEntity<CartOrderInfo> deleteCartProductsCookie(HttpServletResponse response, 
+        @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson
+    ) throws JsonProcessingException{
+        CartOrderInfo cartOrder = cartService.removeProducts(response);
+        return ResponseEntity.ok().body(cartOrder); 
     }
 
     @GetMapping("/products")
-    public ResponseEntity<OrderWithProducts> getOrderItems(
+    public ResponseEntity<CartOrderInfo> getOrderItems(
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson
     ) throws JsonProcessingException{
-        OrderWithProducts order = cartService.getCartProducts(cartJson);
+        CartOrderInfo order = cartService.getCartProducts(cartJson);
         return ResponseEntity.ok().body(order);
     }
 
@@ -67,7 +89,7 @@ public class CartController {
     public ResponseEntity<OrderWithProducts> getOrder(
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson,
         Authentication authentication
-    ) throws JsonProcessingException{
+    ) throws JsonProcessingException, EmptyCartException, InvalidOrderException{
         OrderWithProducts order = cartService.getOrder(cartJson, authentication.getName());
         return ResponseEntity.ok().body(order);
     }

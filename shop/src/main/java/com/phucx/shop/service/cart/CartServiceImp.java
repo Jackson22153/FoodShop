@@ -14,18 +14,19 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.shop.constant.CookieConstant;
-import com.phucx.shop.constant.ProductStatus;
-import com.phucx.shop.model.CartOrderItem;
+import com.phucx.shop.exceptions.EmptyCartException;
+import com.phucx.shop.exceptions.InvalidOrderException;
+import com.phucx.shop.model.CartOrderInfo;
+import com.phucx.shop.model.CartProduct;
+import com.phucx.shop.model.CartProductInfo;
 import com.phucx.shop.model.CartProductsCookie;
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.Customer;
 import com.phucx.shop.model.OrderItem;
 import com.phucx.shop.model.OrderItemDiscount;
 import com.phucx.shop.model.OrderWithProducts;
-import com.phucx.shop.model.Product;
 import com.phucx.shop.service.bigdecimal.BigDecimalService;
 import com.phucx.shop.service.customer.CustomerService;
 import com.phucx.shop.service.product.ProductService;
@@ -48,46 +49,55 @@ public class CartServiceImp implements CartService{
     private CustomerService customerService;
 
     @Override
-    public void updateCookie(String encodedCartJson, CartOrderItem orderProduct, HttpServletResponse response) 
+    public CartOrderInfo updateCartCookie(String encodedCartJson, List<CartProduct> products, HttpServletResponse response) 
         throws JsonProcessingException, InsufficientResourcesException {
-        log.info("updateCookie(encodedCartJson={}, orderItem={})", encodedCartJson, orderProduct);
-        if(orderProduct.getProductID()!=null){
-            // get existed cart from json format
-            TypeReference<List<CartOrderItem>> typeRef = new TypeReference<List<CartOrderItem>>() {};
-            List<CartOrderItem> items = new ArrayList<>();
-            if(encodedCartJson!=null){
-                String cartJson = this.decodeCookie(encodedCartJson);
-                items = objectMapper.readValue(cartJson, typeRef);
-            }
-            // fetch product 
-            Product product = this.productService.getProduct(
-                orderProduct.getProductID(), ProductStatus.Coninuted.getStatus());
+        log.info("updateCartCookie(encodedCartJson={}, orderItem={})", encodedCartJson, products);
+        if(products==null || products.isEmpty()){ throw new NotFoundException("Product does not found");}
+        // get existed cart from json format
+        TypeReference<List<CartProduct>> typeRef = new TypeReference<List<CartProduct>>() {};
+        List<CartProduct> items = new ArrayList<>();
+        if(encodedCartJson!=null){
+            String cartJson = this.decodeCookie(encodedCartJson);
+            items = objectMapper.readValue(cartJson, typeRef);
+        }
+        // fetch product 
+        List<Integer> productIDs = products.stream().map(CartProduct::getProductID).collect(Collectors.toList());
+        List<CurrentProduct> fetchedProducts = this.productService.getCurrentProducts(productIDs);
+
+        for (CurrentProduct currentProduct : fetchedProducts) {
+            CartProduct cartProduct = this.findProduct(products, currentProduct.getProductID())
+                .orElseThrow(()-> new NotFoundException("Product " + currentProduct.getProductID() + " name " + currentProduct.getProductName() + " does not found"));
             // check product's quantity with product's inStocks
-            if(product.getUnitsInStock()<orderProduct.getQuantity())
-                throw new InsufficientResourcesException("Product " + product.getProductName() + " exceeds available stock");
+            if(currentProduct.getUnitsInStock()<cartProduct.getQuantity())
+                throw new InsufficientResourcesException("Product " + currentProduct.getProductName() + " exceeds available stock");
             
+            // check whether the product exists in cart or not
             boolean isExisted = false;
-            // product exists in cart
-            for(CartOrderItem item: items){
-                if(item.getProductID().equals(orderProduct.getProductID())){
-                    item.setQuantity(item.getQuantity()+ orderProduct.getQuantity());
+            for(CartProduct item: items){
+                if(item.getProductID().equals(cartProduct.getProductID())){
+                    item.setQuantity(cartProduct.getQuantity());
+                    item.setIsSelected(cartProduct.getIsSelected());
                     isExisted = true;
                     break;
                 }
             }
-
             // product does not exist in cart
             if(!isExisted){
-                items.add(orderProduct);
+                items.add(cartProduct);
             }
-            // write cart as json format
-            String updatedCartJson = objectMapper.writeValueAsString(items);
-
-            log.info("updated cartJson: {}", updatedCartJson);
-            Cookie cookie = this.createCookie(updatedCartJson);
-            response.addCookie(cookie);
         }
+        // write cart as json format
+        String updatedCartJson = objectMapper.writeValueAsString(items);
+        // update cookie
+        Cookie cookie = this.createCookie(updatedCartJson);
+        response.addCookie(cookie);
+        return this.createCartOrder(items);
     }
+
+    private Optional<CartProduct> findProduct(List<CartProduct> products, Integer productID){
+        return products.stream().filter(product -> product.getProductID().equals(productID)).findFirst();
+    }
+
     // create a new cookie
     private Cookie createCookie(String cartJson){
         String encodedData = this.encodeCookie(cartJson);
@@ -98,15 +108,15 @@ public class CartServiceImp implements CartService{
     }
     
     @Override
-    public void removeProduct(Integer productID, String encodedcartJson, HttpServletResponse response) 
+    public CartOrderInfo removeProduct(Integer productID, String encodedcartJson, HttpServletResponse response) 
          throws JsonProcessingException {
         if(productID!=null){
-            TypeReference<List<CartOrderItem>> typeRef = new TypeReference<List<CartOrderItem>>() {};
-            List<CartOrderItem> items = new ArrayList<>();
+            TypeReference<List<CartProduct>> typeRef = new TypeReference<List<CartProduct>>() {};
+            List<CartProduct> items = new ArrayList<>();
             if(encodedcartJson!=null){
                 String cartJson = this.decodeCookie(encodedcartJson);
                 items = objectMapper.readValue(cartJson, typeRef);
-                List<CartOrderItem> orderItems = items.stream()
+                List<CartProduct> orderItems = items.stream()
                     .filter(item -> item.getProductID()!=productID)
                     .collect(Collectors.toList());
                 // convert into json format
@@ -114,8 +124,10 @@ public class CartServiceImp implements CartService{
                 // update cookie
                 Cookie cookie = this.createCookie(updatedCartJson);
                 response.addCookie(cookie);
+                return this.createCartOrder(orderItems);
             }
         }
+        return this.getCartOrder(encodedcartJson);
     }
 
     // decode from base64
@@ -127,17 +139,17 @@ public class CartServiceImp implements CartService{
     private String encodeCookie(String cookie){
         return Base64.getEncoder().encodeToString(cookie.getBytes());
     }
-    // create a new order
-    private OrderWithProducts createOrderDetail(List<CartOrderItem> products){   
-        log.info("createOrderDetail(products={})");
+    // create an order from cart items 
+    private OrderWithProducts createOrderDetail(List<CartProduct> products){   
+        log.info("createOrderDetail({})", products);
         List<Integer> productIDs = products.stream()
-            .map(CartOrderItem::getProductID)
+            .map(CartProduct::getProductID)
             .collect(Collectors.toList());
         // fetch products from database
         List<CurrentProduct> fetchedProducts = this.productService.getCurrentProducts(productIDs);
         // convert 
         OrderWithProducts order = new OrderWithProducts();
-        for (CartOrderItem product: products) {
+        for (CartProduct product: products) {
             // find product
             CurrentProduct fetchedProduct = this.findCurrentProduct(fetchedProducts, product.getProductID())
                 .orElseThrow(()-> new NotFoundException("Product " + product.getProductID() + " does not found"));
@@ -178,12 +190,11 @@ public class CartServiceImp implements CartService{
     }
 
     @Override
-    public List<CartOrderItem> getListProducts(String encodedCartJson) throws JsonProcessingException 
-    {
+    public List<CartProduct> getListProducts(String encodedCartJson) throws JsonProcessingException {
         if(encodedCartJson!=null){
             String cartJson = this.decodeCookie(encodedCartJson);
-            TypeReference<List<CartOrderItem>> typeRef = new TypeReference<List<CartOrderItem>>() {};
-            List<CartOrderItem> listProducts = objectMapper.readValue(cartJson, typeRef);
+            TypeReference<List<CartProduct>> typeRef = new TypeReference<List<CartProduct>>() {};
+            List<CartProduct> listProducts = objectMapper.readValue(cartJson, typeRef);
             return listProducts;
         }   
         return new ArrayList<>();
@@ -195,32 +206,154 @@ public class CartServiceImp implements CartService{
         return cartProductsCookie;
     }
     @Override
-    public OrderWithProducts getOrder(String encodedCartJson, String userID) throws JsonProcessingException {
+    public OrderWithProducts getOrder(String encodedCartJson, String userID) throws JsonProcessingException, EmptyCartException, InvalidOrderException {
         log.info("getOrder(encodedCartJson={}, userID={})", encodedCartJson, userID);
         Customer customer = this.customerService.getCustomerByUserID(userID);
         // create an order
-        OrderWithProducts order = this.getCartOrder(encodedCartJson);
+        OrderWithProducts order = this.getPurchaseOrder(encodedCartJson);
         order.setShipName(customer.getContactName());
         order.setShipAddress(customer.getAddress());
         order.setShipCity(customer.getCity());
         order.setPhone(customer.getPhone());
         return order;
     }
+
+    // get order in cart
+    private OrderWithProducts getPurchaseOrder(String encodedCartJson) throws JsonProcessingException, EmptyCartException, InvalidOrderException{
+        if(encodedCartJson==null){
+            throw new EmptyCartException("Your cart does not have any products");
+        } 
+        String cartJson = this.decodeCookie(encodedCartJson);
+        TypeReference<List<CartProduct>> typeRef = new TypeReference<List<CartProduct>>() {};
+        List<CartProduct> listProducts = objectMapper.readValue(cartJson, typeRef);
+        // fitler selected products
+        listProducts = listProducts.stream().filter(CartProduct::getIsSelected).collect(Collectors.toList());
+        // create an order
+        OrderWithProducts order = this.createOrderDetail(listProducts);
+        if(order==null || order.getProducts().isEmpty()){
+            throw new InvalidOrderException("Your order does not contain any products");
+        }
+        return order;
+    }
+
+
     // return order including ship address, name, phone and products of order in cart
     @Override
-    public OrderWithProducts getCartProducts(String encodedCartJson) throws JsonProcessingException {
+    public CartOrderInfo getCartProducts(String encodedCartJson) throws JsonProcessingException {
         log.info("getCartProducts(encodedCartJson={})", encodedCartJson);
         return this.getCartOrder(encodedCartJson);
     }
 
-    private OrderWithProducts getCartOrder(String encodedCartJson) throws JsonMappingException, JsonProcessingException{
+
+
+    // get order in cart
+    private CartOrderInfo getCartOrder(String encodedCartJson) throws JsonProcessingException{
+        if(encodedCartJson==null){
+            return new CartOrderInfo();
+        }   
+        String cartJson = this.decodeCookie(encodedCartJson);
+        TypeReference<List<CartProduct>> typeRef = new TypeReference<List<CartProduct>>() {};
+        List<CartProduct> listProducts = objectMapper.readValue(cartJson, typeRef);
+
+        // create an order
+        return this.createCartOrder(listProducts);
+    }
+
+    private CartOrderInfo createCartOrder(List<CartProduct> products){
+        log.info("createCartOrder({})", products);
+        if(products==null || products.isEmpty()) return new CartOrderInfo();
+        // extract productIDs from products
+        List<Integer> productIDs = products.stream()
+            .map(CartProduct::getProductID)
+            .collect(Collectors.toList());
+        // fetch products from database
+        List<CurrentProduct> fetchedProducts = this.productService.getCurrentProducts(productIDs);
+        // convert 
+        CartOrderInfo order = new CartOrderInfo();
+        for (CartProduct product: products) {
+            // find product
+            CurrentProduct fetchedProduct = this.findCurrentProduct(fetchedProducts, product.getProductID())
+                .orElseThrow(()-> new NotFoundException("Product " + product.getProductID() + " does not found"));
+            // add product to order
+            CartProductInfo item = new CartProductInfo(product.getProductID(), fetchedProduct.getProductName(),
+                fetchedProduct.getCategoryName(), product.getQuantity(), fetchedProduct.getUnitsInStock(), 
+                fetchedProduct.getPicture(), fetchedProduct.getUnitPrice(), product.getIsSelected());     
+            // add discount
+            OrderItemDiscount discount = new OrderItemDiscount();
+            discount.setDiscountID(fetchedProduct.getDiscountID());
+            discount.setDiscountPercent(fetchedProduct.getDiscountPercent());
+            item.getDiscounts().add(discount);
+            // add total discount to product
+            item.setTotalDiscount(discount.getDiscountPercent());
+            // calculate extended price
+            Double productDiscount = 1- Double.valueOf(fetchedProduct.getDiscountPercent())/100;
+            BigDecimal price = BigDecimal.valueOf(product.getQuantity()).multiply(item.getUnitPrice());
+            BigDecimal extendedPrice = price.multiply(BigDecimal.valueOf(productDiscount));
+            
+            item.setExtendedPrice(bigDecimalService.formatter(extendedPrice));
+
+            // add product
+            order.getProducts().add(item);
+            // calculate total price of order 
+            if(product.getIsSelected()){
+                order.setTotalPrice(bigDecimalService.formatter(order.getTotalPrice().add(extendedPrice)));
+            }
+        }
+        return order;
+    }
+
+    @Override
+    public CartOrderInfo removeProducts(HttpServletResponse response) throws JsonProcessingException {
+        log.info("removeProducts()");
+        Cookie cookie = this.createCookie("[]");
+        response.addCookie(cookie);
+        return new CartOrderInfo();
+    }
+
+    @Override
+    public CartOrderInfo addProduct(String encodedCartJson, List<CartProduct> cartProducts,
+            HttpServletResponse response) throws JsonProcessingException, InsufficientResourcesException {
+        log.info("addProduct(encodedCartJson={}, cartProducts={})", encodedCartJson, cartProducts);
+        if(cartProducts==null || cartProducts.isEmpty()){ throw new NotFoundException("Product does not found");}
+        // get existed cart from json format
+        TypeReference<List<CartProduct>> typeRef = new TypeReference<List<CartProduct>>() {};
+        List<CartProduct> items = new ArrayList<>();
         if(encodedCartJson!=null){
             String cartJson = this.decodeCookie(encodedCartJson);
-            TypeReference<List<CartOrderItem>> typeRef = new TypeReference<List<CartOrderItem>>() {};
-            List<CartOrderItem> listProducts = objectMapper.readValue(cartJson, typeRef);
-            // create an order
-            return this.createOrderDetail(listProducts);
-        }   
-        return new OrderWithProducts();
+            items = objectMapper.readValue(cartJson, typeRef);
+        }
+        // fetch product 
+        List<Integer> productIDs = cartProducts.stream().map(CartProduct::getProductID).collect(Collectors.toList());
+        List<CurrentProduct> fetchedProducts = this.productService.getCurrentProducts(productIDs);
+
+        for (CurrentProduct currentProduct : fetchedProducts) {
+            CartProduct cartProduct = this.findProduct(cartProducts, currentProduct.getProductID())
+                .orElseThrow(()-> new NotFoundException("Product " + currentProduct.getProductID() + " name " + currentProduct.getProductName() + " does not found"));
+            // check product's quantity with product's inStocks
+            if(currentProduct.getUnitsInStock()<cartProduct.getQuantity())
+                throw new InsufficientResourcesException("Product " + currentProduct.getProductName() + " exceeds available stock");
+            
+            // check whether the product exists in cart or not
+            boolean isExisted = false;
+            for(CartProduct item: items){
+                if(item.getProductID().equals(cartProduct.getProductID())){
+                    item.setQuantity(cartProduct.getQuantity() + item.getQuantity());
+                    item.setIsSelected(cartProduct.getIsSelected());
+                    isExisted = true;
+                    break;
+                }
+            }
+            // product does not exist in cart
+            if(!isExisted){
+                items.add(cartProduct);
+            }
+        }
+        // write cart as json format
+        String updatedCartJson = objectMapper.writeValueAsString(items);
+        // update cookie
+        Cookie cookie = this.createCookie(updatedCartJson);
+        response.addCookie(cookie);
+        return this.createCartOrder(items);
+
     }
 }

@@ -7,7 +7,8 @@ import FoodsComponent from "../foods/Foods";
 import ContactUsComponent from "../contact/ContactUs";
 import FoodComponent from "../food/Food";
 import CartComponent from "../cart/Cart";
-import { cartPath, categoriesPath, contactPath, foodsPath, orderPath } from "../../../../constant/FoodShoppingURL";
+import { CART_PATH, CATEGORIES_PATH, CONTACT_PATH, FOODS_PATH, ORDER_PATH 
+} from "../../../../constant/FoodShoppingURL";
 import { useEffect, useState } from "react";
 import { getCategories } from "../../../../api/SearchApi";
 import { Category } from "../../../../model/Type";
@@ -60,13 +61,13 @@ function HomeComponent(){
                 <div id="home-body">
                     <Routes>
                         <Route path="*" element={<HomeDashBoardComponent/>}/>
-                        <Route path={categoriesPath} element={<CategoriesComponent/>}/>
-                        <Route path={`${categoriesPath}/:categoryName`} element={<CategoryComponent/>}/>
-                        <Route path={foodsPath} element={<FoodsComponent/>}/>
-                        <Route path={contactPath} element={<ContactUsComponent/>}/>
-                        <Route path={`${foodsPath}/:foodName`} element={<FoodComponent/>}/>
-                        <Route path={cartPath} element={<CartComponent/>}/>
-                        <Route path={orderPath} element={<OrderComponent/>}/>
+                        <Route path={CATEGORIES_PATH} element={<CategoriesComponent/>}/>
+                        <Route path={`${CATEGORIES_PATH}/:categoryName`} element={<CategoryComponent/>}/>
+                        <Route path={FOODS_PATH} element={<FoodsComponent/>}/>
+                        <Route path={CONTACT_PATH} element={<ContactUsComponent/>}/>
+                        <Route path={`${FOODS_PATH}/:foodName`} element={<FoodComponent/>}/>
+                        <Route path={CART_PATH} element={<CartComponent/>}/>
+                        <Route path={ORDER_PATH} element={<OrderComponent/>}/>
                     </Routes>
                 </div>
             </CategoriesProvider>

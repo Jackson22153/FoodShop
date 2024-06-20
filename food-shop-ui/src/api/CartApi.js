@@ -1,18 +1,36 @@
 import axios from "axios";
-import { CartOrderUrl, CartProductsUrl, CartUrl } from "../constant/FoodShoppingApiURL";
+import { CartOrderUrl, CartProductUrl, CartProductsUrl, CartUrl } from "../constant/FoodShoppingApiURL";
 
-// add product to cart
-export function addProductToCart(product){
-    return axios.post(CartUrl, JSON.stringify(product), {
+// update product in cart
+export function updateProductInCart(products){
+    return axios.post(CartUrl, JSON.stringify(products), {
         withCredentials: true,
         headers: {
             'Content-Type': 'application/json',
         }
     });
 }
-// remove product from cart
-export function deleteProductToCart(productID){
-    return axios.delete(`${CartUrl}/${productID}`, {
+// add product in cart
+export function addProductToCart(products){
+    return axios.post(CartProductUrl, JSON.stringify(products), {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+}
+// remove product in cart
+export function deleteCartProduct(productID){
+    return axios.delete(`${CartProductUrl}/${productID}`, {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+}
+// remove all products in cart
+export function deleteAllCartProducts(){
+    return axios.delete(`${CartUrl}`, {
         withCredentials: true,
         headers: {
             'Content-Type': 'application/json',

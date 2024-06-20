@@ -1,6 +1,5 @@
 import { ChangeEventHandler, FormEventHandler, useEffect, useState } from 'react';
 import { Category } from '../../../../../model/Type';
-import { ProductImageChangeInput } from '../../../../shared/functions/product-image-change-input/ProductImageChangeInput';
 import { addCategory } from '../../../../../api/AdminApi';
 import AlertComponent from '../../../../shared/functions/alert/Alert';
 import { ALERT_TIMEOUT, ALERT_TYPE } from '../../../../../constant/WebConstant';

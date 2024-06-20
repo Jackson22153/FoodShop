@@ -9,5 +9,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ResponseFormat {
-    private boolean status;
+    private Boolean status;
+    private String error;
+    public ResponseFormat(Boolean status) {
+        this.status = status;
+    }
 }

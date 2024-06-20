@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.phucx.notification.model.ResponseFormat;
+
 import lombok.extern.slf4j.Slf4j;
 
 import javax.naming.NameNotFoundException;
@@ -14,8 +16,11 @@ import javax.naming.NameNotFoundException;
 public class ExceptionController extends ResponseEntityExceptionHandler{
     
     @ExceptionHandler(NameNotFoundException.class)
-    protected ResponseEntity<Void> handleNameNotFoundException(NameNotFoundException exception){
-        log.warn("Error: {}", exception.getMessage());
-        return ResponseEntity.badRequest().build();
+    protected ResponseEntity<ResponseFormat> handleNameNotFoundException(NameNotFoundException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
 }

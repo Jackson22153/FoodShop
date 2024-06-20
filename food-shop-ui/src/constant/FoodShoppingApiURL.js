@@ -65,6 +65,7 @@ export const DiscountsByProductAdminUrl = `${DiscountAdminUrl}/product`
 export const DiscountTypeAdminUrl = `${DiscountAdminUrl}/type`
 // cart
 export const CartUrl = `${ShopService}/cart`;
+export const CartProductUrl = `${CartUrl}/product`;
 export const CartProductsUrl = `${CartUrl}/products`;
 export const NumberOfCartProductsUrl = `${CartProductsUrl}/number`;
 export const CartOrderUrl = `${CartUrl}/order`;

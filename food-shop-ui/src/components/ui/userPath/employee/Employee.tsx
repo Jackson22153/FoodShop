@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { employeeInfo, employeeNotification, employeeOrder } from '../../../../constant/FoodShoppingURL';
+import { EMPLOYEE_INFO, EMPLOYEE_NOTIFICATION, EMPLOYEE_ORDER, FORBIDDEN_ERROR_PAGE } from '../../../../constant/FoodShoppingURL';
 import { logout } from '../../../../api/AuthorizationApi';
 import EmployeeInformationComponent from './information/EmployeeInformation';
 import EmployeeOrdersComponent from './order/EmployeeOrders';
@@ -31,11 +31,11 @@ export default function EmployeeComponent(){
     const initial = ()=>{
         checkAuthenticationEmployee();
         const path = location.pathname;
-        if(path==employeeInfo){
+        if(path==EMPLOYEE_INFO){
             setSelectedPath(0);
-        }else if(path===employeeOrder){
+        }else if(path===EMPLOYEE_ORDER){
             setSelectedPath(1);
-        }else if(path === employeeNotification){
+        }else if(path === EMPLOYEE_NOTIFICATION){
             setSelectedPath(2);
         }
     }
@@ -50,7 +50,13 @@ export default function EmployeeComponent(){
                 if(!status) window.location.href="/"
             }
         } catch (error) {
-            window.location.href="/"
+            if(error.response){
+                const errorResponse = error.response;
+                const status = errorResponse.status;
+                if(status===403){
+                    window.location.href=FORBIDDEN_ERROR_PAGE
+                }
+            }
         }
     }
 
@@ -102,19 +108,19 @@ export default function EmployeeComponent(){
                             </div>
                             <ul className="flex-column lists nav nav-pills mb-auto">
                                 <li className="list nav-item">
-                                    <a href={employeeInfo} className={`nav-link ${selectedPath===0?'active': ''}`}>
+                                    <a href={EMPLOYEE_INFO} className={`nav-link ${selectedPath===0?'active': ''}`}>
                                         <i className="bx bx-home-alt icon"></i>
                                         <span className="link">User{`\u00A0`}Information</span>
                                     </a>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href={employeeOrder} className={`nav-link ${selectedPath===1?'active': ''}`}>
+                                    <a href={EMPLOYEE_ORDER} className={`nav-link ${selectedPath===1?'active': ''}`}>
                                         <i className="bx bx-bar-chart-alt-2 icon"></i>
                                         <span className="link">Orders</span>
                                     </a>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href={employeeNotification} className={`nav-link ${selectedPath===2?'active': ''}`}>
+                                    <a href={EMPLOYEE_NOTIFICATION} className={`nav-link ${selectedPath===2?'active': ''}`}>
                                         <i className="bx bx-bar-chart-alt-2 icon"></i>
                                         <span className="link">Notifications</span>
                                     </a>

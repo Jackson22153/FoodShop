@@ -10,4 +10,8 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ResponseFormat {
     private Boolean status;
+    private String error;
+    public ResponseFormat(Boolean status) {
+        this.status = status;
+    }
 }

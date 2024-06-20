@@ -8,6 +8,8 @@ import lombok.ToString;
 @Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class CartCookie {
-    private String cart;
+public class CartProduct {
+    private Integer productID;
+    private Integer quantity;
+    private Boolean isSelected;
 }

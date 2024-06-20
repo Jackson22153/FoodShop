@@ -219,8 +219,9 @@ public class ProductServiceImp implements ProductService{
     @Override
     public List<CurrentProduct> getCurrentProducts(List<Integer> productIDs) {
         log.info("getCurrentProducts(productIDs={})", productIDs);
-        List<CurrentProduct> products = this.currentProductRepository.findAll();
-        return this.productImageService.setCurrentProductsImage(products);
+        List<CurrentProduct> products = this.currentProductRepository.findAllById(productIDs);
+        this.productImageService.setCurrentProductsImage(products);
+        return products;
     }
 
     @Override

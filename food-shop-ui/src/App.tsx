@@ -12,6 +12,7 @@ import { NotificationMessagesProvider } from './components/contexts/Notification
 import { ROLE } from './constant/WebConstant';
 import { employeeReceiveNotificationConnect } from './api/EmployeeReceiveNotificationWsApi';
 import { customerReceiveNotificationConnect } from './api/CustomerReceiveNotificationWsApi';
+import ErrorPageComponent from './components/ui/error/ErrorPage';
 
 function App() {
   const [userInfo, setUserInfo] = useState<UserInfo>({
@@ -49,7 +50,7 @@ function App() {
         }
       }
     } catch (error) {
-      
+      // console.log(error)
     }
   }
 
@@ -61,7 +62,6 @@ function App() {
   // receive notification from backend
   const getNotification = (message: any)=>{
     const notification = message as Notification;
-    console.log(notification)
     setNotification(notification)
   }
 
@@ -72,6 +72,7 @@ function App() {
           <Routes>
             <Route path='*' element={<HomeComponent/>}/>
             <Route path='user/*' element={<UserComponent/>}/>
+            <Route path='error/*' element={<ErrorPageComponent/>}/>
           </Routes>
         </Router>
       </NotificationMessagesProvider>

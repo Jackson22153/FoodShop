@@ -3,7 +3,7 @@ import { getCategories } from '../../../../../api/SearchApi';
 import { useEffect, useState } from 'react';
 import { Category } from '../../../../../model/Type';
 import { displayProductImage } from '../../../../../service/Image';
-import { adminCategories } from '../../../../../constant/FoodShoppingURL';
+import { ADMIN_CATEGORIES } from '../../../../../constant/FoodShoppingURL';
 
 export default function AdminCategoriesComponent(){
     const [categories, setCategories] = useState<Category[]>([]);
@@ -32,7 +32,7 @@ export default function AdminCategoriesComponent(){
            <div className="projcard-container">
                 {categories.map((category) =>(
                     <div key={category.categoryID} className="projcard projcard-blue">
-                        <a href={`${adminCategories}/${category.categoryID}`}>
+                        <a href={`${ADMIN_CATEGORIES}/${category.categoryID}`}>
                             <div className="projcard-innerbox">
                                 <img className="projcard-img" src={displayProductImage(category.picture)} />
                                 <div className="projcard-textbox">

@@ -1,6 +1,6 @@
 import { getLogo } from "../../../../service/Image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { cartPath, categoriesPath, foodsPath } from "../../../../constant/FoodShoppingURL";
+import { CART_PATH, CATEGORIES_PATH, FOODS_PATH } from "../../../../constant/FoodShoppingURL";
 import { Category } from "../../../../model/Type";
 import { convertNameForUrl, nonBreakingSpace } from "../../../../service/Convert";
 import Search from "../../functions/search/Search";
@@ -84,11 +84,11 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
                                 <a className="nav-link active" aria-current="page" href="/">Home</a>
                             </li>
                             <li className="nav-item px-2">
-                                <a className="nav-link" href={foodsPath}>Foods</a>
+                                <a className="nav-link" href={FOODS_PATH}>Foods</a>
                             </li>
                             <li className="nav-item px-2">
                                 <div className="dropdown category-dropdown-container">
-                                    <a className="nav-link dropdown-toggle" href={categoriesPath} role="button" id="category-dropdown-menu-link" 
+                                    <a className="nav-link dropdown-toggle" href={CATEGORIES_PATH} role="button" id="category-dropdown-menu-link" 
                                         data-toggle="dropdown" aria-haspopup="true">
                                         Categories
                                     </a>
@@ -97,7 +97,7 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
                                         <div className="category-dropdown" aria-labelledby="category-dropdown-menu-link">
                                             {lstCategories.map((category, index)=>(
                                                 <a key={index} className="dropdown-item category-dropdown-item" 
-                                                    href={categoriesPath+"/"+ convertNameForUrl(category.categoryName)}>
+                                                    href={CATEGORIES_PATH+"/"+ convertNameForUrl(category.categoryName)}>
                                                     {nonBreakingSpace(category.categoryName)}
                                                 </a>
                                             ))}
@@ -114,7 +114,7 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
                             </div>
                             <div className="col-2">
                                 <div className="my-2 my-lg-0 ml-0 ml-lg-4 mb-3 mb-lg-0 d-flex justify-content-center position-relative d-flex align-items-center">
-                                    <a className="btn btn-light ms-3 cart-icon cart-link" href={cartPath}>
+                                    <a className="btn btn-light ms-3 cart-icon cart-link" href={CART_PATH}>
                                         <FontAwesomeIcon icon={faCartShopping}/>
                                         {numberOfCartProducts>0 &&
                                             <span className="cart-badge badge rounded-pill badge-notification bg-danger">

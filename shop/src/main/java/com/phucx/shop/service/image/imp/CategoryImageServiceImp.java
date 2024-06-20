@@ -31,9 +31,12 @@ public class CategoryImageServiceImp implements CategoryImageService{
     public Category setCategoryImage(Category category) {
         // filtering product 
         if(!(category.getPicture()!=null && category.getPicture().length()>0)) return category;
-        // product has image
-        String imageUrl = "/" + serverName + imageUri;
-        category.setPicture(imageUrl + "/" + category.getPicture());
+        String picture = category.getPicture();
+        // setting image with image uri
+        String uri = "/" + serverName + imageUri;
+        if(!picture.contains(uri)){
+            category.setPicture(uri + "/" + category.getPicture());
+        }
         return category;
     }
 
@@ -41,9 +44,12 @@ public class CategoryImageServiceImp implements CategoryImageService{
     public List<Category> setCategoriesImage(List<Category> categories) {
         categories.stream().forEach(category ->{
             if(category.getPicture()!=null && category.getPicture().length()>0){
+                String picture = category.getPicture();
                 // setting image with image uri
                 String uri = "/" + serverName + imageUri;
-                category.setPicture(uri + "/" + category.getPicture());
+                if(!picture.contains(uri)){
+                    category.setPicture(uri + "/" + category.getPicture());
+                }
             }
         });
         return categories;

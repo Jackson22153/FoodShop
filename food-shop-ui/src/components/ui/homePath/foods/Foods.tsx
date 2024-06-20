@@ -4,7 +4,7 @@ import { getProducts, searchProducts } from "../../../../api/SearchApi";
 import PaginationSection from "../../../shared/website/sections/paginationSection/PaginationSection";
 import { getPageNumber } from "../../../../service/Pageable";
 import { PathProvider } from "../../../contexts/PathContext";
-import { foodsPath } from "../../../../constant/FoodShoppingURL";
+import { FOODS_PATH } from "../../../../constant/FoodShoppingURL";
 import FoodCardDeck from "../../../shared/functions/foodCardDeck/FoodCardDeck";
 
 export default function FoodsComponent(){
@@ -77,7 +77,7 @@ export default function FoodsComponent(){
                     the majority have
                 </p>
                 <div className="py-4">
-                    <PathProvider value={foodsPath}>
+                    <PathProvider value={FOODS_PATH}>
                         <FoodCardDeck foods={foods}/>
                     </PathProvider>
                 </div>

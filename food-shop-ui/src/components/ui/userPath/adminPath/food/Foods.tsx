@@ -5,7 +5,7 @@ import { CurrentProduct, Pageable } from '../../../../../model/Type';
 import PaginationSection from '../../../../shared/website/sections/paginationSection/PaginationSection';
 import { getPageNumber } from '../../../../../service/Pageable';
 import { PathProvider } from '../../../../contexts/PathContext';
-import { adminProducts } from '../../../../../constant/FoodShoppingURL';
+import { ADMIN_PRODUCTS } from '../../../../../constant/FoodShoppingURL';
 
 export default function AdminFoodsComponent(){
     const [foodlist, setFoodlist] = useState<CurrentProduct[]>([]);
@@ -52,7 +52,7 @@ export default function AdminFoodsComponent(){
             </div> */}
 
             <div className="row">
-                <PathProvider value={adminProducts}>
+                <PathProvider value={ADMIN_PRODUCTS}>
                     <FoodSection lstFoodProducts={foodlist} sectionTitle='Foods'/>
                 </PathProvider>
             </div>

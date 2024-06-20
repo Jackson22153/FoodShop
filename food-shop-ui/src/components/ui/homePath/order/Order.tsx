@@ -4,10 +4,9 @@ import { displayProductImage, getError } from "../../../../service/Image";
 import { getOrder } from "../../../../api/CartApi";
 import { faLongArrowAltLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { cartPath } from "../../../../constant/FoodShoppingURL";
+import { CART_PATH } from "../../../../constant/FoodShoppingURL";
 import { Notification } from "../../../../model/Type";
 import { NOTIFICATION_TYPE } from "../../../../constant/WebConstant";
-import { isCustomer } from "../../../../api/UserApi";
 import userInfoContext from "../../../contexts/UserInfoContext";
 import { placeOrder } from "../../../../api/OrderApi";
 
@@ -37,24 +36,39 @@ export default function OrderComponent(){
     }
     // check customer
     async function checkAuthenticationCustomer(){
-        try {
-            const res = await isCustomer();
-            if(200<=res.status&&res.status<300){
-                const data = res.data;
-                const status = data.status;
-                if(!status) window.location.href="/"
-            }
-        } catch (error) {
-            window.location.href="/"
-        }
+        // try {
+        //     const res = await isCustomer();
+        //     if(200<=res.status&&res.status<300){
+        //         const data = res.data;
+        //         const status = data.status;
+        //         if(!status) window.location.href="/"
+        //     }
+        // } catch (error) {
+        //     window.location.href="/"
+        // }
     }
 
     // cart order
     async function fetchCartOrder(){
-        const res = await getOrder();
-        if(res.status){
-            const data = res.data;
-            setOrderInfo(data);
+        try {
+            const res = await getOrder();
+            if(200<=res.status&&res.status<300){
+                const data = res.data;
+                setOrderInfo(data);
+            }
+        } catch (error) {
+            var errorMessage = "An error has occurred";
+            if (error.response) {
+                // Retrieve the error message from the response body
+                errorMessage = error.response.data.error;
+            } else {
+                errorMessage = error.message;
+            }
+            setNotification({...notification,
+                message: errorMessage,
+                status: NOTIFICATION_TYPE.ERROR,
+                isShowed: true
+            })
         }
     }
 
@@ -238,7 +252,7 @@ export default function OrderComponent(){
                         <div className="row">
                             <div className="col-3">
                                 <div className="pt-2">
-                                    <h6 className="mb-0"><a href={cartPath} className="text-body">
+                                    <h6 className="mb-0"><a href={CART_PATH} className="text-body">
                                         <FontAwesomeIcon icon={faLongArrowAltLeft}/> Back to shop</a>
                                     </h6>
                                 </div>

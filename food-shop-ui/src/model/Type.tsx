@@ -1,9 +1,11 @@
+// category
 export type Category={
     categoryID: number,
     categoryName: string,
     description: string,
     picture: string
 }
+// product
 export type CurrentProduct = {
     productID: number,
     productName: string, 
@@ -66,6 +68,7 @@ export type ProductDetails={
     supplierID: number,
     companyName: string
 }
+// discount
 export type DiscountType={
     discountTypeID: number,
     discountType: string,
@@ -89,25 +92,34 @@ export type DiscountDetail = {
     discountType: string,
     active: boolean
 }
-export type CartProduct = {
+// cart
+export type CartInfo = {
+    products: CartProductInfo[],
+    freight: number,
+    totalPrice: number
+}
+export type CartProductInfo = {
     productID: number,
-    quantity: number
+    productName: string,
+    categoryName: string,
+    quantity: number,
+    totalDiscount: number,
+    unitPrice: number,
+    unitsInStock: number,
+    picture: string,
+    extendedPrice: number,
+    discounts: DiscountBriefInfo[]
+    isSelected: boolean
 }
 
-export type Supplier = {
-    supplierID: number,
-    companyName: string,
-    contactName: string,
-    contactTitle: string,
-    address: string,
-    city: string,
-    region: string,
-    postalCode: string,
-    country: string,
-    phone: string,
-    fax: string,
-    homePage: string
+
+
+export type CartProduct = {
+    productID: number,
+    quantity: number,
+    isSelected: boolean
 }
+// customer
 export type Customer={
     customerID: string,
     contactName: string,
@@ -141,7 +153,34 @@ export type CustomerAccount = {
     email: string,
     picture: string
 }
-
+// employee
+export type Employee = {
+    employeeID: string,
+    firstName: string,
+    lastName: string,
+    birthDate: string,
+    hireDate: string,
+    homePhone: string,
+    address: string,
+    city: string,
+    photo: string,
+    email: string,
+    username: string
+}
+export type EmployeeDetail = {
+    employeeID: string,
+    lastName: string,
+    firstName: string,
+    birthDate: string,
+    hireDate: string,
+    address: string,
+    city: string,
+    homePhone: string,
+    description: string,
+    photo: string,
+    notes: string,
+    userInfo: UserInfo
+}
 export type EmployeeAccount = {
     userID: string,
     employeeID: string,
@@ -151,7 +190,7 @@ export type EmployeeAccount = {
     email: string,
     photo: string
 }
-
+// pageable
 export type Pageable = {
     first: boolean,
     last: boolean,
@@ -276,33 +315,8 @@ export type DiscountBriefInfo = {
     discountPercent: number,
     discountType: string
 }
-export type Employee = {
-    employeeID: string,
-    firstName: string,
-    lastName: string,
-    birthDate: string,
-    hireDate: string,
-    homePhone: string,
-    address: string,
-    city: string,
-    photo: string,
-    email: string,
-    username: string
-}
-export type EmployeeDetail = {
-    employeeID: string,
-    lastName: string,
-    firstName: string,
-    birthDate: string,
-    hireDate: string,
-    address: string,
-    city: string,
-    homePhone: string,
-    description: string,
-    photo: string,
-    notes: string,
-    userInfo: UserInfo
-}
+
+// user
 export type UserRole = {
     userID: string,
     username: string,
@@ -318,7 +332,7 @@ export type User = {
     username: string,
     email: string,
 }
-
+// role
 export type Role = {
     roleID: number,
     roleName: string

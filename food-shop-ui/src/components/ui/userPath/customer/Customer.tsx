@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import UserInformationComponent from './information/UserInformation';
-import { customerInfo, customerNotification, customerOrder } from '../../../../constant/FoodShoppingURL';
+import { CUSTOMER_INFO, CUSTOMER_NOTIFICATION, CUSTOMER_ORDER, FORBIDDEN_ERROR_PAGE } from '../../../../constant/FoodShoppingURL';
 import UserOrdersComponent from './order/UserOrders';
 import UserOrderComponent from './order/UserOrder';
 import UserNotificationComponent from './notification/UserNotification';
@@ -30,11 +30,11 @@ export default function CustomerComponent(){
     const initial = ()=>{
         checkAuthenticationCustomer();
         const path = location.pathname;
-        if(path==customerInfo){
+        if(path==CUSTOMER_INFO){
             setSelectedPath(0);
-        }else if(path===customerOrder){
+        }else if(path===CUSTOMER_ORDER){
             setSelectedPath(1);
-        }else if(path === customerNotification){
+        }else if(path === CUSTOMER_NOTIFICATION){
             setSelectedPath(2);
         }
     }
@@ -45,10 +45,18 @@ export default function CustomerComponent(){
             if(200<=res.status&&res.status<300){
                 const data = res.data;
                 const status = data.status;
-                if(!status) window.location.href="/"
+                // if(!status) window.location.href="/"
+                console.log(data)
             }
         } catch (error) {
-            window.location.href="/"
+            if(error.response){
+                const errorResponse = error.response;
+                const status = errorResponse.status;
+                if(status===403){
+                    window.location.href=FORBIDDEN_ERROR_PAGE
+                }
+            }
+            // window.location.href="/"
         }
     }
 
@@ -96,19 +104,19 @@ export default function CustomerComponent(){
                             </div>
                             <ul className="flex-column lists nav nav-pills mb-auto">
                                 <li className="list nav-item">
-                                    <a href={customerInfo} className={`nav-link ${selectedPath===0?'active': ''}`}>
+                                    <a href={CUSTOMER_INFO} className={`nav-link ${selectedPath===0?'active': ''}`}>
                                         <i className="bx bx-home-alt icon"></i>
                                         <span className="link">User{`\u00A0`}Information</span>
                                     </a>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href={customerOrder} className={`nav-link ${selectedPath===1?'active': ''}`}>
+                                    <a href={CUSTOMER_ORDER} className={`nav-link ${selectedPath===1?'active': ''}`}>
                                         <i className="bx bx-bar-chart-alt-2 icon"></i>
                                         <span className="link">Orders</span>
                                     </a>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href={customerNotification} className={`nav-link ${selectedPath===2?'active': ''}`}>
+                                    <a href={CUSTOMER_NOTIFICATION} className={`nav-link ${selectedPath===2?'active': ''}`}>
                                         <i className="bx bx-bar-chart-alt-2 icon"></i>
                                         <span className="link">Notifications</span>
                                     </a>

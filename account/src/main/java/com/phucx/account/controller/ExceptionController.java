@@ -7,44 +7,75 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.phucx.account.exception.InvalidDiscountException;
 import com.phucx.account.exception.InvalidOrderException;
+import com.phucx.account.model.ResponseFormat;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ControllerAdvice
 public class ExceptionController extends ResponseEntityExceptionHandler{
 
     @ExceptionHandler(value = InvalidDiscountException.class)
-    protected ResponseEntity<String> handleInvalidDiscountException(InvalidDiscountException exception){
-        return ResponseEntity.badRequest().build();
+    protected ResponseEntity<ResponseFormat> handleInvalidDiscountException(InvalidDiscountException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(value = InvalidOrderException.class)
-    protected ResponseEntity<String> handleInvalidOrderException(InvalidOrderException exception){
-        return ResponseEntity.badRequest().build();
+    protected ResponseEntity<ResponseFormat> handleInvalidOrderException(InvalidOrderException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(value = IllegalArgumentException.class)
-    protected ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException exception){
-        return ResponseEntity.badRequest().build();
+    protected ResponseEntity<ResponseFormat> handleIllegalArgumentException(IllegalArgumentException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(value = NullPointerException.class)
-    protected ResponseEntity<String> handleNullPointerException(NullPointerException exception){
-        return ResponseEntity.badRequest().build();
+    protected ResponseEntity<ResponseFormat> handleNullPointerException(NullPointerException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(value = NotFoundException.class)
-    protected ResponseEntity<String> handleNotFoundException(NotFoundException exception){
-        return ResponseEntity.notFound().build();
+    protected ResponseEntity<ResponseFormat> handleNotFoundException(NotFoundException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(value = EntityExistsException.class)
-    protected ResponseEntity<String> handleEntityExistsException(EntityExistsException exception){
-        return ResponseEntity.badRequest().build();
+    protected ResponseEntity<ResponseFormat> handleEntityExistsException(EntityExistsException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
     @ExceptionHandler(value = RuntimeException.class)
-    protected ResponseEntity<String> handleRuntimeException(RuntimeException exception){
-        return ResponseEntity.badRequest().build();
+    protected ResponseEntity<ResponseFormat> handleRuntimeException(RuntimeException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
 }

@@ -1,5 +1,4 @@
-import { getEmployee } from "../api/AdminApi";
-import { customerInfo, customerOrder, employeeInfo, employeeOrder 
+import { CUSTOMER_INFO, CUSTOMER_ORDER, EMPLOYEE_INFO, EMPLOYEE_ORDER 
 } from "../constant/FoodShoppingURL";
 import { NOTIFICATION_TOPIC, ROLE } from "../constant/WebConstant";
 
@@ -15,18 +14,18 @@ export function getUrlFromNotification(notification, roles){
 // employee
 export function getEmployeeUrlFromNotification(notification){
     if(notification.topic.toLowerCase()==NOTIFICATION_TOPIC.ORDER.toLowerCase()){
-        return employeeOrder;
+        return EMPLOYEE_ORDER;
     }else if(notification.topic.toLowerCase()==NOTIFICATION_TOPIC.ACCOUNT.toLowerCase()){
-        return employeeInfo;
+        return EMPLOYEE_INFO;
     }
     return '/'
 }
 // customer
 export function getCustomerUrlFromNotification(notification){
     if(notification.topic.toLowerCase()==NOTIFICATION_TOPIC.ORDER.toLowerCase()){
-        return customerOrder;
+        return CUSTOMER_ORDER;
     }else if(notification.topic.toLowerCase()==NOTIFICATION_TOPIC.ACCOUNT.toLowerCase()){
-        return customerInfo;
+        return CUSTOMER_INFO;
     }
     return '/'
 }

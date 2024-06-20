@@ -3,7 +3,7 @@ import { Notification, Pageable } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/Image";
 import { getPageNumber } from "../../../../../service/Pageable";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
-import { getEmployeeNotifications, markAsReadCustomerNotification, markAsReadEmployeeNotification 
+import { getEmployeeNotifications, markAsReadEmployeeNotification 
 } from "../../../../../api/NotificationApi";
 import { ALERT_TIMEOUT, ALERT_TYPE, MARK_NOTIFICATION_TYPE } from "../../../../../constant/WebConstant";
 import { Alert } from "../../../../../model/WebType";

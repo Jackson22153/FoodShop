@@ -3,7 +3,7 @@ import { OrderDetail, Pageable } from "../../../../../model/Type";
 import { ORDER_STATUS } from "../../../../../constant/WebConstant";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
 import { getPageNumber } from "../../../../../service/Pageable";
-import { customerOrder } from "../../../../../constant/FoodShoppingURL";
+import { CUSTOMER_ORDER } from "../../../../../constant/FoodShoppingURL";
 import { displayProductImage } from "../../../../../service/Image";
 import { getCustomerOrders, receiveOrder } from "../../../../../api/OrderApi";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
@@ -169,7 +169,7 @@ export default function UserOrdersComponent(){
                                             </div>
                                         </div>
                                         <div className="d-flex justify-content-end">
-                                            <a href={`${customerOrder}/${order.orderID}`} className="btn btn-info text-white">View order</a>
+                                            <a href={`${CUSTOMER_ORDER}/${order.orderID}`} className="btn btn-info text-white">View order</a>
                                             <button className="btn btn-primary mx-2" onClick={(_e)=>onClickReceive(order)}>Receive Order</button>
                                         </div>
                                     </div>
@@ -218,7 +218,7 @@ export default function UserOrdersComponent(){
                                         </div>
                                         <div className="row d-flex justify-content-end">
                                             <div className="col-md-3 d-flex justify-content-center">
-                                                <a href={`${customerOrder}/${order.orderID}`} className="btn btn-primary">View order</a>
+                                                <a href={`${CUSTOMER_ORDER}/${order.orderID}`} className="btn btn-primary">View order</a>
                                             </div>
                                         </div>
                                     </div>

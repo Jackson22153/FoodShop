@@ -1,6 +1,8 @@
 import { ChangeEventHandler, FormEventHandler, MouseEventHandler, useEffect, useState } from 'react';
 import { Category, DiscountDetail, DiscountType, ProductDetails } from '../../../../../model/Type';
-import { getDiscountDetail, getDiscountTypes, getDiscountsByProduct, getProductDetail, insertDiscount, updateDiscount, updateProduct } from '../../../../../api/AdminApi';
+import { getDiscountDetail, getDiscountTypes, getDiscountsByProduct, 
+    getProductDetail, insertDiscount, updateDiscount, updateProduct 
+} from '../../../../../api/AdminApi';
 import { useLocation } from 'react-router-dom';
 import { getCategories } from '../../../../../api/SearchApi';
 import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';

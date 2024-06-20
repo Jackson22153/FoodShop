@@ -8,7 +8,7 @@ import { getCustomerNotifications, getCustomerSummaryNotifications,
     markAsReadCustomerNotification, markAsReadEmployeeNotification } 
     from "../../../../api/NotificationApi";
 import { MARK_NOTIFICATION_TYPE, ROLE } from "../../../../constant/WebConstant";
-import { customerNotification, employeeNotification } from "../../../../constant/FoodShoppingURL";
+import { CUSTOMER_NOTIFICATION, EMPLOYEE_NOTIFICATION } from "../../../../constant/FoodShoppingURL";
 import { getPageNumber } from "../../../../service/Pageable";
 import notificationMessagesContext from "../../../contexts/NotificationMessagesContext";
 import { getUrlFromNotification } from "../../../../service/Notification";
@@ -166,9 +166,9 @@ export default function NotificationDropdown(prop:Props){
     // get notification url based on role
     const getNotificationUrl = ()=>{
         if(prop.roles.includes(ROLE.CUSTOMER.toLowerCase())){
-            return customerNotification;
+            return CUSTOMER_NOTIFICATION;
         }else if(prop.roles.includes(ROLE.EMPLOYEE.toLowerCase())){
-            return employeeNotification;
+            return EMPLOYEE_NOTIFICATION;
         }
     }
 

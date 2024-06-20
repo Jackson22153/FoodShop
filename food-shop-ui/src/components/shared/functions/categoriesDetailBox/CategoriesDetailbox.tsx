@@ -1,4 +1,4 @@
-import { categoriesPath } from "../../../../constant/FoodShoppingURL";
+import { CATEGORIES_PATH } from "../../../../constant/FoodShoppingURL";
 import { convertNameForUrl } from "../../../../service/Convert";
 import { displayProductImage } from "../../../../service/Image";
 
@@ -23,7 +23,7 @@ export default function CategoriesDetailbox(prop:Props){
                         {categoryDetail}
                     </p>
                     <div>
-                        <a href={categoriesPath+"/"+ convertNameForUrl(categoryTitle)} 
+                        <a href={CATEGORIES_PATH+"/"+ convertNameForUrl(categoryTitle)} 
                             className="custom_dark-btn">
                             Show
                         </a>

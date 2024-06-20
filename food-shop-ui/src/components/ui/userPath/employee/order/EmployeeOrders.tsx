@@ -3,7 +3,8 @@ import { Notification, OrderDetail, OrderSummary, Pageable } from "../../../../.
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
 import { getPageNumber } from "../../../../../service/Pageable";
 import { displayProductImage, displayUserImage } from "../../../../../service/Image";
-import { employeeConfirmedOrder, employeeOrder, employeePendingOrder } from "../../../../../constant/FoodShoppingURL";
+import { EPMLOYEE_CONFIRMED_ORDER, EMPLOYEE_ORDER, EMPLOYEE_PENDING_ORDER 
+} from "../../../../../constant/FoodShoppingURL";
 import { ORDER_STATUS } from "../../../../../constant/WebConstant";
 import { cancelOrder, confirmOrder, fulfillOrder, getOrderSummary, getOrders } from "../../../../../api/OrderApi";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
@@ -242,8 +243,8 @@ export default function EmployeeOrdersComponent(){
                                                 <img width={"50px"} className="img-thumbnail" src={displayUserImage(order.picture)} alt={order.contactName} />
                                             </div>
                                             <div className="mx-2">
-                                                <p className="m-0">{order.customerID}</p>
-                                                <p className="h6">{order.contactName}</p>
+                                                <p className="m-0">ID: {order.customerID}</p>
+                                                <p className="h6">Name: {order.contactName}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -260,7 +261,8 @@ export default function EmployeeOrdersComponent(){
                                     </div>
                                     <hr />
                                     <div className="d-flex justify-content-end">
-                                        <a href={`${employeePendingOrder}/${order.orderID}`} 
+                                        <a href={`${EMPLOYEE_PENDING_ORDER}
+                                /${order.orderID}`} 
                                             className="btn btn-info text-light mx-2">View Order</a>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickCancelOrder(order)}>Cancel</button>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickConfirmOrder(order)}>Confirm</button>
@@ -323,7 +325,7 @@ export default function EmployeeOrdersComponent(){
                                         </div>
                                     </div>
                                     <div className="d-flex justify-content-end">
-                                        <a href={`${employeeConfirmedOrder}/${order.orderID}`} 
+                                        <a href={`${EPMLOYEE_CONFIRMED_ORDER}/${order.orderID}`} 
                                             className="btn btn-info text-light mx-2">View Order</a>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickCancelOrder(order)}>Cancel</button>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickFullFillOrder(order)}>Fulfill Order</button>
@@ -386,7 +388,7 @@ export default function EmployeeOrdersComponent(){
                                     </div>
                                     <hr />
                                     <div className="d-flex justify-content-end">
-                                        <a href={`${employeeOrder}/${order.orderID}`} className="btn btn-info text-light mx-2">View Order</a>
+                                        <a href={`${EMPLOYEE_ORDER}/${order.orderID}`} className="btn btn-info text-light mx-2">View Order</a>
                                     </div>
                                 </li>
                             )):
