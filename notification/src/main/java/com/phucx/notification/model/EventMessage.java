@@ -14,4 +14,10 @@ public class EventMessage<T> {
     private String eventId;
     private EventType eventType;
     private T payload;
+    private String errorMessage;
+    public EventMessage(String eventId, EventType eventType, T payload) {
+        this.eventId = eventId;
+        this.eventType = eventType;
+        this.payload = payload;
+    }
 }

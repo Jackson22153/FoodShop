@@ -1,6 +1,7 @@
 package com.phucx.order.constant;
 
 public enum EventType {
+    NotFoundException,
     // notification
     SendOrderNotificationToUser,
     // udpate order status

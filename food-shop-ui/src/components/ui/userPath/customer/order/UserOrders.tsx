@@ -7,11 +7,14 @@ import { CUSTOMER_ORDER } from "../../../../../constant/FoodShoppingURL";
 import { displayProductImage } from "../../../../../service/Image";
 import { getCustomerOrders, receiveOrder } from "../../../../../api/OrderApi";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
+import { ModalContextType } from "../../../../../model/WebType";
+import modalContext from "../../../../contexts/ModalContext";
 
 export default function UserOrdersComponent(){
     const [listOrders, setListOrders] = useState<OrderDetail[]>([])
     const notificationMessage = useContext(notificationMessagesContext)
     const [selectedTagOrder, setSelectedTagOrder] = useState(0)
+    const {setModal: setErrorModal} = useContext<ModalContextType>(modalContext);
     const [page, setPage] = useState<Pageable>({
         first: true,
         last: true,
@@ -30,16 +33,24 @@ export default function UserOrdersComponent(){
     
     // get orders
     async function fetchOrders(pageNumber: number, type:string){
-        const res = await getCustomerOrders(pageNumber, type)
-        if(200<=res.status&&res.status<300){
-            const data = res.data;
-            setListOrders(data.content)
-            setPage({
-                first: data.first,
-                last: data.last,
-                number: data.number,
-                totalPages: data.totalPages
-            });
+        try {
+            const res = await getCustomerOrders(pageNumber, type)
+            if(200<=res.status&&res.status<300){
+                const data = res.data;
+                setListOrders(data.content)
+                setPage({
+                    first: data.first,
+                    last: data.last,
+                    number: data.number,
+                    totalPages: data.totalPages
+                });
+            }
+        } catch (error) {
+            setErrorModal({
+                title: "Error", 
+                isShowed: true, 
+                message: error.response?error.response.data.error:error.message
+            })
         }
     }
     // click select nav tab

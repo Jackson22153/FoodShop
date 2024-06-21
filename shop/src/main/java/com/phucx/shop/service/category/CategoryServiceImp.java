@@ -10,14 +10,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
+import com.phucx.shop.exceptions.EntityExistsException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.Category;
 import com.phucx.shop.repository.CategoryRepository;
 import com.phucx.shop.service.image.CategoryImageService;
 import com.phucx.shop.service.image.ImageService;
 
-import jakarta.persistence.EntityExistsException;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -42,21 +42,21 @@ public class CategoryServiceImp implements CategoryService{
     }
 
     @Override
-    public Category getCategory(int categoryID) {
+    public Category getCategory(int categoryID) throws NotFoundException {
         Category category = categoryRepository.findById(categoryID)
         .orElseThrow(()-> new NotFoundException("Category " + categoryID + " does not found"));
         return categoryImageService.setCategoryImage(category);
     }
 
     @Override
-    public Category getCategory(String categoryName) {
+    public Category getCategory(String categoryName) throws NotFoundException {
         Category category = categoryRepository.findByCategoryName(categoryName)
             .orElseThrow(()-> new NotFoundException("Category " + categoryName + " does not found"));
         return categoryImageService.setCategoryImage(category);
     }
 
 	@Override
-	public boolean updateCategory(Category category) {
+	public Boolean updateCategory(Category category) throws NotFoundException {
         log.info("updateCategory({})", category);
         if(category.getCategoryID()==null) throw new NullPointerException("Category Id is null");
         Category fetchedCategory = this.getCategory(category.getCategoryID());
@@ -73,7 +73,7 @@ public class CategoryServiceImp implements CategoryService{
 	@Override
     @Modifying
     @Transactional
-	public boolean createCategory(Category category) {
+	public Boolean createCategory(Category category) throws EntityExistsException {
         log.info("createCategory({})", category);
         Optional<Category> fetchedCategoryOp = categoryRepository.findByCategoryName(category.getCategoryName());
         if(fetchedCategoryOp.isPresent()){

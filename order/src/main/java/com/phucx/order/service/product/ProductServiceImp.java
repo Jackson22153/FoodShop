@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Product;
@@ -48,7 +49,7 @@ public class ProductServiceImp implements ProductService{
         return response.getPayload();
     }
     @Override
-    public Product getProduct(int productID) throws JsonProcessingException {
+    public Product getProduct(int productID) throws JsonProcessingException, NotFoundException {
         log.info("getProduct(productID={})", productID);
         ProductDTO productDProductDTO = new ProductDTO();
         productDProductDTO.setProductID(productID);
@@ -64,6 +65,9 @@ public class ProductServiceImp implements ProductService{
             MessageQueueConstant.PRODUCT_ROUTING_KEY,
             Product.class);
         log.info("response={}", response);
+        if(response.getEventType().equals(EventType.NotFoundException)){
+            throw new NotFoundException(response.getErrorMessage());
+        }
         return response.getPayload();
     }
     @Override

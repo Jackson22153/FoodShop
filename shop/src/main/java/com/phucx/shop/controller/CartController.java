@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.shop.constant.CookieConstant;
 import com.phucx.shop.exceptions.EmptyCartException;
 import com.phucx.shop.exceptions.InvalidOrderException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.CartOrderInfo;
 import com.phucx.shop.model.CartProduct;
 import com.phucx.shop.model.CartProductsCookie;
@@ -89,7 +90,7 @@ public class CartController {
     public ResponseEntity<OrderWithProducts> getOrder(
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson,
         Authentication authentication
-    ) throws JsonProcessingException, EmptyCartException, InvalidOrderException{
+    ) throws JsonProcessingException, EmptyCartException, InvalidOrderException, NotFoundException{
         OrderWithProducts order = cartService.getOrder(cartJson, authentication.getName());
         return ResponseEntity.ok().body(order);
     }

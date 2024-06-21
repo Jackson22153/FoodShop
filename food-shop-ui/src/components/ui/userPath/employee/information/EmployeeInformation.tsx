@@ -1,20 +1,22 @@
-import { ChangeEventHandler, FormEvent, useEffect, useState } from "react";
+import { ChangeEventHandler, FormEvent, useContext, useEffect, useState } from "react";
 import { Employee } from "../../../../../model/Type";
 import { getEmployeeInfo, updateEmployeeInfo } from "../../../../../api/EmployeeApi";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
-import { Alert, Modal } from "../../../../../model/WebType";
+import { Alert, Modal, ModalContextType } from "../../../../../model/WebType";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import ModalComponent from "../../../../shared/functions/modal/Modal";
 import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/WebConstant";
 import { EmployeeImageChangeInput } from "../../../../shared/functions/employee-image-change/EmployeeImageChangeInput";
+import modalContext from "../../../../contexts/ModalContext";
 
 
 export default function EmployeeInformationComponent(){
     const [employeeInfo, setEmployeeInfo] = useState<Employee>();
     const [employeeInfoAlter, setEmployeeInfoAlter] = useState<Employee>()
+    const {setModal: setErrorModal} = useContext<ModalContextType>(modalContext);
     const [editable, setEditable] = useState(true)
     const [alert, setAlert] = useState<Alert>({
         message: "",
@@ -36,28 +38,36 @@ export default function EmployeeInformationComponent(){
     }
     // get employee's information
     const fetchEmployeeInfo = async ()=>{
-        const res = await getEmployeeInfo();
-        if(200<=res.status&&res.status<300){
-            const data = res.data;
-            // console.log(data);
-            const employee = {
-                employeeID: data.employeeID,
-                firstName: data.firstName || '',
-                lastName: data.lastName || '',
-                birthDate: data.birthDate || '',
-                hireDate: data.hireDate || '',
-                homePhone: data.homePhone || '',
-                address: data.address || '',
-                city: data.city || '',
-                photo: data.photo || '',
-                reportsTo: data.reportsTo || '',
-                title: data.title || '',
-                email: data.email || '',
-                username: data.username || ''
+        try {       
+            const res = await getEmployeeInfo();
+            if(200<=res.status&&res.status<300){
+                const data = res.data;
+                // console.log(data);
+                const employee = {
+                    employeeID: data.employeeID,
+                    firstName: data.firstName || '',
+                    lastName: data.lastName || '',
+                    birthDate: data.birthDate || '',
+                    hireDate: data.hireDate || '',
+                    homePhone: data.homePhone || '',
+                    address: data.address || '',
+                    city: data.city || '',
+                    photo: data.photo || '',
+                    reportsTo: data.reportsTo || '',
+                    title: data.title || '',
+                    email: data.email || '',
+                    username: data.username || ''
+                }
+                // console.log(employee)
+                setEmployeeInfo(employee);
+                setEmployeeInfoAlter(employee);
             }
-            // console.log(employee)
-            setEmployeeInfo(employee);
-            setEmployeeInfoAlter(employee);
+        } catch (error) {
+            setErrorModal({
+                title: "Error",
+                isShowed: true,
+                message: error.response?error.response.data.error:error.message
+            })
         }
     }
 

@@ -10,6 +10,7 @@ import com.phucx.order.constant.NotificationTopic;
 import com.phucx.order.constant.NotificationTitle;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.exception.InvalidOrderException;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.Employee;
 import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderDetails;
@@ -39,7 +40,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
     private UserService userService;
 
     @Override
-    public void confirmOrder(String orderID, String userID) throws InvalidOrderException, JsonProcessingException {
+    public void confirmOrder(String orderID, String userID) throws InvalidOrderException, JsonProcessingException, NotFoundException {
         log.info("confirmOrder(orderID={}, userID={})", orderID, userID);
         OrderWithProducts orderWithProducts = orderService.getPendingOrderDetail(orderID);
         // fetch employee
@@ -52,7 +53,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
     }
 
     @Override
-    public void cancelOrder(OrderWithProducts order, String userID) throws JsonProcessingException {
+    public void cancelOrder(OrderWithProducts order, String userID) throws JsonProcessingException, NotFoundException {
         log.info("cancelOrder(order={}, userID={})", order, userID);
         // fetch pending order
         OrderDetails orderDetail = orderService.getOrder(order.getOrderID(), OrderStatus.Pending);
@@ -85,7 +86,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
     }
 
     @Override
-    public void fulfillOrder(OrderWithProducts order, String userID) throws JsonProcessingException {
+    public void fulfillOrder(OrderWithProducts order, String userID) throws JsonProcessingException, NotFoundException {
         log.info("fullfillOrder(order={}, userID={})", order, userID);
         OrderDetails fetchedOrder = orderService.getOrder(order.getOrderID(), OrderStatus.Confirmed);
         Boolean status = orderService.updateOrderStatus(fetchedOrder.getOrderID(), OrderStatus.Shipping);
@@ -112,7 +113,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
 
     @Override
     public Page<OrderDetails> getOrders(String userID, OrderStatus status, int pageNumber, int pageSize)
-            throws JsonProcessingException {
+            throws JsonProcessingException, NotFoundException {
         log.info("getOrders(userID={}, status={}, pageNumber={}, pageSize={})", userID, status, pageNumber, pageSize);
         Employee fetchedEmployee = employeeService.getEmployeeByUserID(userID);
         Page<OrderDetails> orders = null;
@@ -131,7 +132,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
     }
 
     @Override
-    public OrderWithProducts getOrder(String orderID, String userID, OrderStatus status) throws JsonProcessingException {
+    public OrderWithProducts getOrder(String orderID, String userID, OrderStatus status) throws JsonProcessingException, NotFoundException {
         log.info("getOrder(orderID={}, userID={}, orderStatus={})", orderID, userID, status);
         Employee fetchedEmployee = employeeService.getEmployeeByUserID(userID);
         OrderWithProducts order = null;

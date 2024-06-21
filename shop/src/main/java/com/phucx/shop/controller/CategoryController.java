@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phucx.shop.exceptions.EntityExistsException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.Category;
 import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.service.category.CategoryService;
@@ -21,7 +23,7 @@ public class CategoryController {
     @PostMapping
     public ResponseEntity<ResponseFormat> updateCategory(
         @RequestBody Category category
-    ){
+    ) throws NotFoundException{
         boolean check = categoryService.updateCategory(category);
         ResponseFormat data = new ResponseFormat(check);
         return ResponseEntity.ok().body(data);
@@ -29,7 +31,7 @@ public class CategoryController {
     @PutMapping
     public ResponseEntity<ResponseFormat> createCategory(
         @RequestBody Category category
-    ){
+    ) throws EntityExistsException{
         boolean check = categoryService.createCategory(category);
         ResponseFormat data = new ResponseFormat(check);
         return ResponseEntity.ok().body(data);

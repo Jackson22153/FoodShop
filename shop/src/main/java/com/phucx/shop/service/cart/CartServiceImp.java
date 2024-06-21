@@ -206,7 +206,7 @@ public class CartServiceImp implements CartService{
         return cartProductsCookie;
     }
     @Override
-    public OrderWithProducts getOrder(String encodedCartJson, String userID) throws JsonProcessingException, EmptyCartException, InvalidOrderException {
+    public OrderWithProducts getOrder(String encodedCartJson, String userID) throws JsonProcessingException, EmptyCartException, InvalidOrderException, com.phucx.shop.exceptions.NotFoundException {
         log.info("getOrder(encodedCartJson={}, userID={})", encodedCartJson, userID);
         Customer customer = this.customerService.getCustomerByUserID(userID);
         // create an order

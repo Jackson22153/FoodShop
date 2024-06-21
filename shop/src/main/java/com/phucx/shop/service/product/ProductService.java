@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import com.phucx.shop.exceptions.EntityExistsException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
@@ -13,18 +15,18 @@ public interface ProductService {
     // update product units in stock
     public Boolean updateProductsInStock(List<ProductStockTableType> productIDs);
     // update product detail
-    public boolean updateProductDetail(ProductDetail productDetail);
+    public boolean updateProductDetail(ProductDetail productDetail) throws NotFoundException;
     // insert product
-    public boolean insertProductDetail(ProductDetail productDetail);
+    public boolean insertProductDetail(ProductDetail productDetail) throws EntityExistsException;
     // get product
-    public CurrentProduct getCurrentProduct(int productID);
+    public CurrentProduct getCurrentProduct(int productID) throws NotFoundException;
     public List<CurrentProduct> getCurrentProduct();
     public Page<CurrentProduct> getCurrentProduct(int pageNumber, int pageSize);
     public Page<CurrentProduct> getCurrentProductsByCategoryName(String categoryName, int pageNumber, int pageSize);
-    public ProductDetail getProductDetail(int productID);
+    public ProductDetail getProductDetail(int productID) throws NotFoundException;
     
-    public Product getProduct(int productID);
-    public Product getProduct(Integer productID, Boolean discontinued);
+    public Product getProduct(int productID) throws NotFoundException;
+    public Product getProduct(Integer productID, Boolean discontinued) throws NotFoundException;
     public List<Product> getProducts();
     public List<Product> getProducts(List<Integer> productIDs);
     public Page<Product> getProducts(int pageNumber, int pageSize);

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.shop.config.WebConfig;
 import com.phucx.shop.exceptions.InvalidDiscountException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.Discount;
 import com.phucx.shop.model.DiscountDetail;
 import com.phucx.shop.model.DiscountType;
@@ -30,7 +31,7 @@ public class DiscountController {
     @PutMapping
     public ResponseEntity<ResponseFormat> insertDiscount(
         @RequestBody DiscountWithProduct discount
-    ) throws InvalidDiscountException, RuntimeException{
+    ) throws InvalidDiscountException, RuntimeException, NotFoundException{
         Discount newDiscount = discountService.insertDiscount(discount);
         boolean status = newDiscount!=null?true:false;
         ResponseFormat data = new ResponseFormat(status);
@@ -41,7 +42,7 @@ public class DiscountController {
     @PostMapping
     public ResponseEntity<ResponseFormat> updateDiscount(
         @RequestBody DiscountWithProduct discount
-    ) throws InvalidDiscountException{
+    ) throws InvalidDiscountException, NotFoundException{
         Boolean status = discountService.updateDiscount(discount);
         ResponseFormat data = new ResponseFormat(status);
         return ResponseEntity.ok().body(data);
@@ -50,7 +51,7 @@ public class DiscountController {
     @PostMapping("/status")
     public ResponseEntity<ResponseFormat> updateDiscountStatus(
         @RequestBody Discount discount
-    ) throws InvalidDiscountException{
+    ) throws InvalidDiscountException, NotFoundException{
         Boolean check = discountService.updateDiscountStatus(discount);
         ResponseFormat data = new ResponseFormat(check);
         return ResponseEntity.ok().body(data);
@@ -60,7 +61,7 @@ public class DiscountController {
     public ResponseEntity<Page<DiscountDetail>> getDiscountsByProductID(
         @PathVariable(name = "productID") Integer productID,
         @RequestParam(name = "page", required = false) Integer pageNumber
-    ){
+    ) throws NotFoundException{
         pageNumber = pageNumber!=null?pageNumber: 0;
         Page<DiscountDetail> discounts = discountService.getDiscountsByProduct(
             productID, pageNumber, WebConfig.PAGE_SIZE);
@@ -70,7 +71,7 @@ public class DiscountController {
     @GetMapping("/{discountID}")
     public ResponseEntity<DiscountDetail> getDiscountDetail(
         @PathVariable(name = "discountID") String discountID
-    ){
+    ) throws NotFoundException{
         DiscountDetail discount = discountService.getDiscountDetail(discountID);
         return ResponseEntity.ok().body(discount);
     }

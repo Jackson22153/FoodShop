@@ -12,6 +12,7 @@ import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.Employee;
 import com.phucx.order.model.EmployeeDTO;
 import com.phucx.order.model.EventMessage;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +23,7 @@ public class EmployeeServiceImp implements EmployeeService {
     private MessageQueueService messageQueueService;
    
     @Override
-    public Employee getEmployeeByID(String employeeID) throws JsonProcessingException {
+    public Employee getEmployeeByID(String employeeID) throws JsonProcessingException, NotFoundException {
         log.info("getEmployeeByID(employeeID={})", employeeID);
         // create a request for user
         EmployeeDTO employeeDTO = new EmployeeDTO();
@@ -39,11 +40,14 @@ public class EmployeeServiceImp implements EmployeeService {
             MessageQueueConstant.EMPLOYEE_ROUTING_KEY,
             Employee.class);
         log.info("response={}", response);
+        if(response.getEventType().equals(EventType.NotFoundException)){
+            throw new NotFoundException(response.getErrorMessage());
+        }
         return  response.getPayload();
     }
 
     @Override
-    public Employee getEmployeeByUserID(String userID) throws JsonProcessingException {
+    public Employee getEmployeeByUserID(String userID) throws JsonProcessingException, NotFoundException {
         log.info("getEmployeeByUserID(userID={})", userID);
         // create a request for user
         EmployeeDTO employeeDTO = new EmployeeDTO();
@@ -60,6 +64,9 @@ public class EmployeeServiceImp implements EmployeeService {
             MessageQueueConstant.EMPLOYEE_ROUTING_KEY,
             Employee.class);
         log.info("response={}", response);
+        if(response.getEventType().equals(EventType.NotFoundException)){
+            throw new NotFoundException(response.getErrorMessage());
+        }
         return  response.getPayload();
     }
 }

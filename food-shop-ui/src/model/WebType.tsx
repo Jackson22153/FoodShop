@@ -15,6 +15,11 @@ export type NotificationContext = {
     notifications: Notification[],
     setNotifications: any
 }
+
+export type ModalContextType = {
+    modal: Modal,
+    setModal: (value: any)=> void;
+}
 export type CartContextType = {
     numberOfCartProducts: number;
     setNumberOfCartProducts: (value: number) => void;

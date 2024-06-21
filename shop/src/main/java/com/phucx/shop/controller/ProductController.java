@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.phucx.shop.exceptions.EntityExistsException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.ProductDetail;
 import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.service.product.ProductService;
@@ -22,7 +25,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ResponseFormat> updateProductDetail(
         @RequestBody ProductDetail productDetail
-    ){        
+    ) throws NotFoundException{        
         boolean status = productService.updateProductDetail(productDetail);
         ResponseFormat data = new ResponseFormat(status);
 
@@ -31,7 +34,7 @@ public class ProductController {
     @PutMapping
     public ResponseEntity<ResponseFormat> insertProductDetail(
         @RequestBody ProductDetail productDetail
-    ){        
+    ) throws EntityExistsException{        
         boolean status = productService.insertProductDetail(productDetail);
         ResponseFormat data = new ResponseFormat(status);
 
@@ -40,7 +43,7 @@ public class ProductController {
     @GetMapping("/{productID}")
     public ResponseEntity<ProductDetail> getProductDetail(
         @PathVariable Integer productID
-    ){        
+    ) throws NotFoundException{        
         ProductDetail product = productService.getProductDetail(productID);
         return ResponseEntity.ok().body(product);
     } 

@@ -8,10 +8,12 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.shop.config.MessageQueueConfig;
 import com.phucx.shop.constant.EventType;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.EventMessage;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDTO;
@@ -34,9 +36,7 @@ public class ProductMessageListener {
     @RabbitHandler
     public String fetchProduct(String message){
         log.info("fetchProduct({})", message);
-        String eventID = UUID.randomUUID().toString();
-        EventMessage<Object> responseMessage = new EventMessage<>();
-        responseMessage.setEventId(eventID);
+        EventMessage<Object> responseMessage = this.createResponseMessage(Object.class);
         try {
             TypeReference<EventMessage<ProductDTO>> typeRef = new TypeReference<EventMessage<ProductDTO>>() {};
             EventMessage<ProductDTO> eventMessage = objectMapper.readValue(message, typeRef);
@@ -62,9 +62,27 @@ public class ProductMessageListener {
                 responseMessage.setPayload(new ResponseFormat(status));
             }
             return objectMapper.writeValueAsString(responseMessage);
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             log.error("Error: {}", e.getMessage());
             return null;
+        } catch (NotFoundException e){
+            log.error("Error: {}", e.getMessage());
+            try {
+                responseMessage.setErrorMessage(e.getMessage());
+                responseMessage.setEventType(EventType.NotFoundException);
+                String responsemessage = objectMapper.writeValueAsString(responseMessage);
+                return responsemessage;
+            } catch (JsonProcessingException exception) {
+                log.error("Error: {}", e.getMessage());
+                return null;
+            }
         }
+    }
+
+    private <T> EventMessage<T> createResponseMessage(Class<T> type){
+        EventMessage<T> responseMessage = new EventMessage<>();
+        String eventID = UUID.randomUUID().toString();
+        responseMessage.setEventId(eventID);
+        return responseMessage;
     }
 }

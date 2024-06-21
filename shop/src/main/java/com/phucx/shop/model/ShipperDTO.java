@@ -15,6 +15,4 @@ import lombok.ToString;
 public class ShipperDTO {
     private String shipperID;
     private List<String> shipperIDs;
-    private Integer pageNumber;
-    private Integer pageSize;
 }   

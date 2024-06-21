@@ -1,14 +1,15 @@
-import { ChangeEventHandler, FormEvent, useEffect, useState } from "react";
+import { ChangeEventHandler, FormEvent, useContext, useEffect, useState } from "react";
 import { Customer } from "../../../../../model/Type";
 import { getCustomerInfo, updateUserInfo } from "../../../../../api/UserApi";
-import { Alert, Modal } from "../../../../../model/WebType";
+import { Alert, Modal, ModalContextType } from "../../../../../model/WebType";
 import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/WebConstant";
 import ModalComponent from "../../../../shared/functions/modal/Modal";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import { UserImageChangeInput } from "../../../../shared/functions/user-image-change/UserImageChangeInput";
+import modalContext from "../../../../contexts/ModalContext";
 
 export default function UserInformationComponent(){
-
+    const {setModal: setErrorModal} = useContext<ModalContextType>(modalContext)
     const [customerInfo, setCustomerInfo] = useState<Customer>();
     const [modal, setModal] = useState<Modal>({
         title: 'Confirm action',
@@ -31,20 +32,28 @@ export default function UserInformationComponent(){
     }
     // get customerinfo
     const fetchCustomerInfo = async ()=>{
-        const res = await getCustomerInfo();
-        if(200<=res.status&&res.status<300){
-            const data = res.data;
-            const customer = {
-                customerID: data.customerID,
-                contactName: data.contactName || '',
-                address: data.address || '',
-                city: data.city || '',
-                phone: data.phone || '',
-                picture: data.picture || '',
-                email: data.email || '',
-                username: data.username || ''
-            };
-            setCustomerInfo(customer)
+        try {            
+            const res = await getCustomerInfo();
+            if(200<=res.status&&res.status<300){
+                const data = res.data;
+                const customer = {
+                    customerID: data.customerID,
+                    contactName: data.contactName || '',
+                    address: data.address || '',
+                    city: data.city || '',
+                    phone: data.phone || '',
+                    picture: data.picture || '',
+                    email: data.email || '',
+                    username: data.username || ''
+                };
+                setCustomerInfo(customer)
+            }
+        } catch (error) {
+            setErrorModal({
+                title: "Error", 
+                isShowed: true, 
+                message: error.response?error.response.data.error:error.message
+            })
         }
     }
     // change customer's info

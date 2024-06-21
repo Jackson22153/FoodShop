@@ -19,7 +19,6 @@ import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.model.Customer;
 import com.phucx.account.model.CustomerDTO;
 import com.phucx.account.model.EventMessage;
-import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.model.User;
 import com.phucx.account.service.customer.CustomerService;
 import com.phucx.account.service.user.UserService;
@@ -82,11 +81,9 @@ public class CustomerMessageListener {
         } catch (CustomerNotFoundException e) {
             log.error("Error: {}", e.getMessage());
             try {
-                EventMessage<ResponseFormat> eventMessage = this.createResponseMessage(ResponseFormat.class);
-                ResponseFormat payload = new ResponseFormat(false, e.getMessage());
-                eventMessage.setPayload(payload);
-                eventMessage.setEventType(EventType.CustomerNotFoundException);
-                String responsemessage = objectMapper.writeValueAsString(eventMessage);
+                responseMessage.setErrorMessage(e.getMessage());
+                responseMessage.setEventType(EventType.NotFoundException);
+                String responsemessage = objectMapper.writeValueAsString(responseMessage);
                 return responsemessage;
             } catch (Exception exception) {
                 log.error("Error: {}", e.getMessage());

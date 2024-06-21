@@ -7,10 +7,12 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.order.config.MessageQueueConfig;
 import com.phucx.order.constant.EventType;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.InvoiceDetails;
 import com.phucx.order.model.OrderDTO;
@@ -30,9 +32,7 @@ public class OrderMessageListener {
     @RabbitHandler
     public String fetchOrderData(String message){
         log.info("fetchOrderData({})", message);
-        String eventID = UUID.randomUUID().toString();
-        EventMessage<Object> responseMessage= new EventMessage<>();
-        responseMessage.setEventId(eventID);
+        EventMessage<Object> responseMessage= createResponseMessage(Object.class);
         try {
             TypeReference<EventMessage<OrderDTO>> typeRef = new TypeReference<EventMessage<OrderDTO>>() {};
             EventMessage<OrderDTO> orderDOrderDTO =  objectMapper.readValue(message, typeRef);
@@ -56,10 +56,28 @@ public class OrderMessageListener {
             }
             String response = objectMapper.writeValueAsString(responseMessage);
             return response;
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             log.error("Error: {}", e.getMessage());
             return null;
+        } catch (NotFoundException e){
+            try {
+                log.error("Error: {}", e.getMessage());
+                responseMessage.setEventType(EventType.NotFoundException);
+                responseMessage.setErrorMessage(e.getMessage());
+                String errorResponse = objectMapper.writeValueAsString(responseMessage);    
+                return errorResponse;
+            } catch (Exception exception) {
+                log.error("Error: {}", exception.getMessage());
+                return null;
+            }
         }
 
+    }
+
+    private <T> EventMessage<T> createResponseMessage(Class<T> type){
+        EventMessage<T> responseMessage = new EventMessage<>();
+        String eventID = UUID.randomUUID().toString();
+        responseMessage.setEventId(eventID);
+        return responseMessage;
     }
 }

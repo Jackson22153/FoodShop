@@ -14,6 +14,7 @@ import com.phucx.order.constant.NotificationTitle;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.exception.InvalidOrderException;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.Customer;
 import com.phucx.order.model.InvoiceDetails;
 import com.phucx.order.model.OrderDetails;
@@ -28,7 +29,6 @@ import com.phucx.order.service.order.CustomerOrderService;
 import com.phucx.order.service.order.OrderService;
 import com.phucx.order.service.user.UserService;
 
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,7 +45,7 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
     
     @Override
     public OrderDetails placeOrder(OrderWithProducts order, String userID) 
-        throws JsonProcessingException, InvalidDiscountException, InvalidOrderException {
+        throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException {
         log.info("placeOrder(order={}, userID={})", order, userID);
         // fetch customer
         Customer customer = customerService.getCustomerByUserID(userID);
@@ -81,7 +81,7 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
         // order processing
     // validating and saving customer's order 
     private OrderWithProducts orderProcessing(OrderWithProducts order) 
-    throws JsonProcessingException, InvalidDiscountException, InvalidOrderException {
+    throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException {
         log.info("orderProcessing({})", order);
         if(order.getCustomerID()==null){
             throw new NotFoundException("Customer does not found");
@@ -105,7 +105,7 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
     }
 
     @Override
-    public void receiveOrder(OrderWithProducts order) throws JsonProcessingException {
+    public void receiveOrder(OrderWithProducts order) throws JsonProcessingException, NotFoundException {
         log.info("receiveOrder(orderID={})", order.getOrderID());
         // get order
         OrderDetails orderDetails = orderService.getOrder(order.getOrderID(), OrderStatus.Shipping);
@@ -132,10 +132,11 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
 
     @Override
     public Page<OrderDetails> getOrders(int pageNumber, int pageSize, String userID, OrderStatus orderStatus)
-            throws JsonProcessingException {
+            throws JsonProcessingException, NotFoundException {
         log.info("getOrders(pageNumber={}, pageSize={}, userID={}, orderStatus={})", pageNumber, pageSize, userID, orderStatus);
         // fetch customer
-        Customer fetchedCustomer = customerService.getCustomerByUserID(userID);
+        // Customer fetchedCustomer = customerService.getCustomerByUserID(userID);
+        Customer fetchedCustomer = customerService.getCustomerByUserID("userID");
         Page<OrderDetails> orders = null;
         if(orderStatus.equals(OrderStatus.All)){
             orders = orderService.getOrdersByCustomerID(
@@ -148,7 +149,7 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
     }
 
     @Override
-    public InvoiceDetails getInvoice(String orderID, String userID) throws JsonProcessingException {
+    public InvoiceDetails getInvoice(String orderID, String userID) throws JsonProcessingException, NotFoundException {
         log.info("getInvoice(orderID={}, userID={})", orderID, userID);
         // fetch customer
         Customer fetchedCustomer = customerService.getCustomerByUserID(userID);

@@ -5,15 +5,17 @@ import { getPageNumber } from "../../../../../service/Pageable";
 import PaginationSection from "../../../../shared/website/sections/paginationSection/PaginationSection";
 import { getCustomerNotifications, markAsReadCustomerNotification 
 } from "../../../../../api/NotificationApi";
-import { Alert } from "../../../../../model/WebType";
+import { Alert, ModalContextType } from "../../../../../model/WebType";
 import { ALERT_TIMEOUT, ALERT_TYPE, MARK_NOTIFICATION_TYPE } from "../../../../../constant/WebConstant";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
 import { getCustomerUrlFromNotification } from "../../../../../service/Notification";
+import modalContext from "../../../../contexts/ModalContext";
 
 export default function UserNotificationComponent(){
     const [notifications, setNotifications] = useState<Notification[]>([])
     const notificationMessage = useContext<Notification|undefined>(notificationMessagesContext);
+    const {setModal: setErrorModal} = useContext<ModalContextType>(modalContext);
     const [pageable, setPageable] = useState<Pageable>({
         first: true,
         last: true,
@@ -36,15 +38,23 @@ export default function UserNotificationComponent(){
     }
     // fetch user's notifications
     const fetchNotifications = async (pageNumber: number)=>{
-        const res = await getCustomerNotifications(pageNumber);
-        if(200<=res.status&&res.status<300){
-            const data = res.data;
-            setNotifications(data.content);
-            setPageable({
-                first: data.first,
-                last: data.last,
-                number: data.number,
-                totalPages: data.totalPages
+        try {
+            const res = await getCustomerNotifications(pageNumber);
+            if(200<=res.status&&res.status<300){
+                const data = res.data;
+                setNotifications(data.content);
+                setPageable({
+                    first: data.first,
+                    last: data.last,
+                    number: data.number,
+                    totalPages: data.totalPages
+                })
+            }
+        } catch (error) {
+            setErrorModal({
+                title: "Error", 
+                isShowed: true, 
+                message: error.response?error.response.data.error:error.message
             })
         }
     }

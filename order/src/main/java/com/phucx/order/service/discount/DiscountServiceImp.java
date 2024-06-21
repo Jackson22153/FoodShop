@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.DiscountDetail;
 import com.phucx.order.model.DiscountDTO;
@@ -27,7 +28,7 @@ public class DiscountServiceImp implements DiscountService{
     private MessageQueueService messageQueueService;
 
     @Override
-    public DiscountDetail getDiscount(String discountID) throws JsonProcessingException {
+    public DiscountDetail getDiscount(String discountID) throws JsonProcessingException, NotFoundException {
         log.info("getDiscount(discountID={})", discountID);
         // create a request for discount
         DiscountDTO discountDDiscountDTO = new DiscountDTO();
@@ -44,11 +45,14 @@ public class DiscountServiceImp implements DiscountService{
             MessageQueueConstant.DISCOUNT_ROUTING_KEY,
             DiscountDetail.class);
         log.info("response={}", response);
+        if(response.getEventType().equals(EventType.NotFoundException)){
+            throw new NotFoundException(response.getErrorMessage());
+        }
         return response.getPayload();
     }
 
     @Override
-    public List<DiscountDetail> getDiscounts(List<String> discountIDs) throws JsonProcessingException {
+    public List<DiscountDetail> getDiscounts(List<String> discountIDs) throws JsonProcessingException, NotFoundException {
         log.info("getDiscount(getDiscounts={})", discountIDs);
         // create a request for discount
         DiscountDTO discountDDiscountDTO = new DiscountDTO();
@@ -66,6 +70,9 @@ public class DiscountServiceImp implements DiscountService{
             eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
             MessageQueueConstant.DISCOUNT_ROUTING_KEY, typeReference);
         log.info("response={}", response);
+        if(response.getEventType().equals(EventType.NotFoundException)){
+            throw new NotFoundException(response.getErrorMessage());
+        }
         return response.getPayload();
     }
 

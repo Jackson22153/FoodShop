@@ -2,6 +2,7 @@ package com.phucx.shop.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 import com.phucx.shop.config.WebConfig;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.Category;
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.ProductDetail;
@@ -40,7 +41,7 @@ public class HomeController {
     @GetMapping("categories/name/{categoryName}")
     public ResponseEntity<Category> getCategory(
         @PathVariable(name = "categoryName") String categoryName
-    ){
+    ) throws NotFoundException{
         Category data = categoryService.getCategory(categoryName);
         return ResponseEntity.ok().body(data);
     }
@@ -48,7 +49,7 @@ public class HomeController {
     @GetMapping("categories/id/{categoryID}")
     public ResponseEntity<Category> getCategoryByID(
         @PathVariable(name = "categoryID") Integer categoryID
-    ){
+    ) throws NotFoundException{
         Category data = categoryService.getCategory(categoryID);
         return ResponseEntity.ok().body(data);
     }
@@ -77,7 +78,7 @@ public class HomeController {
     }
     
     @GetMapping("products/id/{productID}")
-    public ResponseEntity<ProductDetail> getProductByID(@PathVariable(name = "productID") Integer productID){
+    public ResponseEntity<ProductDetail> getProductByID(@PathVariable(name = "productID") Integer productID) throws NotFoundException{
         ProductDetail productDetails = productService.getProductDetail(productID);
         return ResponseEntity.ok().body(productDetails);
     }

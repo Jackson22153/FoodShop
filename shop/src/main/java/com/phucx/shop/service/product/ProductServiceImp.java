@@ -7,6 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import com.phucx.shop.exceptions.EntityExistsException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
@@ -17,8 +20,6 @@ import com.phucx.shop.repository.ProductRepository;
 import com.phucx.shop.service.image.ImageService;
 import com.phucx.shop.service.image.ProductImageService;
 
-import jakarta.persistence.EntityExistsException;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -53,7 +54,7 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public Product getProduct(int productID) {
+    public Product getProduct(int productID) throws NotFoundException {
         log.info("getProduct(productID={}", productID);
         Product product = productRepository.findById(productID)
             .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
@@ -95,7 +96,7 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public CurrentProduct getCurrentProduct(int productID) {
+    public CurrentProduct getCurrentProduct(int productID) throws NotFoundException {
         log.info("getCurrentProduct(productID={})", productID);
         CurrentProduct product = currentProductRepository.findById(productID)
             .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
@@ -144,7 +145,7 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public ProductDetail getProductDetail(int productID) {
+    public ProductDetail getProductDetail(int productID) throws NotFoundException {
         log.info("getProductDetail(productID={})", productID);
         ProductDetail product = productDetailRepository.findById(productID)
             .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
@@ -168,7 +169,7 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public boolean updateProductDetail(ProductDetail productDetail) {  
+    public boolean updateProductDetail(ProductDetail productDetail) throws NotFoundException {  
         log.info("updateProductDetail()", productDetail.toString());
         if(productDetail.getProductID()==null) throw new NotFoundException("Product Id is null");
         ProductDetail fetchedProduct = productDetailRepository.findById(productDetail.getProductID())
@@ -184,7 +185,7 @@ public class ProductServiceImp implements ProductService{
         return result;
     }
     @Override
-    public boolean insertProductDetail(ProductDetail productDetail) {
+    public boolean insertProductDetail(ProductDetail productDetail) throws EntityExistsException {
         log.info("insertProductDetail({})", productDetail);
         List<Product> products = productRepository.findByProductName(productDetail.getProductName());
         if(!products.isEmpty()){
@@ -205,11 +206,12 @@ public class ProductServiceImp implements ProductService{
     public List<Product> getProducts(List<Integer> productIDs) {
         log.info("getProducts(productIds={})", productIDs);
         List<Product> products = productRepository.findAllById(productIDs);
-        return this.productImageService.setProductsImage(products);
+        this.productImageService.setProductsImage(products);
+        return products;
     }
 
     @Override
-    public Product getProduct(Integer productID, Boolean discontinued) {
+    public Product getProduct(Integer productID, Boolean discontinued) throws NotFoundException {
         log.info("getProduct(productID={}, discontinued={})", productID, discontinued);
         Product product = productRepository.findByProductIDAndDiscontinued(productID, discontinued)
             .orElseThrow(()-> new NotFoundException("Product " + productID + " with discontinued "+ discontinued +" does not found"));

@@ -4,15 +4,18 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import com.phucx.shop.exceptions.EntityExistsException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.Category;
+
 
 public interface CategoryService {
     public List<Category> getCategories();
     public Page<Category> getCategories(int pageNumber, int pageSize);
-    public Category getCategory(int categoryID);
-    public Category getCategory(String categoryName);
+    public Category getCategory(int categoryID) throws NotFoundException;
+    public Category getCategory(String categoryName) throws NotFoundException;
     // update 
-    boolean updateCategory(Category category);
+    Boolean updateCategory(Category category) throws NotFoundException;
     // create
-    boolean createCategory(Category category);
+    Boolean createCategory(Category category) throws EntityExistsException;
 } 

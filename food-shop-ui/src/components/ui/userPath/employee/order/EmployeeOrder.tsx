@@ -1,24 +1,35 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
 import { OrderWithProduct } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/Image";
 import dayjs from "dayjs";
 import { getOrderDetail } from "../../../../../api/OrderApi";
+import { ModalContextType } from "../../../../../model/WebType";
+import modalContext from "../../../../contexts/ModalContext";
 
 export default function EmployeeOrderComponent(){
     const { orderId } = useParams();
     const [orderInfo, setOrderInfo] = useState<OrderWithProduct>();
+    const {setModal: setErrorModal} = useContext<ModalContextType>(modalContext);
 
     useEffect(()=>{
         fetchOrder()
     }, [])
 
     const fetchOrder = async ()=>{
-        const res = await getOrderDetail(orderId);
-        if(res.status){
-            const data = res.data;
-            // console.log(data);
-            setOrderInfo(data);
+        try {
+            const res = await getOrderDetail(orderId);
+            if(res.status){
+                const data = res.data;
+                // console.log(data);
+                setOrderInfo(data);
+            }
+        } catch (error) {
+            setErrorModal({
+                title: "Error", 
+                isShowed: true, 
+                message: error.response?error.response.data.error:error.message
+            })
         }
     }
 

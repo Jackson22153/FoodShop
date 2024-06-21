@@ -7,6 +7,7 @@ import javax.naming.InsufficientResourcesException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.shop.exceptions.EmptyCartException;
 import com.phucx.shop.exceptions.InvalidOrderException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.CartOrderInfo;
 import com.phucx.shop.model.CartProduct;
 import com.phucx.shop.model.CartProductsCookie;
@@ -24,7 +25,8 @@ public interface CartService {
     // get order cart product
     public CartOrderInfo getCartProducts(String encodedCartJson) throws JsonProcessingException;
     // get order for user to check out
-    public OrderWithProducts getOrder(String encodedCartJson, String userID) throws JsonProcessingException, EmptyCartException, InvalidOrderException;
+    public OrderWithProducts getOrder(String encodedCartJson, String userID) 
+        throws JsonProcessingException, EmptyCartException, InvalidOrderException, NotFoundException;
     // update product in cart
     public CartOrderInfo updateCartCookie(String encodedCartJson, List<CartProduct> cartProducts, HttpServletResponse response) 
         throws JsonProcessingException, InsufficientResourcesException;

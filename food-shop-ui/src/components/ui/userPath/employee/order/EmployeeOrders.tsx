@@ -8,12 +8,15 @@ import { EPMLOYEE_CONFIRMED_ORDER, EMPLOYEE_ORDER, EMPLOYEE_PENDING_ORDER
 import { ORDER_STATUS } from "../../../../../constant/WebConstant";
 import { cancelOrder, confirmOrder, fulfillOrder, getOrderSummary, getOrders } from "../../../../../api/OrderApi";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
+import { ModalContextType } from "../../../../../model/WebType";
+import modalContext from "../../../../contexts/ModalContext";
 
 export default function EmployeeOrdersComponent(){
     const [listOrders, setListOrders] = useState<OrderDetail[]>([])
     const [orderSummary, setOrderSummary] = useState<OrderSummary>({
         totalPendingOrders: 0
     })
+    const {setModal: setErrorModal} = useContext<ModalContextType>(modalContext);
     const notificationMessage = useContext<Notification|undefined>(notificationMessagesContext)
     const navHeaderRef = useRef(null)
     const pendingOrdersRef = useRef<any>(null);
@@ -39,16 +42,24 @@ export default function EmployeeOrdersComponent(){
 
     // get orders
     async function fetchOrders(pageNumber: number, type: string){
-        const res = await getOrders(pageNumber, type)
-        if(res.status){
-            const data = res.data;
-            setListOrders(data.content)
-            setPage({
-                first: data.first,
-                last: data.last,
-                number: data.number,
-                totalPages: data.totalPages
-            });
+        try {
+            const res = await getOrders(pageNumber, type)
+            if(res.status){
+                const data = res.data;
+                setListOrders(data.content)
+                setPage({
+                    first: data.first,
+                    last: data.last,
+                    number: data.number,
+                    totalPages: data.totalPages
+                });
+            }
+        } catch (error) {
+            setErrorModal({
+                title: "Error", 
+                isShowed: true, 
+                message: error.response?error.response.data.error:error.message
+            })
         }
     }
 

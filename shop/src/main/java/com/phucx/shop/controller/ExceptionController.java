@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.phucx.shop.exceptions.EmptyCartException;
+import com.phucx.shop.exceptions.EntityExistsException;
 import com.phucx.shop.exceptions.InvalidOrderException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.ResponseFormat;
 
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -50,6 +51,15 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     protected ResponseEntity<ResponseFormat> handlerNotFoundException(NotFoundException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setError(exception.getMessage());
+        response.setStatus(false);
+        return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(response);
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    protected ResponseEntity<ResponseFormat> handlerEntityExistsException(EntityExistsException exception){
         log.error("Error: {}", exception.getMessage());
         ResponseFormat response = new ResponseFormat();
         response.setError(exception.getMessage());

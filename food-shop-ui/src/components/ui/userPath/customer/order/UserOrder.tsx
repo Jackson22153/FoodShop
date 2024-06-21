@@ -1,22 +1,33 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
 import { OrderInfo } from "../../../../../model/Type";
 import { displayProductImage } from "../../../../../service/Image";
 import { getCustomerInvoice } from "../../../../../api/OrderApi";
+import { ModalContextType } from "../../../../../model/WebType";
+import modalContext from "../../../../contexts/ModalContext";
 
 export default function UserOrderComponent(){
     const { orderId } = useParams();
     const [orderInfo, setOrderInfo] = useState<OrderInfo>();
+    const {setModal: setErrorModal} = useContext<ModalContextType>(modalContext);
 
     useEffect(()=>{
         fetchedInvoice();
     }, [])
 
     const fetchedInvoice = async ()=>{
-        const res = await getCustomerInvoice(orderId);
-        if(200<=res.status&&res.status<300){
-            const data = res.data;
-            setOrderInfo(data);
+        try {
+            const res = await getCustomerInvoice(orderId);
+            if(200<=res.status&&res.status<300){
+                const data = res.data;
+                setOrderInfo(data);
+            }
+        } catch (error) {
+            setErrorModal({
+                title: "Error", 
+                isShowed: true, 
+                message: error.response?error.response.data.error:error.message
+            })
         }
     }
 

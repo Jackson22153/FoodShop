@@ -17,6 +17,7 @@ import com.phucx.order.annotations.LoggerAspect;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.constant.WebConstant;
 import com.phucx.order.exception.InvalidOrderException;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderSummary;
 import com.phucx.order.model.OrderWithProducts;
@@ -36,7 +37,7 @@ public class EmployeeOrderController {
     public ResponseEntity<Void> confirmOrder(
         @RequestBody OrderWithProducts order, 
         Authentication authentication
-    ) throws InvalidOrderException, JsonProcessingException{
+    ) throws InvalidOrderException, JsonProcessingException, NotFoundException{
         // // validate order
         employeeOrderService.confirmOrder(order.getOrderID(), authentication.getName());
         return ResponseEntity.ok().build();
@@ -47,7 +48,7 @@ public class EmployeeOrderController {
     public ResponseEntity<Void> cancelOrder(
         @RequestBody OrderWithProducts order, 
         Authentication authentication
-    ) throws JsonProcessingException{
+    ) throws JsonProcessingException, NotFoundException{
         // cancel order
         employeeOrderService.cancelOrder(order, authentication.getName());
         return ResponseEntity.ok().build();
@@ -57,7 +58,7 @@ public class EmployeeOrderController {
     @PostMapping("/order/fulfill")
     public ResponseEntity<Void> fulfillOrder(
         @RequestBody OrderWithProducts order, Authentication authentication
-    ) throws JsonProcessingException{
+    ) throws JsonProcessingException, NotFoundException{
         // update order status
         employeeOrderService.fulfillOrder(order, authentication.getName());
         return ResponseEntity.ok().build();
@@ -70,7 +71,7 @@ public class EmployeeOrderController {
         @PathVariable(name = "orderID") String orderID, 
         @RequestParam(name = "type", required = false) String orderStatus,
         Authentication authentication
-    ) throws JsonProcessingException{    
+    ) throws JsonProcessingException, NotFoundException{    
         // get order's status
         OrderStatus status = orderStatus!=null?OrderStatus.fromString(orderStatus.toUpperCase()):OrderStatus.All;
         OrderWithProducts order = employeeOrderService.getOrder(orderID, authentication.getName(), status);
@@ -83,7 +84,7 @@ public class EmployeeOrderController {
         @RequestParam(name = "page", required = false) Integer pageNumber,
         @RequestParam(name = "type", required = false) String orderStatus,
         Authentication authentication
-    ) throws JsonProcessingException{    
+    ) throws JsonProcessingException, NotFoundException{    
         pageNumber = pageNumber!=null?pageNumber:0;
         // get order's status
         OrderStatus status = orderStatus!=null?OrderStatus.fromString(orderStatus.toUpperCase()):OrderStatus.All;

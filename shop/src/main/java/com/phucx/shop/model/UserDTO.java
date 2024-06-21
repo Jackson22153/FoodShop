@@ -13,7 +13,4 @@ import lombok.ToString;
 public class UserDTO extends DataDTO{
     private String username;
     private String userID;
-
-    private Integer pageNumber;
-    private Integer pageSize;
 }

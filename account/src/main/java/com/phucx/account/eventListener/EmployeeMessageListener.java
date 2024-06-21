@@ -16,7 +16,6 @@ import com.phucx.account.exception.EmployeeNotFoundException;
 import com.phucx.account.model.Employee;
 import com.phucx.account.model.EmployeeDTO;
 import com.phucx.account.model.EventMessage;
-import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.model.User;
 import com.phucx.account.service.employee.EmployeeService;
 import com.phucx.account.service.user.UserService;
@@ -71,11 +70,9 @@ public class EmployeeMessageListener {
         } catch (EmployeeNotFoundException e){
             log.error("Error: {}", e.getMessage());
             try {
-                EventMessage<ResponseFormat> eventMessage = this.createResponseMessage(ResponseFormat.class);
-                ResponseFormat payload = new ResponseFormat(false, e.getMessage());
-                eventMessage.setPayload(payload);
-                eventMessage.setEventType(EventType.EmployeeNotFoundException);
-                String responsemessage = objectMapper.writeValueAsString(eventMessage);
+                responseMessage.setErrorMessage(e.getMessage());
+                responseMessage.setEventType(EventType.NotFoundException);
+                String responsemessage = objectMapper.writeValueAsString(responseMessage);
                 return responsemessage;
             } catch (Exception exception) {
                 log.error("Error: {}", e.getMessage());

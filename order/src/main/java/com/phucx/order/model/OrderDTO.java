@@ -18,14 +18,11 @@ public class OrderDTO extends DataDTO{
     private String employeeID;
     
     private OrderStatus orderStatus;
-    private Integer pageNumber;
-    private Integer pageSize;
+    
     public OrderDTO(String orderID) {
         this.orderID = orderID;
     }
-    public OrderDTO(OrderStatus orderStatus, Integer pageNumber, Integer pageSize) {
+    public OrderDTO(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
-        this.pageNumber = pageNumber;
-        this.pageSize = pageSize;
     }
 }

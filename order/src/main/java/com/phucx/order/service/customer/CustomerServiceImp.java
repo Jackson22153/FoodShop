@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.phucx.order.constant.EventType;
 import com.phucx.order.constant.MessageQueueConstant;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.Customer;
 import com.phucx.order.model.CustomerDTO;
 import com.phucx.order.model.DataDTO;
@@ -24,7 +25,7 @@ public class CustomerServiceImp implements CustomerService {
     private MessageQueueService messageQueueService;
 	
 	@Override
-	public Customer getCustomerByID(String customerID) throws JsonProcessingException {
+	public Customer getCustomerByID(String customerID) throws JsonProcessingException, NotFoundException {
 		log.info("getCustomerByID(customerID={})", customerID);
         // create a request for user
         CustomerDTO customerDTO = new CustomerDTO();
@@ -41,11 +42,15 @@ public class CustomerServiceImp implements CustomerService {
             MessageQueueConstant.CUSTOMER_ROUTING_KEY,
             Customer.class);
         log.info("response={}", response);
+        // check exception
+        if(response.getEventType().equals(EventType.NotFoundException)){
+            throw new NotFoundException(response.getErrorMessage());
+        }
         return response.getPayload();
 	}
 
     @Override
-    public List<Customer> getCustomersByIDs(List<String> customerIDs) throws JsonProcessingException{
+    public List<Customer> getCustomersByIDs(List<String> customerIDs) throws JsonProcessingException, NotFoundException{
         log.info("getCustomersByIDs(customerIDs={})", customerIDs);
         // create a request for user
         CustomerDTO customerDTO = new CustomerDTO();
@@ -64,11 +69,15 @@ public class CustomerServiceImp implements CustomerService {
             MessageQueueConstant.CUSTOMER_ROUTING_KEY,
             typeReference);
         log.info("response={}", response);
+        // check exception
+        if(response.getEventType().equals(EventType.NotFoundException)){
+            throw new NotFoundException(response.getErrorMessage());
+        }
         return response.getPayload();
     }
 
     @Override
-    public Customer getCustomerByUserID(String userID) throws JsonProcessingException {
+    public Customer getCustomerByUserID(String userID) throws JsonProcessingException, NotFoundException {
         log.info("getCustomerByUserID(userID={})", userID);
         // create a request for user
         CustomerDTO customerDTO = new CustomerDTO();
@@ -85,6 +94,10 @@ public class CustomerServiceImp implements CustomerService {
             MessageQueueConstant.CUSTOMER_ROUTING_KEY,
             Customer.class);
         log.info("response={}", response);
+        // check exception
+        if(response.getEventType().equals(EventType.NotFoundException)){
+            throw new NotFoundException(response.getErrorMessage());
+        }
         return response.getPayload();
     }
 }

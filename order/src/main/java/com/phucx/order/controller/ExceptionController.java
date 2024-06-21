@@ -5,12 +5,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.phucx.order.exception.InSufficientInventoryException;
 import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.exception.InvalidOrderException;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.ResponseFormat;
 
 import jakarta.persistence.EntityExistsException;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -28,6 +29,15 @@ public class ExceptionController extends ResponseEntityExceptionHandler{
 
     @ExceptionHandler(value = InvalidOrderException.class)
     protected ResponseEntity<ResponseFormat> handleInvalidOrderException(InvalidOrderException exception){
+        log.error("Error: {}", exception.getMessage());
+        ResponseFormat response = new ResponseFormat();
+        response.setStatus(false);
+        response.setError(exception.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(value = InSufficientInventoryException.class)
+    protected ResponseEntity<ResponseFormat> handleInSufficientInventoryException(InSufficientInventoryException exception){
         log.error("Error: {}", exception.getMessage());
         ResponseFormat response = new ResponseFormat();
         response.setStatus(false);

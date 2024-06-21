@@ -13,8 +13,10 @@ import com.phucx.order.constant.NotificationStatus;
 import com.phucx.order.constant.NotificationTopic;
 import com.phucx.order.constant.NotificationTitle;
 import com.phucx.order.constant.OrderStatus;
+import com.phucx.order.exception.InSufficientInventoryException;
 import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.exception.InvalidOrderException;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.model.User;
@@ -50,30 +52,19 @@ public class OrderProcessingMessageListener {
             try {
                 notification.setOrderID(order.getOrderID());
                 notification = this.validateOrder(order, notification, user);
-            } catch (RuntimeException e) {
+            } catch (RuntimeException | NotFoundException e) {
                 log.warn("Error: {}", e.getMessage());
-                // notification
-                notification.setMessage("Order #"+order.getOrderID()+" has been canceled");
-                notification.setStatus(NotificationStatus.FAILED);
-                notification.setReceiverID(user.getUserID());
-                // update order status
-                orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Canceled);
+                exceptionHandler(order.getOrderID(), user.getUserID(), "Order #"+order.getOrderID()+" has been canceled", notification);
             } catch (InvalidDiscountException e){
                 log.warn("Error: Discount is invalid {}", e.getMessage());
-                // notification
-                notification.setMessage("Order #"+order.getOrderID()+" has been canceled due to invalid discount");
-                notification.setStatus(NotificationStatus.FAILED);
-                notification.setReceiverID(user.getUserID());
-                // update order status
-                orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Canceled);
+                exceptionHandler(order.getOrderID(), user.getUserID(), "Order #"+order.getOrderID()+" has been canceled due to invalid discount", notification);
             } catch(InvalidOrderException e){
                 log.warn("Error: Order is invalid {}", e.getMessage());
-                notification.setMessage("Order #"+order.getOrderID()+" has been canceled due to invalid order");
-                notification.setStatus(NotificationStatus.FAILED);
-                notification.setReceiverID(user.getUserID());
-                // update order status
-                orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Canceled);
-                }
+                exceptionHandler(order.getOrderID(), user.getUserID(), "Order #"+order.getOrderID()+" has been canceled due to invalid order", notification);
+            } catch (InSufficientInventoryException e){
+                log.warn("Error: Order is invalid due to {}", e.getMessage());
+                exceptionHandler(order.getOrderID(), user.getUserID(), e.getMessage(), notification);
+            }
             notificationService.sendNotification(notification);
         } catch (JsonProcessingException e) {
             log.error("Error: {}", e.getMessage());
@@ -83,7 +74,7 @@ public class OrderProcessingMessageListener {
     // validate order product's stocks
     @LoggerAspect
     private OrderNotificationDTO validateOrder(OrderWithProducts order, OrderNotificationDTO notification, User user) 
-        throws JsonProcessingException, InvalidDiscountException, InvalidOrderException{
+        throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException, InSufficientInventoryException{
 
         // Notification notification = new Notification();
         notification.setTitle(NotificationTitle.PLACE_ORDER);
@@ -117,4 +108,18 @@ public class OrderProcessingMessageListener {
         }
         return notification;
     }
+
+    private void exceptionHandler(String orderID, String userID, String errorMessage, OrderNotificationDTO notification){
+        try {
+            // notification
+            notification.setMessage(errorMessage);
+            notification.setStatus(NotificationStatus.FAILED);
+            notification.setReceiverID(userID);
+            // update order status
+            orderService.updateOrderStatus(orderID, OrderStatus.Canceled);
+        } catch (NotFoundException e) {
+            log.error("Error: {}", e.getMessage());
+        }
+    }
+
 }

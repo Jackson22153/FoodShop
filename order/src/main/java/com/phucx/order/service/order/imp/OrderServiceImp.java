@@ -18,7 +18,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.compositeKey.OrderDetailKey;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.constant.WebConstant;
+import com.phucx.order.exception.InSufficientInventoryException;
 import com.phucx.order.exception.InvalidDiscountException;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.Customer;
 import com.phucx.order.model.DiscountDetail;
 import com.phucx.order.model.Invoice;
@@ -44,7 +46,6 @@ import com.phucx.order.service.discount.DiscountService;
 import com.phucx.order.service.order.ConvertOrderService;
 import com.phucx.order.service.order.OrderService;
 import com.phucx.order.service.product.ProductService;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -72,7 +73,7 @@ public class OrderServiceImp implements OrderService{
     private ConvertOrderService convertOrderService;
 
     @Override
-    public Boolean updateOrderStatus(String orderID, OrderStatus status) {
+    public Boolean updateOrderStatus(String orderID, OrderStatus status) throws NotFoundException {
         log.info("updateOrderStatus(orderID={}, status={})", orderID, status);
         Order order = orderRepository.findById(orderID)
             .orElseThrow(()-> new NotFoundException("Order " + orderID + " does not found"));
@@ -83,7 +84,7 @@ public class OrderServiceImp implements OrderService{
 
     @Override
     @Transactional
-    public String saveFullOrder(OrderWithProducts order) throws JsonProcessingException {
+    public String saveFullOrder(OrderWithProducts order) throws JsonProcessingException, NotFoundException {
             log.info("saveFullOrder({})", order);
         String orderID = this.saveOrder(order);
         // // save OrderDetail
@@ -97,7 +98,7 @@ public class OrderServiceImp implements OrderService{
         return orderID;
     }
     // save order
-    private String saveOrder(OrderWithProducts order) throws JsonProcessingException{
+    private String saveOrder(OrderWithProducts order) throws JsonProcessingException, NotFoundException{
         log.info("saveOrder({})", order);
         String orderID = UUID.randomUUID().toString();
         Customer fetchedCustomer = customerService.getCustomerByID(order.getCustomerID());
@@ -136,56 +137,57 @@ public class OrderServiceImp implements OrderService{
 
     @Override
     @Transactional
-    public Boolean validateAndProcessOrder(OrderWithProducts order) throws InvalidDiscountException, JsonProcessingException{
+    public Boolean validateAndProcessOrder(OrderWithProducts order
+    ) throws InvalidDiscountException, JsonProcessingException, NotFoundException, InSufficientInventoryException{
         log.info("validateAndProcessOrder({})", order.toString());
-        if(order!=null && order.getProducts().size()>0){
-            // store product's new instock
-            List<ProductStockTableType> updateProductsInStock = new ArrayList<>();
-            // get product in order
-            List<OrderItem> products = order.getProducts();
-            List<Integer> productIds = products.stream().map(OrderItem::getProductID).collect(Collectors.toList());
-            List<Product> fetchedProducts = productService.getProducts(productIds);
-            // validate discounts of products
-            // get products and products's discount
-            List<ProductDiscountsDTO> productDiscountsDTOs = order.getProducts().stream().map((product) -> {
-                // get discountIDs
-                List<String> discountIDs = product.getDiscounts().stream()
-                    .map(OrderItemDiscount::getDiscountID).collect(Collectors.toList());
-                // get applieddate
-                LocalDateTime currenTime = null;
-                if(!discountIDs.isEmpty()){
-                    currenTime = product.getDiscounts().get(0).getAppliedDate();
-                }
-                return new ProductDiscountsDTO(product.getProductID(), discountIDs, currenTime);
-            }).collect(Collectors.toList());
-            // send and receive request 
-            Boolean isValidDiscount = discountService.validateDiscount(productDiscountsDTOs);
-            if(!isValidDiscount){
-                throw new InvalidDiscountException("Discounts of Product is invalid");
+        if(order==null || order.getProducts().size()==0) return false;
+        // store product's new instock
+        List<ProductStockTableType> updateProductsInStock = new ArrayList<>();
+        // get product in order
+        List<OrderItem> products = order.getProducts();
+        List<Integer> productIds = products.stream().map(OrderItem::getProductID).collect(Collectors.toList());
+        List<Product> fetchedProducts = productService.getProducts(productIds);
+        // validate discounts of products
+        // get products and products's discount
+        List<ProductDiscountsDTO> productDiscountsDTOs = order.getProducts().stream().map((product) -> {
+            // get discountIDs
+            List<String> discountIDs = product.getDiscounts().stream()
+                .map(OrderItemDiscount::getDiscountID).collect(Collectors.toList());
+            // get applieddate
+            LocalDateTime currenTime = null;
+            if(!discountIDs.isEmpty()){
+                currenTime = product.getDiscounts().get(0).getAppliedDate();
             }
-            // validate and update product inStock with order product quantity
-            for(OrderItem product : products){
-                Product fetchedProduct = findProduct(fetchedProducts, product.getProductID())
-                    .orElseThrow(()-> new NotFoundException("Product "+product.getProductID()+" does not found"));
-                // validate product's stock
-                int orderQuantity = product.getQuantity();
-                int inStocks = fetchedProduct.getUnitsInStock();
-                if(orderQuantity>inStocks){
-                    throw new RuntimeException("Product "+product.getProductName()+" does not have enough stocks in inventory");
-                }
-                // add product new in stock
-                ProductStockTableType newProductStock = new ProductStockTableType();
-                newProductStock.setProductID(product.getProductID());
-                newProductStock.setUnitsInStock(inStocks-orderQuantity);
-                updateProductsInStock.add(newProductStock);
-            }
-            // update product's instocks
-            Boolean status = productService.updateProductsInStocks(updateProductsInStock);
-            if(!status) throw new RuntimeException("Can not update product in stocks");
-            return true;
+            return new ProductDiscountsDTO(product.getProductID(), discountIDs, currenTime);
+        }).collect(Collectors.toList());
+        // send and receive request 
+        Boolean isValidDiscount = discountService.validateDiscount(productDiscountsDTOs);
+        if(!isValidDiscount){
+            throw new InvalidDiscountException("Discounts of Product is invalid");
         }
-        return false;
+        // validate and update product inStock with order product quantity
+        for(OrderItem product : products){
+            Product fetchedProduct = findProduct(fetchedProducts, product.getProductID())
+                .orElseThrow(()-> new NotFoundException("Product "+product.getProductID()+" does not found"));
+            // validate product's stock
+            int orderQuantity = product.getQuantity();
+            int inStocks = fetchedProduct.getUnitsInStock();
+            if(orderQuantity>inStocks){
+                throw new InSufficientInventoryException("Product " + product.getProductName()+ " does not have enough stocks in inventory");
+            }
+            // add product new in stock
+            ProductStockTableType newProductStock = new ProductStockTableType();
+            newProductStock.setProductID(product.getProductID());
+            newProductStock.setUnitsInStock(inStocks-orderQuantity);
+            updateProductsInStock.add(newProductStock);
+        }
+        // update product's instocks
+        Boolean status = productService.updateProductsInStocks(updateProductsInStock);
+        if(!status) throw new RuntimeException("Can not update product in stocks");
+        return true;
     }
+    
+    
     @Override
     public Boolean updateOrderEmployee(String orderID, String employeeID) {
         // orderRepository.findById(11071);
@@ -195,7 +197,7 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public Boolean validateOrder(OrderWithProducts order) throws InvalidDiscountException, JsonProcessingException {
+    public Boolean validateOrder(OrderWithProducts order) {
         log.info("validateOrder({})", order);
         try {
             // get discounts
@@ -228,7 +230,7 @@ public class OrderServiceImp implements OrderService{
                     // validate number of discounts that can apply to 1 product
                     Integer numberOfDiscounts = product.getDiscounts().size();
                     if(numberOfDiscounts>WebConstant.MAX_APPLIED_DISCOUNT_PRODUCT){
-                        throw new RuntimeException("Exceed the number of discount codes");
+                        throw new InSufficientInventoryException("Product " + product.getProductID() +" exceed the number of discount codes");
                     }
                     List<String> productDiscountIDs = new ArrayList<>();
                     for (OrderItemDiscount orderItemDiscount : product.getDiscounts()) {
@@ -249,7 +251,7 @@ public class OrderServiceImp implements OrderService{
             if(!isValidDiscount) throw new InvalidDiscountException("Invalid discount");
 
             return true;
-        } catch (InvalidDiscountException e) {
+        } catch (InvalidDiscountException | NotFoundException | InSufficientInventoryException | JsonProcessingException e) {
             log.error("Error: " + e.getMessage());
             return false;
         }
@@ -257,7 +259,7 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public OrderWithProducts getPendingOrderDetail(String orderID) throws JsonProcessingException{
+    public OrderWithProducts getPendingOrderDetail(String orderID) throws JsonProcessingException, NotFoundException{
         log.info("getPendingOrderDetail(orderID={})", orderID);
         Order order = orderRepository.findByOrderIDAndStatus( orderID, OrderStatus.Pending)
             .orElseThrow(()-> new NotFoundException("Order " + orderID + " with pending status does not found"));
@@ -266,7 +268,7 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public OrderDetails getOrder(String orderID, OrderStatus status) throws JsonProcessingException {
+    public OrderDetails getOrder(String orderID, OrderStatus status) throws JsonProcessingException, NotFoundException {
         log.info("getOrder(orderID={}, status={})", orderID, status.name());
         List<OrderDetailExtended> orderDetailExtendeds = orderDetailExtendedRepository
             .findByOrderIDAndStatus(orderID, status);
@@ -276,7 +278,7 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public OrderDetails getOrder(String orderID) throws JsonProcessingException {
+    public OrderDetails getOrder(String orderID) throws JsonProcessingException, NotFoundException {
         log.info("getOrder(orderID={})", orderID);
         List<OrderDetailExtended> orderDetailExtended = orderDetailExtendedRepository
             .findByOrderID(orderID);
@@ -286,7 +288,7 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public Boolean isPendingOrder(String orderID) {
+    public Boolean isPendingOrder(String orderID) throws NotFoundException {
         log.info("isPendingOrder(OrderID={})", orderID);
         Order fetchedOrder = orderRepository.findById(orderID)
             .orElseThrow(()-> new NotFoundException("Order ID " + orderID + " does not found"));
@@ -295,7 +297,7 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public Page<OrderDetails> getOrdersByCustomerID(String customerID, OrderStatus status, Integer pageNumber, Integer pageSize) throws JsonProcessingException {
+    public Page<OrderDetails> getOrdersByCustomerID(String customerID, OrderStatus status, Integer pageNumber, Integer pageSize) throws JsonProcessingException, NotFoundException {
         log.info("getOrdersByCustomerID(customerID={}, orderStatus={}, pageNumber={}, pageSize={})", 
             customerID, status, pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -306,7 +308,7 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public InvoiceDetails getInvoiceByCustomerID(String customerID, String orderID) throws JsonProcessingException {
+    public InvoiceDetails getInvoiceByCustomerID(String customerID, String orderID) throws JsonProcessingException, NotFoundException {
         log.info("getInvoiceByCustomerID(customerID={}, orderID={})", customerID, orderID);
         List<Invoice> invoices = invoiceRepository.findByOrderIDAndCustomerID(orderID, customerID);
         if(invoices==null || invoices.isEmpty()) 
@@ -318,7 +320,7 @@ public class OrderServiceImp implements OrderService{
 
     @Override
     public Page<OrderDetails> getOrdersByEmployeeID(String employeeID, OrderStatus status, Integer pageNumber,
-            Integer pageSize) throws JsonProcessingException {
+            Integer pageSize) throws JsonProcessingException, NotFoundException {
         log.info("getOrdersByEmployeeID(employeeID={}, status={}, pageNumber={}, pageSize={})", 
             employeeID, status, pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -329,7 +331,7 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public OrderWithProducts getOrderByEmployeeID(String employeeID, String orderID) throws JsonProcessingException {
+    public OrderWithProducts getOrderByEmployeeID(String employeeID, String orderID) throws JsonProcessingException, NotFoundException {
         log.info("getOrderByEmployeeID(employeeID={}, orderID={})", employeeID, orderID);
         Order order = orderRepository.findByEmployeeIDAndOrderID(employeeID, orderID)
             .orElseThrow(()-> new NotFoundException("Order " + orderID + " of employee "+ employeeID + " does not found"));
@@ -347,7 +349,7 @@ public class OrderServiceImp implements OrderService{
 
     @Override
     public Page<OrderDetails> getOrdersByCustomerID(String customerID, Integer pageNumber, Integer pageSize)
-            throws JsonProcessingException {
+            throws JsonProcessingException, NotFoundException {
         log.info("getOrdersByCustomerID(customerID={}, pageNumber={}, pageSize={})", 
             customerID, pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -359,7 +361,7 @@ public class OrderServiceImp implements OrderService{
 
     @Override
     public Page<OrderDetails> getOrdersByEmployeeID(String employeeID, Integer pageNumber, Integer pageSize)
-            throws JsonProcessingException {
+            throws JsonProcessingException, NotFoundException {
         log.info("getOrdersByEmployeeID(employeeID={}, pageNumber={}, pageSize={})", 
             employeeID, pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -370,7 +372,7 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    public Page<OrderDetails> getOrders(OrderStatus status, Integer pageNumber, Integer pageSize) throws JsonProcessingException {
+    public Page<OrderDetails> getOrders(OrderStatus status, Integer pageNumber, Integer pageSize) throws JsonProcessingException, NotFoundException {
         log.info("getOrders(status={}, pageNumber={}, pageSize={})", status, pageNumber, pageSize);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<OrderDetailExtended> orders = orderDetailExtendedRepository
@@ -381,7 +383,7 @@ public class OrderServiceImp implements OrderService{
 
     @Override
     public OrderWithProducts getOrderByEmployeeID(String employeeID, String orderID, OrderStatus orderStatus)
-            throws JsonProcessingException {
+            throws JsonProcessingException, NotFoundException {
         log.info("getOrderByEmployeeID(employeeID={}, orderID={}, orderStatus={})", employeeID, orderID, orderStatus);
         Order order = orderRepository.findByOrderIDAndEmployeeIDAndStatus(orderID, employeeID, orderStatus)
             .orElseThrow(()-> new NotFoundException("Order " + orderID + " of employee "+ employeeID + " does not found"));

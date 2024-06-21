@@ -16,7 +16,6 @@ import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.constant.EventType;
 import com.phucx.account.exception.ShipperNotFoundException;
 import com.phucx.account.model.EventMessage;
-import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.model.Shipper;
 import com.phucx.account.model.ShipperDTO;
 import com.phucx.account.service.shipper.ShipperService;
@@ -34,9 +33,7 @@ public class ShipperMessageListener {
     public String fetchShipper(String message){
         log.info("fetchShipper({})", message);
         // create response message
-        String eventID = UUID.randomUUID().toString();
-        EventMessage<Object> responseMessage = new EventMessage<>();
-        responseMessage.setEventId(eventID);
+        EventMessage<Object> responseMessage = this.createResponseMessage(Object.class);
         try {
             TypeReference<EventMessage<ShipperDTO>> typeRef = new TypeReference<EventMessage<ShipperDTO>>() {};
             EventMessage<ShipperDTO> shipperDTO = objectMapper.readValue(message, typeRef);
@@ -55,12 +52,10 @@ public class ShipperMessageListener {
         } catch (ShipperNotFoundException e){
             log.error("Error: {}", e.getMessage());
             try {
-                EventMessage<ResponseFormat> eventMessage = this.createResponseMessage(ResponseFormat.class);
-                ResponseFormat payload = new ResponseFormat(false, e.getMessage());
-                eventMessage.setPayload(payload);
-                eventMessage.setEventType(EventType.ShipperNotFoundException);
-                String responsemessage = objectMapper.writeValueAsString(eventMessage);
-                return responsemessage;
+                responseMessage.setErrorMessage(e.getMessage());
+                responseMessage.setEventType(EventType.NotFoundException);
+                String responsemessage = objectMapper.writeValueAsString(responseMessage);
+                return responsemessage; 
             } catch (Exception exception) {
                 log.error("Error: {}", e.getMessage());
                 return null;

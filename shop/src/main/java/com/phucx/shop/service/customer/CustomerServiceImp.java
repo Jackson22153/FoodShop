@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.shop.constant.EventType;
 import com.phucx.shop.constant.MessageQueueConstant;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.Customer;
 import com.phucx.shop.model.CustomerDTO;
 import com.phucx.shop.model.DataDTO;
 import com.phucx.shop.model.EventMessage;
 import com.phucx.shop.service.messageQueue.MessageQueueService;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,7 +23,7 @@ public class CustomerServiceImp implements CustomerService{
     private MessageQueueService messageQueueService;
 
     @Override
-    public Customer getCustomerByUserID(String userID) throws JsonProcessingException {
+    public Customer getCustomerByUserID(String userID) throws JsonProcessingException, NotFoundException {
         log.info("getCustomerByUserID(userID={})", userID);
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setUserID(userID);
@@ -39,9 +39,13 @@ public class CustomerServiceImp implements CustomerService{
             Customer.class);
         
         log.info("Response message: {}", response);
+
+        if(response.getEventType().equals(EventType.NotFoundException)){
+            throw new NotFoundException(response.getErrorMessage());
+        }
+
         Customer fetchedCustomer = response.getPayload();
         // receive customer data
-        if(fetchedCustomer==null) throw new NotFoundException("Customer with userID " + userID + " does not found");
         return fetchedCustomer;
     }
     

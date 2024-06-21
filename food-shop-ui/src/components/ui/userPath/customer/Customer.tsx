@@ -12,6 +12,8 @@ import { logout } from '../../../../api/AuthorizationApi';
 import { Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
 import { isCustomer } from '../../../../api/UserApi';
+import { ModalProvider } from '../../../contexts/ModalContext';
+import ErrorModal from '../../../shared/functions/error-modal/ErrorModal';
 
 export default function CustomerComponent(){
     const location = useLocation()
@@ -56,7 +58,6 @@ export default function CustomerComponent(){
                     window.location.href=FORBIDDEN_ERROR_PAGE
                 }
             }
-            // window.location.href="/"
         }
     }
 

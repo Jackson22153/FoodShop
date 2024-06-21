@@ -2,7 +2,6 @@ package com.phucx.shop.service.discount;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.phucx.shop.constant.DiscountTypeConst;
 import com.phucx.shop.exceptions.InvalidDiscountException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.Discount;
 import com.phucx.shop.model.DiscountDetail;
 import com.phucx.shop.model.DiscountType;
@@ -25,7 +25,6 @@ import com.phucx.shop.repository.DiscountTypeRepository;
 import com.phucx.shop.service.product.ProductService;
 
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,7 +40,7 @@ public class DiscountServiceImp implements DiscountService{
     private DiscountDetailRepository discountDetailRepository;
 
     @Transactional
-    public Discount insertDiscount(DiscountWithProduct discount) throws InvalidDiscountException{
+    public Discount insertDiscount(DiscountWithProduct discount) throws InvalidDiscountException, NotFoundException{
         log.info("insertDiscount({})", discount);
         String newDiscountID = UUID.randomUUID().toString();
         log.info("create new discount {}, id: {}", discount.toString(), newDiscountID);
@@ -79,7 +78,7 @@ public class DiscountServiceImp implements DiscountService{
         
     }
     @Override
-    public Boolean updateDiscount(DiscountWithProduct discount) throws InvalidDiscountException {
+    public Boolean updateDiscount(DiscountWithProduct discount) throws InvalidDiscountException, NotFoundException {
         log.info("updateDiscount({})", discount);
         if(discount.getDiscountID()==null) throw new NotFoundException("Discount ID not found");
         
@@ -117,15 +116,15 @@ public class DiscountServiceImp implements DiscountService{
         try {
             Integer productID = productDiscounts.getProductID();
             for(String discountID: productDiscounts.getDiscountIDs()){
-                // validate number of discount type of a product
+                // validate number of discount type of a product 
                 boolean isValid = false;
                 // validate discount according to discount type
                 isValid = this.validateDiscount(productID, discountID, productDiscounts.getAppliedDate());
                 if(!isValid) return false;
             }
             return true;
-        } catch (NoSuchElementException e) {
-            log.error(e.getMessage());
+        } catch (NotFoundException e) {
+            log.error("Error: {}", e.getMessage());
             return false;
         }
     }
@@ -133,7 +132,7 @@ public class DiscountServiceImp implements DiscountService{
 
     // validate discount for percenage-based discount
     private boolean validatePercenageBasedDiscount(Integer productID, String discountID, LocalDateTime appliedDate)
-        throws NoSuchElementException
+        throws NotFoundException
     {
         log.info("validatePercenageBasedDiscount(productID={}, itemDiscount={}, appliedDate={})", 
             productID, discountID, appliedDate);
@@ -151,7 +150,7 @@ public class DiscountServiceImp implements DiscountService{
                 if(!isActive)
                     log.info("Discount {} is not available", discount.getDiscountID());
                 return isActive && isValid;
-            }).orElseThrow(() -> new NoSuchElementException("Discount " +discountID+" does not found"));
+            }).orElseThrow(() -> new NotFoundException("Discount " +discountID+" does not found"));
     }
     // validate discount for code discount
     private boolean validateCodeDiscount(Integer productID, String discountID, LocalDateTime appliedDate){
@@ -160,7 +159,7 @@ public class DiscountServiceImp implements DiscountService{
     }
 
     @Override
-    public Discount getDiscount(String discountID) throws InvalidDiscountException {
+    public Discount getDiscount(String discountID) throws NotFoundException {
         log.info("getDiscount(discountID={})", discountID);
         return discountRepository.findById(discountID)
             .orElseThrow(()-> new NotFoundException("Discount "+ discountID+" does not found"));
@@ -173,7 +172,7 @@ public class DiscountServiceImp implements DiscountService{
     }
 
     @Override
-    public Boolean updateDiscountStatus(Discount discount) throws InvalidDiscountException {
+    public Boolean updateDiscountStatus(Discount discount) throws NotFoundException {
         log.info("updateDiscountStatus(discount={})", discount.getDiscountID());
         if(discount.getDiscountID()==null) throw new NotFoundException("Missing DiscountID");
         Discount fetchedDiscount = this.getDiscount(discount.getDiscountID());
@@ -181,7 +180,7 @@ public class DiscountServiceImp implements DiscountService{
         return discountDetailRepository.updateDiscountStatus(fetchedDiscount.getDiscountID(), discount.getActive());
     }
     @Override
-    public Boolean validateDiscount(Integer productID, String discountID, LocalDateTime appliedDate) throws InvalidDiscountException {
+    public Boolean validateDiscount(Integer productID, String discountID, LocalDateTime appliedDate) throws NotFoundException {
         log.info("validateDiscount(productID={}, discountID={})", productID, discountID);
         // get discountType
         Discount discount = this.getDiscount(discountID);
@@ -202,7 +201,7 @@ public class DiscountServiceImp implements DiscountService{
         return  discountTypeRepository.findAll(page);
     }
     @Override
-    public Page<DiscountDetail> getDiscountsByProduct(int productID, int pageNumber, int pageSize) {
+    public Page<DiscountDetail> getDiscountsByProduct(int productID, int pageNumber, int pageSize) throws NotFoundException {
         log.info("getDiscountsByProduct(productID={}, pageNumber={}, pageSize={})", productID, pageNumber, pageSize);
         Product product = this.productService.getProduct(productID);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -210,14 +209,14 @@ public class DiscountServiceImp implements DiscountService{
         return discounts;
     }
     @Override
-    public DiscountDetail getDiscountDetail(String discountID){
+    public DiscountDetail getDiscountDetail(String discountID) throws NotFoundException{
         log.info("getDiscountDetail(discountID={})", discountID);
         DiscountDetail discount = discountDetailRepository.findById(discountID)
             .orElseThrow(()-> new NotFoundException("Discount " + discountID + " does not found"));
         return discount;
     }
     @Override
-    public DiscountType getDiscountType(int discountTypeID) {
+    public DiscountType getDiscountType(int discountTypeID) throws NotFoundException {
         log.info("getDiscountType(discountTypeID={})", discountTypeID);
         return discountTypeRepository.findById(discountTypeID)
             .orElseThrow(() -> new NotFoundException("Discount type " + discountTypeID + " does not found"));

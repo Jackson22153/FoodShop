@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { EMPLOYEE_INFO, EMPLOYEE_NOTIFICATION, EMPLOYEE_ORDER, FORBIDDEN_ERROR_PAGE } from '../../../../constant/FoodShoppingURL';
+import { EMPLOYEE_INFO, EMPLOYEE_NOTIFICATION, EMPLOYEE_ORDER, FORBIDDEN_ERROR_PAGE 
+} from '../../../../constant/FoodShoppingURL';
 import { logout } from '../../../../api/AuthorizationApi';
 import EmployeeInformationComponent from './information/EmployeeInformation';
 import EmployeeOrdersComponent from './order/EmployeeOrders';
@@ -23,7 +24,6 @@ export default function EmployeeComponent(){
         message: 'Do you want to continute?',
         isShowed: false
     })
-
     useEffect(()=>{
         initial();
     }, [])

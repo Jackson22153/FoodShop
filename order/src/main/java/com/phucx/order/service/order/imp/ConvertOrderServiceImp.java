@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.constant.DiscountConstant;
+import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.Customer;
 import com.phucx.order.model.DiscountBreifInfo;
 import com.phucx.order.model.DiscountDetail;
@@ -39,7 +40,6 @@ import com.phucx.order.service.order.ConvertOrderService;
 import com.phucx.order.service.product.ProductService;
 import com.phucx.order.service.shipper.ShipperService;
 
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -61,7 +61,7 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
     private OrderDetailDiscountRepository orderDetailDiscountRepository;
 
     @Override
-    public InvoiceDetails convertInvoiceDetails(List<Invoice> invoices) throws JsonProcessingException {
+    public InvoiceDetails convertInvoiceDetails(List<Invoice> invoices) throws JsonProcessingException, NotFoundException {
         log.info("convertInvoiceDetails({})", invoices);
         if(invoices.isEmpty()) return null;
         // fetch invoice
@@ -70,12 +70,10 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
         Employee fetchedEmployee = null;
         if(invoice.getEmployeeID()!=null){
             fetchedEmployee = this.employeeService.getEmployeeByID(invoice.getEmployeeID());
-            if(fetchedEmployee==null) throw new NotFoundException("Employee " + invoice.getEmployeeID() + " does not found");
         }
         String salesperson = fetchedEmployee!=null?fetchedEmployee.getLastName() + " " + fetchedEmployee.getFirstName():null;
         // fetch shipper
         Shipper fetchedShipper = this.shipperService.getShipper(invoice.getShipperID());
-        if(fetchedShipper==null) throw new NotFoundException("Shipper " + invoice.getShipperID() + " does not found");
         // fetch products
         List<Integer> productIds = invoices.stream().map(Invoice::getProductID).collect(Collectors.toList());
         List<Product> fetchedProducts = this.productService.getProducts(productIds);
@@ -122,7 +120,7 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
     }
 
     @Override
-    public List<OrderDetails> convertOrders(List<OrderDetailExtended> orders) throws JsonProcessingException {
+    public List<OrderDetails> convertOrders(List<OrderDetailExtended> orders) throws JsonProcessingException, NotFoundException {
         log.info("convertOrders({})", orders);
         if(orders.isEmpty()) return new ArrayList<>();
         // fetch products
@@ -167,7 +165,7 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
 
     @Override
     public OrderDetails convertOrderDetail(List<OrderDetailExtended> orderDetailExtendeds)
-            throws JsonProcessingException {
+            throws JsonProcessingException, NotFoundException {
         log.info("convertOrderDetail({})", orderDetailExtendeds);
         if(orderDetailExtendeds.isEmpty()) return null;
         // get the first element inside orderproducts
@@ -175,7 +173,6 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
         // get customer
         String customerID = firstElement.getCustomerID();
         Customer fetchedCustomer = customerService.getCustomerByID(customerID);
-        if(fetchedCustomer==null) throw new NotFoundException("Customer " + customerID + " does not found");
         // get products
         List<Integer> productIds = orderDetailExtendeds.stream().map(OrderDetailExtended::getProductID).collect(Collectors.toList());
         List<Product> fetchedProducts = productService.getProducts(productIds);
@@ -209,23 +206,20 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
     }
 
     @Override
-    public OrderWithProducts convertOrderWithProducts(Order order) throws JsonProcessingException {
+    public OrderWithProducts convertOrderWithProducts(Order order) throws JsonProcessingException, NotFoundException {
         log.info("convertOrderWithProducts({})", order);
         // fetch infomation
         // get customer
         String customerID = order.getCustomerID();
         Customer fetchedCustomer = customerService.getCustomerByID(customerID);
-        if(fetchedCustomer==null) throw new NotFoundException("Customer " + customerID + " does not found");
         // get employee
         Employee fetchedEmployee = null;
         if(order.getEmployeeID()!=null){
             fetchedEmployee = employeeService.getEmployeeByID(order.getEmployeeID());
-            if(fetchedEmployee==null) throw new NotFoundException("Employee " + order.getEmployeeID() + " does not found");
         }
         // get shipper
         Integer shipperID = order.getShipVia();
         Shipper fetchedShipper = shipperService.getShipper(shipperID);
-        if(fetchedShipper==null) throw new NotFoundException("Shipper " + shipperID + " does not found");
         // get products
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderID(order.getOrderID());
         List<Integer> productIds = orderDetails.stream().map(OrderDetail::getProductID).collect(Collectors.toList());
