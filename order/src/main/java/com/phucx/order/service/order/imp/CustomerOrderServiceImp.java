@@ -135,8 +135,7 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
             throws JsonProcessingException, NotFoundException {
         log.info("getOrders(pageNumber={}, pageSize={}, userID={}, orderStatus={})", pageNumber, pageSize, userID, orderStatus);
         // fetch customer
-        // Customer fetchedCustomer = customerService.getCustomerByUserID(userID);
-        Customer fetchedCustomer = customerService.getCustomerByUserID("userID");
+        Customer fetchedCustomer = customerService.getCustomerByUserID(userID);
         Page<OrderDetails> orders = null;
         if(orderStatus.equals(OrderStatus.All)){
             orders = orderService.getOrdersByCustomerID(
