@@ -10,12 +10,14 @@ import { LoginUrl } from "../../../../constant/FoodShoppingApiURL";
 import numberOfCartProductsContext from "../../../contexts/NumberOfCartProductsContext";
 import UserInfoNav from "../../functions/userinfo-nav/UserInfoNav";
 import userInfoContext from "../../../contexts/UserInfoContext";
+import { Link, useNavigate } from "react-router-dom";
  
 interface Props{
     lstCategories: Category[]
 }
 const HeaderComponent = memo(function HeaderComponent(prop: Props){
     const logo = getLogo();
+    const navigate = useNavigate();
     const lstCategories = prop.lstCategories;
     const { numberOfCartProducts } = useContext(numberOfCartProductsContext);
     const [isNavExpanded, setIsNavExpanded] = useState(false); 
@@ -32,12 +34,15 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
     const setNavExpandedStatus = (status:boolean)=>{
         setIsNavExpanded(status)
     }
+    // click expand nav bar
     const onClickExpandNavBar = ()=>{
         setNavExpandedStatus(!isNavExpanded)
     }
+    // click to close nav bar
     const onClickCloseExpandNavBar = ()=>{
         setNavExpandedStatus(false)
     }    
+    // default click event when user click outside of nav
     const onClickOutSideNavBar = (event: any)=>{
         if(navbarDropdownRef.current && !navbarDropdownRef.current.contains(event.target as Node)){
             onClickCloseExpandNavBar();
@@ -67,11 +72,14 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
 			</div>
             <nav className="navbar navbar-expand-lg navbar-light bg-light pt-3">
                 <div className="container-fluid bg-light" ref={navbarDropdownRef}>
-                    <a className="navbar-brand" href="/">
-                        <img src={logo} alt="" /><span>
-                            Phucx
-                        </span>
-                    </a>
+                    <Link to={"/"}>
+                        <div className="navbar-brand">
+                            <img src={logo} alt="" /><span>
+                                Phucx
+                            </span>
+                        </div>
+                    </Link>
+
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
                         data-bs-target="#navbarToggleHeader" aria-controls="navbarToggleHeader" 
                         aria-expanded={isNavExpanded} aria-label="Toggle navigation"
@@ -81,25 +89,34 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
                     <div className={`bg-light collapse navbar-collapse ${isNavExpanded?'show': ''}`} id="navbarToggleHeader">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                             <li className="nav-item px-2">
-                                <a className="nav-link active" aria-current="page" href="/">Home</a>
+                                <Link to={"/"}>
+                                    <div className="nav-link active">
+                                        Home
+                                    </div>
+                                </Link>
                             </li>
                             <li className="nav-item px-2">
-                                <a className="nav-link" href={FOODS_PATH}>Foods</a>
+                                <Link to={FOODS_PATH}>
+                                    <div className="nav-link">
+                                        Foods
+                                    </div>
+                                </Link>
                             </li>
                             <li className="nav-item px-2">
                                 <div className="dropdown category-dropdown-container">
-                                    <a className="nav-link dropdown-toggle" href={CATEGORIES_PATH} role="button" id="category-dropdown-menu-link" 
-                                        data-toggle="dropdown" aria-haspopup="true">
-                                        Categories
-                                    </a>
-
+                                    <Link to={CATEGORIES_PATH}>
+                                        <div className="nav-link dropdown-toggle" id="category-dropdown-menu-link">
+                                            Categories
+                                        </div>
+                                    </Link>
                                     <div className="dropdown-menu p-0 position-absolute">
                                         <div className="category-dropdown" aria-labelledby="category-dropdown-menu-link">
                                             {lstCategories.map((category, index)=>(
-                                                <a key={index} className="dropdown-item category-dropdown-item" 
-                                                    href={CATEGORIES_PATH+"/"+ convertNameForUrl(category.categoryName)}>
-                                                    {nonBreakingSpace(category.categoryName)}
-                                                </a>
+                                                <Link key={index} to={`${CATEGORIES_PATH}/${convertNameForUrl(category.categoryName)}`}>
+                                                    <div className="dropdown-item category-dropdown-item">
+                                                        {nonBreakingSpace(category.categoryName)}
+                                                    </div>
+                                                </Link>
                                             ))}
                                         </div>
                                     </div>
@@ -114,14 +131,16 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
                             </div>
                             <div className="col-2">
                                 <div className="my-2 my-lg-0 ml-0 ml-lg-4 mb-3 mb-lg-0 d-flex justify-content-center position-relative d-flex align-items-center">
-                                    <a className="btn btn-light ms-3 cart-icon cart-link" href={CART_PATH}>
-                                        <FontAwesomeIcon icon={faCartShopping}/>
-                                        {numberOfCartProducts>0 &&
-                                            <span className="cart-badge badge rounded-pill badge-notification bg-danger">
-                                                {numberOfCartProducts}
-                                            </span>
-                                        }
-                                    </a>
+                                    <Link to={CART_PATH}>
+                                        <div className="btn btn-light ms-3 cart-icon cart-link">
+                                            <FontAwesomeIcon icon={faCartShopping}/>
+                                            {numberOfCartProducts>0 &&
+                                                <span className="cart-badge badge rounded-pill badge-notification bg-danger">
+                                                    {numberOfCartProducts}
+                                                </span>
+                                            }
+                                        </div>
+                                    </Link>
                                 </div>
                             </div>
                         </div>

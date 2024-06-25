@@ -46,4 +46,6 @@ export function FoodPath(foodName, foodID){
 // error page
 const ERROR_PAGE= `${HOME_PATH}/error`;
 export const FORBIDDEN_ERROR_PAGE = `${ERROR_PAGE}/403`;
+export const NOT_FOUND_ERROR_PAGE = `${ERROR_PAGE}/404`;
+export const INTERNAL_ERROR_PAGE = `${ERROR_PAGE}/500`;
 

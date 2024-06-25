@@ -18,8 +18,7 @@ public interface CurrentProductRepository extends JpaRepository<CurrentProduct, 
         """)
     Page<CurrentProduct> searchCurrentProductsByProductName(String productName, Pageable page);
 
-
-    Page<CurrentProduct> findByCategoryNameLike(String categoryName, Pageable page);
+    Page<CurrentProduct> findByCategoryName(String categoryName, Pageable page);
 
     Page<CurrentProduct> findByProductNameLike(String productName, Pageable pageable);
 

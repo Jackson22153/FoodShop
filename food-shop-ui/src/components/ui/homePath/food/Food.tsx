@@ -9,12 +9,16 @@ import { faMinus, faPlus, faShoppingCart } from '@fortawesome/free-solid-svg-ico
 import { addProductToCart } from '../../../../api/CartApi';
 import { displayProductImage } from '../../../../service/Image';
 import numberOfCartProductsContext from '../../../contexts/NumberOfCartProductsContext';
-import { ceilRound } from '../../../../service/Convert';
-import { FOODS_PATH } from '../../../../constant/FoodShoppingURL';
+import { ceilRound, convertNameForUrl } from '../../../../service/Convert';
+import { FOODS_PATH, NOT_FOUND_ERROR_PAGE } from '../../../../constant/FoodShoppingURL';
 import { numberOfProductsInCart } from '../../../../service/Cart';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import ScrollToTop from '../../../shared/functions/scroll-to-top/ScrollToTop';
 
 export default function FoodComponent(){
-    const urlParams = new URLSearchParams(window.location.search);
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const productID = searchParams.get("sp")
     const [foodInfo, setFoodInfo] = useState<CurrentProductDetail>();
     const [similarFoods, setSimilarFoods] = useState<CurrentProduct[]>([]);
     const {  setNumberOfCartProducts } = useContext(numberOfCartProductsContext);
@@ -26,13 +30,10 @@ export default function FoodComponent(){
     
     useEffect(()=>{
         initial();
-    }, []);
+    }, [productID]);
 
     function initial(){
-        const productID = urlParams.get('sp');
-        if(productID){
-            fetchProduct(productID);
-        }
+        fetchProduct(productID);
     }
 
     // handle product
@@ -75,17 +76,22 @@ export default function FoodComponent(){
     }
 
     async function fetchProduct(productID: string){
-        const res = await getProductByID(productID)
-        if(res.status){
-            const data = res.data;
-            // console.log(res.data);
-            setCartProduct({
-                ...cartProduct,
-                productID: data.productID,
-                quantity: 1,
-            })
-            setFoodInfo(data);
-            fetchSimilarProducts(data.productID, data.categoryName, 0);
+        try {
+            const res = await getProductByID(productID)
+            if(res.status){
+                const data = res.data;
+                // console.log(res.data);
+                setCartProduct({
+                    ...cartProduct,
+                    productID: data.productID,
+                    quantity: 1,
+                })
+                setFoodInfo(data);
+                fetchSimilarProducts(data.productID, data.categoryName, 0);
+            }
+        } catch (error) {
+            const statusCode = error.response.status;
+            if(statusCode===404) navigate(NOT_FOUND_ERROR_PAGE)
         }
     }
 
@@ -93,6 +99,7 @@ export default function FoodComponent(){
         <>
             {foodInfo &&
                 <>
+                    <ScrollToTop/>
                     <section className="py-5">
                         <div className="container">
                             <div className="row gx-5">
@@ -222,17 +229,21 @@ export default function FoodComponent(){
 
                                                 {similarFoods.map((food) =>(
                                                     <div className="d-flex mb-3" key={food.productID}>
-                                                        <a href={`${FOODS_PATH}/${food.productName}?sp=${food.productID}`} className="me-3">
-                                                            <img src={displayProductImage(food.picture)} style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
-                                                        </a>
+                                                        <Link to={`${FOODS_PATH}/${convertNameForUrl(food.productName)}?sp=${food.productID}`}>
+                                                            <div className="me-3">
+                                                                <img src={displayProductImage(food.picture)} style={{minWidth:"96px", height:"96px"}} className="img-md img-thumbnail" />
+                                                            </div>
+                                                        </Link>
                                                         <div className="cart-text w-100">
                                                             <div className="info">
                                                                 <div className='col-md-2'>
 
                                                                 </div>
-                                                                <a href={`${FOODS_PATH}/${food.productName}?sp=${food.productID}`} className="nav-link mb-1">
-                                                                    {food.productName}
-                                                                </a>
+                                                                <Link to={`${FOODS_PATH}/${convertNameForUrl(food.productName)}?sp=${food.productID}`}>
+                                                                    <div className="nav-link mb-1">
+                                                                        {food.productName}
+                                                                    </div>
+                                                                </Link>
                                                                 <div className='d-flex'>
                                                                     {food.discountID!= null && food.discountPercent>0 &&
                                                                         <del className="text-body-secondary me-2">

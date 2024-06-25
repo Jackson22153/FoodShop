@@ -6,10 +6,12 @@ import { getPageNumber } from "../../../../service/Pageable";
 import { PathProvider } from "../../../contexts/PathContext";
 import { FOODS_PATH } from "../../../../constant/FoodShoppingURL";
 import FoodCardDeck from "../../../shared/functions/foodCardDeck/FoodCardDeck";
+import { useSearchParams } from "react-router-dom";
 
 export default function FoodsComponent(){
     const [foods, setFoods] = useState<CurrentProduct[]>([]);
-    const urlParams = new URLSearchParams(window.location.search);
+    const [searchParam] = useSearchParams()
+    const searchProduct = searchParam.get('s')
     const [page, setPage] = useState<Pageable>({
         first: true,
         last: true,
@@ -19,22 +21,15 @@ export default function FoodsComponent(){
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [searchProduct, page])
 
     function initial(){
         const pageNumber = getPageNumber();
-        const searchParam = getSearchParam();
-        if(searchParam){
-            fetchSearchingProducts(searchParam, pageNumber);
+        if(searchProduct){
+            fetchSearchingProducts(searchProduct, pageNumber);
         }else{
             fetchProducts(pageNumber);
         }
-    }
-
-    // get search param
-    function getSearchParam(){
-        const searchParam = urlParams.get('s');
-        return searchParam;
     }
 
     // get and handle produts without searching

@@ -35,10 +35,11 @@ function UserInfoNav(prop: Props) {
         try {
             const res = await logout();
             if(res.status){
-                window.location.href="/";
+
             }
         } catch (error) {
-            window.location.href="/";
+        } finally{
+            window.location.href = "/"
         }
     }
 

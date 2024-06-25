@@ -287,10 +287,6 @@ export default function EmployeeInformationComponent(){
                             </div>
                         </div>
                     </div>
-
-                    <div>
-                        
-                    </div>
                 </div>
             }
         </div>

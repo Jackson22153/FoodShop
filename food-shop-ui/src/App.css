@@ -1,8 +1,5 @@
 #root {
-  /* max-width: 1280px; */
-  /* margin: 0 auto; */
-  /* padding: 2rem; */
-  /* text-align: center; */
+  scroll-behavior: smooth;
   min-height: 100vh;
 }
 *{
@@ -10,6 +7,59 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+/* slide */
+.slideshow {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.slides {
+  width: 100%;
+  display: flex;
+  /* animation: slide  0.5s ease-in-out; */
+}
+.slide{
+  position: absolute;
+  display: block;
+  float: left;
+  width: 100%;
+  margin-right: -100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition: .6s ease-in-out;
+  opacity: 0;
+  scale: (.8);
+}
+.slide img{
+  border-radius: 10px;
+}
+
+.slide.active{
+  opacity: 1;
+  scale: (1);
+  /* animation: slide  0.5s ease-in-out; */
+  /* transition: transform .6s ease-in-out; */
+  /* transition: left 0.5s ease-in-out; */
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(0); /* Initial position (first slide) */
+  }
+  50% {
+      transform: translateX(-100%); /* Middle position (between slides) */
+  }
+  100% {
+      transform: translateX(-200%); /* Final position (second slide) */
+  }
+}
+
+
+
+
 
 .display-linebreak {
   white-space: pre-line;
@@ -1100,4 +1150,39 @@ ins{
    100%{
     transform: rotateZ( -15deg)
   }
+}
+
+/* not found error page */
+.page_404{ 
+  height: 100%;
+  padding:40px 0; 
+  background:#fff; 
+  font-family: 'Arvo', serif;
+}
+.page_404  img{ 
+  width:100%;
+}
+
+.four_zero_four_bg{
+  background-image: url(https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif);
+  height: 400px;
+  background-position: center;
+}
+.four_zero_four_bg h1{
+ font-size:80px;
+}
+ 
+.four_zero_four_bg h3{
+  font-size:80px;
+}
+			 
+.link_404{			 
+	color: #fff!important;
+  padding: 10px 20px;
+  background: #39ac31;
+  margin: 20px 0;
+  display: inline-block;
+}
+.contant_box_404{ 
+  margin-top:-50px;
 }

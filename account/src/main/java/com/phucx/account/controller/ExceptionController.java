@@ -45,7 +45,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler{
         ResponseFormat response = new ResponseFormat();
         response.setStatus(false);
         response.setError(exception.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(value = EmployeeNotFoundException.class)
@@ -54,7 +54,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler{
         ResponseFormat response = new ResponseFormat();
         response.setStatus(false);
         response.setError(exception.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(value = ShipperNotFoundException.class)
@@ -63,7 +63,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler{
         ResponseFormat response = new ResponseFormat();
         response.setStatus(false);
         response.setError(exception.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(value = RoleNotFoundException.class)
@@ -72,7 +72,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler{
         ResponseFormat response = new ResponseFormat();
         response.setStatus(false);
         response.setError(exception.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(value = IllegalArgumentException.class)
@@ -99,7 +99,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler{
         ResponseFormat response = new ResponseFormat();
         response.setStatus(false);
         response.setError(exception.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(value = EntityExistsException.class)

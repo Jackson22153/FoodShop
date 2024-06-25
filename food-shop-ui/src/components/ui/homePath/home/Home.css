@@ -32,13 +32,13 @@ body {
   
   .custom_dark-btn,
   .custom_orange-btn {
-    display: inline-block;
-    padding: 10px 0;
-    text-align: center;
-    width: 145px;
-    outline: none;
-    color: #f7f7f7;
-    border: 1px solid transparent;
+    display: inline-block !important;
+    padding: 10px 0 !important;
+    text-align: center !important; 
+    width: 145px !important;
+    outline: none !important;
+    color: #f7f7f7 !important;
+    border: 1px solid transparent !important;
   }
   
   .custom_dark-btn {
@@ -250,7 +250,7 @@ body {
   
   .slider_section .custom_carousel-control {
     position: absolute;
-    top: 50%;
+    top: 25%;
     left: 2%;
     width: 105px;
     transform: translateY(-50%);

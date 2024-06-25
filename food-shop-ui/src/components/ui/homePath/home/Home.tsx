@@ -35,7 +35,6 @@ function HomeComponent(){
         // get numberOfCartProducts
         fetchNumberOfCartProducts();
     }
-
     
     // get number of cart products
     const fetchNumberOfCartProducts = ()=>{
@@ -50,8 +49,6 @@ function HomeComponent(){
             setCategories(data.content);
         }
     }
-
- 
 
     return(
         <NumberOfCartProductsProvider value={{ numberOfCartProducts, setNumberOfCartProducts }}>

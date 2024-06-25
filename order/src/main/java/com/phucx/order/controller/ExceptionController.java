@@ -69,7 +69,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler{
         ResponseFormat response = new ResponseFormat();
         response.setStatus(false);
         response.setError(exception.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(value = EntityExistsException.class)

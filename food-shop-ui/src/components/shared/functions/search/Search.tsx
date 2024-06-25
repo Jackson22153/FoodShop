@@ -5,10 +5,11 @@ import { FoodPath, SearchFoodsPath } from "../../../../constant/FoodShoppingURL"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { searchProducts } from "../../../../api/SearchApi";
+import { Link, useNavigate } from "react-router-dom";
 
 
 export default function Search(){
-    // const searchDropdownRef = useRef(null);
+    const navigate = useNavigate()
     const [searchResult, setSearchResult] = useState<Product[]>([]);
     const [searchInputValue, setSearchInputValue] = useState('');
     const [isShowed, setIsShowed] = useState(false);
@@ -49,7 +50,7 @@ export default function Search(){
         event.preventDefault();
         if(searchInputValue.length >2){
             const url = SearchFoodsPath(searchInputValue);
-            window.location.href= url
+            navigate(url)
         }
     }
 
@@ -65,8 +66,9 @@ export default function Search(){
             <ul className={`dropdown-menu search-dropdown ${isShowed?'show': ''} ${searchResult.length===0?'p-0': ''}`}>
                 {searchResult.map((product) =>(
                     <li className="dropdown-item" key={product.productID}>
-                        <a href={FoodPath(product.productName, product.productID)} 
-                            className="dropdown-link">{product.productName}</a>
+                        <Link to={FoodPath(product.productName, product.productID)}>
+                            <div className="dropdown-link">{product.productName}</div>
+                        </Link>
                     </li>
                 ))}
             </ul>

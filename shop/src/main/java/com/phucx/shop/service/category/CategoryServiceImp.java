@@ -88,4 +88,10 @@ public class CategoryServiceImp implements CategoryService{
         return false;
         
 	}
+
+    @Override
+    public List<Category> getCategoryLike(String categoryName) {
+        log.info("getCategoryLike({})", categoryName);
+        return categoryRepository.findByCategoryNameLike(categoryName);
+    }
 }

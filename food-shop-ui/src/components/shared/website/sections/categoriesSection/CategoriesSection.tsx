@@ -35,14 +35,6 @@ export default function CategoriesSection(prop: Props){
                         </li>
                     ))}
                 </ul>
-                {/* {lstCategories.map((category)=>(
-                    <div className="row layout_padding2 border-bottom category-detail-box-container" key={category.categoryName}>
-                        <CategoriesDetailbox categoryTitle={category.categoryName}
-                            categoryDetail={category.description}
-                            categoryImageSrc={category.picture}
-                        />
-                    </div>
-                ))} */}
 
                 <div className="d-flex justify-content-center layout_padding-bottom">
                     <ExpandedToggleBtn expandedStatusToggle={expandedStatusToggle} 

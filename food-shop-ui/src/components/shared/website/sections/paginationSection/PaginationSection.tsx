@@ -1,11 +1,15 @@
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Pageable } from "../../../../../model/Type";
+import ScrollToTop from "../../../functions/scroll-to-top/ScrollToTop";
 
 interface Props{
     pageable: Pageable
 }
 export default function PaginationSection(prop: Props){
+    const navigate = useNavigate();
     const url = new URL(window.location.href);
-    const searchParam = new URLSearchParams(url.search);
+    // const searchParam = new URLSearchParams(url.search);
+    const [searchParam] = useSearchParams()
 
     const totalPages = prop.pageable.totalPages;
     var currentPage = prop.pageable.number;
@@ -51,16 +55,21 @@ export default function PaginationSection(prop: Props){
 
     return(
         <div aria-label="Page navigation example" className="d-flex justify-content-center">
+            <ScrollToTop/>
             <ul className="pagination z-0">
                 <li className="page-item">
-                    <a className="page-link" href={previousPage()} aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
+                    <Link to={previousPage()}>
+                        <div className="page-link" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </div>
+                    </Link>
                 </li>
                 {currentPage >= 2 && totalPages > 3 &&
                     <>
                         <li className="page-item">
-                            <a className="page-link" href={navigatePage(0)}>1</a>
+                            <Link to={navigatePage(0)}>
+                                <div className="page-link">1</div>
+                            </Link>
                         </li>
                         {currentPage > 2 &&
                             <li className="page-item"><a className="page-link">...</a></li>
@@ -69,7 +78,9 @@ export default function PaginationSection(prop: Props){
                 }
                 {pageNumberScr().map((page)=>(
                     <li key={page} className={`page-item ${page===currentPage?'active':''}`}>
-                        <a className="page-link" href={navigatePage(page)}>{page+1}</a>
+                        <Link to={navigatePage(page)}>
+                            <div className="page-link">{page+1}</div>
+                        </Link>
                     </li>
 
                 ))}
@@ -79,15 +90,19 @@ export default function PaginationSection(prop: Props){
                             <li className="page-item"><a className="page-link">...</a></li>
                         }
                         <li className="page-item">
-                            <a className="page-link" href={navigatePage(totalPages-1)}>{totalPages}</a>
+                            <Link to={navigatePage(totalPages-1)}>
+                                <div className="page-link">{totalPages}</div>
+                            </Link>
                         </li>
                     </>
                 }
 
                 <li className="page-item">
-                    <a className="page-link" href={nextPage()} aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
+                    <Link to={nextPage()}>
+                        <div className="page-link" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </div>
+                    </Link>
                 </li>
             </ul>
         </div>

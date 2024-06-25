@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.phucx.shop.exceptions.EntityExistsException;
 import com.phucx.shop.exceptions.NotFoundException;
+import com.phucx.shop.model.Category;
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
@@ -17,6 +18,7 @@ import com.phucx.shop.model.ProductStockTableType;
 import com.phucx.shop.repository.CurrentProductRepository;
 import com.phucx.shop.repository.ProductDetailRepository;
 import com.phucx.shop.repository.ProductRepository;
+import com.phucx.shop.service.category.CategoryService;
 import com.phucx.shop.service.image.ImageService;
 import com.phucx.shop.service.image.ProductImageService;
 
@@ -31,6 +33,8 @@ public class ProductServiceImp implements ProductService{
     private CurrentProductRepository currentProductRepository;
     @Autowired
     private ProductDetailRepository productDetailRepository;
+    @Autowired
+    private CategoryService categoryService;
     @Autowired
     private ImageService imageService;
     @Autowired
@@ -133,13 +137,19 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public Page<CurrentProduct> getCurrentProductsByCategoryName(String categoryName, int pageNumber, int pageSize) {
+    public Page<CurrentProduct> getCurrentProductsByCategoryName(String categoryName, int pageNumber, int pageSize) throws NotFoundException {
         // replace '-' with "_" for like syntax in sql server
         categoryName = categoryName.replaceAll("-", "_");
         log.info("getCurrentProductsByCategoryName(categoryName={}, pageNumber={}, pageSize={})", categoryName, pageNumber, pageSize);
+        // get category
+        List<Category> categories = categoryService.getCategoryLike(categoryName);
+        if(categories==null || categories.isEmpty()) 
+            throw new NotFoundException("Category " + categoryName + " does not found");
+        Category fetchedCategory = categories.get(0);
+        // get products based on category name
         Pageable page = PageRequest.of(pageNumber, pageSize);
         Page<CurrentProduct> products = currentProductRepository
-            .findByCategoryNameLike(categoryName, page);
+            .findByCategoryName(fetchedCategory.getCategoryName(), page);
         productImageService.setCurrentProductsImage(products.getContent());
         return products;
     }

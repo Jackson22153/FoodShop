@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { CATEGORIES_PATH } from "../../../../constant/FoodShoppingURL";
 import { convertNameForUrl } from "../../../../service/Convert";
 import { displayProductImage } from "../../../../service/Image";
@@ -23,10 +24,11 @@ export default function CategoriesDetailbox(prop:Props){
                         {categoryDetail}
                     </p>
                     <div>
-                        <a href={CATEGORIES_PATH+"/"+ convertNameForUrl(categoryTitle)} 
-                            className="custom_dark-btn">
-                            Show
-                        </a>
+                        <Link to={CATEGORIES_PATH+"/"+ convertNameForUrl(categoryTitle)}>
+                            <div className="custom_dark-btn btn text-bg-dark">
+                                Show
+                            </div>
+                        </Link>
                     </div>
                 </div>
             </div>

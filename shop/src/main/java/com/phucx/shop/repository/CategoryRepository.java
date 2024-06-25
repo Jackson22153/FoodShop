@@ -1,5 +1,6 @@
 package com.phucx.shop.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,5 +23,10 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
         WHERE categoryID=?4
             """)
     Integer updateCategory(String categoryName, String description, String picture, Integer categoryID);
+
+    @Query("""
+        SELECT c FROM Category c WHERE categoryName LIKE ?1
+            """)
+    List<Category> findByCategoryNameLike(String categoryName);
     
 }

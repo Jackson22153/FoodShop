@@ -13,13 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phucx.notification.constant.NotificationBroadCast;
 import com.phucx.notification.constant.WebConstant;
+import com.phucx.notification.exception.NotFoundException;
 import com.phucx.notification.model.NotificationDetail;
 import com.phucx.notification.model.NotificationSummary;
 import com.phucx.notification.model.ResponseFormat;
 import com.phucx.notification.service.notification.MarkUserNotificationService;
 import com.phucx.notification.service.notification.NotificationService;
-
-import javax.naming.NameNotFoundException;
 
 @RestController
 @RequestMapping("/employee")
@@ -34,7 +33,7 @@ public class EmployeeNotificationController {
         @RequestParam(name = "type", required = true) String marktype,
         @RequestBody NotificationDetail notification, 
         Authentication authentication
-    ) throws NameNotFoundException{
+    ) throws NotFoundException{
         Boolean status = markUserNotificationService.markAsReadForEmployee(
             notification.getNotificationID(), authentication.getName(), marktype);
         return ResponseEntity.ok().body(new ResponseFormat(status));

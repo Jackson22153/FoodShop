@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import './Customer.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import UserInformationComponent from './information/UserInformation';
-import { CUSTOMER_INFO, CUSTOMER_NOTIFICATION, CUSTOMER_ORDER, FORBIDDEN_ERROR_PAGE } from '../../../../constant/FoodShoppingURL';
+import { CUSTOMER_INFO, CUSTOMER_NOTIFICATION, CUSTOMER_ORDER, FORBIDDEN_ERROR_PAGE 
+} from '../../../../constant/FoodShoppingURL';
 import UserOrdersComponent from './order/UserOrders';
 import UserOrderComponent from './order/UserOrder';
 import UserNotificationComponent from './notification/UserNotification';
@@ -12,10 +13,9 @@ import { logout } from '../../../../api/AuthorizationApi';
 import { Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
 import { isCustomer } from '../../../../api/UserApi';
-import { ModalProvider } from '../../../contexts/ModalContext';
-import ErrorModal from '../../../shared/functions/error-modal/ErrorModal';
 
 export default function CustomerComponent(){
+    const navigate = useNavigate()
     const location = useLocation()
     const [isShowedSideBar, setIsShowedSideBar] = useState(false)
     const [selectedPath, setSelectedPath] = useState(0);
@@ -45,17 +45,13 @@ export default function CustomerComponent(){
         try {
             const res = await isCustomer();
             if(200<=res.status&&res.status<300){
-                const data = res.data;
-                const status = data.status;
-                // if(!status) window.location.href="/"
-                console.log(data)
             }
         } catch (error) {
             if(error.response){
                 const errorResponse = error.response;
                 const status = errorResponse.status;
                 if(status===403){
-                    window.location.href=FORBIDDEN_ERROR_PAGE
+                    navigate(FORBIDDEN_ERROR_PAGE)
                 }
             }
         }
@@ -105,28 +101,36 @@ export default function CustomerComponent(){
                             </div>
                             <ul className="flex-column lists nav nav-pills mb-auto">
                                 <li className="list nav-item">
-                                    <a href={CUSTOMER_INFO} className={`nav-link ${selectedPath===0?'active': ''}`}>
-                                        <i className="bx bx-home-alt icon"></i>
-                                        <span className="link">User{`\u00A0`}Information</span>
-                                    </a>
+                                    <Link to={CUSTOMER_INFO}>
+                                        <div className={`nav-link ${selectedPath===0?'active': ''}`}>
+                                            <i className="bx bx-home-alt icon"></i>
+                                            <span className="link">User{`\u00A0`}Information</span>
+                                        </div>
+                                    </Link>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href={CUSTOMER_ORDER} className={`nav-link ${selectedPath===1?'active': ''}`}>
-                                        <i className="bx bx-bar-chart-alt-2 icon"></i>
-                                        <span className="link">Orders</span>
-                                    </a>
+                                    <Link to={CUSTOMER_ORDER}>
+                                        <div className={`nav-link ${selectedPath===1?'active': ''}`}>
+                                            <i className="bx bx-bar-chart-alt-2 icon"></i>
+                                            <span className="link">Orders</span>
+                                        </div>
+                                    </Link>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href={CUSTOMER_NOTIFICATION} className={`nav-link ${selectedPath===2?'active': ''}`}>
-                                        <i className="bx bx-bar-chart-alt-2 icon"></i>
-                                        <span className="link">Notifications</span>
-                                    </a>
+                                    <Link to={CUSTOMER_NOTIFICATION}>
+                                        <div className={`nav-link ${selectedPath===2?'active': ''}`}>
+                                            <i className="bx bx-bar-chart-alt-2 icon"></i>
+                                            <span className="link">Notifications</span>
+                                        </div>
+                                    </Link>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href='/' className={`nav-link ${selectedPath===3?'active': ''}`}>
-                                        <i className="bx bx-bell icon"></i>
-                                        <span className="link">Home</span>
-                                    </a>
+                                    <Link to={"/"}>
+                                        <div className={`nav-link ${selectedPath===3?'active': ''}`}>
+                                            <i className="bx bx-bell icon"></i>
+                                            <span className="link">Home</span>
+                                        </div>
+                                    </Link>
                                 </li>
                             </ul>
                             <hr />

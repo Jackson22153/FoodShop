@@ -14,6 +14,7 @@ public interface CategoryService {
     public Page<Category> getCategories(int pageNumber, int pageSize);
     public Category getCategory(int categoryID) throws NotFoundException;
     public Category getCategory(String categoryName) throws NotFoundException;
+    public List<Category> getCategoryLike(String categoryName);
     // update 
     Boolean updateCategory(Category category) throws NotFoundException;
     // create

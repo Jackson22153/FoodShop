@@ -58,11 +58,10 @@ public class HomeController {
     public ResponseEntity<Page<CurrentProduct>> getProductsByCategoryName(
         @PathVariable(name = "categoryName") String categoryName,
         @RequestParam(name = "page", required=false) Integer pageNumber
-    ){
+    ) throws NotFoundException{
         pageNumber = pageNumber!=null?pageNumber:0;
-        Page<CurrentProduct> products = productService
-            .getCurrentProductsByCategoryName(categoryName, pageNumber, WebConfig.PAGE_SIZE);
-
+        Page<CurrentProduct> products = productService.getCurrentProductsByCategoryName(
+            categoryName, pageNumber, WebConfig.PAGE_SIZE);
         return ResponseEntity.ok().body(products);
     }
 

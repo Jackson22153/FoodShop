@@ -1,13 +1,12 @@
 package com.phucx.notification.service.notification.imps;
 
-import javax.naming.NameNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.phucx.notification.constant.MarkNotificationType;
 import com.phucx.notification.constant.NotificationBroadCast;
 import com.phucx.notification.constant.NotificationIsRead;
+import com.phucx.notification.exception.NotFoundException;
 import com.phucx.notification.model.NotificationDetail;
 import com.phucx.notification.service.notification.MarkUserNotificationService;
 import com.phucx.notification.service.notification.NotificationService;
@@ -21,7 +20,7 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
     private NotificationService notificationService;
 
     @Override
-    public Boolean markAsReadEmployeeNotification(String notificationID, String userID) throws NameNotFoundException {
+    public Boolean markAsReadEmployeeNotification(String notificationID, String userID) throws NotFoundException {
         log.info("markAsReadEmployeeNotification(notificationID={}, userID={})", notificationID, userID);
         NotificationDetail notification = this.notificationService.getNotificationByUserIDOrBroadCastAndNotificationID(
             userID, NotificationBroadCast.ALL_EMPLOYEES, notificationID);
@@ -30,7 +29,7 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
     }
 
     @Override
-    public Boolean markAsReadCustomerNotification(String notificationID, String userID) throws NameNotFoundException {
+    public Boolean markAsReadCustomerNotification(String notificationID, String userID) throws NotFoundException {
         log.info("markAsReadCustomerNotification(notificationID={}, userID={})", notificationID, userID);
         NotificationDetail notification = this.notificationService.getNotificationByUserIDOrBroadCastAndNotificationID(
             userID, NotificationBroadCast.ALL_CUSTOMERS, notificationID);
@@ -53,7 +52,7 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
     }
 
     @Override
-    public Boolean markAsReadEmployeeBroadcastNotification(String notifiationID) throws NameNotFoundException {
+    public Boolean markAsReadEmployeeBroadcastNotification(String notifiationID) throws NotFoundException {
         log.info("markAsReadEmployeeBroadcastNotification({})", notifiationID);
         NotificationDetail fetchedNotification = this.notificationService
             .getNotificationByNotificationIDAndReceiverID(
@@ -65,7 +64,7 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
     }
 
     @Override
-    public Boolean markAsReadCustomerBroadcastNotification(String notifiationID) throws NameNotFoundException {
+    public Boolean markAsReadCustomerBroadcastNotification(String notifiationID) throws NotFoundException {
         log.info("markAsReadEmployeeBroadcastNotification({})", notifiationID);
         NotificationDetail fetchedNotification = this.notificationService
             .getNotificationByNotificationIDAndReceiverID(
@@ -77,7 +76,7 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
     }
 
     @Override
-    public Boolean markAsReadForEmployee(String notificationID, String userID, String markType) throws NameNotFoundException {
+    public Boolean markAsReadForEmployee(String notificationID, String userID, String markType) throws NotFoundException {
         log.info("markAsReadForEmployee(userID={}, markType={})", userID, markType);
         MarkNotificationType type = MarkNotificationType.fromString(markType);
         // mark notification as read based on type
@@ -93,7 +92,7 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
     }
 
     @Override
-    public Boolean markAsReadForCustomer(String notificationID, String userID, String markType) throws NameNotFoundException {
+    public Boolean markAsReadForCustomer(String notificationID, String userID, String markType) throws NotFoundException {
         log.info("markAsReadForCustomer(userID={}, marktype)", userID, markType);
         MarkNotificationType type = MarkNotificationType.fromString(markType);
         // mark notification as read based on type

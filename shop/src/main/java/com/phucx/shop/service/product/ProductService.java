@@ -22,7 +22,7 @@ public interface ProductService {
     public CurrentProduct getCurrentProduct(int productID) throws NotFoundException;
     public List<CurrentProduct> getCurrentProduct();
     public Page<CurrentProduct> getCurrentProduct(int pageNumber, int pageSize);
-    public Page<CurrentProduct> getCurrentProductsByCategoryName(String categoryName, int pageNumber, int pageSize);
+    public Page<CurrentProduct> getCurrentProductsByCategoryName(String categoryName, int pageNumber, int pageSize) throws NotFoundException;
     public ProductDetail getProductDetail(int productID) throws NotFoundException;
     
     public Product getProduct(int productID) throws NotFoundException;

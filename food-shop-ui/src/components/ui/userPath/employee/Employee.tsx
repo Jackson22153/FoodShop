@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import { EMPLOYEE_INFO, EMPLOYEE_NOTIFICATION, EMPLOYEE_ORDER, FORBIDDEN_ERROR_PAGE 
 } from '../../../../constant/FoodShoppingURL';
 import { logout } from '../../../../api/AuthorizationApi';
@@ -108,28 +108,36 @@ export default function EmployeeComponent(){
                             </div>
                             <ul className="flex-column lists nav nav-pills mb-auto">
                                 <li className="list nav-item">
-                                    <a href={EMPLOYEE_INFO} className={`nav-link ${selectedPath===0?'active': ''}`}>
-                                        <i className="bx bx-home-alt icon"></i>
-                                        <span className="link">User{`\u00A0`}Information</span>
-                                    </a>
+                                    <Link to={EMPLOYEE_INFO}>
+                                        <div className={`nav-link ${selectedPath===0?'active': ''}`}>
+                                            <i className="bx bx-home-alt icon"></i>
+                                            <span className="link">User{`\u00A0`}Information</span>
+                                        </div>
+                                    </Link>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href={EMPLOYEE_ORDER} className={`nav-link ${selectedPath===1?'active': ''}`}>
-                                        <i className="bx bx-bar-chart-alt-2 icon"></i>
-                                        <span className="link">Orders</span>
-                                    </a>
+                                    <Link to={EMPLOYEE_ORDER}>
+                                        <div className={`nav-link ${selectedPath===1?'active': ''}`}>
+                                            <i className="bx bx-bar-chart-alt-2 icon"></i>
+                                            <span className="link">Orders</span>
+                                        </div>
+                                    </Link>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href={EMPLOYEE_NOTIFICATION} className={`nav-link ${selectedPath===2?'active': ''}`}>
-                                        <i className="bx bx-bar-chart-alt-2 icon"></i>
-                                        <span className="link">Notifications</span>
-                                    </a>
+                                    <Link to={EMPLOYEE_NOTIFICATION}>
+                                        <div className={`nav-link ${selectedPath===2?'active': ''}`}>
+                                            <i className="bx bx-bar-chart-alt-2 icon"></i>
+                                            <span className="link">Notifications</span>
+                                        </div>
+                                    </Link>
                                 </li>
                                 <li className="list nav-item">
-                                    <a href='/' className={`nav-link ${selectedPath===3?'active': ''}`}>
-                                        <i className="bx bx-bell icon"></i>
-                                        <span className="link">Home</span>
-                                    </a>
+                                    <Link to={"/"}>
+                                        <div className={`nav-link ${selectedPath===3?'active': ''}`}>
+                                            <i className="bx bx-bell icon"></i>
+                                            <span className="link">Home</span>
+                                        </div>
+                                    </Link>
                                 </li>
                             </ul>
                             <hr />

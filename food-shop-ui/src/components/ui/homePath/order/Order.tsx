@@ -9,6 +9,7 @@ import { Notification } from "../../../../model/Type";
 import { NOTIFICATION_TYPE } from "../../../../constant/WebConstant";
 import userInfoContext from "../../../contexts/UserInfoContext";
 import { placeOrder } from "../../../../api/OrderApi";
+import { Link } from "react-router-dom";
 
 export default function OrderComponent(){
     const [orderInfo, setOrderInfo] = useState<OrderInfo>();
@@ -110,7 +111,6 @@ export default function OrderComponent(){
             const res = await placeOrder(order);
             if(200<=res.status&&res.status<300){
                 const data = res.data
-                console.log(data)
                 setNotification({...notification,
                     message: `Order has been placed successfully`,
                     status: NOTIFICATION_TYPE.SUCCESSFUL,
@@ -252,8 +252,12 @@ export default function OrderComponent(){
                         <div className="row">
                             <div className="col-3">
                                 <div className="pt-2">
-                                    <h6 className="mb-0"><a href={CART_PATH} className="text-body">
-                                        <FontAwesomeIcon icon={faLongArrowAltLeft}/> Back to shop</a>
+                                    <h6 className="mb-0">
+                                        <Link to={CART_PATH}>
+                                            <div className="text-body">
+                                                <FontAwesomeIcon icon={faLongArrowAltLeft}/> Back to shop
+                                            </div>
+                                        </Link>
                                     </h6>
                                 </div>
                             </div>

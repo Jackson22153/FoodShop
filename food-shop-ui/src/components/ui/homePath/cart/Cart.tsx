@@ -9,8 +9,10 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
+import { useNavigate } from 'react-router-dom';
 
 export default function CartComponent(){
+    const navigate = useNavigate()
     const [cartOrder, setCartOrder] = useState<CartInfo>();
     const [totalItems, setTotalItems] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
@@ -30,7 +32,7 @@ export default function CartComponent(){
 
     // click to place order
     const onClickPlaceOrder = ()=>{
-        window.location.href=ORDER_PATH;
+        navigate(ORDER_PATH);
     }
 
     // calculate totalprice

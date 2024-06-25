@@ -1,18 +1,10 @@
-import { useContext, useEffect } from "react"
+import { useContext } from "react"
 import { Category } from "../../../../model/Type"
 import CategoriesDetailbox from "../../../shared/functions/categoriesDetailBox/CategoriesDetailbox"
 import CategoriesContext from "../../../contexts/CategoriesContext"
 
 export default function CategoriesComponent(){
     const categories = useContext<Category[]>(CategoriesContext)
-
-    useEffect(()=>{
-        // initial();
-    }, []);
-
-    // function initial(){
-
-    // }
 
     return(
         <>

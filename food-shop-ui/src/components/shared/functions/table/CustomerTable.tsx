@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { CustomerAccount, Pageable } from "../../../../model/Type";
 import PaginationSection from "../../website/sections/paginationSection/PaginationSection";
 
@@ -26,7 +27,11 @@ export default function CustomerTable(prop: Props){
                 {customers.map((customer, index)=>(
                     <tr key={index}>
                         <th scope="row" className="text-align-center">{index+1}</th>
-                        <td><a href={`${path}/${customer.customerID}`}>{customer.customerID}</a></td>
+                        <td>
+                            <Link to={`${path}/${customer.customerID}`}>
+                                {customer.customerID}
+                            </Link>
+                        </td>
                         <td>{customer.contactName}</td>
                         <td>{customer.username}</td>
                         <td>{customer.email}</td>

@@ -55,7 +55,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         ResponseFormat response = new ResponseFormat();
         response.setError(exception.getMessage());
         response.setStatus(false);
-        return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(response);
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(EntityExistsException.class)

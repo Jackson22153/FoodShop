@@ -12,6 +12,7 @@ import { CUSTOMER_NOTIFICATION, EMPLOYEE_NOTIFICATION } from "../../../../consta
 import { getPageNumber } from "../../../../service/Pageable";
 import notificationMessagesContext from "../../../contexts/NotificationMessagesContext";
 import { getUrlFromNotification } from "../../../../service/Notification";
+import { Link } from "react-router-dom";
 
 interface Props{
     roles: string[]
@@ -189,7 +190,7 @@ export default function NotificationDropdown(prop:Props){
                 <div className={`dropdown position-absolute z-3 ${IsNotificationDropdownEnabled?'active':''}`}>
                     <div className="notify-body">
                         {notifications.map((notification, index)=>(
-                            <a href={getUrlFromNotification(notification, prop.roles)} key={index} >
+                            <Link to={getUrlFromNotification(notification, prop.roles)} key={index}>
                                 <div className={`notify-item cursor-pointer ${notification.isRead?'read':''}`} 
                                     onClick={(e)=> onClickNotification(e, notification)}>
                                     <div className="notify-img">
@@ -199,12 +200,14 @@ export default function NotificationDropdown(prop:Props){
                                         <p className="text-black">{notification.message}</p>
                                         <span className="notify-time">{subtractTime(notification.time)} ago</span>
                                     </div>
-                                </div>
-                            </a>
+                                </div>   
+                            </Link>
                         ))}
                     </div>
                     <div className="notify-footer">
-                        <a href={getNotificationUrl()} className="btn btn-success btn-block w-100">View All</a>
+                        <Link to={getNotificationUrl()}>
+                            <div className="btn btn-success btn-block w-100">View All</div>
+                        </Link>
                     </div>
                 </div>
             </div>

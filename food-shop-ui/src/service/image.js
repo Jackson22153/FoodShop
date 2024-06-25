@@ -4,7 +4,12 @@ import fb from '../assets/images/fb.png';
 import twitter from '../assets/images/twitter.png';
 import linkedin from '../assets/images/linkedin.png';
 import instagram from '../assets/images/instagram.png';
-import slideImage from '../assets/images/slide-img.png';
+
+
+import slide1Image from '../assets/images/slides/slide1-img.png';
+import slide2Image from '../assets/images/slides/slide2-img.jpg';
+import slide3Image from '../assets/images/slides/slide3-img.png';
+
 import prevIcon from '../assets/images/prev.png';
 import nextIcon from '../assets/images/next.png';
 
@@ -74,7 +79,8 @@ export function getClient(){
 }
 // slide
 export function getSlide(){
-    return slideImage;
+    // return slideImage;
+    return [slide1Image, slide2Image, slide3Image]
 }
 
 function isValidUrl(string) {

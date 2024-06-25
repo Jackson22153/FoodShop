@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { EmployeeAccount, Pageable } from "../../../../model/Type";
 import PaginationSection from "../../website/sections/paginationSection/PaginationSection";
 
@@ -27,7 +28,9 @@ export default function EmployeeTable(prop: Props){
                 {employees.map((employee, index)=>(
                     <tr key={index}>
                         <th scope="row" className="text-align-center">{index+1}</th>
-                        <td><a href={`${path}/${employee.employeeID}`}>{employee.employeeID}</a></td>
+                        <td>
+                            <Link to={`${path}/${employee.employeeID}`}>{employee.employeeID}</Link>
+                        </td>
                         <td>{employee.firstName}</td>
                         <td>{employee.lastName}</td>
                         <td>{employee.username}</td>

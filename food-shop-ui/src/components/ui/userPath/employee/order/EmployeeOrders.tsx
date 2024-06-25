@@ -10,6 +10,7 @@ import { cancelOrder, confirmOrder, fulfillOrder, getOrderSummary, getOrders } f
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
 import { ModalContextType } from "../../../../../model/WebType";
 import modalContext from "../../../../contexts/ModalContext";
+import { Link } from "react-router-dom";
 
 export default function EmployeeOrdersComponent(){
     const [listOrders, setListOrders] = useState<OrderDetail[]>([])
@@ -264,8 +265,9 @@ export default function EmployeeOrdersComponent(){
                                     </div>
                                     <hr />
                                     <div className="d-flex justify-content-end">
-                                        <a href={`${EMPLOYEE_PENDING_ORDER}/${order.orderID}`} 
-                                            className="btn btn-info text-light mx-2">View Order</a>
+                                        <Link to={`${EMPLOYEE_PENDING_ORDER}/${order.orderID}`}>
+                                            <div className="btn btn-info text-light mx-2">View Order</div>
+                                        </Link>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickCancelOrder(order)}>Cancel</button>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickConfirmOrder(order)}>Confirm</button>
                                     </div>
@@ -327,8 +329,9 @@ export default function EmployeeOrdersComponent(){
                                         </div>
                                     </div>
                                     <div className="d-flex justify-content-end">
-                                        <a href={`${EPMLOYEE_CONFIRMED_ORDER}/${order.orderID}`} 
-                                            className="btn btn-info text-light mx-2">View Order</a>
+                                        <Link to={`${EPMLOYEE_CONFIRMED_ORDER}/${order.orderID}`}>
+                                            <div className="btn btn-info text-light mx-2">View Order</div>
+                                        </Link>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickCancelOrder(order)}>Cancel</button>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickFullFillOrder(order)}>Fulfill Order</button>
                                     </div>
@@ -390,7 +393,11 @@ export default function EmployeeOrdersComponent(){
                                     </div>
                                     <hr />
                                     <div className="d-flex justify-content-end">
-                                        <a href={`${EMPLOYEE_ORDER}/${order.orderID}`} className="btn btn-info text-light mx-2">View Order</a>
+                                        <Link to={`${EMPLOYEE_ORDER}/${order.orderID}`}>
+                                            <div className="btn btn-info text-light mx-2">
+                                                View Order
+                                            </div>
+                                        </Link>
                                     </div>
                                 </li>
                             )):
