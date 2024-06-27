@@ -17,6 +17,7 @@ import com.phucx.account.constant.RoleConstant;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.EmployeeNotFoundException;
+import com.phucx.account.exception.NotFoundException;
 import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.EmployeeAccount;
@@ -30,7 +31,6 @@ import com.phucx.account.repository.RoleRepository;
 import com.phucx.account.repository.UserRoleRepository;
 import com.phucx.account.repository.UserRepository;
 
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

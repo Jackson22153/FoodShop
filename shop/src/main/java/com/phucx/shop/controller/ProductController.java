@@ -71,7 +71,7 @@ public class ProductController {
         @RequestBody MultipartFile file,
         @RequestHeader(name = "X-Forwarded-Uri", required = false) String requestUri,
         @RequestHeader(name = "X-Server-Port", required = false) Integer serverPort
-    ) throws IOException {
+    ) throws IOException, NotFoundException {
 
         String filename = productImageService.uploadProductImage(file);
         String imageUrl = productImageService.getCurrentUrl(requestUri, serverPort) + "/" + filename;

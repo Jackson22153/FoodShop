@@ -18,18 +18,18 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface CartService {
     // add product to cart
     public CartOrderInfo addProduct(String encodedCartJson, List<CartProduct> cartProducts, HttpServletResponse response) 
-        throws JsonProcessingException, InsufficientResourcesException;
+        throws JsonProcessingException, InsufficientResourcesException, NotFoundException;
     // remove product from cart
-    public CartOrderInfo removeProduct(Integer productID, String encodedCartJson, HttpServletResponse response) throws JsonProcessingException;
+    public CartOrderInfo removeProduct(Integer productID, String encodedCartJson, HttpServletResponse response) throws JsonProcessingException, NotFoundException;
     public CartOrderInfo removeProducts(HttpServletResponse response) throws JsonProcessingException;
     // get order cart product
-    public CartOrderInfo getCartProducts(String encodedCartJson) throws JsonProcessingException;
+    public CartOrderInfo getCartProducts(String encodedCartJson) throws JsonProcessingException, NotFoundException;
     // get order for user to check out
     public OrderWithProducts getOrder(String encodedCartJson, String userID) 
         throws JsonProcessingException, EmptyCartException, InvalidOrderException, NotFoundException;
     // update product in cart
     public CartOrderInfo updateCartCookie(String encodedCartJson, List<CartProduct> cartProducts, HttpServletResponse response) 
-        throws JsonProcessingException, InsufficientResourcesException;
+        throws JsonProcessingException, InsufficientResourcesException, NotFoundException;
     // get number of products
         public CartProductsCookie getNumberOfProducts(String encodedCartJson) throws JsonProcessingException;
     // get list of product in cart

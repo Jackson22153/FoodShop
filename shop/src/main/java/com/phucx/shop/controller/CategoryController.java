@@ -58,7 +58,7 @@ public class CategoryController {
         @RequestBody MultipartFile file,
         @RequestHeader(name = "X-Forwarded-Uri", required = false) String requestUri,
         @RequestHeader(name = "X-Server-Port", required = false) Integer serverPort
-    ) throws IOException {
+    ) throws IOException, NotFoundException {
 
         String filename = categoryImageService.uploadCategoryImage(file);
         String imageUrl = categoryImageService.getCurrentUrl(requestUri, serverPort) + "/" + filename;

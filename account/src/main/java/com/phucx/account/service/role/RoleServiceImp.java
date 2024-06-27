@@ -11,11 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.constant.RoleConstant;
+import com.phucx.account.exception.NotFoundException;
 import com.phucx.account.exception.RoleNotFoundException;
 import com.phucx.account.model.Role;
 import com.phucx.account.repository.RoleRepository;
-
-import jakarta.ws.rs.NotFoundException;
 
 @Service
 public class RoleServiceImp implements RoleService{

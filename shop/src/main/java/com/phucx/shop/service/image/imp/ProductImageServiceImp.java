@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.phucx.shop.config.FileProperties;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
@@ -38,7 +39,7 @@ public class ProductImageServiceImp implements ProductImageService{
     }
 
     @Override
-    public String uploadProductImage(MultipartFile file) throws IOException {
+    public String uploadProductImage(MultipartFile file) throws IOException, NotFoundException {
         log.info("uploadProductImage({})", file);
         String imageName = imageService.uploadImage(file, fileProperties.getProductImageLocation());
         return imageName;

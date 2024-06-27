@@ -10,18 +10,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.service.image.ImageService;
 
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class ImageServiceImp implements ImageService{
     @Override
-    public String uploadImage(MultipartFile file, String imageLocation) throws IOException {
+    public String uploadImage(MultipartFile file, String imageLocation) throws IOException, NotFoundException {
         log.info("uploadImage(file={}, imageLocation={})", file.getOriginalFilename(), imageLocation);
-        if(file.isEmpty()) throw new NotFoundException("Image does not found");
+        if(file.isEmpty()) throw new NotFoundException("Your Image does not found");
         // set filename
         String filename = file.getOriginalFilename();
         int dotIndex = filename.lastIndexOf(".");

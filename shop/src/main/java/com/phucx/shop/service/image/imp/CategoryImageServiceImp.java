@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.phucx.shop.config.FileProperties;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.Category;
 import com.phucx.shop.service.image.CategoryImageService;
 import com.phucx.shop.service.image.ImageService;
@@ -62,7 +63,7 @@ public class CategoryImageServiceImp implements CategoryImageService{
     }
 
     @Override
-    public String uploadCategoryImage(MultipartFile file) throws IOException {
+    public String uploadCategoryImage(MultipartFile file) throws IOException, NotFoundException {
         log.info("uploadCategoryImage({})", file);
         return imageService.uploadImage(file, fileProperties.getCategoryImageLocation());
     }

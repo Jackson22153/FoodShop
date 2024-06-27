@@ -42,7 +42,7 @@ public class CartController {
     public ResponseEntity<CartOrderInfo> updateCartCookie(
         HttpServletResponse response, @RequestBody List<CartProduct> products,
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson
-    ) throws JsonProcessingException, InsufficientResourcesException {
+    ) throws JsonProcessingException, InsufficientResourcesException, NotFoundException {
         CartOrderInfo cartOrder = cartService.updateCartCookie(cartJson, products, response);
         return ResponseEntity.ok().body(cartOrder);
     }
@@ -53,7 +53,7 @@ public class CartController {
     public ResponseEntity<CartOrderInfo> addProduct(
         HttpServletResponse response, @RequestBody List<CartProduct> products,
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson
-    ) throws JsonProcessingException, InsufficientResourcesException {
+    ) throws JsonProcessingException, InsufficientResourcesException, NotFoundException {
         CartOrderInfo cartOrder = cartService.addProduct(cartJson, products, response);
         return ResponseEntity.ok().body(cartOrder);
     }
@@ -63,7 +63,7 @@ public class CartController {
     public ResponseEntity<CartOrderInfo> deleteCartProductCookie(HttpServletResponse response, 
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson,
         @PathVariable("productID") Integer productID
-    ) throws JsonProcessingException{
+    ) throws JsonProcessingException, NotFoundException{
         CartOrderInfo cartOrder = cartService.removeProduct(productID, cartJson, response);
         return ResponseEntity.ok().body(cartOrder); 
     }
@@ -81,7 +81,7 @@ public class CartController {
     @GetMapping("/products")
     public ResponseEntity<CartOrderInfo> getOrderItems(
         @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson
-    ) throws JsonProcessingException{
+    ) throws JsonProcessingException, NotFoundException{
         CartOrderInfo order = cartService.getCartProducts(cartJson);
         return ResponseEntity.ok().body(order);
     }

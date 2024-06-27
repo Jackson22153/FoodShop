@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
@@ -13,7 +14,7 @@ public interface ProductImageService {
     // get image
     public byte[] getProductImage(String imageName) throws IOException;
     // upload image
-    public String uploadProductImage(MultipartFile file) throws IOException;
+    public String uploadProductImage(MultipartFile file) throws IOException, NotFoundException;
     // get mimetype for response
     public String getProductMimeType(String file) throws IOException;
 

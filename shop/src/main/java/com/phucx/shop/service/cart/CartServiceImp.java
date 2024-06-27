@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.shop.constant.CookieConstant;
 import com.phucx.shop.exceptions.EmptyCartException;
 import com.phucx.shop.exceptions.InvalidOrderException;
+import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.CartOrderInfo;
 import com.phucx.shop.model.CartProduct;
 import com.phucx.shop.model.CartProductInfo;
@@ -33,7 +34,6 @@ import com.phucx.shop.service.product.ProductService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -50,7 +50,7 @@ public class CartServiceImp implements CartService{
 
     @Override
     public CartOrderInfo updateCartCookie(String encodedCartJson, List<CartProduct> products, HttpServletResponse response) 
-        throws JsonProcessingException, InsufficientResourcesException {
+        throws JsonProcessingException, InsufficientResourcesException, NotFoundException {
         log.info("updateCartCookie(encodedCartJson={}, orderItem={})", encodedCartJson, products);
         if(products==null || products.isEmpty()){ throw new NotFoundException("Product does not found");}
         // get existed cart from json format
@@ -109,7 +109,7 @@ public class CartServiceImp implements CartService{
     
     @Override
     public CartOrderInfo removeProduct(Integer productID, String encodedcartJson, HttpServletResponse response) 
-         throws JsonProcessingException {
+         throws JsonProcessingException, NotFoundException {
         if(productID!=null){
             TypeReference<List<CartProduct>> typeRef = new TypeReference<List<CartProduct>>() {};
             List<CartProduct> items = new ArrayList<>();
@@ -140,7 +140,7 @@ public class CartServiceImp implements CartService{
         return Base64.getEncoder().encodeToString(cookie.getBytes());
     }
     // create an order from cart items 
-    private OrderWithProducts createOrderDetail(List<CartProduct> products){   
+    private OrderWithProducts createOrderDetail(List<CartProduct> products) throws NotFoundException{   
         log.info("createOrderDetail({})", products);
         List<Integer> productIDs = products.stream()
             .map(CartProduct::getProductID)
@@ -219,7 +219,7 @@ public class CartServiceImp implements CartService{
     }
 
     // get order in cart
-    private OrderWithProducts getPurchaseOrder(String encodedCartJson) throws JsonProcessingException, EmptyCartException, InvalidOrderException{
+    private OrderWithProducts getPurchaseOrder(String encodedCartJson) throws JsonProcessingException, EmptyCartException, InvalidOrderException, NotFoundException{
         if(encodedCartJson==null){
             throw new EmptyCartException("Your cart does not have any products");
         } 
@@ -239,7 +239,7 @@ public class CartServiceImp implements CartService{
 
     // return order including ship address, name, phone and products of order in cart
     @Override
-    public CartOrderInfo getCartProducts(String encodedCartJson) throws JsonProcessingException {
+    public CartOrderInfo getCartProducts(String encodedCartJson) throws JsonProcessingException, NotFoundException {
         log.info("getCartProducts(encodedCartJson={})", encodedCartJson);
         return this.getCartOrder(encodedCartJson);
     }
@@ -247,7 +247,7 @@ public class CartServiceImp implements CartService{
 
 
     // get order in cart
-    private CartOrderInfo getCartOrder(String encodedCartJson) throws JsonProcessingException{
+    private CartOrderInfo getCartOrder(String encodedCartJson) throws JsonProcessingException, NotFoundException{
         if(encodedCartJson==null){
             return new CartOrderInfo();
         }   
@@ -259,7 +259,7 @@ public class CartServiceImp implements CartService{
         return this.createCartOrder(listProducts);
     }
 
-    private CartOrderInfo createCartOrder(List<CartProduct> products){
+    private CartOrderInfo createCartOrder(List<CartProduct> products) throws NotFoundException{
         log.info("createCartOrder({})", products);
         if(products==null || products.isEmpty()) return new CartOrderInfo();
         // extract productIDs from products
@@ -312,7 +312,7 @@ public class CartServiceImp implements CartService{
 
     @Override
     public CartOrderInfo addProduct(String encodedCartJson, List<CartProduct> cartProducts,
-            HttpServletResponse response) throws JsonProcessingException, InsufficientResourcesException {
+            HttpServletResponse response) throws JsonProcessingException, InsufficientResourcesException, NotFoundException {
         log.info("addProduct(encodedCartJson={}, cartProducts={})", encodedCartJson, cartProducts);
         if(cartProducts==null || cartProducts.isEmpty()){ throw new NotFoundException("Product does not found");}
         // get existed cart from json format

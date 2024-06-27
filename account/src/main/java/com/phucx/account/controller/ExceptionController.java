@@ -8,13 +8,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.EmployeeNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
+import com.phucx.account.exception.NotFoundException;
 import com.phucx.account.exception.RoleNotFoundException;
 import com.phucx.account.exception.ShipperNotFoundException;
 import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.ResponseFormat;
 
 import jakarta.persistence.EntityExistsException;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
