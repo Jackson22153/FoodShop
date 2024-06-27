@@ -24,6 +24,8 @@ import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.service.order.EmployeeOrderService;
 import com.phucx.order.service.order.OrderService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/employee")
 public class EmployeeOrderController {
@@ -33,6 +35,7 @@ public class EmployeeOrderController {
     private OrderService orderService;
     // CONFIRM AN ORDER
     @LoggerAspect
+    @Operation(summary = "Confirm a pending order", tags = {"tutorials", "post", "employee"})
     @PostMapping("/order/confirm")
     public ResponseEntity<Void> confirmOrder(
         @RequestBody OrderWithProducts order, 
@@ -44,6 +47,7 @@ public class EmployeeOrderController {
     }
     // CANCEL AN ORDER
     @LoggerAspect
+    @Operation(summary = "Cancel an order", tags = {"tutorials", "post", "employee"})
     @PostMapping("/order/cancel")
     public ResponseEntity<Void> cancelOrder(
         @RequestBody OrderWithProducts order, 
@@ -62,6 +66,7 @@ public class EmployeeOrderController {
     }
     // FULFILL ORDER
     @LoggerAspect
+    @Operation(summary = "Fulfill an order", tags = {"tutorials", "post", "employee"})
     @PostMapping("/order/fulfill")
     public ResponseEntity<Void> fulfillOrder(
         @RequestBody OrderWithProducts order, Authentication authentication
@@ -73,6 +78,7 @@ public class EmployeeOrderController {
 
 
     // get order of emloyee
+    @Operation(summary = "Get an order by id", tags = {"tutorials", "get", "employee"})
     @GetMapping("/orders/{orderID}")
     public ResponseEntity<OrderWithProducts> getOrder(
         @PathVariable(name = "orderID") String orderID, 
@@ -86,6 +92,7 @@ public class EmployeeOrderController {
     }
 
     // GET ALL ORDERS WHICH EMPLOYEE HAS APPROVED
+    @Operation(summary = "Get orders", tags = {"tutorials", "get", "employee"})
     @GetMapping("/orders")
     public ResponseEntity<Page<OrderDetails>> getOrders(
         @RequestParam(name = "page", required = false) Integer pageNumber,
@@ -102,6 +109,8 @@ public class EmployeeOrderController {
     }
 
     // get order summary
+    @Operation(summary = "Get order summary", tags = {"tutorials", "get", "employee"},
+        description = "Get number of pending orders")
     @GetMapping("/summary")
     public ResponseEntity<OrderSummary> getSummaryOrders(){
         OrderSummary summary = orderService.getOrderSummary();

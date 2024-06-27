@@ -12,12 +12,17 @@ import com.phucx.account.model.User;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.service.user.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
     @Autowired
     private UserService userService;
 
+    @Operation(summary = "Get user information", 
+        tags = {"get", "tutorials", "public"},
+        description = "Get username, roles of a user")
     @GetMapping("/userInfo")
     public ResponseEntity<UserInfo> getUserInfo(Authentication authentication) throws UserNotFoundException{
         UserInfo user = new UserInfo();

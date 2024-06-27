@@ -55,7 +55,8 @@ public class WebConfig {
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/customer/**").hasRole("CUSTOMER")
             .requestMatchers("/employee/**").hasRole("EMPLOYEE")
-            .requestMatchers("/actuator/**").hasRole("ADMIN")
+            .requestMatchers("/actuator/**").permitAll()
+            .requestMatchers("/swagger-ui/**", "v3/**", "/document/**").permitAll()
             .requestMatchers("/image/**").permitAll()
             .anyRequest().authenticated());
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt

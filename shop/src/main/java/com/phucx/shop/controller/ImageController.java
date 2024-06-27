@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.phucx.shop.service.image.CategoryImageService;
 import com.phucx.shop.service.image.ProductImageService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/image")
 public class ImageController {
@@ -20,7 +22,7 @@ public class ImageController {
     @Autowired
     private CategoryImageService categoryImageService;
 
-
+    @Operation(summary = "Get product's image", tags = {"tutorials", "get", "public"})
     @GetMapping("/product/{imageName}")
     public ResponseEntity<byte[]> getProductImage(@PathVariable String imageName) throws IOException {
         byte[] image = productImageService.getProductImage(imageName);
@@ -28,7 +30,7 @@ public class ImageController {
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(mimeType)).body(image);
     }
 
-
+    @Operation(summary = "Get category's image", tags = {"tutorials", "get", "public"})
     @GetMapping("/category/{imageName}")
     public ResponseEntity<byte[]> getCategoryImage(@PathVariable String imageName) throws IOException {
         byte[] image = categoryImageService.getCategoryImage(imageName);

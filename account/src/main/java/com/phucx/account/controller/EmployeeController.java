@@ -23,6 +23,8 @@ import com.phucx.account.service.employee.EmployeeService;
 import com.phucx.account.service.image.EmployeeImageService;
 import com.phucx.account.service.user.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("employee")
 public class EmployeeController {
@@ -34,11 +36,15 @@ public class EmployeeController {
     private EmployeeImageService employeeImageService;
 
 
+    @Operation(summary = "Check user role", 
+        tags = {"get", "tutorials", "employee"})
     @GetMapping("/isEmployee")
     public ResponseEntity<ResponseFormat> isEmployee(){
         return ResponseEntity.ok().body(new ResponseFormat(true));
     }
     // GET EMPLOYEE'S INFORMATION
+    @Operation(summary = "Get employee information", 
+        tags = {"get", "tutorials", "employee"})
     @GetMapping("/info")
     public ResponseEntity<EmployeeDetail> getUserInfo(Authentication authentication) throws UserNotFoundException{
         String username = userService.getUsername(authentication);
@@ -46,6 +52,8 @@ public class EmployeeController {
         return ResponseEntity.ok().body(employee);
     }
     // UPDATE EMPLOYEE'S INFORMATION
+    @Operation(summary = "Update user info", 
+        tags = {"post", "tutorials", "employee"})
     @PostMapping("/info")
     public ResponseEntity<ResponseFormat> updateUserInfo(
         @RequestBody EmployeeDetail employee
@@ -55,6 +63,8 @@ public class EmployeeController {
     }
 
     // set image
+    @Operation(summary = "Upload employee image", 
+        tags = {"post", "tutorials", "employee"})
     @PostMapping(value = "/image/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImageFormat> uploadEmployeeImage(
         @RequestBody MultipartFile file,

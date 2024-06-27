@@ -31,6 +31,8 @@ import com.phucx.account.service.employee.EmployeeService;
 import com.phucx.account.service.role.RoleService;
 import com.phucx.account.service.user.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 
 @RestController
 @RequestMapping("admin")
@@ -44,13 +46,18 @@ public class AdminController {
     @Autowired
     private RoleService roleService;
 
+    @Operation(summary = "Check user role", 
+        tags = {"get", "tutorials", "admin"},
+        description = "Check whether a user is admin or not")
     @GetMapping("/isAdmin")
     public ResponseEntity<ResponseFormat> isAdmin(){
         ResponseFormat format = new ResponseFormat();
         format.setStatus(true);
         return ResponseEntity.ok().body(format);
     }
-// customers
+    // customers
+    @Operation(summary = "Add new customer", 
+        tags = {"put", "tutorials", "admin"})
     @PutMapping("/customers")
     public ResponseEntity<ResponseFormat> addCustomer(
         @RequestBody CustomerAccount customerAccount
@@ -58,6 +65,9 @@ public class AdminController {
         Boolean status = customerService.addNewCustomer(customerAccount);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
+
+    @Operation(summary = "Get customers", 
+        tags = {"get", "tutorials", "admin"})
     @GetMapping("/customers")
     public ResponseEntity<Page<CustomerAccount>> getCustomers(
         @RequestParam(name = "page", required = false) Integer pageNumber,
@@ -76,6 +86,8 @@ public class AdminController {
         return ResponseEntity.ok().body(customers);
     }
 
+    @Operation(summary = "Get user by CustomerID", 
+        tags = {"get", "tutorials", "admin"})
     @GetMapping("/customers/{customerID}")
     public ResponseEntity<CustomerDetails> getUserByCustomerID(
         @PathVariable(name = "customerID") String customerID
@@ -84,6 +96,8 @@ public class AdminController {
         return ResponseEntity.ok().body(customer);
     }
     // employees
+    @Operation(summary = "Add new employee", 
+        tags = {"put", "tutorials", "admin"})
     @PutMapping("/employees")
     public ResponseEntity<ResponseFormat> addEmployee(
         @RequestBody EmployeeAccount employeeAccount
@@ -91,6 +105,9 @@ public class AdminController {
         Boolean status = employeeService.addNewEmployee(employeeAccount);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
+
+    @Operation(summary = "Get employees", 
+        tags = {"get", "tutorials", "admin"})
     @GetMapping("/employees")
     public ResponseEntity<Page<EmployeeAccount>> getEmployees(
         @RequestParam(name = "page", required = false) Integer pageNumber,
@@ -111,6 +128,8 @@ public class AdminController {
         return ResponseEntity.ok().body(employees);
     }
 
+    @Operation(summary = "Get employee by EmployeeID", 
+        tags = {"get", "tutorials", "admin"})
     @GetMapping("/employees/{employeeID}")
     public ResponseEntity<EmployeeDetails> getEmployeeDetail(
         @PathVariable(name = "employeeID") String employeeID
@@ -119,6 +138,8 @@ public class AdminController {
         return ResponseEntity.ok().body(employee);
     }
     
+    @Operation(summary = "Update employee information", 
+        tags = {"post", "tutorials", "admin"})
     @PostMapping("/employees")
     public ResponseEntity<ResponseFormat> updateEmployeeDetail(
         @RequestBody Employee employee
@@ -126,7 +147,10 @@ public class AdminController {
         Boolean status = employeeService.updateAdminEmployeeInfo(employee);
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
-// users
+
+    // users
+    @Operation(summary = "Get users", 
+        tags = {"get", "tutorials", "admin"})
     @GetMapping("/users")
     public ResponseEntity<Page<UserRole>> getUsers(
         @RequestParam(name = "page", required = false) Integer pageNumber,
@@ -145,6 +169,8 @@ public class AdminController {
         return ResponseEntity.ok().body(users);
     }
 
+    @Operation(summary = "Reset password for a user", 
+        tags = {"post", "tutorials", "admin"})
     @PostMapping("/users/{userID}/password")
     public ResponseEntity<ResponseFormat> resetPassword(
         @PathVariable(name = "userID") String userID
@@ -153,6 +179,8 @@ public class AdminController {
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
 
+    @Operation(summary = "Get roles", 
+        tags = {"post", "tutorials", "admin"})
     @PostMapping("/users/roles")
     public ResponseEntity<ResponseFormat> assignRoles(
         @RequestBody UserInfo user
@@ -161,6 +189,9 @@ public class AdminController {
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
     // roles
+    @Operation(summary = "Get employee valid roles", 
+        tags = {"get", "tutorials", "admin"},
+        description = "Get valid roles for an employee like admin or employee,...")
     @GetMapping("/roles/employee")
     public ResponseEntity<Page<Role>> getRolesEmployee(
         @RequestParam(name = "page", required = false) Integer pageNumber

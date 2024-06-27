@@ -21,6 +21,8 @@ import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.service.category.CategoryService;
 import com.phucx.shop.service.image.CategoryImageService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
@@ -29,6 +31,7 @@ public class CategoryController {
     @Autowired
     private CategoryImageService categoryImageService;
     // category
+    @Operation(summary = "Update category", tags = {"tutorials", "post", "admin"})
     @PostMapping
     public ResponseEntity<ResponseFormat> updateCategory(
         @RequestBody Category category
@@ -37,6 +40,8 @@ public class CategoryController {
         ResponseFormat data = new ResponseFormat(check);
         return ResponseEntity.ok().body(data);
     }
+
+    @Operation(summary = "Add new category", tags = {"tutorials", "put", "admin"})
     @PutMapping
     public ResponseEntity<ResponseFormat> createCategory(
         @RequestBody Category category
@@ -47,6 +52,7 @@ public class CategoryController {
     }
 
      // set image
+     @Operation(summary = "Upload category image", tags = {"tutorials", "post", "admin"})
     @PostMapping(value = "/image/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImageFormat> uploadCategoryImage(
         @RequestBody MultipartFile file,

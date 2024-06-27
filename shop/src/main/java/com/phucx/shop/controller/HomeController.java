@@ -9,6 +9,8 @@ import com.phucx.shop.model.ProductDetail;
 import com.phucx.shop.service.category.CategoryService;
 import com.phucx.shop.service.product.ProductService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,7 @@ public class HomeController {
     private ProductService productService;
 
     // Category
+    @Operation(summary = "Get all categories", tags = {"tutorials", "get", "public"})
     @GetMapping("categories")
     public ResponseEntity<Page<Category>> getCategories(
         @RequestParam(name = "page", required = false) Integer pageNumber
@@ -38,6 +41,7 @@ public class HomeController {
         return ResponseEntity.ok().body(data);
     }
 
+    @Operation(summary = "Get category by name", tags = {"tutorials", "get", "public"})
     @GetMapping("categories/name/{categoryName}")
     public ResponseEntity<Category> getCategory(
         @PathVariable(name = "categoryName") String categoryName
@@ -46,6 +50,7 @@ public class HomeController {
         return ResponseEntity.ok().body(data);
     }
 
+    @Operation(summary = "Get category by id", tags = {"tutorials", "get", "public"})
     @GetMapping("categories/id/{categoryID}")
     public ResponseEntity<Category> getCategoryByID(
         @PathVariable(name = "categoryID") Integer categoryID
@@ -54,6 +59,7 @@ public class HomeController {
         return ResponseEntity.ok().body(data);
     }
 
+    @Operation(summary = "Get products by category", tags = {"tutorials", "get", "public"})
     @GetMapping("categories/{categoryName}/products")
     public ResponseEntity<Page<CurrentProduct>> getProductsByCategoryName(
         @PathVariable(name = "categoryName") String categoryName,
@@ -67,6 +73,7 @@ public class HomeController {
 
 
     // products
+    @Operation(summary = "Get products", tags = {"tutorials", "get", "public"})
     @GetMapping("products")
     public ResponseEntity<Page<CurrentProduct>> getProducts(
         @RequestParam(name = "page", required = false) Integer pageNumber
@@ -76,12 +83,14 @@ public class HomeController {
         return ResponseEntity.ok().body(productsPageable);
     }
     
+    @Operation(summary = "Get product by id", tags = {"tutorials", "get", "public"})
     @GetMapping("products/id/{productID}")
     public ResponseEntity<ProductDetail> getProductByID(@PathVariable(name = "productID") Integer productID) throws NotFoundException{
         ProductDetail productDetails = productService.getProductDetail(productID);
         return ResponseEntity.ok().body(productDetails);
     }
 
+    @Operation(summary = "Get recommended products", tags = {"tutorials", "get", "public"})
     @GetMapping("/products/recommended")
     public ResponseEntity<List<CurrentProduct>> getRecommendedProducts(){
         List<CurrentProduct> products = productService

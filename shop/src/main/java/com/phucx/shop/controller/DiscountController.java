@@ -22,12 +22,16 @@ import com.phucx.shop.model.DiscountWithProduct;
 import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.service.discount.DiscountService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/discount")
 public class DiscountController {
     @Autowired
     private DiscountService discountService;
      // discount
+
+    @Operation(summary = "Add new discount", tags = {"tutorials", "put", "admin"})
     @PutMapping
     public ResponseEntity<ResponseFormat> insertDiscount(
         @RequestBody DiscountWithProduct discount
@@ -39,6 +43,7 @@ public class DiscountController {
         return ResponseEntity.ok().body(data);
     }
 
+    @Operation(summary = "Update discount", tags = {"tutorials", "post", "admin"})
     @PostMapping
     public ResponseEntity<ResponseFormat> updateDiscount(
         @RequestBody DiscountWithProduct discount
@@ -48,6 +53,7 @@ public class DiscountController {
         return ResponseEntity.ok().body(data);
     }
 
+    @Operation(summary = "Update discount status", tags = {"tutorials", "post", "admin"})
     @PostMapping("/status")
     public ResponseEntity<ResponseFormat> updateDiscountStatus(
         @RequestBody Discount discount
@@ -57,6 +63,7 @@ public class DiscountController {
         return ResponseEntity.ok().body(data);
     }
 
+    @Operation(summary = "Get discounts of a product", tags = {"tutorials", "get", "admin"})
     @GetMapping("/product/{productID}")
     public ResponseEntity<Page<DiscountDetail>> getDiscountsByProductID(
         @PathVariable(name = "productID") Integer productID,
@@ -68,6 +75,7 @@ public class DiscountController {
         return ResponseEntity.ok().body(discounts);
     }
 
+    @Operation(summary = "Get discount by id", tags = {"tutorials", "get", "admin"})
     @GetMapping("/{discountID}")
     public ResponseEntity<DiscountDetail> getDiscountDetail(
         @PathVariable(name = "discountID") String discountID
@@ -76,6 +84,7 @@ public class DiscountController {
         return ResponseEntity.ok().body(discount);
     }
 
+    @Operation(summary = "Get discount's types ", tags = {"tutorials", "get", "admin"})
     @GetMapping("/type")
     public ResponseEntity<Page<DiscountType>> getDiscountTypes(
         @RequestParam(name = "page", required = false) Integer pageNumber

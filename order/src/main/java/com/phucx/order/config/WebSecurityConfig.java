@@ -36,12 +36,11 @@ public class WebSecurityConfig {
         http.csrf(csrf -> csrf.disable());
         http.headers(header -> header.frameOptions(frame -> frame.sameOrigin()));
         http.authorizeHttpRequests(request -> request
-            .anyRequest().permitAll());
-            // .requestMatchers("/customer/**").hasRole("CUSTOMER")
-            // .requestMatchers("/employee/**").hasRole("EMPLOYEE")
-            // .requestMatchers("/actuator/**").hasRole("ADMIN")
-            // .requestMatchers("/chat/**").permitAll()
-            // .anyRequest().authenticated());
+            .requestMatchers("/customer/**").hasRole("CUSTOMER")
+            .requestMatchers("/employee/**").hasRole("EMPLOYEE")
+            .requestMatchers("/actuator/**").permitAll()
+            .requestMatchers("/swagger-ui/**", "/v3/**", "/document/**").permitAll()
+            .anyRequest().denyAll());
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt
             .jwtAuthenticationConverter(jwtAuthenticationConverter)));
         return http.build();

@@ -41,9 +41,11 @@ public class WebConfig {
         http.cors(Customizer.withDefaults());
         http.authorizeHttpRequests(request -> request
             .requestMatchers("/home/**", "/image/**", "/search/**").permitAll()
-            .requestMatchers("/discount/**", "/category/**", "/product/**", "/actuator/**").hasRole("ADMIN")
+            .requestMatchers("/discount/**", "/category/**", "/product/**").hasRole("ADMIN")
             .requestMatchers("/cart/**").hasRole("CUSTOMER")
-            .anyRequest().authenticated());
+            .requestMatchers("/actuator/**").permitAll()
+            .requestMatchers("/document/**", "/v3/**", "/swagger-ui/**").permitAll()
+            .anyRequest().denyAll());
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt
             .jwtAuthenticationConverter(jwtAuthenticationConverter)));
         return http.build();

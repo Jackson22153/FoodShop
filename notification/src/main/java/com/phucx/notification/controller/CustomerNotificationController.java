@@ -20,6 +20,8 @@ import com.phucx.notification.model.ResponseFormat;
 import com.phucx.notification.service.notification.MarkUserNotificationService;
 import com.phucx.notification.service.notification.NotificationService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 
 @RestController
 @RequestMapping("/customer")
@@ -29,6 +31,8 @@ public class CustomerNotificationController {
     @Autowired
     private MarkUserNotificationService markUserNotificationService;
 
+    @Operation(summary = "Mark notification as read", tags = {"customer", "tutorials", "post"},
+        description = "Update notification status")
     @PostMapping("/notification/mark")
     public ResponseEntity<ResponseFormat> markAsReadNotification(
         @RequestParam(name = "type", required = true) String marktype,
@@ -41,6 +45,7 @@ public class CustomerNotificationController {
     }
 
     // GET NOTIFICATIONS
+    @Operation(summary = "Get notifications", tags = {"customer", "tutorials", "get"})
     @GetMapping("/notification")
     public ResponseEntity<Page<NotificationDetail>> getNotifications(
         @RequestParam(name = "page", required = false) Integer pageNumber,
@@ -54,6 +59,8 @@ public class CustomerNotificationController {
         return ResponseEntity.ok().body(notifications);
     }
 
+    @Operation(summary = "Get notification summary", tags = {"customer", "tutorials", "get"},
+        description = "Get number of unread notifications")
     @GetMapping("/summary")
     public ResponseEntity<NotificationSummary> getNotificationSummary(Authentication authentication){
         NotificationSummary notificationSummary = new NotificationSummary();

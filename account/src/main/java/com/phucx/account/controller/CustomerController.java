@@ -23,6 +23,8 @@ import com.phucx.account.service.customer.CustomerService;
 import com.phucx.account.service.image.CustomerImageService;
 import com.phucx.account.service.user.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("customer")
 public class CustomerController {
@@ -33,11 +35,15 @@ public class CustomerController {
     @Autowired
     private CustomerImageService customerImageService;
 
+    @Operation(summary = "Check user's role", 
+        tags = {"get", "tutorials", "customer"})
     @GetMapping("/isCustomer")
     public ResponseEntity<ResponseFormat> isCustomer(){
         return ResponseEntity.ok().body(new ResponseFormat(true));
     }
     // GET CUSTOMER'S INFOMATION
+    @Operation(summary = "Get customer information", 
+        tags = {"get", "tutorials", "customer"})
     @GetMapping("/info")
     public ResponseEntity<CustomerDetail> getUserInfo(Authentication authentication) throws UserNotFoundException{
         String username = userService.getUsername(authentication);
@@ -45,6 +51,8 @@ public class CustomerController {
         return ResponseEntity.ok().body(customer);
     }
     // UPDATE CUSTOMER'S INFOMATION
+    @Operation(summary = "Update customer information", 
+        tags = {"post", "tutorials", "customer"})
     @PostMapping("/info")
     public ResponseEntity<ResponseFormat> updateUserInfo(
         Authentication authentication,
@@ -55,6 +63,8 @@ public class CustomerController {
     }
 
     // set image
+    @Operation(summary = "Upload customer's image", 
+        tags = {"post", "tutorials", "customer"})
     @PostMapping(value = "/image/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImageFormat> uploadCustomerImage(
         @RequestBody MultipartFile file,

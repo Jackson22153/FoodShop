@@ -23,6 +23,8 @@ import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.service.image.ProductImageService;
 import com.phucx.shop.service.product.ProductService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/product")
 public class ProductController {
@@ -31,6 +33,7 @@ public class ProductController {
     @Autowired
     private ProductImageService productImageService;
 
+    @Operation(summary = "Update product", tags = {"tutorials", "post", "admin"})
     @PostMapping
     public ResponseEntity<ResponseFormat> updateProductDetail(
         @RequestBody ProductDetail productDetail
@@ -40,6 +43,8 @@ public class ProductController {
 
         return ResponseEntity.ok().body(data);
     }
+
+    @Operation(summary = "Add new product", tags = {"tutorials", "put", "admin"})
     @PutMapping
     public ResponseEntity<ResponseFormat> insertProductDetail(
         @RequestBody ProductDetail productDetail
@@ -49,6 +54,8 @@ public class ProductController {
 
         return ResponseEntity.ok().body(data);
     }
+
+    @Operation(summary = "Get product", tags = {"tutorials", "get", "admin"})
     @GetMapping("/{productID}")
     public ResponseEntity<ProductDetail> getProductDetail(
         @PathVariable Integer productID
@@ -58,6 +65,7 @@ public class ProductController {
     } 
 
     // set image
+    @Operation(summary = "Upload product image", tags = {"tutorials", "post", "admin"})
     @PostMapping(value = "/image/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImageFormat> uploadProductImage(
         @RequestBody MultipartFile file,

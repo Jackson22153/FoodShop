@@ -7,6 +7,8 @@ import com.phucx.shop.config.WebConfig;
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.service.product.ProductService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ public class SearchController {
     @Autowired
     private ProductService productService;
 
+    @Operation(summary = "Search products by name", tags = {"tutorials", "get", "public"})
     @GetMapping("products")
     public ResponseEntity<Page<CurrentProduct>> searchProductsByName(
         @RequestParam(name = "l") String letters,
@@ -34,6 +37,7 @@ public class SearchController {
         return ResponseEntity.badRequest().build();
     }    
 
+    @Operation(summary = "Get recommended products by category", tags = {"tutorials", "get", "public"})
     @GetMapping("recommended/{categoryName}")
     public ResponseEntity<Page<CurrentProduct>> getRecommendedProductByCategory(
         @PathVariable(name = "categoryName") String categoryName,

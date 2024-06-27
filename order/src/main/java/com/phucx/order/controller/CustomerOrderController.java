@@ -24,6 +24,8 @@ import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.service.order.CustomerOrderService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/customer")
 public class CustomerOrderController {
@@ -31,6 +33,7 @@ public class CustomerOrderController {
     private CustomerOrderService customerOrderService;
 
     // ENDPOINT TO PLACE AN ORDER
+    @Operation(summary = "Place an order", tags = {"tutorials", "post", "customer"})
     @LoggerAspect
     @PostMapping("/order/place")
     public ResponseEntity<OrderDetails> placeOrder(@RequestBody OrderWithProducts order, Authentication authentication) 
@@ -41,6 +44,7 @@ public class CustomerOrderController {
     }
 
     @LoggerAspect
+    @Operation(summary = "Receive customer order", tags = {"tutorials", "post", "customer"})
     @PostMapping("/order/receive")
     public ResponseEntity<Void> receiveOrder(@RequestBody OrderWithProducts order, Authentication authentication) 
         throws JsonProcessingException, NotFoundException{
@@ -49,6 +53,7 @@ public class CustomerOrderController {
     }
     
     // get INVOICE of customer
+    @Operation(summary = "Get order by id", tags = {"tutorials", "get", "customer"})
     @GetMapping("/orders/{orderID}")
     public ResponseEntity<InvoiceDetails> getOrder(@PathVariable String orderID, Authentication authentication
     ) throws JsonProcessingException, NotFoundException{    
@@ -56,6 +61,7 @@ public class CustomerOrderController {
         return ResponseEntity.ok().body(order);
     }
     // GET ALL ORDERS OF CUSTOMER
+    @Operation(summary = "Get orders", tags = {"tutorials", "get", "customer"})
     @GetMapping("/orders")
     public ResponseEntity<Page<OrderDetails>> getOrders(
         @RequestParam(name = "page", required = false) Integer pageNumber,
