@@ -9,6 +9,7 @@ import { ALERT_TIMEOUT, ALERT_TYPE } from '../../../../../constant/WebConstant';
 import { Alert, Modal } from '../../../../../model/WebType';
 import AlertComponent from '../../../../shared/functions/alert/Alert';
 import ModalComponent from '../../../../shared/functions/modal/Modal';
+import ScrollToTop from '../../../../shared/functions/scroll-to-top/ScrollToTop';
 
 export default function AdminAddFoodComponent(){
     const [foodInfo, setFoodInfo] = useState<ProductDetails>({
@@ -17,8 +18,6 @@ export default function AdminAddFoodComponent(){
         quantityPerUnit: 0,
         unitPrice: 0,
         unitsInStock: 0,
-        unitsOnOrder: 0,
-        reorderLevel: 0,
         discontinued: true,
         picture: '',
         description: '',
@@ -27,10 +26,7 @@ export default function AdminAddFoodComponent(){
         endDate: '',
 
         categoryID: 1,
-        categoryName: '',
-        
-        supplierID: 1,
-        companyName: ''
+        categoryName: ''
     });
     const [description, setDescription] = useState("");
     const [alert, setAlert] = useState<Alert>({
@@ -80,8 +76,10 @@ export default function AdminAddFoodComponent(){
     const onChangeDescription = (content: string)=>{
         setDescription(content)
     }
-    const onChangePicture:ChangeEventHandler<HTMLInputElement> = (_event)=>{
-
+    const onChangePicture = (imageUrl: string)=>{
+        if(foodInfo){
+            setFoodInfo({...foodInfo, picture: imageUrl})
+        }
     }
 
     const handleCategoryChange = (event: SelectChangeEvent) => {
@@ -123,13 +121,10 @@ export default function AdminAddFoodComponent(){
                 quantityPerUnit: foodInfo.quantityPerUnit,
                 unitPrice: foodInfo.unitPrice,
                 unitsInStock: foodInfo.unitsInStock ,
-                unitsOnOrder: foodInfo.unitsOnOrder,
-                reorderLevel: foodInfo.reorderLevel,
                 discontinued: foodInfo.discontinued,
                 picture: foodInfo.picture,
                 description: description,
                 categoryID: foodInfo.categoryID,
-                supplierID: foodInfo.supplierID
             }
             try {
                 const res = await addProduct(data);
@@ -160,6 +155,7 @@ export default function AdminAddFoodComponent(){
 
     return(
         <div className="container-fluid container">
+            <ScrollToTop/>
             <AlertComponent alert={alert}/>
             <section className="py-5">
                 <div className="container">
@@ -288,9 +284,8 @@ export default function AdminAddFoodComponent(){
 
             <div className="row">
                 <div className="col-md-5 my-2">
-                    <button className="btn btn-primary" type="submit" onClick={onClickUpdateProduct}
-                    >
-                        Update{`\u00A0`}Product
+                    <button className="btn btn-primary" type="submit" onClick={onClickUpdateProduct}>
+                        Add New Product
                     </button>
                 </div>
             </div>

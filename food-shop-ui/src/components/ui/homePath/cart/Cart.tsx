@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
 import { useNavigate } from 'react-router-dom';
+import ScrollToTop from '../../../shared/functions/scroll-to-top/ScrollToTop';
 
 export default function CartComponent(){
     const navigate = useNavigate()
@@ -234,6 +235,7 @@ export default function CartComponent(){
 
     return(
         <section className="h-100 h-custom cart-section">
+            <ScrollToTop/>
             <div className="container py-5 h-100">
                 <div className="row d-flex justify-content-center align-items-center h-100">
                     <div className="col-12">

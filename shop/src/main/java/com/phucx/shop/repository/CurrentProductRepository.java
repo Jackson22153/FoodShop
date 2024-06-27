@@ -20,8 +20,6 @@ public interface CurrentProductRepository extends JpaRepository<CurrentProduct, 
 
     Page<CurrentProduct> findByCategoryName(String categoryName, Pageable page);
 
-    Page<CurrentProduct> findByProductNameLike(String productName, Pageable pageable);
-
     @Query(nativeQuery = true, value = """
         SELECT  * \
         FROM [Current Product List] \

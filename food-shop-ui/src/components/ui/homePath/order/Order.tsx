@@ -10,6 +10,7 @@ import { NOTIFICATION_TYPE } from "../../../../constant/WebConstant";
 import userInfoContext from "../../../contexts/UserInfoContext";
 import { placeOrder } from "../../../../api/OrderApi";
 import { Link } from "react-router-dom";
+import ScrollToTop from "../../../shared/functions/scroll-to-top/ScrollToTop";
 
 export default function OrderComponent(){
     const [orderInfo, setOrderInfo] = useState<OrderInfo>();
@@ -128,6 +129,7 @@ export default function OrderComponent(){
 
     return(
         <div className="container my-5" id="checkout-order">
+            <ScrollToTop/>
             {orderInfo &&
                 <div className="box-shadow-default rounded-5 col-sm-12 col-md-10 mx-auto col-lg-7">
                     <div className="d-flex flex-column justify-content-center align-items-center position-relative pt-3 rounded-top-5" id="order-heading">
@@ -252,7 +254,7 @@ export default function OrderComponent(){
                         <div className="row">
                             <div className="col-3">
                                 <div className="pt-2">
-                                    <h6 className="mb-0">
+                                    <h6 className="mb-0"> 
                                         <Link to={CART_PATH}>
                                             <div className="text-body">
                                                 <FontAwesomeIcon icon={faLongArrowAltLeft}/> Back to shop
@@ -285,7 +287,9 @@ export default function OrderComponent(){
                         <div className="text-center">
                             <h1>{notification.status.toLowerCase()===NOTIFICATION_TYPE.SUCCESSFUL.toLowerCase()?'Thank You !': 'Error'}</h1>
                             <p>{notification.message}</p>
-                            <a href="/" className="btn btn-outline-success">Back Home</a>
+                            <Link to={"/"}>
+                                <span className="btn btn-outline-success">Back Home</span>
+                            </Link>
                         </div>
                     </div>
                 </div>

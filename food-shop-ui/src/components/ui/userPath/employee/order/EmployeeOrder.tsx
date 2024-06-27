@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import { getOrderDetail } from "../../../../../api/OrderApi";
 import { ModalContextType } from "../../../../../model/WebType";
 import modalContext from "../../../../contexts/ModalContext";
+import ScrollToTop from "../../../../shared/functions/scroll-to-top/ScrollToTop";
 
 export default function EmployeeOrderComponent(){
     const { orderId } = useParams();
@@ -35,6 +36,7 @@ export default function EmployeeOrderComponent(){
 
     return(
         <div id="order-bill-container">
+            <ScrollToTop/>
             {orderInfo &&
                 <div className="box-shadow-default rounded-5 col-sm-12 col-md-10 mx-auto col-lg-7">
                     <div className="d-flex flex-column justify-content-center align-items-center position-relative pt-3 rounded-top-5" id="order-heading">

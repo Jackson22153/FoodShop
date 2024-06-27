@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './Customer.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
@@ -19,6 +19,8 @@ export default function CustomerComponent(){
     const location = useLocation()
     const [isShowedSideBar, setIsShowedSideBar] = useState(false)
     const [selectedPath, setSelectedPath] = useState(0);
+    const sidebarRef = useRef(null)
+    const logoRef = useRef(null)
     const [modal, setModal] = useState<Modal>({
         title: 'Confirm action',
         message: 'Do you want to continute?',
@@ -39,6 +41,8 @@ export default function CustomerComponent(){
         }else if(path === CUSTOMER_NOTIFICATION){
             setSelectedPath(2);
         }
+        // add event to close sidebar when clicking on outside
+        document.addEventListener("click", onClickOutSideSideBar)
     }
     // check customer authentication
     async function checkAuthenticationCustomer(){
@@ -57,12 +61,28 @@ export default function CustomerComponent(){
         }
     }
 
-    // click side bar
+    // on click side bar
     function onClickShowSideBar(){
         toggleIsShowedSideBar();
     }
+    // toggle sidebar
     const toggleIsShowedSideBar = ()=>{
         setIsShowedSideBar(status => !status);
+    }
+    // close sidebar
+    const closeShowedSidebar = ()=>{
+        setIsShowedSideBar(false)
+    }
+    // on click outside sidebar
+    const onClickOutSideSideBar = (event: any)=>{
+        if(logoRef!=null && sidebarRef!=null){
+            const logo = logoRef.current as HTMLElement;
+            const sidebar = sidebarRef.current as HTMLElement;
+            if(!sidebar.contains(event.target as Node) && !logo.contains(event.target as Node)){
+                console.log('outside')
+                closeShowedSidebar();
+            }
+        }
     }
     // logout
     function onClickLogoutButton(){
@@ -89,11 +109,11 @@ export default function CustomerComponent(){
         <div className='my-4 customer-page p-4 position-relative'>
             <div className="container my-5">
                 <nav className='z-3'>
-                    <div className="logo cursor-pointer" onClick={onClickShowSideBar}>
+                    <div className="logo cursor-pointer" onClick={onClickShowSideBar} ref={logoRef}>
                         <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
                         <span className="logo-name">Phucx</span>
                     </div>
-                    <div className={`sidebar ${isShowedSideBar?'show-side-bar':''}`}>
+                    <div className={`sidebar ${isShowedSideBar?'show-side-bar':''}`} ref={sidebarRef}>
                         <div className="sidebar-content py-0">
                             <div className="logo cursor-pointer mx-0" onClick={onClickShowSideBar}>
                                 <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>

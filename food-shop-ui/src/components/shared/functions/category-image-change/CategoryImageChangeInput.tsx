@@ -22,6 +22,7 @@ export const CategoryImageChangeInput = (prop: Props)=>{
         const res = await uploadCategoryImage(file);
         if(200<=res.status&&res.status<300){
             const data = res.data;
+            console.log(data.imageUrl)
             prop.onChangePicture(data.imageUrl);
         }
     }

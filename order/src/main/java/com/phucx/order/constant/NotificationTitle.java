@@ -2,6 +2,7 @@ package com.phucx.order.constant;
 
 public enum NotificationTitle {
     PLACE_ORDER("Place Order"),
+    CONFIRM_ORDER("Confirm Order"),
     RECEIVE_ORDER("Receive Order"),
     CANCEL_ORDER("Cancel Order"),
     FULFILL_ORDER("Fulfill Order"),

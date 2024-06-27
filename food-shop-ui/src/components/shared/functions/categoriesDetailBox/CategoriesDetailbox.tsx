@@ -34,7 +34,7 @@ export default function CategoriesDetailbox(prop:Props){
             </div>
             <div className="col-md-4 d-flex justify-content-center align-items-center">
                 <div className="fruit_img-box d-flex justify-content-center align-items-center img-medium">
-                    <img src={displayProductImage(categoryImageSrc)} alt={categoryTitle} className="" width="100%" />
+                    <img src={displayProductImage(categoryImageSrc)} alt={categoryTitle} className="rounded-4" width="100%" />
                 </div>
             </div>
         </>

@@ -47,10 +47,17 @@ public class EmployeeOrderController {
     @PostMapping("/order/cancel")
     public ResponseEntity<Void> cancelOrder(
         @RequestBody OrderWithProducts order, 
+        @RequestParam(name = "type") String ordertype,
         Authentication authentication
     ) throws JsonProcessingException, NotFoundException{
-        // cancel order
-        employeeOrderService.cancelOrder(order, authentication.getName());
+        // accept pending and confirmed for order type
+        if(OrderStatus.Pending.name().equalsIgnoreCase(ordertype)){
+            // cancel order
+            employeeOrderService.cancelPendingOrder(order, authentication.getName());
+        }else if(OrderStatus.Confirmed.name().equalsIgnoreCase(ordertype)){
+            // cancel order
+            employeeOrderService.cancelConfirmedOrder(order, authentication.getName());
+        }
         return ResponseEntity.ok().build();
     }
     // FULFILL ORDER

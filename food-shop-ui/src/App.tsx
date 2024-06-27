@@ -44,9 +44,9 @@ function App() {
         const roles = roleNames(data);
         // receive notification
         if(roles.includes(ROLE.CUSTOMER.toLowerCase())){
-          customerReceiveNotificationConnect(getNotification);
+          customerReceiveNotificationConnect(receiveNotification);
         }else if(roles.includes(ROLE.EMPLOYEE.toLowerCase())){
-          employeeReceiveNotificationConnect(getNotification);
+          employeeReceiveNotificationConnect(receiveNotification);
         }
       }
     } catch (error) {
@@ -60,7 +60,7 @@ function App() {
       return arr;
     }
   // receive notification from backend
-  const getNotification = (message: any)=>{
+  const receiveNotification = (message: any)=>{
     const notification = message as Notification;
     setNotification(notification)
   }

@@ -8,6 +8,7 @@ import { cancelOrder, confirmOrder, getOrderDetail } from "../../../../../api/Or
 import { EMPLOYEE_ORDER } from "../../../../../constant/FoodShoppingURL";
 import { ModalContextType } from "../../../../../model/WebType";
 import modalContext from "../../../../contexts/ModalContext";
+import ScrollToTop from "../../../../shared/functions/scroll-to-top/ScrollToTop";
 
 export default function EmployeePendingOrderComponent(){
     const { orderId } = useParams();
@@ -56,7 +57,7 @@ export default function EmployeePendingOrderComponent(){
                 orderID: order.orderID,
                 customerID: order.customerID
             }
-            const res = await cancelOrder(data);
+            const res = await cancelOrder(data, ORDER_STATUS.PENDING);
             if(200<=res.status&&res.status<300){
                 window.location.href=EMPLOYEE_ORDER
             }
@@ -85,6 +86,7 @@ export default function EmployeePendingOrderComponent(){
 
     return(
         <div id="order-bill-container">
+            <ScrollToTop/>
             {orderInfo &&
                 <div className="box-shadow-default rounded-5 col-sm-12 col-md-10 mx-auto col-lg-7">
                     <div className="d-flex flex-column justify-content-center align-items-center position-relative pt-3 rounded-top-5" id="order-heading">

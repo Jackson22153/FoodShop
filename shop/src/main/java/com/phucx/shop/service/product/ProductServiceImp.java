@@ -131,7 +131,8 @@ public class ProductServiceImp implements ProductService{
         log.info("searchCurrentProducts(productName={}, pageNumber={}, pageSize={})", productName, pageNumber, pageSize);
         String searchValue = "%"+productName+"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<CurrentProduct> productsPageable = currentProductRepository.findByProductNameLike(searchValue, page);
+        Page<CurrentProduct> productsPageable = currentProductRepository.searchCurrentProductsByProductName(searchValue, page);
+        log.info("SearchProducts: {}", productsPageable.getContent());
         productImageService.setCurrentProductsImage(productsPageable.getContent());
         return productsPageable;
     }

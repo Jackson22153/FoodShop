@@ -30,9 +30,6 @@ export type CurrentProductDetail = {
 
     categoryID: number,
     categoryName: string,
-    companyName: string,
-    supplierID: string
-
 }
 export type Product={
     productID: number,
@@ -40,8 +37,6 @@ export type Product={
     quantityPerUnit: number,
     unitPrice: number,
     unitsInStock: number,
-    unitsOnOrder: number,
-    reorderLevel: number,
     discontinued: boolean,
     picture: string,
     description: string
@@ -52,8 +47,6 @@ export type ProductDetails={
     quantityPerUnit: number,
     unitPrice: number,
     unitsInStock: number,
-    unitsOnOrder: number,
-    reorderLevel: number,
     discontinued: boolean,
     picture: string,
     description: string,
@@ -64,9 +57,6 @@ export type ProductDetails={
 
     categoryID: number,
     categoryName: string,
-    
-    supplierID: number,
-    companyName: string
 }
 // discount
 export type DiscountType={

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,9 @@ import com.phucx.shop.model.Category;
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
     
     Optional<Category> findByCategoryName(String categoryName);
+
+    @Procedure("AddCategory")
+    Boolean addCategory(String categoryname, String description, String picture);
 
     @Modifying
     @Transactional

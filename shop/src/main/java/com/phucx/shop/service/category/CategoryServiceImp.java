@@ -81,11 +81,9 @@ public class CategoryServiceImp implements CategoryService{
         }
         // extract image's name from url
         String picture = this.imageService.getImageName(category.getPicture());
-        category.setPicture(picture);
         // add new category
-        Category newCategory = categoryRepository.save(category);
-        if(newCategory!=null && newCategory.getCategoryID()>0) return true;
-        return false;
+        Boolean result = categoryRepository.addCategory(category.getCategoryName(), category.getDescription(), picture);
+        return result;
         
 	}
 

@@ -10,9 +10,13 @@ import { cancelOrder, confirmOrder, fulfillOrder, getOrderSummary, getOrders } f
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
 import { ModalContextType } from "../../../../../model/WebType";
 import modalContext from "../../../../contexts/ModalContext";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 export default function EmployeeOrdersComponent(){
+
+    const [searchParams] = useSearchParams()
+    const orderParam = searchParams.get("order")!=null?searchParams.get("order").toLowerCase():ORDER_STATUS.PENDING
+
     const [listOrders, setListOrders] = useState<OrderDetail[]>([])
     const [orderSummary, setOrderSummary] = useState<OrderSummary>({
         totalPendingOrders: 0
@@ -21,7 +25,6 @@ export default function EmployeeOrdersComponent(){
     const notificationMessage = useContext<Notification|undefined>(notificationMessagesContext)
     const navHeaderRef = useRef(null)
     const pendingOrdersRef = useRef<any>(null);
-    const [selectedTagOrder, setSelectedTagOrder] = useState(0); 
     const [page, setPage] = useState<Pageable>({
         first: true,
         last: true,
@@ -32,13 +35,51 @@ export default function EmployeeOrdersComponent(){
 
     useEffect(()=>{
         initial();
-    }, [notificationMessage])
+    }, [notificationMessage, orderParam])
 
     function initial(){
-        if(notificationMessage) console.log(notificationMessage)
         const pageNumber = getPageNumber();
         fetchOrderSummary();
-        fetchOrders(pageNumber, ORDER_STATUS.PENDING);
+        fetchOrdersBasedOnStatus(pageNumber);
+    }
+
+
+    function fetchOrdersBasedOnStatus(pageNumber: number){
+        setIsPendingOrder(false);
+        // get orders
+        switch (orderParam){
+            // pending orders
+            case ORDER_STATUS.PENDING:{
+                setIsPendingOrder(true);
+                fetchOrders(pageNumber, ORDER_STATUS.PENDING);
+                break;
+            }
+            // confirmed orders
+            case ORDER_STATUS.CONFIRMED:{
+                fetchOrders(pageNumber, ORDER_STATUS.CONFIRMED);
+                break;
+            }
+            // shipping orders
+            case ORDER_STATUS.SHIPPING:{
+                fetchOrders(pageNumber, ORDER_STATUS.SHIPPING);
+                break;
+            }
+            // successful orders
+            case ORDER_STATUS.SUCCESSFUL:{
+                fetchOrders(pageNumber, ORDER_STATUS.SUCCESSFUL);
+                break;
+            }
+            // canceled orders
+            case ORDER_STATUS.CANCELED:{
+                fetchOrders(pageNumber, ORDER_STATUS.CANCELED);
+                break;
+            }
+            // canceled orders
+            case ORDER_STATUS.ALL:{
+                fetchOrders(pageNumber, ORDER_STATUS.ALL);
+                break;
+            }
+        }
     }
 
     // get orders
@@ -70,7 +111,6 @@ export default function EmployeeOrdersComponent(){
         if(200<=res.status&&res.status<300){
             const data = res.data;
             setOrderSummary(data);
-            console.log(data);
         }
     }
 
@@ -116,17 +156,17 @@ export default function EmployeeOrdersComponent(){
     }
 
     // cancel order
-    const onClickCancelOrder = (order: OrderDetail)=>{
-        employeeCancelOrder(order);
+    const onClickCancelOrder = (order: OrderDetail, orderType: string)=>{
+        employeeCancelOrder(order, orderType);
     }
     // cancel order
-    const employeeCancelOrder = async (order: OrderDetail)=>{
+    const employeeCancelOrder = async (order: OrderDetail, orderType: string)=>{
         try {
             const data = {
                 orderID: order.orderID,
                 customerID: order.customerID
             }
-            const res = await cancelOrder(data);
+            const res = await cancelOrder(data, orderType);
             if(200<=res.status&&res.status<300){
                 window.location.reload();
             }
@@ -135,85 +175,58 @@ export default function EmployeeOrdersComponent(){
         }
     }
 
-    // select order tab
-    const onClickNavTab = (tab: number)=>{
-        setIsPendingOrder(false);
-        setSelectedTagOrder(tab)
-        // get orders
-        switch (tab){
-            // pending orders
-            case 0:{
-                setIsPendingOrder(true);
-                fetchOrders(page.number, ORDER_STATUS.PENDING);
-                break;
-            }
-            // confirmed orders
-            case 1:{
-                fetchOrders(page.number, ORDER_STATUS.CONFIRMED);
-                break;
-            }
-            // shipping orders
-            case 2:{
-                fetchOrders(page.number, ORDER_STATUS.SHIPPING);
-                break;
-            }
-            // successful orders
-            case 3:{
-                fetchOrders(page.number, ORDER_STATUS.SUCCESSFUL);
-                break;
-            }
-            // canceled orders
-            case 4:{
-                fetchOrders(page.number, ORDER_STATUS.CANCELED);
-                break;
-            }
-            // canceled orders
-            case 5:{
-                fetchOrders(page.number, ORDER_STATUS.ALL);
-                break;
-            }
-        }
-    }
     return(
         <>
             <ul className="nav nav-fill nav-tabs emp-profile p-0 mb-3 cursor-pointer box-shadow-default" 
                 role="tablist" ref={navHeaderRef}>
   
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===0 ?'active':''}`}
-                        id="pending-order-tab" role="tab" onClick={(_e)=>onClickNavTab(0)}>
-                        Pending Orders
-                        {orderSummary.totalPendingOrders>0 &&
-                            <span className="order-badge badge rounded-pill badge-notification bg-danger z-1">
-                                {orderSummary.totalPendingOrders}
-                            </span>
-                        }
-                    </span>
+                    <Link to={`${EMPLOYEE_ORDER}?order=${ORDER_STATUS.PENDING}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.PENDING ?'active':''}`}
+                            id="pending-order-tab" role="tab">
+                            Pending Orders
+                            {orderSummary.totalPendingOrders>0 &&
+                                <span className="order-badge badge rounded-pill badge-notification bg-danger z-1">
+                                    {orderSummary.totalPendingOrders}
+                                </span>
+                            }
+                        </span>
+                    </Link>
                 </li>
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===1 ?'active':''}`}
-                        id="all-order-tab" role="tab" onClick={(_e)=>onClickNavTab(1)}>Confirmed Orders</span>
+                    <Link to={`${EMPLOYEE_ORDER}?order=${ORDER_STATUS.CONFIRMED}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.CONFIRMED ?'active':''}`}
+                            id="all-order-tab" role="tab">Confirmed Orders</span>
+                    </Link>
                 </li>
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===2 ?'active':''}`}
-                        id="confirmed-order-tab" role="tab" onClick={(_e)=>onClickNavTab(2)}>Shipping Orders</span>
+                    <Link to={`${EMPLOYEE_ORDER}?order=${ORDER_STATUS.SHIPPING}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.SHIPPING ?'active':''}`}
+                            id="confirmed-order-tab" role="tab">Shipping Orders</span>
+                    </Link>
                 </li>
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===3 ?'active':''}`}
-                        id="shipping-order-tab" role="tab" onClick={(_e)=>onClickNavTab(3)}>Successful Orders</span>
+                    <Link to={`${EMPLOYEE_ORDER}?order=${ORDER_STATUS.SUCCESSFUL}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.SUCCESSFUL ?'active':''}`}
+                            id="shipping-order-tab" role="tab">Successful Orders</span>
+                    </Link>
                 </li>
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===4 ?'active':''}`}
-                        id="successful-order-tab" role="tab" onClick={(_e)=>onClickNavTab(4)}>Canceled Orders</span>
+                    <Link to={`${EMPLOYEE_ORDER}?order=${ORDER_STATUS.CANCELED}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.CANCELED ?'active':''}`}
+                            id="successful-order-tab" role="tab">Canceled Orders</span>
+                    </Link>
                 </li>
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===5 ?'active':''}`}
-                        id="canceled-order-tab" role="tab" onClick={(_e)=>onClickNavTab(5)}>All Orders</span>
+                    <Link to={`${EMPLOYEE_ORDER}?order=${ORDER_STATUS.ALL}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.ALL ?'active':''}`}
+                            id="canceled-order-tab" role="tab">All Orders</span>
+                    </Link>
                 </li>
             </ul>
             <div className="tab-pane" id="orders-tabpanel" role="tabpanel" aria-labelledby="orders-tabpanel">
 
-                {selectedTagOrder===0 ?
+                {orderParam===ORDER_STATUS.PENDING ?
                     <ul className={`list-group pending-orders fade ${isPendingOrder?'show':''}`} ref={pendingOrdersRef}>
                         {listOrders.length>0 ?
                             listOrders.map((order) =>(
@@ -268,7 +281,7 @@ export default function EmployeeOrdersComponent(){
                                         <Link to={`${EMPLOYEE_PENDING_ORDER}/${order.orderID}`}>
                                             <div className="btn btn-info text-light mx-2">View Order</div>
                                         </Link>
-                                        <button className="btn btn-primary mx-2" onClick={(_e)=>onClickCancelOrder(order)}>Cancel</button>
+                                        <button className="btn btn-primary mx-2" onClick={(_e)=>onClickCancelOrder(order, ORDER_STATUS.PENDING)}>Cancel</button>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickConfirmOrder(order)}>Confirm</button>
                                     </div>
                                 </li>
@@ -278,7 +291,7 @@ export default function EmployeeOrdersComponent(){
                             </li>
                         }
                     </ul>:
-                selectedTagOrder===1?
+                orderParam===ORDER_STATUS.CONFIRMED?
                     <ul className={`list-group fade ${!isPendingOrder?'show':''}`}>
                         {listOrders.length>0 ?
                             listOrders.map((order) =>(
@@ -332,7 +345,7 @@ export default function EmployeeOrdersComponent(){
                                         <Link to={`${EPMLOYEE_CONFIRMED_ORDER}/${order.orderID}`}>
                                             <div className="btn btn-info text-light mx-2">View Order</div>
                                         </Link>
-                                        <button className="btn btn-primary mx-2" onClick={(_e)=>onClickCancelOrder(order)}>Cancel</button>
+                                        <button className="btn btn-primary mx-2" onClick={(_e)=>onClickCancelOrder(order, ORDER_STATUS.CONFIRMED)}>Cancel</button>
                                         <button className="btn btn-primary mx-2" onClick={(_e)=>onClickFullFillOrder(order)}>Fulfill Order</button>
                                     </div>
                                 </li>

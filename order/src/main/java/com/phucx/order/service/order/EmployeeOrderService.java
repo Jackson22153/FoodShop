@@ -12,7 +12,8 @@ import com.phucx.order.model.OrderWithProducts;
 public interface EmployeeOrderService {
     // processing order of customer
     public void confirmOrder(String orderID, String userID) throws InvalidOrderException, JsonProcessingException, NotFoundException;
-    public void cancelOrder(OrderWithProducts order, String userID) throws JsonProcessingException, NotFoundException;
+    public void cancelPendingOrder(OrderWithProducts order, String userID) throws JsonProcessingException, NotFoundException;
+    public void cancelConfirmedOrder(OrderWithProducts order, String userID) throws JsonProcessingException, NotFoundException;
     public void fulfillOrder(OrderWithProducts order, String userID) throws JsonProcessingException, NotFoundException;
     // get orders
     public Page<OrderDetails> getOrders(String userID, OrderStatus status, int pageNumber, int pageSize) throws JsonProcessingException, NotFoundException;

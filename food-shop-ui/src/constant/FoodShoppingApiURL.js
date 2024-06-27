@@ -38,17 +38,14 @@ export const ProductsUrl = `${HomeUrl}/products`;
 export const ProductsByNameUrl = `${ProductsUrl}/name`;
 export const ProductsByIdUrl = `${ProductsUrl}/id`;
 export const RecommendedProductsUrl = `${ProductsUrl}/recommended`;
-export function ProductsByCategories(categoryName){
+export function ProductsByCategory(categoryName){
     return `${CategoriesUrl}/${categoryName}/products`;
 }
-// image
-const ShopImageURl = `${ShopService}/image`;
-export const UploadProductImageUrl = `${ShopImageURl}/product/upload`;
-export const UploadCategoryImageUrl = `${ShopImageURl}/category/upload`;
 // categories
 export const CategoriesUrl = `${HomeUrl}/categories`;
 export const CategoriesIDUrl = `${CategoriesUrl}/id`;
 export const CategoriesNameUrl = `${CategoriesUrl}/name`;
+
 // search
 const SearchUrl = `${ShopService}/search`;
 export const SearchProductsUrl = `${SearchUrl}/products`;
@@ -56,9 +53,11 @@ export const RecommendedProductsByCategoryUrl = `${SearchUrl}/recommended`;
 // product admin
 const ProductUrl = `${ShopService}/product`;
 export const ProductAdminUrl = `${ProductUrl}`;
+export const UploadProductImageUrl = `${ProductUrl}/image/upload`;
 // category admin
 const CategoryUrl = `${ShopService}/category`;
 export const CategoryAdminUrl = `${CategoryUrl}`;
+export const UploadCategoryImageUrl = `${CategoryUrl}/image/upload`;
 // discount admin
 export const DiscountAdminUrl = `${ShopService}/discount`
 export const DiscountsByProductAdminUrl = `${DiscountAdminUrl}/product`

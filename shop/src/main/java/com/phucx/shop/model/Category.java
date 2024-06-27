@@ -1,9 +1,11 @@
 package com.phucx.shop.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedStoredProcedureQueries;
+import jakarta.persistence.NamedStoredProcedureQuery;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,9 +15,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Categories")
+@NamedStoredProcedureQueries(
+    @NamedStoredProcedureQuery(name = "Category.AddCategory", procedureName = "AddCategory",
+    parameters = {
+        @StoredProcedureParameter(name="categoryname", type = String.class),
+        @StoredProcedureParameter(name="description", type = String.class),
+        @StoredProcedureParameter(name="picture", type = String.class),
+        @StoredProcedureParameter(name="result", type = Boolean.class, mode = ParameterMode.OUT),
+    })
+)
 public class Category {
     @Id
-    @GeneratedValue(generator = "native", strategy = GenerationType.AUTO)
     private Integer categoryID;
     private String categoryName;
     private String description;

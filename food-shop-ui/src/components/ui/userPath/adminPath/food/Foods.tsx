@@ -34,7 +34,7 @@ export default function AdminFoodsComponent(){
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [pageable])
 
     function initial(){
         const pageNumber = getPageNumber();

@@ -344,13 +344,10 @@ export default function AdminFoodComponent(){
                 quantityPerUnit: foodInfoChange.quantityPerUnit || foodInfo.quantityPerUnit,
                 unitPrice: foodInfoChange.unitPrice || foodInfo.unitPrice,
                 unitsInStock: foodInfoChange.unitsInStock || foodInfo.unitsInStock,
-                unitsOnOrder: foodInfoChange.unitsOnOrder || foodInfo.unitsOnOrder,
-                reorderLevel: foodInfoChange.reorderLevel || foodInfo.reorderLevel,
                 discontinued: foodInfoChange.discontinued,
                 picture: foodInfoChange.picture,
                 description: description,
                 categoryID: foodInfoChange.categoryID || foodInfo.categoryID,
-                supplierID: foodInfoChange.supplierID || foodInfo.supplierID
             }
             try {
                 const res = await updateProduct(data);

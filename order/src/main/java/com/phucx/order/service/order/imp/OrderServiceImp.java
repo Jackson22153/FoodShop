@@ -273,7 +273,7 @@ public class OrderServiceImp implements OrderService{
         List<OrderDetailExtended> orderDetailExtendeds = orderDetailExtendedRepository
             .findByOrderIDAndStatus(orderID, status);
         if(orderDetailExtendeds==null || orderDetailExtendeds.size()==0) 
-            throw new NotFoundException("Order "+ orderID +" does not found");
+            throw new NotFoundException("Order "+ orderID +" with status "+ status +" does not found");
         return convertOrderService.convertOrderDetail(orderDetailExtendeds);
     }
 

@@ -29,10 +29,14 @@ export default function AdminAddCategoryComponent(){
 
     const onChange:ChangeEventHandler<any> = (event)=>{
         if(category){
-            // console.log(event.currentTarget.name)
             const name = event.currentTarget.name;
             const value = event.currentTarget.value;
             setCategory({...category, [name]:value})
+        }
+    }
+    const onChangeCategoryPicture = (imageUrl: string) =>{
+        if(category){
+            setCategory({...category, picture: imageUrl})
         }
     }
 
@@ -89,7 +93,7 @@ export default function AdminAddCategoryComponent(){
                 <div className="row">
                     <div className="col-md-5">
                         <CategoryImageChangeInput imageSrc={category.picture} disable={false}
-                            onChangePicture={onChange}/>
+                            onChangePicture={onChangeCategoryPicture}/>
                     </div>
                     <div className="col-md-7">
                         <div className="row">

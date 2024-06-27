@@ -6,6 +6,7 @@ export function uploadProductImage(file){
     formData.append('file', file);
     
     return axios.post(UploadProductImageUrl, formData, {
+        withCredentials: true,
         headers:{
             "Content-Type": "multipart/form-data",
         }
@@ -16,6 +17,7 @@ export function uploadCategoryImage(file){
     formData.append('file', file);
     
     return axios.post(UploadCategoryImageUrl, formData, {
+        withCredentials: true,
         headers:{
             "Content-Type": "multipart/form-data",
         }

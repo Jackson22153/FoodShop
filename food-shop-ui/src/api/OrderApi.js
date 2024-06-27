@@ -16,8 +16,8 @@ export function confirmOrder(order){
     });
 }
 // cancel order
-export function cancelOrder(order){
-    return axios.post(CancelOrderUrl, JSON.stringify(order), {
+export function cancelOrder(order, type){
+    return axios.post(`${CancelOrderUrl}?type=${type}`, JSON.stringify(order), {
         withCredentials: true,
         headers:{
             "Content-Type": 'application/json',

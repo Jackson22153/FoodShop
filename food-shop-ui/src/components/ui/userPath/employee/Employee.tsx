@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation, Link } from 'react-router-dom';
@@ -24,6 +24,9 @@ export default function EmployeeComponent(){
         message: 'Do you want to continute?',
         isShowed: false
     })
+    const logoRef = useRef(null)
+    const sidebarRef = useRef(null)
+
     useEffect(()=>{
         initial();
     }, [])
@@ -38,6 +41,8 @@ export default function EmployeeComponent(){
         }else if(path === EMPLOYEE_NOTIFICATION){
             setSelectedPath(2);
         }
+
+        document.addEventListener('click', onClickOutSideSideBar)
     }
 
 
@@ -60,11 +65,7 @@ export default function EmployeeComponent(){
         }
     }
 
-    // logout modal
-    async function onClickLogoutButton(){
-        toggleModal();
-    }
-
+    
     // click side bar
     function onClickShowSideBar(){
         toggleIsShowedSideBar();
@@ -72,14 +73,35 @@ export default function EmployeeComponent(){
     const toggleIsShowedSideBar = ()=>{
         setIsShowedSideBar(status => !status);
     }
-
+    // close sidebar
+    const closeShowedSidebar = ()=>{
+        setIsShowedSideBar(false)
+    }
+    // on click outside sidebar
+    const onClickOutSideSideBar = (event: any)=>{
+        if(logoRef!=null && sidebarRef!=null){
+            const logo = logoRef.current as HTMLElement;
+            const sidebar = sidebarRef.current as HTMLElement;
+            if(!sidebar.contains(event.target as Node) && !logo.contains(event.target as Node)){
+                console.log('outside')
+                closeShowedSidebar();
+            }
+        }
+    }    
+    
+    // logout modal
+    async function onClickLogoutButton(){
+        toggleModal();
+    }
+    // TOGGLE MODAL
     const toggleModal = ()=>{
         setModal(modal =>({...modal, isShowed:!modal.isShowed}))
     }
-
+    // close modal
     const onClickCloseModal = ()=>{
         toggleModal()
     }
+    // confirm modal
     const onClickConfirmModal = async ()=>{
         try {
             const res = await logout();
@@ -95,12 +117,11 @@ export default function EmployeeComponent(){
         <div className='my-4 customer-page p-4 position-relative'>
             <div className="container my-5">
                 <nav className='z-3'>
-                    <div className="logo cursor-pointer" onClick={onClickShowSideBar}>
-                        {/* <i className="bx bx-menu menu-icon"></i> */}
+                    <div className="logo cursor-pointer" onClick={onClickShowSideBar} ref={logoRef}>
                         <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
                         <span className="logo-name">Phucx</span>
                     </div>
-                    <div className={`sidebar ${isShowedSideBar?'show-side-bar':''}`}>
+                    <div className={`sidebar ${isShowedSideBar?'show-side-bar':''}`} ref={sidebarRef}>
                         <div className="sidebar-content py-0">
                             <div className="logo cursor-pointer mx-0" onClick={onClickShowSideBar}>
                                 <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>

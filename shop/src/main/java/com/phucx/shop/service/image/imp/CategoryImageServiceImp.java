@@ -75,6 +75,6 @@ public class CategoryImageServiceImp implements CategoryImageService{
 
     @Override
     public String getCurrentUrl(String requestUri, Integer serverPort) {
-        return imageService.getCurrentUrl(requestUri, serverPort);
+        return imageService.getCurrentUrl(requestUri, serverPort, "/"+ serverName + imageUri);
     }
 }

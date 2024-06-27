@@ -14,6 +14,6 @@ public interface ImageService {
     public String getMimeType(String file, String imageLocation) throws IOException;
 
     public String getUri(String requestUri);
-    public String getCurrentUrl(String requestUri, Integer serverPort);
+    public String getCurrentUrl(String requestUri, Integer serverPort, String imageUri);
     public String getImageName(String url);
 }

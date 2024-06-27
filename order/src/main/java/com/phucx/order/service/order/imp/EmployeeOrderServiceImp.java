@@ -53,10 +53,22 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
     }
 
     @Override
-    public void cancelOrder(OrderWithProducts order, String userID) throws JsonProcessingException, NotFoundException {
-        log.info("cancelOrder(order={}, userID={})", order, userID);
+    public void cancelPendingOrder(OrderWithProducts order, String userID) throws JsonProcessingException, NotFoundException {
+        log.info("cancelPendingOrder(order={}, userID={})", order, userID);
+        cancelOrder(order, userID, OrderStatus.Pending);
+    }
+
+    @Override
+    public void cancelConfirmedOrder(OrderWithProducts order, String userID) throws JsonProcessingException, NotFoundException {
+        log.info("cancelConfirmedOrder(order={}, userID={})", order, userID);
+        cancelOrder(order, userID, OrderStatus.Confirmed);
+    }
+
+
+    private void cancelOrder(OrderWithProducts order, String userID, OrderStatus orderStatus) throws JsonProcessingException, NotFoundException{
+        log.info("cancelOrder(order={}, userID={}, orderStatus={})", order, userID, orderStatus);
         // fetch pending order
-        OrderDetails orderDetail = orderService.getOrder(order.getOrderID(), OrderStatus.Pending);
+        OrderDetails orderDetail = orderService.getOrder(order.getOrderID(), orderStatus);
         // fetch employee
         Employee employee = employeeService.getEmployeeByUserID(userID);
         order.setEmployeeID(employee.getEmployeeID());

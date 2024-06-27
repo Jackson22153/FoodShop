@@ -12,6 +12,14 @@ export const NOTIFICATION_TYPE={
     ERROR: 'error',
     CANCEL: 'cancel'
 }
+// ORDER NOTIFICATION
+export const ORDER_NOTIFICATION = {
+    PLACE_ORDER: 'place_order', 
+    CONFIRM_ORDER: 'confirm_order',
+    RECEIVE_ORDER: 'receive_order',
+    FULFILL_ORDER: 'fulfill_order',
+    CANCEL_ORDER: 'cancel_order'
+}
 // ORDER STATUS
 export const ORDER_STATUS = {
     PENDING: 'pending',

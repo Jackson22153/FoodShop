@@ -44,7 +44,7 @@ public class OrderProcessingMessageListener {
     public void orderProcessing(String message){
         log.info("orderProcessing(message={})", message);
         OrderNotificationDTO notification = new OrderNotificationDTO();
-        notification.setTitle(NotificationTitle.PLACE_ORDER);
+        notification.setTitle(NotificationTitle.CONFIRM_ORDER);
         notification.setTopic(NotificationTopic.Order);
         try {
             OrderWithProducts order = objectMapper.readValue(message, OrderWithProducts.class);
@@ -77,7 +77,7 @@ public class OrderProcessingMessageListener {
         throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException, InSufficientInventoryException{
 
         // Notification notification = new Notification();
-        notification.setTitle(NotificationTitle.PLACE_ORDER);
+        notification.setTitle(NotificationTitle.CONFIRM_ORDER);
         notification.setTopic(NotificationTopic.Order);
         if(!orderService.isPendingOrder(order.getOrderID())){
             throw new InvalidOrderException("Order " + order.getOrderID() + " is not a pending order");

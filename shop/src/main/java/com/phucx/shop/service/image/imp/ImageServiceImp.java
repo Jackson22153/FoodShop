@@ -37,9 +37,8 @@ public class ImageServiceImp implements ImageService{
     }
 
     @Override
-    public String getCurrentUrl(String requestUri, Integer serverPort) {
+    public String getCurrentUrl(String requestUri, Integer serverPort, String imageUri) {
         String host = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
-        String imageUri = this.getUri(requestUri);
         String url = host + ":" + serverPort + imageUri;
         return url;
     }

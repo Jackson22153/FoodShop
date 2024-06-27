@@ -1,12 +1,10 @@
 import axios from "axios";
 import { 
-    CategoriesIDUrl, CategoriesNameUrl, CategoriesUrl, ProductsByCategories, ProductsByIdUrl, 
-    ProductsByNameUrl, ProductsUrl, RecommendedProductsByCategoryUrl, RecommendedProductsUrl, 
-    SearchProductsUrl} 
-    from '../constant/FoodShoppingApiURL';
+    CategoriesIDUrl, CategoriesNameUrl, CategoriesUrl, ProductsByCategory, 
+    ProductsByIdUrl, ProductsByNameUrl, ProductsUrl, RecommendedProductsByCategoryUrl, 
+    RecommendedProductsUrl, SearchProductsUrl
+} from '../constant/FoodShoppingApiURL';
 import { convertNameForUrl } from "../service/Convert";
-
-// const BASE_URL = `${UrlService.clientService}/search`
 
 // categories
 // get
@@ -35,7 +33,7 @@ export async function searchProducts(productName, page){
     });
 }
 export async function getProductsByCategory(categoryName, pageNumber){
-    const url = ProductsByCategories(categoryName);
+    const url = ProductsByCategory(categoryName);
     return axios.get(`${url}?page=${pageNumber}`,{
         'Content-Type': 'application/json'
     });

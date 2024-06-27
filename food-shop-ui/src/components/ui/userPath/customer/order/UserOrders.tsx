@@ -9,12 +9,14 @@ import { getCustomerOrders, receiveOrder } from "../../../../../api/OrderApi";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
 import { ModalContextType } from "../../../../../model/WebType";
 import modalContext from "../../../../contexts/ModalContext";
+import { Link, useSearchParams } from "react-router-dom";
 
 export default function UserOrdersComponent(){
     const [listOrders, setListOrders] = useState<OrderDetail[]>([])
     const notificationMessage = useContext(notificationMessagesContext)
-    const [selectedTagOrder, setSelectedTagOrder] = useState(0)
     const {setModal: setErrorModal} = useContext<ModalContextType>(modalContext);
+    const [searchParams] = useSearchParams()
+    const orderParam = searchParams.get("order")!=null? searchParams.get("order").toLowerCase():ORDER_STATUS.PENDING
     const [page, setPage] = useState<Pageable>({
         first: true,
         last: true,
@@ -24,11 +26,46 @@ export default function UserOrdersComponent(){
 
     useEffect(()=>{
         initial();
-    }, [notificationMessage])
+    }, [notificationMessage, orderParam])
 
     function initial(){
         const pageNumber = getPageNumber();
-        fetchOrders(pageNumber, ORDER_STATUS.PENDING);
+        fetchOrdersBasedOnType(pageNumber);
+    }
+
+    function fetchOrdersBasedOnType(pageNumber: number){
+        switch (orderParam){
+            // pending orders
+            case ORDER_STATUS.PENDING:{
+                fetchOrders(pageNumber, ORDER_STATUS.PENDING);
+                break;
+            }
+            // confirmed orders
+            case ORDER_STATUS.CONFIRMED:{
+                fetchOrders(pageNumber, ORDER_STATUS.CONFIRMED);
+                break;
+            }
+            // shipping orders
+            case ORDER_STATUS.SHIPPING:{
+                fetchOrders(pageNumber, ORDER_STATUS.SHIPPING);
+                break;
+            }
+            // successful orders
+            case ORDER_STATUS.SUCCESSFUL:{
+                fetchOrders(pageNumber, ORDER_STATUS.SUCCESSFUL);
+                break;
+            }
+            // canceled orders
+            case ORDER_STATUS.CANCELED:{
+                fetchOrders(pageNumber, ORDER_STATUS.CANCELED);
+                break;
+            }
+            // all orders
+            case ORDER_STATUS.ALL:{
+                fetchOrders(pageNumber, ORDER_STATUS.ALL);
+                break;
+            }
+        }
     }
     
     // get orders
@@ -51,43 +88,6 @@ export default function UserOrdersComponent(){
                 isShowed: true, 
                 message: error.response?error.response.data.error:error.message
             })
-        }
-    }
-    // click select nav tab
-    const onClickNavTab = (tab: number)=>{
-        setSelectedTagOrder(tab)
-        // get orders
-        switch (tab){
-            // pending orders
-            case 0:{
-                fetchOrders(page.number, ORDER_STATUS.PENDING);
-                break;
-            }
-            // confirmed orders
-            case 1:{
-                fetchOrders(page.number, ORDER_STATUS.CONFIRMED);
-                break;
-            }
-            // shipping orders
-            case 2:{
-                fetchOrders(page.number, ORDER_STATUS.SHIPPING);
-                break;
-            }
-            // successful orders
-            case 3:{
-                fetchOrders(page.number, ORDER_STATUS.SUCCESSFUL);
-                break;
-            }
-            // canceled orders
-            case 4:{
-                fetchOrders(page.number, ORDER_STATUS.CANCELED);
-                break;
-            }
-            // canceled orders
-            case 5:{
-                fetchOrders(page.number, ORDER_STATUS.ALL);
-                break;
-            }
         }
     }
 
@@ -118,32 +118,44 @@ export default function UserOrdersComponent(){
             <ul className="nav nav-fill nav-tabs emp-profile p-0 mb-3 cursor-pointer box-shadow-default" 
                 role="tablist">
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===0 ?'active':''}`}
-                        id="pending-order-tab" role="tab" onClick={(_e)=>onClickNavTab(0)}>Pending Orders</span>
+                    <Link to={`${CUSTOMER_ORDER}?order=${ORDER_STATUS.PENDING}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.PENDING ?'active':''}`}
+                            id="pending-order-tab" role="tab">Pending Orders</span>
+                    </Link>
                 </li>
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===1 ?'active':''}`}
-                        id="all-order-tab" role="tab" onClick={(_e)=>onClickNavTab(1)}>Confirmed Orders</span>
+                    <Link to={`${CUSTOMER_ORDER}?order=${ORDER_STATUS.CONFIRMED}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.CONFIRMED ?'active':''}`}
+                            id="all-order-tab" role="tab">Confirmed Orders</span>
+                    </Link>
                 </li>
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===2 ?'active':''}`}
-                        id="confirmed-order-tab" role="tab" onClick={(_e)=>onClickNavTab(2)}>Shipping Orders</span>
+                    <Link to={`${CUSTOMER_ORDER}?order=${ORDER_STATUS.SHIPPING}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.SHIPPING ?'active':''}`}
+                            id="confirmed-order-tab" role="tab">Shipping Orders</span>
+                    </Link>
                 </li>
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===3 ?'active':''}`}
-                        id="shipping-order-tab" role="tab" onClick={(_e)=>onClickNavTab(3)}>Successful Orders</span>
+                    <Link to={`${CUSTOMER_ORDER}?order=${ORDER_STATUS.SUCCESSFUL}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.SUCCESSFUL ?'active':''}`}
+                            id="shipping-order-tab" role="tab">Successful Orders</span>
+                    </Link>
                 </li>
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===4 ?'active':''}`}
-                        id="successful-order-tab" role="tab" onClick={(_e)=>onClickNavTab(4)}>Canceled Orders</span>
+                    <Link to={`${CUSTOMER_ORDER}?order=${ORDER_STATUS.CANCELED}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.CANCELED ?'active':''}`}
+                            id="successful-order-tab" role="tab">Canceled Orders</span>
+                    </Link>
                 </li>
                 <li className="nav-item" role="presentation">
-                    <span className={`nav-link text-dark ${selectedTagOrder===5 ?'active':''}`}
-                        id="canceled-order-tab" role="tab" onClick={(_e)=>onClickNavTab(5)}>All Orders</span>
+                    <Link to={`${CUSTOMER_ORDER}?order=${ORDER_STATUS.ALL}`}>
+                        <span className={`nav-link text-dark ${orderParam===ORDER_STATUS.ALL ?'active':''}`}
+                            id="canceled-order-tab" role="tab">All Orders</span>
+                    </Link>
                 </li>
             </ul>
             <div className="tab-pane" id="orders-tabpanel" role="tabpanel" aria-labelledby="orders-tabpanel">
-                {selectedTagOrder===2 ?
+                {orderParam===ORDER_STATUS.SHIPPING ?
                     <ul className="list-group">
                         {listOrders.length>0 ?
                             listOrders.map((order) =>(
@@ -213,7 +225,6 @@ export default function UserOrdersComponent(){
                                                     <div className="mx-4 col-md-2">
                                                         <p className="card-text">Price: {product.extendedPrice}</p>
                                                     </div>
-                                                    {/* <a href="#" className="btn btn-primary">Go somewhere</a> */}
                                                 </div>
                                             </li>
                                         ))}

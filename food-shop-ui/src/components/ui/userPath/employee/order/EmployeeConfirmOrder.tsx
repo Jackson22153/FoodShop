@@ -7,6 +7,7 @@ import { cancelOrder, confirmOrder, getOrderDetail } from "../../../../../api/Or
 import { ORDER_STATUS } from "../../../../../constant/WebConstant";
 import { ModalContextType } from "../../../../../model/WebType";
 import modalContext from "../../../../contexts/ModalContext";
+import ScrollToTop from "../../../../shared/functions/scroll-to-top/ScrollToTop";
 
 export default function EmployeeConfirmedOrderComponent(){
     const { orderId } = useParams();
@@ -71,7 +72,7 @@ export default function EmployeeConfirmedOrderComponent(){
                 orderID: order.orderID,
                 customerID: order.customerID
             }
-            const res = await cancelOrder(data);
+            const res = await cancelOrder(data, ORDER_STATUS.CONFIRMED);
             if(200<=res.status&&res.status<300){
                 window.location.reload()
             }
@@ -82,6 +83,7 @@ export default function EmployeeConfirmedOrderComponent(){
 
     return(
         <div id="order-bill-container">
+            <ScrollToTop/>
             {orderInfo &&
                 <div className="box-shadow-default rounded-5 col-sm-12 col-md-10 mx-auto col-lg-7">
                     <div className="d-flex flex-column justify-content-center align-items-center position-relative pt-3 rounded-top-5" id="order-heading">
