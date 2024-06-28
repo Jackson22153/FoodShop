@@ -25,6 +25,7 @@ export default function AdminComponent(){
     const sidebarRef = useRef(null)
     const [selectedPath, setSelectedPath] = useState(0);
     const location = useLocation()
+    const path = location.pathname.toLowerCase();
     const [userDropdown, setUserDropdown] = useState(false)
     const [categoryDropdown, setCategoryDropdown] = useState(false)
     const [productDropdown, setProductDropdown] = useState(false)
@@ -37,11 +38,11 @@ export default function AdminComponent(){
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [path])
 
     const initial = ()=>{
         checkAuthenticationAdmin();
-        const path = location.pathname;
+
         if(path==ADMIN_CATEGORIES){
             setSelectedPath(0.1);
         }else if(path === ADMIN_ADD_CATEGORY){

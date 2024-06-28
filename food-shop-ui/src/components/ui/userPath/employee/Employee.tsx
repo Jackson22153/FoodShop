@@ -18,6 +18,7 @@ import { isEmployee } from '../../../../api/EmployeeApi';
 export default function EmployeeComponent(){
     const [isShowedSideBar, setIsShowedSideBar] = useState(false)
     const location = useLocation()
+    const path = location.pathname.toLowerCase()
     const [selectedPath, setSelectedPath] = useState(0);
     const [modal, setModal] = useState<Modal>({
         title: 'Confirm action',
@@ -29,11 +30,12 @@ export default function EmployeeComponent(){
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [path])
 
     const initial = ()=>{
+        // check user
         checkAuthenticationEmployee();
-        const path = location.pathname;
+        // check selected path
         if(path==EMPLOYEE_INFO){
             setSelectedPath(0);
         }else if(path===EMPLOYEE_ORDER){
@@ -41,7 +43,7 @@ export default function EmployeeComponent(){
         }else if(path === EMPLOYEE_NOTIFICATION){
             setSelectedPath(2);
         }
-
+        
         document.addEventListener('click', onClickOutSideSideBar)
     }
 
@@ -83,7 +85,6 @@ export default function EmployeeComponent(){
             const logo = logoRef.current as HTMLElement;
             const sidebar = sidebarRef.current as HTMLElement;
             if(!sidebar.contains(event.target as Node) && !logo.contains(event.target as Node)){
-                console.log('outside')
                 closeShowedSidebar();
             }
         }
