@@ -118,7 +118,8 @@ export type Customer={
     phone: string,
     picture: string,
     email: string,
-    username: string
+    username: string,
+    userID: string
 }
 export type CustomerDetail={
     customerID: string,
@@ -155,7 +156,8 @@ export type Employee = {
     city: string,
     photo: string,
     email: string,
-    username: string
+    username: string,
+    userID: string
 }
 export type EmployeeDetail = {
     employeeID: string,
@@ -166,7 +168,6 @@ export type EmployeeDetail = {
     address: string,
     city: string,
     homePhone: string,
-    description: string,
     photo: string,
     notes: string,
     userInfo: UserInfo

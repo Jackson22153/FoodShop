@@ -22,6 +22,7 @@ export default function AdminUsersComponent(){
         number: 0,
         totalPages: 0
     });
+    const pageNumber = getPageNumber()
     const [searchDropDown, setSearchDropdown] = useState(false);
     const [selectedUserTab, setSelectedUserTab] = useState(0);
     const filterRef = useRef<HTMLDivElement|null>(null);
@@ -30,12 +31,11 @@ export default function AdminUsersComponent(){
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [pageNumber])
 
     const initial = ()=>{
         document.addEventListener('click', onClickOutside)
-        const pageNumnber = getPageNumber();
-        fetchUsers(pageNumnber);
+        fetchUsers(pageNumber);
     }
     // fetch data
     const fetchCustomers = async (pageNumber: number)=>{
@@ -68,7 +68,6 @@ export default function AdminUsersComponent(){
         const res = await getUsers(pageNumber);
         if(res.status){
             const data = res.data;
-            console.log(data)
             setUsers(data.content);
             setPageable({
                 first: data.first,
@@ -76,6 +75,7 @@ export default function AdminUsersComponent(){
                 number: data.number,
                 totalPages: data.totalPages
             });
+            console.log(res.data)
         }
     }
     const fetchSearchUsers = async (pageNumber: number, searchParam: string, searchValue: string)=>{

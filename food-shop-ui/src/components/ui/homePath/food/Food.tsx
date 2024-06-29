@@ -80,7 +80,6 @@ export default function FoodComponent(){
             const res = await getProductByID(productID)
             if(res.status){
                 const data = res.data;
-                // console.log(res.data);
                 setCartProduct({
                     ...cartProduct,
                     productID: data.productID,

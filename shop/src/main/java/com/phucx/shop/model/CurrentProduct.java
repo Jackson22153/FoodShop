@@ -1,5 +1,6 @@
 package com.phucx.shop.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import org.springframework.data.annotation.Immutable;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Current Product List")
-public class CurrentProduct {
+public class CurrentProduct implements Serializable{
     @Id
     private Integer productID;
     private String productName;

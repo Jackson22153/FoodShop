@@ -12,6 +12,7 @@ export default function FoodsComponent(){
     const [foods, setFoods] = useState<CurrentProduct[]>([]);
     const [searchParam] = useSearchParams()
     const searchProduct = searchParam.get('s')
+    const pageNumber = getPageNumber();
     const [page, setPage] = useState<Pageable>({
         first: true,
         last: true,
@@ -21,10 +22,9 @@ export default function FoodsComponent(){
 
     useEffect(()=>{
         initial();
-    }, [searchProduct, page])
+    }, [searchProduct, pageNumber])
 
     function initial(){
-        const pageNumber = getPageNumber();
         if(searchProduct){
             fetchSearchingProducts(searchProduct, pageNumber);
         }else{

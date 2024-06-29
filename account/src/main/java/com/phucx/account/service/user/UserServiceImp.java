@@ -13,7 +13,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import com.phucx.account.config.WebConfig;
-import com.phucx.account.constant.RoleConstant;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.EmployeeNotFoundException;
@@ -167,25 +166,25 @@ public class UserServiceImp implements UserService {
         }
         throw new NotFoundException("Does not found any roles for user " + user.getUser().getUserID());
     }
-    @Override
-    public UserInfo getUserAuthenticationInfo(String userID) throws UserNotFoundException {
-        log.info("getUserAuthenticationInfo(userID={})", userID);
-        User user = this.getUserByID(userID);
-        // get and convert form userRoles to Role
-        List<Role> roles = userRoleRepository.findByUserID(userID).stream().filter(userRole -> {
-            String roleName = userRole.getRoleName();
-            return roleName.equalsIgnoreCase(RoleConstant.ADMIN.name()) || 
-            roleName.equalsIgnoreCase(RoleConstant.CUSTOMER.name()) ||
-            roleName.equalsIgnoreCase(RoleConstant.EMPLOYEE.name());
-        }).map(userRole -> new Role(userRole.getRoleID(), userRole.getRoleName()))
-        .collect(Collectors.toList());
-        // check if user has any roles
-        if(roles==null || roles.size()==0){
-            throw new UserNotFoundException("User " + userID + " does not have any roles");
-        }
+    // @Override
+    // public UserInfo getUserAuthenticationInfo(String userID) throws UserNotFoundException {
+    //     log.info("getUserAuthenticationInfo(userID={})", userID);
+    //     User user = this.getUserByID(userID);
+    //     // get and convert form userRoles to Role
+    //     List<Role> roles = userRoleRepository.findByUserID(userID).stream().filter(userRole -> {
+    //         String roleName = userRole.getRoleName();
+    //         return roleName.equalsIgnoreCase(RoleConstant.ADMIN.name()) || 
+    //         roleName.equalsIgnoreCase(RoleConstant.CUSTOMER.name()) ||
+    //         roleName.equalsIgnoreCase(RoleConstant.EMPLOYEE.name());
+    //     }).map(userRole -> new Role(userRole.getRoleID(), userRole.getRoleName()))
+    //     .collect(Collectors.toList());
+    //     // check if user has any roles
+    //     if(roles==null || roles.size()==0){
+    //         throw new UserNotFoundException("User " + userID + " does not have any roles");
+    //     }
 
-        return new UserInfo(user, roles);
-    }
+    //     return new UserInfo(user, roles);
+    // }
     @Override
     public User getUserByCustomerID(String customerID) throws CustomerNotFoundException {
         return userRepository.findByCustomerID(customerID)

@@ -15,6 +15,7 @@ export default function AdminFoodsComponent(){
         number: 0,
         totalPages: 0
     })
+    const pageNumber = getPageNumber()
 
     async function fetchFoods(pageNumber: number){
         const response = await getProducts(pageNumber);
@@ -34,10 +35,9 @@ export default function AdminFoodsComponent(){
 
     useEffect(()=>{
         initial();
-    }, [pageable])
+    }, [pageNumber])
 
     function initial(){
-        const pageNumber = getPageNumber();
         fetchFoods(pageNumber)
     }
 

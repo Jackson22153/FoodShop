@@ -1,5 +1,7 @@
 package com.phucx.shop.model;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.NamedStoredProcedureQueries;
@@ -24,7 +26,7 @@ import lombok.NoArgsConstructor;
         @StoredProcedureParameter(name="result", type = Boolean.class, mode = ParameterMode.OUT),
     })
 )
-public class Category {
+public class Category implements Serializable{
     @Id
     private Integer categoryID;
     private String categoryName;

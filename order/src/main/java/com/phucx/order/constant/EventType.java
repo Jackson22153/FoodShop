@@ -33,6 +33,8 @@ public enum EventType {
     GetOrderByEmployeeID,
     GetOrdersByEmployeeID,
 
+    ValidateProducts,
+    ReturnValidateProducts,
 
 
     // discount response 

@@ -1,5 +1,6 @@
 package com.phucx.account.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 import org.springframework.data.annotation.Immutable;
@@ -35,9 +36,10 @@ import lombok.ToString;
             @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
         })
 })
-public class EmployeeDetail {
+public class EmployeeDetail implements Serializable{
     @Id
     private String employeeID;
+    private String userID;
     private String username;
     private String email;
     private String firstName;
@@ -49,6 +51,5 @@ public class EmployeeDetail {
     private String title;
     private String address;
     private String city;
-
 
 }

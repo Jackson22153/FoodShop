@@ -31,14 +31,14 @@ export default function EmployeeOrdersComponent(){
         number: 0,
         totalPages: 0
     })
+    const pageNumber = getPageNumber();
     const [isPendingOrder, setIsPendingOrder] = useState(true);
 
     useEffect(()=>{
         initial();
-    }, [notificationMessage, orderParam])
+    }, [notificationMessage, orderParam, pageNumber])
 
-    function initial(){
-        const pageNumber = getPageNumber();
+    function initial(){  
         fetchOrderSummary();
         fetchOrdersBasedOnStatus(pageNumber);
     }

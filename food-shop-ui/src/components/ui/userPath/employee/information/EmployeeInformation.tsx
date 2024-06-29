@@ -56,7 +56,8 @@ export default function EmployeeInformationComponent(){
                     reportsTo: data.reportsTo || '',
                     title: data.title || '',
                     email: data.email || '',
-                    username: data.username || ''
+                    username: data.username || '',
+                    userID: data.userID
                 }
                 // console.log(employee)
                 setEmployeeInfo(employee);
@@ -117,7 +118,8 @@ export default function EmployeeInformationComponent(){
                     city: employeeInfoAlter.city || null,
                     photo: employeeInfoAlter.photo || null,
                     email: employeeInfoAlter.email || employeeInfo.lastName,
-                    username: employeeInfoAlter.username || employeeInfo.lastName
+                    username: employeeInfoAlter.username || employeeInfo.lastName,
+                    userID: employeeInfo.userID
                 };
                 // console.log(employee)
                 const res = await updateEmployeeInfo(employee);

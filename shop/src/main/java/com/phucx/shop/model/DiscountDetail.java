@@ -1,5 +1,6 @@
 package com.phucx.shop.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Immutable;
@@ -56,7 +57,7 @@ import lombok.ToString;
         @StoredProcedureParameter(name="result", type = Boolean.class, mode = ParameterMode.OUT),
     })
 })
-public class DiscountDetail {
+public class DiscountDetail implements Serializable{
     @Id
     private String discountID;
     private Integer discountPercent;

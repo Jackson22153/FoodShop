@@ -38,9 +38,8 @@ public class ProductController {
     public ResponseEntity<ResponseFormat> updateProductDetail(
         @RequestBody ProductDetail productDetail
     ) throws NotFoundException{        
-        boolean status = productService.updateProductDetail(productDetail);
-        ResponseFormat data = new ResponseFormat(status);
-
+        ProductDetail updatedProduct = productService.updateProductDetail(productDetail);
+        ResponseFormat data = new ResponseFormat(updatedProduct!=null?true:false);
         return ResponseEntity.ok().body(data);
     }
 

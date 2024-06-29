@@ -1,5 +1,6 @@
 package com.phucx.account.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -35,7 +36,7 @@ import lombok.ToString;
             @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
         })
 })
-public class Employee{
+public class Employee implements Serializable{
     @Id
     @Column(name = "EmployeeID", length = 36, nullable = false)
     private String employeeID;

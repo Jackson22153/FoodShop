@@ -15,6 +15,7 @@ import com.phucx.order.model.DataDTO;
 import com.phucx.order.model.EventMessage;
 import com.phucx.order.model.Product;
 import com.phucx.order.model.ProductDTO;
+import com.phucx.order.model.ProductDiscountsDTO;
 import com.phucx.order.model.ProductStockTableType;
 import com.phucx.order.model.ResponseFormat;
 import com.phucx.order.service.messageQueue.MessageQueueService;
@@ -71,8 +72,27 @@ public class ProductServiceImp implements ProductService{
         return response.getPayload();
     }
     @Override
+    public ResponseFormat validateProducts(List<ProductDiscountsDTO> products) throws JsonProcessingException {
+        log.info("validateProducts({})", products);
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setProducts(products);
+        // create a request message
+        String eventID = UUID.randomUUID().toString();
+        EventMessage<DataDTO> eventMessage = new EventMessage<>();
+        eventMessage.setEventId(eventID);
+        eventMessage.setEventType(EventType.ValidateProducts);
+        eventMessage.setPayload(productDTO);
+        // receive data
+        EventMessage<ResponseFormat> response = messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
+            MessageQueueConstant.PRODUCT_ROUTING_KEY,
+            ResponseFormat.class);
+        log.info("response={}", response);
+        return response.getPayload();
+    }
+    @Override
     public Boolean updateProductsInStocks(List<ProductStockTableType> productStocks) throws JsonProcessingException {
-        log.info("updateProductInStocks(productStocks={})", productStocks);
+        log.info("updateProductsInStocks({})", productStocks);
         ProductDTO productDTO = new ProductDTO();
         productDTO.setProductStocks(productStocks);
         // create a request message

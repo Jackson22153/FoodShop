@@ -97,6 +97,7 @@ export default function AdminFoodComponent(){
         const res = await getProductDetail(productID);
         if(res.status){
             const data = res.data;
+            console.log(data)
             setFoodInfo(data);
             setFoodInfoChange(data);
             fetchDiscount(data.discountID);
@@ -398,7 +399,8 @@ export default function AdminFoodComponent(){
                 discountCode: currentDiscount.discountCode,
                 startDate: currentDiscount.startDate,
                 endDate: currentDiscount.endDate,
-                active: currentDiscount.active
+                active: currentDiscount.active,
+                productID: foodInfo.productID
             }
             try {
                 const res = await updateDiscount(data);

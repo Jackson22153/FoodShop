@@ -2,6 +2,9 @@ package com.phucx.shop.service.product;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,16 +12,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.phucx.shop.exceptions.EntityExistsException;
+import com.phucx.shop.exceptions.InSufficientInventoryException;
+import com.phucx.shop.exceptions.InvalidDiscountException;
 import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.Category;
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
+import com.phucx.shop.model.ProductDiscountsDTO;
 import com.phucx.shop.model.ProductStockTableType;
+import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.repository.CurrentProductRepository;
 import com.phucx.shop.repository.ProductDetailRepository;
 import com.phucx.shop.repository.ProductRepository;
 import com.phucx.shop.service.category.CategoryService;
+import com.phucx.shop.service.discount.ValidateDiscountService;
 import com.phucx.shop.service.image.ImageService;
 import com.phucx.shop.service.image.ProductImageService;
 
@@ -39,6 +47,8 @@ public class ProductServiceImp implements ProductService{
     private ImageService imageService;
     @Autowired
     private ProductImageService productImageService;
+    @Autowired
+    private ValidateDiscountService validateDiscountService;
 
     @Override
     public List<Product> getProducts() {
@@ -180,11 +190,12 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public boolean updateProductDetail(ProductDetail productDetail) throws NotFoundException {  
+    public ProductDetail updateProductDetail(ProductDetail productDetail) throws NotFoundException {  
         log.info("updateProductDetail()", productDetail.toString());
         if(productDetail.getProductID()==null) throw new NotFoundException("Product Id is null");
-        ProductDetail fetchedProduct = productDetailRepository.findById(productDetail.getProductID())
-            .orElseThrow(()-> new NotFoundException("Product " + productDetail.getProductID() + " does not found"));
+        Integer productID = productDetail.getProductID();
+        ProductDetail fetchedProduct = productDetailRepository.findById(productID)
+            .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
         // extract image's name from url
         String picture = this.imageService.getImageName(productDetail.getPicture());
         // update product detail
@@ -193,10 +204,17 @@ public class ProductServiceImp implements ProductService{
             productDetail.getQuantityPerUnit(), productDetail.getUnitPrice(), 
             productDetail.getUnitsInStock(), productDetail.getDiscontinued(), 
             picture, productDetail.getDescription(), productDetail.getCategoryID());
-        return result;
+
+        if(!result) throw new RuntimeException("Product " + productID + " can not be updated");
+        ProductDetail updatedProductDetail = productDetailRepository.findById(productID)
+            .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
+        updatedProductDetail.setPicture(picture);
+        productImageService.setProductDetailImage(updatedProductDetail);
+        return updatedProductDetail;
+        
     }
     @Override
-    public boolean insertProductDetail(ProductDetail productDetail) throws EntityExistsException {
+    public Boolean insertProductDetail(ProductDetail productDetail) throws EntityExistsException {
         log.info("insertProductDetail({})", productDetail);
         List<Product> products = productRepository.findByProductName(productDetail.getProductName());
         if(!products.isEmpty()){
@@ -237,8 +255,7 @@ public class ProductServiceImp implements ProductService{
         return products;
     }
 
-    @Override
-    public Boolean updateProductsInStock(List<ProductStockTableType> productStocks) {
+    private Boolean updateProductsInStock(List<ProductStockTableType> productStocks) {
         log.info("updateProductsInStock(productStocks={})", productStocks);
         List<String> productIDs = new ArrayList<>();
         List<String> unitsInStocks = new ArrayList<>();
@@ -250,6 +267,77 @@ public class ProductServiceImp implements ProductService{
         String unitsInStocksStr = String.join(",", unitsInStocks);
         
         Boolean status = productRepository.updateProductsUnitsInStock(productIDsStr, unitsInStocksStr);
+        return status;
+    }
+
+    @Override
+    public ResponseFormat validateProducts(List<ProductDiscountsDTO> products) {
+        log.info("validateProducts({})", products);
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            List<ProductStockTableType> productStocks = new ArrayList<>();
+            // fetch products
+            // extract productID
+            List<Integer> productIDs = products.stream()
+                .map(ProductDiscountsDTO::getProductID)
+                .collect(Collectors.toList());
+            // get products
+            List<Product> fetchedProducts = productRepository.findAllById(productIDs);    
+            // validate discounts
+            Boolean isValidDiscounts = validateDiscountService.validateDiscountsOfProducts(products);
+            if(!isValidDiscounts) throw new InvalidDiscountException("Your product's discounts does not valid!");
+            
+            // validate and update product inStock with order product quantity
+            for(ProductDiscountsDTO product : products){
+                Product fetchedProduct = findProduct(fetchedProducts, product.getProductID())
+                    .orElseThrow(()-> new NotFoundException("Product "+product.getProductID()+" does not found"));
+                // validate product's stock
+                int orderQuantity = product.getQuantity();
+                int inStocks = fetchedProduct.getUnitsInStock();
+                if(orderQuantity>inStocks){
+                    throw new InSufficientInventoryException("Product " + fetchedProduct.getProductName()+ " does not have enough stocks in inventory");
+                }
+                // add product new in stock
+                ProductStockTableType newProductStock = new ProductStockTableType();
+                newProductStock.setProductID(product.getProductID());
+                newProductStock.setUnitsInStock(inStocks-orderQuantity);
+                productStocks.add(newProductStock);
+            }
+            // update product's instocks
+            Boolean isUpdated = updateProductsInStock(productStocks);
+            if(!isUpdated) throw new RuntimeException("Can not update product in stocks");
+            responseFormat.setStatus(true);
+            return responseFormat;
+        } catch (NotFoundException | InvalidDiscountException | InSufficientInventoryException e) {
+            log.warn("Error: {}", e.getMessage());
+            responseFormat.setStatus(false);
+            responseFormat.setError(e.getMessage());
+            return responseFormat;
+        }
+    }
+
+    // find product
+    private Optional<Product> findProduct(List<Product> products, Integer productID){
+        return products.stream().filter(p -> p.getProductID().equals(productID)).findFirst();
+    }
+
+    @Override
+    public Boolean updateProductInStock(List<ProductStockTableType> products) throws NotFoundException {
+        log.info("updateProductInStock({})", products);
+        // fetch products
+        List<Integer> productIDs = products.stream()
+            .map(ProductStockTableType::getProductID)
+            .collect(Collectors.toList());
+
+        List<Product> fetchedProducts = productRepository.findAllById(productIDs);
+
+        for (ProductStockTableType product : products) {
+            Product fetchedProduct = this.findProduct(fetchedProducts, product.getProductID())
+                .orElseThrow(()-> new NotFoundException("Product " + product.getProductID() + " does not found!"));
+            product.setUnitsInStock(product.getUnitsInStock()+fetchedProduct.getUnitsInStock());
+        }
+        // update product instock
+        Boolean status = this.updateProductsInStock(products);
         return status;
     }
 

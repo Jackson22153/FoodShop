@@ -19,6 +19,7 @@ import com.phucx.order.exception.InvalidOrderException;
 import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderWithProducts;
+import com.phucx.order.model.ResponseFormat;
 import com.phucx.order.model.User;
 import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.OrderService;
@@ -54,16 +55,16 @@ public class OrderProcessingMessageListener {
                 notification = this.validateOrder(order, notification, user);
             } catch (RuntimeException | NotFoundException e) {
                 log.warn("Error: {}", e.getMessage());
-                exceptionHandler(order.getOrderID(), user.getUserID(), "Order #"+order.getOrderID()+" has been canceled", notification);
+                exceptionHandler(order, user.getUserID(), "Order #"+order.getOrderID()+" has been canceled due to " + e.getMessage(), notification);
             } catch (InvalidDiscountException e){
                 log.warn("Error: Discount is invalid {}", e.getMessage());
-                exceptionHandler(order.getOrderID(), user.getUserID(), "Order #"+order.getOrderID()+" has been canceled due to invalid discount", notification);
+                exceptionHandler(order, user.getUserID(), "Order #"+order.getOrderID()+" has been canceled due to invalid discount", notification);
             } catch(InvalidOrderException e){
                 log.warn("Error: Order is invalid {}", e.getMessage());
-                exceptionHandler(order.getOrderID(), user.getUserID(), "Order #"+order.getOrderID()+" has been canceled due to invalid order", notification);
+                exceptionHandler(order, user.getUserID(), "Order #"+order.getOrderID()+" has been canceled due to invalid order", notification);
             } catch (InSufficientInventoryException e){
                 log.warn("Error: Order is invalid due to {}", e.getMessage());
-                exceptionHandler(order.getOrderID(), user.getUserID(), e.getMessage(), notification);
+                exceptionHandler(order, user.getUserID(), e.getMessage(), notification);
             }
             notificationService.sendNotification(notification);
         } catch (JsonProcessingException e) {
@@ -89,9 +90,9 @@ public class OrderProcessingMessageListener {
         boolean employeeUpdateCheck = orderService.updateOrderEmployee(order.getOrderID(), order.getEmployeeID());
         if(employeeUpdateCheck){
             // validate and update product instock
-            boolean check = orderService.validateAndProcessOrder(order);
-            if(!check){
-                throw new RuntimeException("Order has been canceled");
+            ResponseFormat check = orderService.validateAndProcessOrder(order);
+            if(!check.getStatus()){
+                throw new RuntimeException(check.getError());
             }
             // notification
             notification.setMessage("Order #"+ order.getOrderID() +" has been confirmed");
@@ -109,14 +110,16 @@ public class OrderProcessingMessageListener {
         return notification;
     }
 
-    private void exceptionHandler(String orderID, String userID, String errorMessage, OrderNotificationDTO notification){
+    private void exceptionHandler(OrderWithProducts order, String userID, String errorMessage, OrderNotificationDTO notification
+    ) throws JsonProcessingException{
         try {
             // notification
+            notification.setTitle(NotificationTitle.CANCEL_ORDER);
             notification.setMessage(errorMessage);
             notification.setStatus(NotificationStatus.FAILED);
             notification.setReceiverID(userID);
             // update order status
-            orderService.updateOrderStatus(orderID, OrderStatus.Canceled);
+            orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Canceled);
         } catch (NotFoundException e) {
             log.error("Error: {}", e.getMessage());
         }

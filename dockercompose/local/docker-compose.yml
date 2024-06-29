@@ -119,6 +119,7 @@ services:
       - sql
       - rabbitmq
       - keycloak
+      - redis
     restart: unless-stopped
     environment:
       - CONFIG_URL=http://configserver:8071
@@ -130,6 +131,8 @@ services:
       - SQL_URL=jdbc:sqlserver://sql:1433;database=product;encrypt=true;trustServerCertificate=true
       - PRODUCT_IMAGE_LOCATION=/usr/src/app/image/product
       - CATEGORY_IMAGE_LOCATION=/usr/src/app/image/category
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     networks:
       - phucx
   
@@ -145,6 +148,7 @@ services:
       - sql
       - rabbitmq
       - keycloak
+      - redis
     restart: unless-stopped
     environment:
       - CONFIG_URL=http://configserver:8071
@@ -155,6 +159,8 @@ services:
       - SQL_URL=jdbc:sqlserver://sql:1433;database=user;encrypt=true;trustServerCertificate=true
       - CUSTOMER_IMAGE_LOCATION=/usr/src/app/image/customer
       - EMPLOYEE_IMAGE_LOCATION=/usr/src/app/image/employee
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     networks:
       - phucx
   
@@ -183,6 +189,7 @@ services:
       - 8083:8083
     container_name: order
     depends_on:
+      - redis
       - sql
       - rabbitmq
       - keycloak
@@ -202,11 +209,6 @@ services:
     container_name: prometheus
     ports:
       - 9090:9090
-    depends_on:
-      - account
-      - notification
-      - order
-      - shop
     restart: unless-stopped
     networks:
       - phucx
