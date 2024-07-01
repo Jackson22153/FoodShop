@@ -21,7 +21,7 @@ public interface DiscountService {
     @Caching(
         evict = {
             @CacheEvict(cacheNames = {"discount", "discountdetail"}, key = "#discount.discountID"),
-            @CacheEvict(cacheNames = {"currentproduct", "productdetail", "product"}, key = "#discount.productID")
+            @CacheEvict(cacheNames = {"currentproduct", "productdetail", "product", "existedproduct"}, key = "#discount.productID")
         }
     )
     public Boolean updateDiscount(DiscountWithProduct discount) throws InvalidDiscountException, NotFoundException;
@@ -29,7 +29,7 @@ public interface DiscountService {
     @Caching(
         evict = {
             @CacheEvict(cacheNames = {"discount", "discountdetail"}, key = "#discount.discountID"),
-            @CacheEvict(cacheNames = {"currentproduct", "productdetail", "product"}, key = "#discount.productID")
+            @CacheEvict(cacheNames = {"currentproduct", "productdetail", "product", "existedproduct"}, key = "#discount.productID")
         }
     )
     public Boolean updateDiscountStatus(DiscountDetail discount) throws NotFoundException;

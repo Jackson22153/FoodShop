@@ -28,6 +28,15 @@ export function deleteCartProduct(productID){
         }
     });
 }
+// remove some products in cart
+export function deleteCartProducts(productIDs){
+    return axios.post(CartProductsUrl, JSON.stringify(productIDs), {
+        withCredentials: true,
+        headers:{
+            'Content-Type': 'application/json',
+        }
+    })
+}
 // remove all products in cart
 export function deleteAllCartProducts(){
     return axios.delete(`${CartUrl}`, {

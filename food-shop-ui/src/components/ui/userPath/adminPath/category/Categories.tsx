@@ -22,7 +22,7 @@ export default function AdminCategoriesComponent(){
         if(res.status===200){
             const data = res.data;
             setCategories(data.content);
-            console.log(data);
+            // console.log(data);
         }
     }
 

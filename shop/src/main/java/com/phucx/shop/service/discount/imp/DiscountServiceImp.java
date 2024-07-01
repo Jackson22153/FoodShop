@@ -49,7 +49,7 @@ public class DiscountServiceImp implements DiscountService{
         // get discountType
         DiscountType discountType = discountTypeRepository.findByDiscountType(discount.getDiscountType())
             .orElseThrow(()-> new NotFoundException("Discount type "+ discount.getDiscountType()+  " does not found"));
-        if(discountType.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Percentage_based.getValue())){
+        if(discountType.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Code.getValue())){
             if(discount.getDiscountCode()==null) 
                 throw new InvalidDiscountException("Missing discount code for Code Discount");
         }else {
@@ -84,7 +84,7 @@ public class DiscountServiceImp implements DiscountService{
         DiscountType discountType = discountTypeRepository.findByDiscountType(discount.getDiscountType())
             .orElseThrow(()-> new NotFoundException("Discount type "+discount.getDiscountType()+" not found"));
 
-        if(discountType.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Percentage_based.getValue())){
+        if(discountType.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Code.getValue())){
             if(discount.getDiscountCode()==null) 
                 throw new InvalidDiscountException("Missing discount code for Code Discount");
         }else {

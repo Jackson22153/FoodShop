@@ -78,7 +78,9 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
     }
 
 
-    private void cancelOrder(OrderWithProducts order, String userID, OrderStatus orderStatus) throws JsonProcessingException, NotFoundException{
+    private void cancelOrder(OrderWithProducts order, String userID, OrderStatus orderStatus) 
+        throws JsonProcessingException, NotFoundException{
+
         log.info("cancelOrder(order={}, userID={}, orderStatus={})", order, userID, orderStatus);
         // fetch pending order
         OrderDetails orderDetail = orderService.getOrder(order.getOrderID(), orderStatus);
@@ -91,10 +93,12 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         Boolean status = orderService.updateOrderStatus(orderDetail.getOrderID(), OrderStatus.Canceled);
         if(!status) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated to canceled status");
         // notification
+        // notification
         OrderNotificationDTO notification = new OrderNotificationDTO();
         notification.setTitle(NotificationTitle.CANCEL_ORDER);
         notification.setTopic(NotificationTopic.Order);
-        notification.setOrderID(order.getOrderID());
+        if(OrderStatus.Pending.equals(orderStatus))
+            notification.setOrderID(order.getOrderID());
         if(status){
             // send message to customer
             User fetchedUser = userService.getUserByCustomerID(order.getCustomerID());

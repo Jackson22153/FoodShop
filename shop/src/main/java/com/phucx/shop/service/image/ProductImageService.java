@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.CurrentProduct;
+import com.phucx.shop.model.ExistedProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
 
@@ -25,6 +26,9 @@ public interface ProductImageService {
     // set image for current product
     public CurrentProduct setCurrentProductImage(CurrentProduct product);
     public List<CurrentProduct> setCurrentProductsImage(List<CurrentProduct> products);
+    // set image for existed product
+    public ExistedProduct setExistedProductImage(ExistedProduct product);
+    public List<ExistedProduct> setExistedProductsImage(List<ExistedProduct> products);
     // set image for productDetail
     public ProductDetail setProductDetailImage(ProductDetail product);
     public List<ProductDetail> setProductDetailsImage(List<ProductDetail> products);

@@ -356,4 +356,29 @@ public class CartServiceImp implements CartService{
         return this.createCartOrder(items);
 
     }
+
+    @Override
+    public CartOrderInfo removeProducts(List<Integer> productIDs, String encodedCartJson, HttpServletResponse response)
+            throws JsonProcessingException, NotFoundException {
+        log.info("removeProducts(productIDs={}, encodedCartJson={}", productIDs, encodedCartJson);
+        
+        TypeReference<List<CartProduct>> typeRef = new TypeReference<List<CartProduct>>() {};
+        List<CartProduct> items = new ArrayList<>();
+        if(encodedCartJson!=null){
+            String cartJson = this.decodeCookie(encodedCartJson);
+            items = objectMapper.readValue(cartJson, typeRef);
+            // filter products
+            List<CartProduct> orderItems = items.stream()
+                .filter(item -> !productIDs.contains(item.getProductID()))
+                .collect(Collectors.toList());
+            // convert into json format
+            String updatedCartJson = objectMapper.writeValueAsString(orderItems);
+            // update cookie
+            Cookie cookie = this.createCookie(updatedCartJson);
+            response.addCookie(cookie);
+            return this.createCartOrder(orderItems);
+        }
+
+        return this.getCartOrder(encodedCartJson);
+    }
 }

@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Pageable } from "../../../../../model/Type";
 import ScrollToTop from "../../../functions/scroll-to-top/ScrollToTop";
 
@@ -6,7 +6,6 @@ interface Props{
     pageable: Pageable
 }
 export default function PaginationSection(prop: Props){
-    const navigate = useNavigate();
     const url = new URL(window.location.href);
     // const searchParam = new URLSearchParams(url.search);
     const [searchParam] = useSearchParams()
@@ -77,9 +76,9 @@ export default function PaginationSection(prop: Props){
                     </>
                 }
                 {pageNumberScr().map((page)=>(
-                    <li key={page} className={`page-item ${page===currentPage?'active':''}`}>
+                    <li key={page} className="page-item">
                         <Link to={navigatePage(page)}>
-                            <div className="page-link">{page+1}</div>
+                            <div className={`page-link ${page===currentPage?'active':''}`}>{page+1}</div>
                         </Link>
                     </li>
 

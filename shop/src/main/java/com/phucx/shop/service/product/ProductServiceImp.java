@@ -11,18 +11,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.phucx.shop.constant.ProductStatus;
 import com.phucx.shop.exceptions.EntityExistsException;
 import com.phucx.shop.exceptions.InSufficientInventoryException;
 import com.phucx.shop.exceptions.InvalidDiscountException;
 import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.Category;
 import com.phucx.shop.model.CurrentProduct;
+import com.phucx.shop.model.ExistedProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
 import com.phucx.shop.model.ProductDiscountsDTO;
 import com.phucx.shop.model.ProductStockTableType;
 import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.repository.CurrentProductRepository;
+import com.phucx.shop.repository.ExistedProductRepository;
 import com.phucx.shop.repository.ProductDetailRepository;
 import com.phucx.shop.repository.ProductRepository;
 import com.phucx.shop.service.category.CategoryService;
@@ -37,6 +40,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductServiceImp implements ProductService{
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private ExistedProductRepository existedProductRepository;
     @Autowired
     private CurrentProductRepository currentProductRepository;
     @Autowired
@@ -206,11 +211,10 @@ public class ProductServiceImp implements ProductService{
             picture, productDetail.getDescription(), productDetail.getCategoryID());
 
         if(!result) throw new RuntimeException("Product " + productID + " can not be updated");
-        ProductDetail updatedProductDetail = productDetailRepository.findById(productID)
-            .orElseThrow(()-> new NotFoundException("Product " + productID + " does not found"));
-        updatedProductDetail.setPicture(picture);
-        productImageService.setProductDetailImage(updatedProductDetail);
-        return updatedProductDetail;
+
+        productDetail.setPicture(picture);
+        productImageService.setProductDetailImage(productDetail);
+        return productDetail;
         
     }
     @Override
@@ -289,8 +293,12 @@ public class ProductServiceImp implements ProductService{
             
             // validate and update product inStock with order product quantity
             for(ProductDiscountsDTO product : products){
+                // get product
                 Product fetchedProduct = findProduct(fetchedProducts, product.getProductID())
                     .orElseThrow(()-> new NotFoundException("Product "+product.getProductID()+" does not found"));
+                // check whether the product is discontinued or not?
+                if(fetchedProduct.getDiscontinued().equals(ProductStatus.Discontinued.getStatus()))
+                    throw new RuntimeException("Product " + fetchedProduct.getProductName() + " is discontinued");
                 // validate product's stock
                 int orderQuantity = product.getQuantity();
                 int inStocks = fetchedProduct.getUnitsInStock();
@@ -308,7 +316,7 @@ public class ProductServiceImp implements ProductService{
             if(!isUpdated) throw new RuntimeException("Can not update product in stocks");
             responseFormat.setStatus(true);
             return responseFormat;
-        } catch (NotFoundException | InvalidDiscountException | InSufficientInventoryException e) {
+        } catch (NotFoundException | InvalidDiscountException | RuntimeException | InSufficientInventoryException e) {
             log.warn("Error: {}", e.getMessage());
             responseFormat.setStatus(false);
             responseFormat.setError(e.getMessage());
@@ -339,6 +347,15 @@ public class ProductServiceImp implements ProductService{
         // update product instock
         Boolean status = this.updateProductsInStock(products);
         return status;
+    }
+
+    @Override
+    public Page<ExistedProduct> getExistedProducts(int pageNumber, int pageSize) {
+        log.info("getExistedProducts(pageNumber={}, pageSize={})", pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<ExistedProduct> products = existedProductRepository.findAll(pageable);
+        productImageService.setExistedProductsImage(products.getContent());
+        return products;
     }
 
 }

@@ -1,7 +1,7 @@
 import { ChangeEventHandler, useContext, useEffect, useState } from "react"
 import { OrderInfo } from "../../../../model/Type"
 import { displayProductImage, getError } from "../../../../service/Image";
-import { getOrder } from "../../../../api/CartApi";
+import { deleteCartProducts, getOrder } from "../../../../api/CartApi";
 import { faLongArrowAltLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CART_PATH } from "../../../../constant/FoodShoppingURL";
@@ -11,10 +11,13 @@ import userInfoContext from "../../../contexts/UserInfoContext";
 import { placeOrder } from "../../../../api/OrderApi";
 import { Link } from "react-router-dom";
 import ScrollToTop from "../../../shared/functions/scroll-to-top/ScrollToTop";
+import numberOfCartProductsContext from "../../../contexts/NumberOfCartProductsContext";
+import { numberOfProductsInCart } from "../../../../service/Cart";
 
 export default function OrderComponent(){
     const [orderInfo, setOrderInfo] = useState<OrderInfo>();
     const userInfo = useContext(userInfoContext);
+    const {numberOfCartProducts: cartproducts, setNumberOfCartProducts: setNumberOfCartProducts}= useContext(numberOfCartProductsContext)
     const [notification, setNotification] = useState<Notification>({
         notificationID: '',
         title: '',
@@ -111,12 +114,15 @@ export default function OrderComponent(){
         try {
             const res = await placeOrder(order);
             if(200<=res.status&&res.status<300){
-                const data = res.data
+                // const data = res.data
                 setNotification({...notification,
                     message: `Order has been placed successfully`,
                     status: NOTIFICATION_TYPE.SUCCESSFUL,
                     isShowed: true
                 })
+
+                const productIds = orderInfo.products.map(product => product.productID);
+                removeProductsInCart(productIds)
             }
         } catch (error) {
             setNotification({...notification,
@@ -124,6 +130,13 @@ export default function OrderComponent(){
                 status: NOTIFICATION_TYPE.ERROR,
                 isShowed: true
             })
+        }
+    }
+
+    async function removeProductsInCart(productIDs: number[]){
+        const res = await deleteCartProducts(productIDs);
+        if(200<=res.status&&res.status<300){
+            setNumberOfCartProducts(cartproducts-productIDs.length)
         }
     }
 

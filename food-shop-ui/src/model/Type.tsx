@@ -16,6 +16,17 @@ export type CurrentProduct = {
     discountPercent: number,
     categoryName: string
 }
+export type ExistedProduct = {
+    productID: number,
+    productName: string, 
+    picture: string, 
+    unitPrice: number, 
+    unitsInStock: string,
+    discountID: string,
+    discountPercent: number,
+    categoryName: string,
+    discontinued: boolean
+}
 export type CurrentProductDetail = {
     productID: number,
     productName: string, 

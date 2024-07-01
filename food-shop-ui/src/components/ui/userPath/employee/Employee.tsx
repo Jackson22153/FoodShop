@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
-import { Routes, Route, useLocation, Link } from 'react-router-dom';
+import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { EMPLOYEE_INFO, EMPLOYEE_NOTIFICATION, EMPLOYEE_ORDER, FORBIDDEN_ERROR_PAGE 
 } from '../../../../constant/FoodShoppingURL';
 import { logout } from '../../../../api/AuthorizationApi';
@@ -25,6 +25,7 @@ export default function EmployeeComponent(){
         message: 'Do you want to continute?',
         isShowed: false
     })
+    const navigate = useNavigate()
     const logoRef = useRef(null)
     const sidebarRef = useRef(null)
 
@@ -54,14 +55,14 @@ export default function EmployeeComponent(){
             if(200<=res.status&&res.status<300){
                 const data = res.data;
                 const status = data.status;
-                if(!status) window.location.href="/"
+                if(!status) navigate("/")
             }
         } catch (error) {
             if(error.response){
                 const errorResponse = error.response;
                 const status = errorResponse.status;
                 if(status===403){
-                    window.location.href=FORBIDDEN_ERROR_PAGE
+                    navigate(FORBIDDEN_ERROR_PAGE)
                 }
             }
         }

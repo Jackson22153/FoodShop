@@ -11,6 +11,8 @@ import { Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import ScrollToTop from '../../../shared/functions/scroll-to-top/ScrollToTop';
+import ErrorModal from '../../../shared/functions/error-modal/ErrorModal';
+import { LoginUrl } from '../../../../constant/FoodShoppingApiURL';
 
 export default function CartComponent(){
     const navigate = useNavigate()
@@ -18,11 +20,17 @@ export default function CartComponent(){
     const [totalItems, setTotalItems] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
     const [isSelectedAllItems, setIsSelectedAllItems] = useState(false);
-    const [removeAllModal, setRemoveAllModal] = useState<Modal>({
-        title: "Remove all products",
-        message: "Do you want to remove all products ?",
+    const [modal, setModal] = useState<Modal>({
+        title: "",
+        message: "",
         isShowed: false
     })
+    const [errorModal, setErrorModal] = useState<Modal>({
+        title: "",
+        message: "",
+        isShowed: false
+    })   
+    
     useEffect(()=>{
         initial();
     }, []);
@@ -93,6 +101,15 @@ export default function CartComponent(){
         }
     }
 
+    // error modal
+    const onClickConfirmErrorModal = ()=>{
+        window.location.href=LoginUrl
+    }
+
+    const onClickCloseErrorModal = ()=>{
+        navigate("/")
+    }
+
     // remove product from cart
     async function onClickRemoveCartProduct(index: number){
         if(cartOrder){
@@ -114,7 +131,11 @@ export default function CartComponent(){
     // remove all products
     function onClickRemoveAllCartProducts(){
         if(cartOrder){
-            setRemoveAllModal(modal => ({...modal, isShowed: true}))
+            setModal({
+                title: "Remove all products",
+                message: "Do you want to remove all products ?",
+                isShowed: true
+            })
         }
     }
 
@@ -148,12 +169,25 @@ export default function CartComponent(){
 
     // get products in cart
     async function fetchProductsInCart(){
-        const res = await getProductsFromCart();
-        if(200<=res.status&&res.status<300){
-            const data = res.data;
-            setCartOrder(data);
-            getTotalItems(data.products);
-            setTotalPrice(data.totalPrice);
+        try {
+            const res = await getProductsFromCart();
+            if(200<=res.status&&res.status<300){
+                const data = res.data;
+                setCartOrder(data);
+                getTotalItems(data.products);
+                setTotalPrice(data.totalPrice);
+            }
+        } catch (error) {
+            if(error.response){
+                const status = error.response.status;
+                if(status === 401){
+                    setErrorModal({
+                        title: "Authentication required",
+                        message: "You need to authenticate to access this page!",
+                        isShowed: true
+                    })
+                }
+            }
         }
     }
     // get total products in cart
@@ -224,7 +258,7 @@ export default function CartComponent(){
 
     // remove all button
     const onClickCloseModal = ()=>{
-        setRemoveAllModal(modal => ({...modal, isShowed: false}))
+        setModal(modal => ({...modal, isShowed: false}))
     }
     const onClickConfirmModal = ()=>{
         if(cartOrder){
@@ -232,6 +266,9 @@ export default function CartComponent(){
             setTotalPrice(0)
         }
     }
+
+
+
 
     return(
         <section className="h-100 h-custom cart-section">
@@ -340,7 +377,10 @@ export default function CartComponent(){
                     </div>
                 </div>
             </div>
-            <ModalComponent modal={removeAllModal} handleConfirmButton={onClickConfirmModal} 
+            <ModalComponent modal={errorModal} confirmText='Login' closeText='Back to home'
+                handleConfirmButton={onClickConfirmErrorModal} 
+                handleCloseButton={onClickCloseErrorModal}/>
+            <ModalComponent modal={modal} handleConfirmButton={onClickConfirmModal} 
                 handleCloseButton={onClickCloseModal}/>
         </section>
     );

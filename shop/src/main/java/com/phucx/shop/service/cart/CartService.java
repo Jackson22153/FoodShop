@@ -22,6 +22,7 @@ public interface CartService {
     // remove product from cart
     public CartOrderInfo removeProduct(Integer productID, String encodedCartJson, HttpServletResponse response) throws JsonProcessingException, NotFoundException;
     public CartOrderInfo removeProducts(HttpServletResponse response) throws JsonProcessingException;
+    public CartOrderInfo removeProducts(List<Integer> productIDs, String encodedCartJson, HttpServletResponse response) throws JsonProcessingException, NotFoundException;
     // get order cart product
     public CartOrderInfo getCartProducts(String encodedCartJson) throws JsonProcessingException, NotFoundException;
     // get order for user to check out

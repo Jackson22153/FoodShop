@@ -69,7 +69,6 @@ export const CartProductsUrl = `${CartUrl}/products`;
 export const NumberOfCartProductsUrl = `${CartProductsUrl}/number`;
 export const CartOrderUrl = `${CartUrl}/order`;
 
-
 // notification service
 const NotificationService = `${ServerURL}/notification`;
 // customer

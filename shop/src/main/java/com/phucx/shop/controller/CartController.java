@@ -58,6 +58,16 @@ public class CartController {
         return ResponseEntity.ok().body(cartOrder);
     }
 
+    @Operation(summary = "Remove some products from cart", tags = {"tutorials", "post", "customer"})
+    @PostMapping("/products")
+    public ResponseEntity<CartOrderInfo> removeCartProductsCookie(HttpServletResponse response, 
+        @CookieValue(name = CookieConstant.CART_COOKIE, required = false) String cartJson,
+        @RequestBody List<Integer> productIDs
+    ) throws JsonProcessingException, NotFoundException{
+        CartOrderInfo cartOrder = cartService.removeProducts(productIDs, cartJson, response);
+        return ResponseEntity.ok().body(cartOrder); 
+    }
+
     @Operation(summary = "Remove product from cart", tags = {"tutorials", "delete", "customer"})
     @DeleteMapping("/product/{productID}")
     public ResponseEntity<CartOrderInfo> deleteCartProductCookie(HttpServletResponse response, 

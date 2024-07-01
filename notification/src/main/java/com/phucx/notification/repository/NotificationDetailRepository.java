@@ -64,5 +64,5 @@ public interface NotificationDetailRepository extends JpaRepository<Notification
         SELECT n FROM NotificationDetail n \
         WHERE title=?1 AND receiverID=?2 AND message LIKE ?3
             """)
-    Optional<NotificationDetail> findByTitleAndReceiverIDAndMessageLike(String title, String receiverID, String message);
+    List<NotificationDetail> findByTitleAndReceiverIDAndMessageLike(String title, String receiverID, String message);
 }

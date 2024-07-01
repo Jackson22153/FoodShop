@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import com.phucx.shop.exceptions.EntityExistsException;
 import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.CurrentProduct;
+import com.phucx.shop.model.ExistedProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
 import com.phucx.shop.model.ProductDiscountsDTO;
@@ -29,7 +30,7 @@ public interface ProductService {
             @CachePut(cacheNames = {"productdetail"}, key = "#productDetail.productID")
         },
         evict = {
-            @CacheEvict(cacheNames = {"currentproduct", "product"}, key = "#productDetail.productID")
+            @CacheEvict(cacheNames = {"currentproduct", "product", "existedproduct"}, key = "#productDetail.productID")
         }
     )
     public ProductDetail updateProductDetail(ProductDetail productDetail) throws NotFoundException;
@@ -75,5 +76,7 @@ public interface ProductService {
     @Cacheable(value = "product", key = "#categoryName + ':' + #pageNumber")
     public Page<Product> getProductsByCategoryName(int pageNumber, int pageSize, String categoryName);
     // 
+    @Cacheable(value = "existedproduct", key = "#pageNumber")
+    public Page<ExistedProduct> getExistedProducts(int pageNumber, int pageSize);
 
 }

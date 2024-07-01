@@ -51,6 +51,9 @@ export default function CustomerComponent(){
         try {
             const res = await isCustomer();
             if(200<=res.status&&res.status<300){
+                const data = res.data;
+                const status = data.status;
+                if(!status) navigate("/")
             }
         } catch (error) {
             if(error.response){

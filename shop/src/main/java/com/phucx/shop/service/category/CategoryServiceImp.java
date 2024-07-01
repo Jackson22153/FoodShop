@@ -70,11 +70,9 @@ public class CategoryServiceImp implements CategoryService{
             category.getCategoryName(), category.getDescription(), 
             picture, fetchedCategory.getCategoryID());
         if(check<=0) throw new RuntimeException("Category "+ category.getCategoryID() + " can not be updated");
-        Category updatedCategory = categoryRepository.findById(categoryID)
-            .orElseThrow(()-> new NotFoundException("Category " + categoryID + " does not found"));
-        updatedCategory.setPicture(picture);
-        categoryImageService.setCategoryImage(updatedCategory);
-        return updatedCategory;
+        category.setPicture(picture);
+        categoryImageService.setCategoryImage(category);
+        return category;
 	}
     
 	@Override
