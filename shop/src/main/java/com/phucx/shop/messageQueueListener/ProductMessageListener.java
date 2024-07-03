@@ -17,6 +17,7 @@ import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.EventMessage;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDTO;
+import com.phucx.shop.model.ProductDiscountsDTO;
 import com.phucx.shop.model.ProductStockTableType;
 import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.service.product.ProductService;
@@ -56,10 +57,17 @@ public class ProductMessageListener {
                 responseMessage.setEventType(EventType.ReturnProductsByIDs);
                 responseMessage.setPayload(product);
             }else if(eventMessage.getEventType().equals(EventType.UpdateProductsUnitsInStock)){
+                // update product instocks
                 List<ProductStockTableType> productStocks = payload.getProductStocks();
-                Boolean status = productService.updateProductsInStock(productStocks);
+                Boolean status = productService.updateProductInStock(productStocks);
                 responseMessage.setEventType(EventType.ReturnUpdateProductsUnitsInStock);
                 responseMessage.setPayload(new ResponseFormat(status));
+            }else if(eventMessage.getEventType().equals(EventType.ValidateProducts)){
+                // validate products
+                List<ProductDiscountsDTO> products = payload.getProducts();
+                ResponseFormat responseFormat = productService.validateProducts(products);
+                responseMessage.setEventType(EventType.ReturnValidateProducts);
+                responseMessage.setPayload(responseFormat);
             }
             return objectMapper.writeValueAsString(responseMessage);
         } catch (JsonProcessingException e) {

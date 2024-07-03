@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.phucx.shop.config.FileProperties;
 import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.CurrentProduct;
+import com.phucx.shop.model.ExistedProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
 import com.phucx.shop.service.image.ImageService;
@@ -140,6 +141,34 @@ public class ProductImageServiceImp implements ProductImageService{
     @Override
     public String getCurrentUrl(String requestUri, Integer serverPort) {
         return imageService.getCurrentUrl(requestUri, serverPort, "/"+ serverName + imageUri);
+    }
+
+    @Override
+    public ExistedProduct setExistedProductImage(ExistedProduct product) {
+        // filtering product 
+        if(!(product.getPicture()!=null && product.getPicture().length()>0)) return product;
+        String picture = product.getPicture();
+        // setting image with image uri
+        String uri = "/" + serverName + imageUri;
+        if(!picture.contains(uri)){
+            product.setPicture(uri + "/" + product.getPicture());
+        }
+        return product;
+    }
+
+    @Override
+    public List<ExistedProduct> setExistedProductsImage(List<ExistedProduct> products) {
+        products.stream().forEach(product ->{
+            if(product.getPicture()!=null && product.getPicture().length()>0){
+                String picture = product.getPicture();
+                // setting image with image uri
+                String uri = "/" + serverName + imageUri;
+                if(!picture.contains(uri)){
+                    product.setPicture(uri + "/" + product.getPicture());
+                }
+            }
+        });
+        return products;
     }
     
 }

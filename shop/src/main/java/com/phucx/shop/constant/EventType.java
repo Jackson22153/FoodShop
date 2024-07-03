@@ -1,6 +1,13 @@
 package com.phucx.shop.constant;
 
 public enum EventType {
+    // validate products
+    ValidateProducts,
+    ReturnValidateProducts,
+
+    // remove products in cart
+    RemoveProductsInCart,
+    ReturnRemoveProductsInCart,
 
     NotFoundException,
     // customer

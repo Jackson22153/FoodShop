@@ -12,21 +12,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
+@Entity
 @Immutable
-@Entity @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Current Product List")
-public class CurrentProduct implements Serializable{
+@Table(name = "Existed Product List")
+public class ExistedProduct implements Serializable{
     @Id
     private Integer productID;
     private String productName;
     private BigDecimal unitPrice;
     private Integer unitsInStock;
     private String picture;
-
     private String discountID;
     private Integer discountPercent;
-
     private String categoryName;
+    private Boolean discontinued;
 }

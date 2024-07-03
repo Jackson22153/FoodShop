@@ -48,6 +48,7 @@ public class CategoryServiceImp implements CategoryService{
         return categoryImageService.setCategoryImage(category);
     }
 
+
     @Override
     public Category getCategory(String categoryName) throws NotFoundException {
         Category category = categoryRepository.findByCategoryName(categoryName)
@@ -56,18 +57,22 @@ public class CategoryServiceImp implements CategoryService{
     }
 
 	@Override
-	public Boolean updateCategory(Category category) throws NotFoundException {
+	public Category updateCategory(Category category) throws NotFoundException {
         log.info("updateCategory({})", category);
         if(category.getCategoryID()==null) throw new NullPointerException("Category Id is null");
-        Category fetchedCategory = this.getCategory(category.getCategoryID());
+        Integer categoryID = category.getCategoryID();
+        Category fetchedCategory = categoryRepository.findById(categoryID)
+        .orElseThrow(()-> new NotFoundException("Category " + categoryID + " does not found"));
         // extract image's name from url
         String picture = this.imageService.getImageName(category.getPicture());
         // update category
         Integer check = categoryRepository.updateCategory(
             category.getCategoryName(), category.getDescription(), 
             picture, fetchedCategory.getCategoryID());
-        if(check>0) return true;
-        return false;
+        if(check<=0) throw new RuntimeException("Category "+ category.getCategoryID() + " can not be updated");
+        category.setPicture(picture);
+        categoryImageService.setCategoryImage(category);
+        return category;
 	}
     
 	@Override

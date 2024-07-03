@@ -1,6 +1,5 @@
-package com.phucx.shop.service.discount;
+package com.phucx.shop.service.discount.imp;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,10 +17,10 @@ import com.phucx.shop.model.DiscountDetail;
 import com.phucx.shop.model.DiscountType;
 import com.phucx.shop.model.DiscountWithProduct;
 import com.phucx.shop.model.Product;
-import com.phucx.shop.model.ProductDiscountsDTO;
 import com.phucx.shop.repository.DiscountDetailRepository;
 import com.phucx.shop.repository.DiscountRepository;
 import com.phucx.shop.repository.DiscountTypeRepository;
+import com.phucx.shop.service.discount.DiscountService;
 import com.phucx.shop.service.product.ProductService;
 
 import jakarta.transaction.Transactional;
@@ -50,7 +49,7 @@ public class DiscountServiceImp implements DiscountService{
         // get discountType
         DiscountType discountType = discountTypeRepository.findByDiscountType(discount.getDiscountType())
             .orElseThrow(()-> new NotFoundException("Discount type "+ discount.getDiscountType()+  " does not found"));
-        if(discountType.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Percentage_based.getValue())){
+        if(discountType.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Code.getValue())){
             if(discount.getDiscountCode()==null) 
                 throw new InvalidDiscountException("Missing discount code for Code Discount");
         }else {
@@ -85,7 +84,7 @@ public class DiscountServiceImp implements DiscountService{
         DiscountType discountType = discountTypeRepository.findByDiscountType(discount.getDiscountType())
             .orElseThrow(()-> new NotFoundException("Discount type "+discount.getDiscountType()+" not found"));
 
-        if(discountType.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Percentage_based.getValue())){
+        if(discountType.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Code.getValue())){
             if(discount.getDiscountCode()==null) 
                 throw new InvalidDiscountException("Missing discount code for Code Discount");
         }else {
@@ -110,53 +109,26 @@ public class DiscountServiceImp implements DiscountService{
     }
 
 
-    @Override
-    public Boolean validateDiscountsOfProduct(ProductDiscountsDTO productDiscounts) throws InvalidDiscountException {
-        log.info("validateDiscountsOfProduct({})", productDiscounts);
-        try {
-            Integer productID = productDiscounts.getProductID();
-            for(String discountID: productDiscounts.getDiscountIDs()){
-                // validate number of discount type of a product 
-                boolean isValid = false;
-                // validate discount according to discount type
-                isValid = this.validateDiscount(productID, discountID, productDiscounts.getAppliedDate());
-                if(!isValid) return false;
-            }
-            return true;
-        } catch (NotFoundException e) {
-            log.error("Error: {}", e.getMessage());
-            return false;
-        }
-    }
+    // @Override
+    // public Boolean validateDiscountsOfProduct(ProductDiscountsDTO productDiscounts) throws InvalidDiscountException {
+    //     log.info("validateDiscountsOfProduct({})", productDiscounts);
+    //     try {
+    //         Integer productID = productDiscounts.getProductID();
+    //         for(String discountID: productDiscounts.getDiscountIDs()){
+    //             // validate number of discount type of a product 
+    //             boolean isValid = false;
+    //             // validate discount according to discount type
+    //             isValid = this.validateDiscount(productID, discountID, productDiscounts.getAppliedDate());
+    //             if(!isValid) return false;
+    //         }
+    //         return true;
+    //     } catch (NotFoundException e) {
+    //         log.error("Error: {}", e.getMessage());
+    //         return false;
+    //     }
+    // }
 
 
-    // validate discount for percenage-based discount
-    private boolean validatePercenageBasedDiscount(Integer productID, String discountID, LocalDateTime appliedDate)
-        throws NotFoundException
-    {
-        log.info("validatePercenageBasedDiscount(productID={}, itemDiscount={}, appliedDate={})", 
-            productID, discountID, appliedDate);
-        return discountRepository.findByDiscountIDAndProductID(discountID, productID)
-            .map(discount -> {
-                boolean isValid = false;
-                Boolean isActive = discount.getActive();
-   
-                if((appliedDate.isEqual(discount.getStartDate()) || appliedDate.isAfter(discount.getStartDate()))&&
-                    (appliedDate.isEqual(discount.getEndDate()) || appliedDate.isBefore(discount.getEndDate()))){
-                        isValid = true;
-                }
-                if(!isValid)
-                    log.info("Discount {} is out of date", discount.getDiscountID());
-                if(!isActive)
-                    log.info("Discount {} is not available", discount.getDiscountID());
-                return isActive && isValid;
-            }).orElseThrow(() -> new NotFoundException("Discount " +discountID+" does not found"));
-    }
-    // validate discount for code discount
-    private boolean validateCodeDiscount(Integer productID, String discountID, LocalDateTime appliedDate){
-        log.info("validateCodeDiscount(productID={}, discountID={}, appliedDate={})", productID, discountID, appliedDate);
-        return false;
-    }
 
     @Override
     public Discount getDiscount(String discountID) throws NotFoundException {
@@ -172,28 +144,28 @@ public class DiscountServiceImp implements DiscountService{
     }
 
     @Override
-    public Boolean updateDiscountStatus(Discount discount) throws NotFoundException {
+    public Boolean updateDiscountStatus(DiscountDetail discount) throws NotFoundException {
         log.info("updateDiscountStatus(discount={})", discount.getDiscountID());
         if(discount.getDiscountID()==null) throw new NotFoundException("Missing DiscountID");
         Discount fetchedDiscount = this.getDiscount(discount.getDiscountID());
         // update status of discount
         return discountDetailRepository.updateDiscountStatus(fetchedDiscount.getDiscountID(), discount.getActive());
     }
-    @Override
-    public Boolean validateDiscount(Integer productID, String discountID, LocalDateTime appliedDate) throws NotFoundException {
-        log.info("validateDiscount(productID={}, discountID={})", productID, discountID);
-        // get discountType
-        Discount discount = this.getDiscount(discountID);
-        DiscountType fetchedDiscountType = this.getDiscountType(discount.getDiscountTypeID());
-        String discountType = fetchedDiscountType.getDiscountType();
-        // validate according to discount's type
-        if(DiscountTypeConst.Percentage_based.getValue().equalsIgnoreCase(discountType)){
-            return this.validatePercenageBasedDiscount(productID, discountID, appliedDate);
-        }else if(DiscountTypeConst.Code.getValue().equalsIgnoreCase(discountType)){
-            return this.validateCodeDiscount(productID, discountID, appliedDate);
-        }
-        throw new NotFoundException("Discount Type "+discountType+" does not found");
-    }
+    // @Override
+    // public Boolean validateDiscount(Integer productID, String discountID, LocalDateTime appliedDate) throws NotFoundException {
+    //     log.info("validateDiscount(productID={}, discountID={})", productID, discountID);
+    //     // get discountType
+    //     Discount discount = this.getDiscount(discountID);
+    //     DiscountType fetchedDiscountType = this.getDiscountType(discount.getDiscountTypeID());
+    //     String discountType = fetchedDiscountType.getDiscountType();
+    //     // validate according to discount's type
+    //     if(DiscountTypeConst.Percentage_based.getValue().equalsIgnoreCase(discountType)){
+    //         return this.validatePercenageBasedDiscount(productID, discountID, appliedDate);
+    //     }else if(DiscountTypeConst.Code.getValue().equalsIgnoreCase(discountType)){
+    //         return this.validateCodeDiscount(productID, discountID, appliedDate);
+    //     }
+    //     throw new NotFoundException("Discount Type "+discountType+" does not found");
+    // }
     @Override
     public Page<DiscountType> getDiscountTypes(int pageNumber, int pageSize) {
         log.info("getDiscountTypes(pageNumber={}, pageSize={})", pageNumber, pageSize);
@@ -226,18 +198,18 @@ public class DiscountServiceImp implements DiscountService{
         log.info("getDiscountDetails(discountIDs={})", discountIDs);
         return discountDetailRepository.findAllById(discountIDs);
     }
-    @Override
-    public Boolean validateDiscountsOfProducts(List<ProductDiscountsDTO> productsDiscounts) {
-        log.info("validateDiscountsOfProducts({})", productsDiscounts);
-        try {
-            for(ProductDiscountsDTO product: productsDiscounts){
-                Boolean isValid = this.validateDiscountsOfProduct(product);
-                if(!isValid) return false;
-            }
-            return true;
-        } catch (InvalidDiscountException e) {
-            log.warn("Error: ", e.getMessage());
-            return false;
-        }
-    }
+    // @Override
+    // public Boolean validateDiscountsOfProducts(List<ProductDiscountsDTO> productsDiscounts) {
+    //     log.info("validateDiscountsOfProducts({})", productsDiscounts);
+    //     try {
+    //         for(ProductDiscountsDTO product: productsDiscounts){
+    //             Boolean isValid = this.validateDiscountsOfProduct(product);
+    //             if(!isValid) return false;
+    //         }
+    //         return true;
+    //     } catch (InvalidDiscountException e) {
+    //         log.warn("Error: ", e.getMessage());
+    //         return false;
+    //     }
+    // }
 }

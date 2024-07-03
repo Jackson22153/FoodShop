@@ -1,5 +1,6 @@
 package com.phucx.shop.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,7 +35,7 @@ import lombok.ToString;
             @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
         })
 })
-public class Product {
+public class Product implements Serializable{
     @Id
     @GeneratedValue(generator = "native", strategy = GenerationType.AUTO)
     private Integer productID;

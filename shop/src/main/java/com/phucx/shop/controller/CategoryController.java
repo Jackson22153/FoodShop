@@ -36,8 +36,8 @@ public class CategoryController {
     public ResponseEntity<ResponseFormat> updateCategory(
         @RequestBody Category category
     ) throws NotFoundException{
-        boolean check = categoryService.updateCategory(category);
-        ResponseFormat data = new ResponseFormat(check);
+        Category updatedCategory = categoryService.updateCategory(category);
+        ResponseFormat data = new ResponseFormat(updatedCategory!=null?true:false);
         return ResponseEntity.ok().body(data);
     }
 

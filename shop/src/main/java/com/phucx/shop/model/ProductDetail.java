@@ -1,5 +1,6 @@
 package com.phucx.shop.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.springframework.data.annotation.Immutable;
@@ -50,7 +51,7 @@ import lombok.NoArgsConstructor;
         @StoredProcedureParameter(mode = ParameterMode.OUT, name = "result", type = Boolean.class)
     })
 })
-public class ProductDetail{
+public class ProductDetail implements Serializable{
     @Id
     private Integer productID;
     private String productName;

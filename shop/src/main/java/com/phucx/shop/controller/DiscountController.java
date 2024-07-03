@@ -56,7 +56,7 @@ public class DiscountController {
     @Operation(summary = "Update discount status", tags = {"tutorials", "post", "admin"})
     @PostMapping("/status")
     public ResponseEntity<ResponseFormat> updateDiscountStatus(
-        @RequestBody Discount discount
+        @RequestBody DiscountDetail discount
     ) throws InvalidDiscountException, NotFoundException{
         Boolean check = discountService.updateDiscountStatus(discount);
         ResponseFormat data = new ResponseFormat(check);

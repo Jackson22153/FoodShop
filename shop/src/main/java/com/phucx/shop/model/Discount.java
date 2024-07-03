@@ -1,5 +1,6 @@
 package com.phucx.shop.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
@@ -15,7 +16,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Discounts")
-public class Discount {
+public class Discount implements Serializable{
     @Id
     private String discountID;
     private Integer discountPercent;

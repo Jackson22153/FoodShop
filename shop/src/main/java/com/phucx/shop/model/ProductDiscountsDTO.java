@@ -17,6 +17,9 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ProductDiscountsDTO {
     private Integer productID;
+
+    private Integer quantity;
+
     private List<String> discountIDs;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

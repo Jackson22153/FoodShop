@@ -20,6 +20,7 @@ import com.phucx.shop.model.EventMessage;
 import com.phucx.shop.model.ProductDiscountsDTO;
 import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.service.discount.DiscountService;
+import com.phucx.shop.service.discount.ValidateDiscountService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 public class DiscountMessageListener {
     @Autowired
     private DiscountService discountService;
+    @Autowired
+    private ValidateDiscountService validateDiscountService;
     @Autowired
     private ObjectMapper objectMapper;
     // get discount
@@ -57,7 +60,7 @@ public class DiscountMessageListener {
             }else if(eventMessage.getEventType().equals(EventType.ValidateDiscounts)){
                 // validate discount
                 List<ProductDiscountsDTO> productDiscounts = payload.getProductsDiscounts();
-                Boolean status = discountService.validateDiscountsOfProducts(productDiscounts);
+                Boolean status = validateDiscountService.validateDiscountsOfProducts(productDiscounts);
                 responseMessage.setPayload(new ResponseFormat(status));
             }
             String response = objectMapper.writeValueAsString(responseMessage);
