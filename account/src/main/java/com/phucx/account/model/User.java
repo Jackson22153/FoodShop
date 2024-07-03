@@ -1,5 +1,7 @@
 package com.phucx.account.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -27,7 +29,7 @@ import lombok.ToString;
             @StoredProcedureParameter(name="result", type = String.class, mode = ParameterMode.OUT),
         }),
 })
-public class User {
+public class User implements Serializable{
     @Id
     private String userID;
     private String username;

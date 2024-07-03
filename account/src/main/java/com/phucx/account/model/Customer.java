@@ -1,5 +1,7 @@
 package com.phucx.account.model;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -13,7 +15,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Customers")
-public class Customer{
+public class Customer implements Serializable{
     @Id
     @Column(name = "CustomerID", length = 36, nullable = false)
     private String customerID;

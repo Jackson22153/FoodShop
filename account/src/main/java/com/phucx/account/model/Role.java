@@ -1,5 +1,7 @@
 package com.phucx.account.model;
 
+import java.io.Serializable;
+
 import org.hibernate.annotations.GenericGenerator;
 
 import jakarta.persistence.Entity;
@@ -17,7 +19,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Roles")
-public class Role {
+public class Role implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")

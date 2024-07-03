@@ -1,5 +1,7 @@
 package com.phucx.account.model;
 
+import java.io.Serializable;
+
 import org.springframework.data.annotation.Immutable;
 
 import jakarta.persistence.Entity;
@@ -29,9 +31,10 @@ import lombok.NoArgsConstructor;
         @StoredProcedureParameter(name="picture", mode = ParameterMode.IN, type = String.class),
         @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
     })
-public class CustomerDetail {
+public class CustomerDetail implements Serializable{
     @Id
     private String customerID;
+    private String userID;
     private String username;
     private String email;
     private String contactName;

@@ -19,7 +19,6 @@ import com.phucx.account.exception.InvalidUserException;
 import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetails;
-import com.phucx.account.model.Employee;
 import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetails;
 import com.phucx.account.model.ResponseFormat;
@@ -142,7 +141,7 @@ public class AdminController {
         tags = {"post", "tutorials", "admin"})
     @PostMapping("/employees")
     public ResponseEntity<ResponseFormat> updateEmployeeDetail(
-        @RequestBody Employee employee
+        @RequestBody EmployeeDetails employee
     ) throws JsonProcessingException, EmployeeNotFoundException{
         Boolean status = employeeService.updateAdminEmployeeInfo(employee);
         return ResponseEntity.ok().body(new ResponseFormat(status));

@@ -1,5 +1,7 @@
 package com.phucx.account.model;
 
+import java.io.Serializable;
+
 import org.springframework.data.annotation.Immutable;
 
 import com.phucx.account.compositeKey.UserRoleID;
@@ -26,7 +28,7 @@ import lombok.ToString;
         @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
     })
 @Table(name = "UserRoles")
-public class UserRole {
+public class UserRole implements Serializable{
     @Id
     private String userID;
     @Id

@@ -1,5 +1,6 @@
 package com.phucx.account.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -12,7 +13,7 @@ import lombok.ToString;
 @Data @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeDetails {
+public class EmployeeDetails implements Serializable{
     private String employeeID;
     private UserInfo userInfo;
     private String firstName;

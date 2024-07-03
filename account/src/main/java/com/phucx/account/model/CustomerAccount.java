@@ -1,5 +1,7 @@
 package com.phucx.account.model;
 
+import java.io.Serializable;
+
 import org.springframework.data.annotation.Immutable;
 
 import jakarta.persistence.Entity;
@@ -40,7 +42,7 @@ import lombok.ToString;
     })
 })
 @Table(name = "CustomerAccounts")
-public class CustomerAccount {
+public class CustomerAccount implements Serializable{
     @Id
     private String userID;
     private String username;

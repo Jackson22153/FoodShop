@@ -75,11 +75,10 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
 	@Override
-	public Boolean updateEmployeeInfo(EmployeeDetail employee) throws EmployeeNotFoundException {
+	public EmployeeDetail updateEmployeeInfo(EmployeeDetail employee) throws EmployeeNotFoundException {
         log.info("updateEmployeeInfo({})", employee.toString());
         Employee fetchedEmployee =employeeRepository.findById(employee.getEmployeeID())
-            .orElseThrow(()-> new EmployeeNotFoundException("Employee " + employee.getEmployeeID() + " does not found"));
-        
+            .orElseThrow(()-> new EmployeeNotFoundException("Employee " + employee.getEmployeeID() + " does not found"));  
         String picture = imageService.getImageName(employee.getPhoto());
         
         // update employee info
@@ -87,8 +86,9 @@ public class EmployeeServiceImp implements EmployeeService {
             fetchedEmployee.getEmployeeID(), employee.getEmail(), employee.getFirstName(), 
             employee.getLastName(), employee.getBirthDate(), employee.getAddress(), 
             employee.getCity(), employee.getHomePhone(), picture);   
-
-        return status;
+        if(!status) throw new RuntimeException("Employee " + employee.getEmployeeID() + " can not be updated!");
+        return employeeDetailRepostiory.findById(employee.getEmployeeID())
+        .orElseThrow(()-> new EmployeeNotFoundException("Employee " + employee.getEmployeeID() + " does not found")); 
 	}
 
 	@Override
@@ -166,7 +166,7 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
     @Override
-    public Boolean updateAdminEmployeeInfo(Employee employee) throws JsonProcessingException, EmployeeNotFoundException {
+    public Boolean updateAdminEmployeeInfo(EmployeeDetails employee) throws JsonProcessingException, EmployeeNotFoundException {
         log.info("updateAdminEmployeeInfo({})", employee.toString());
         Employee fetchedEmployee = employeeRepository.findById(employee.getEmployeeID())
             .orElseThrow(()-> new EmployeeNotFoundException("Employee " + employee.getEmployeeID() + " does not found"));

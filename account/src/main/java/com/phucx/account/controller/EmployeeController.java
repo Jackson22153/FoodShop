@@ -58,8 +58,8 @@ public class EmployeeController {
     public ResponseEntity<ResponseFormat> updateUserInfo(
         @RequestBody EmployeeDetail employee
     ) throws EmployeeNotFoundException{
-        Boolean status = employeeService.updateEmployeeInfo(employee);
-        return ResponseEntity.ok().body(new ResponseFormat(status));
+        EmployeeDetail updatedEmployeeDetail = employeeService.updateEmployeeInfo(employee);
+        return ResponseEntity.ok().body(new ResponseFormat(updatedEmployeeDetail!=null?true:false));
     }
 
     // set image
