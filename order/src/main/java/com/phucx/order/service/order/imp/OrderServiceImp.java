@@ -33,7 +33,7 @@ import com.phucx.order.model.Order;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderDetailExtended;
 import com.phucx.order.model.ProductDiscountsDTO;
-import com.phucx.order.model.ProductStockTableType;
+import com.phucx.order.model.ResponseFormat;
 import com.phucx.order.model.Product;
 import com.phucx.order.repository.InvoiceRepository;
 import com.phucx.order.repository.OrderDetailDiscountRepository;
@@ -137,18 +137,15 @@ public class OrderServiceImp implements OrderService{
 
     @Override
     @Transactional
-    public Boolean validateAndProcessOrder(OrderWithProducts order
-    ) throws InvalidDiscountException, JsonProcessingException, NotFoundException, InSufficientInventoryException{
+    public ResponseFormat validateAndProcessOrder(OrderWithProducts order) throws JsonProcessingException{
         log.info("validateAndProcessOrder({})", order.toString());
-        if(order==null || order.getProducts().size()==0) return false;
-        // store product's new instock
-        List<ProductStockTableType> updateProductsInStock = new ArrayList<>();
-        // get product in order
-        List<OrderItem> products = order.getProducts();
-        List<Integer> productIds = products.stream().map(OrderItem::getProductID).collect(Collectors.toList());
-        List<Product> fetchedProducts = productService.getProducts(productIds);
-        // validate discounts of products
-        // get products and products's discount
+        if(order==null || order.getProducts().size()==0) {
+            ResponseFormat responseFormat = new ResponseFormat();
+            responseFormat.setStatus(false);
+            responseFormat.setError("Your order does not have any products");
+            return responseFormat;
+        }
+
         List<ProductDiscountsDTO> productDiscountsDTOs = order.getProducts().stream().map((product) -> {
             // get discountIDs
             List<String> discountIDs = product.getDiscounts().stream()
@@ -158,33 +155,12 @@ public class OrderServiceImp implements OrderService{
             if(!discountIDs.isEmpty()){
                 currenTime = product.getDiscounts().get(0).getAppliedDate();
             }
-            return new ProductDiscountsDTO(product.getProductID(), discountIDs, currenTime);
+            return new ProductDiscountsDTO(product.getProductID(), product.getQuantity(), discountIDs, currenTime);
         }).collect(Collectors.toList());
-        // send and receive request 
-        Boolean isValidDiscount = discountService.validateDiscount(productDiscountsDTOs);
-        if(!isValidDiscount){
-            throw new InvalidDiscountException("Discounts of Product is invalid");
-        }
-        // validate and update product inStock with order product quantity
-        for(OrderItem product : products){
-            Product fetchedProduct = findProduct(fetchedProducts, product.getProductID())
-                .orElseThrow(()-> new NotFoundException("Product "+product.getProductID()+" does not found"));
-            // validate product's stock
-            int orderQuantity = product.getQuantity();
-            int inStocks = fetchedProduct.getUnitsInStock();
-            if(orderQuantity>inStocks){
-                throw new InSufficientInventoryException("Product " + product.getProductName()+ " does not have enough stocks in inventory");
-            }
-            // add product new in stock
-            ProductStockTableType newProductStock = new ProductStockTableType();
-            newProductStock.setProductID(product.getProductID());
-            newProductStock.setUnitsInStock(inStocks-orderQuantity);
-            updateProductsInStock.add(newProductStock);
-        }
-        // update product's instocks
-        Boolean status = productService.updateProductsInStocks(updateProductsInStock);
-        if(!status) throw new RuntimeException("Can not update product in stocks");
-        return true;
+
+        // validate products
+        ResponseFormat responseFormat = productService.validateProducts(productDiscountsDTOs);
+        return responseFormat;
     }
     
     
@@ -242,7 +218,7 @@ public class OrderServiceImp implements OrderService{
                         productDiscountIDs.add(orderItemDiscount.getDiscountID());
                     }
                     LocalDateTime currentTime = product.getDiscounts().get(0).getAppliedDate();
-                    ProductDiscountsDTO productDiscountsDTO = new ProductDiscountsDTO(product.getProductID(), productDiscountIDs, currentTime);
+                    ProductDiscountsDTO productDiscountsDTO = new ProductDiscountsDTO(product.getProductID(), product.getQuantity(), productDiscountIDs, currentTime);
                     productDiscountsDTOs.add(productDiscountsDTO);
                 }
             }

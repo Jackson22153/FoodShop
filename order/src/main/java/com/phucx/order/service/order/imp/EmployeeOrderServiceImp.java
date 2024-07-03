@@ -1,5 +1,8 @@
 package com.phucx.order.service.order.imp;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -15,12 +18,14 @@ import com.phucx.order.model.Employee;
 import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderWithProducts;
+import com.phucx.order.model.ProductStockTableType;
 import com.phucx.order.model.User;
 import com.phucx.order.service.employee.EmployeeService;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.EmployeeOrderService;
 import com.phucx.order.service.order.OrderService;
+import com.phucx.order.service.product.ProductService;
 import com.phucx.order.service.user.UserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 public class EmployeeOrderServiceImp implements EmployeeOrderService {
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private ProductService productService;
     @Autowired
     private NotificationService notificationService;
     @Autowired
@@ -62,10 +69,18 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
     public void cancelConfirmedOrder(OrderWithProducts order, String userID) throws JsonProcessingException, NotFoundException {
         log.info("cancelConfirmedOrder(order={}, userID={})", order, userID);
         cancelOrder(order, userID, OrderStatus.Confirmed);
+        OrderDetails fetchedOrder = orderService.getOrder(order.getOrderID());
+        // rollback product instocks
+        List<ProductStockTableType> products = fetchedOrder.getProducts().stream()
+            .map(product -> new ProductStockTableType(product.getProductID(), product.getQuantity()))
+            .collect(Collectors.toList());
+        productService.updateProductsInStocks(products);
     }
 
 
-    private void cancelOrder(OrderWithProducts order, String userID, OrderStatus orderStatus) throws JsonProcessingException, NotFoundException{
+    private void cancelOrder(OrderWithProducts order, String userID, OrderStatus orderStatus) 
+        throws JsonProcessingException, NotFoundException{
+
         log.info("cancelOrder(order={}, userID={}, orderStatus={})", order, userID, orderStatus);
         // fetch pending order
         OrderDetails orderDetail = orderService.getOrder(order.getOrderID(), orderStatus);
@@ -78,10 +93,12 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         Boolean status = orderService.updateOrderStatus(orderDetail.getOrderID(), OrderStatus.Canceled);
         if(!status) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated to canceled status");
         // notification
+        // notification
         OrderNotificationDTO notification = new OrderNotificationDTO();
         notification.setTitle(NotificationTitle.CANCEL_ORDER);
         notification.setTopic(NotificationTopic.Order);
-        notification.setOrderID(order.getOrderID());
+        if(OrderStatus.Pending.equals(orderStatus))
+            notification.setOrderID(order.getOrderID());
         if(status){
             // send message to customer
             User fetchedUser = userService.getUserByCustomerID(order.getCustomerID());
