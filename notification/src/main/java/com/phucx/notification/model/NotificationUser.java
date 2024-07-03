@@ -48,6 +48,15 @@ import lombok.ToString;
             @StoredProcedureParameter(name="isRead", mode = ParameterMode.IN, type = Boolean.class),
             @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class)
         }
+    ),
+    @NamedStoredProcedureQuery(
+        name = "NotificationUser.UpdateNotificationsReadByNotificationID",
+        procedureName = "UpdateNotificationsReadByNotificationID",
+        parameters = {
+            @StoredProcedureParameter(name="notificationIDs", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="isRead", mode = ParameterMode.IN, type = Boolean.class),
+            @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
+        }
     )
 })
 @Table(name = "NotificationUser")

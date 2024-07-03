@@ -65,7 +65,7 @@ public class MarkUserNotificationServiceImp implements MarkUserNotificationServi
 
     @Override
     public Boolean markAsReadCustomerBroadcastNotification(String notifiationID) throws NotFoundException {
-        log.info("markAsReadEmployeeBroadcastNotification({})", notifiationID);
+        log.info("markAsReadCustomerBroadcastNotification({})", notifiationID);
         NotificationDetail fetchedNotification = this.notificationService
             .getNotificationByNotificationIDAndReceiverID(
                 notifiationID, NotificationBroadCast.ALL_CUSTOMERS.name());

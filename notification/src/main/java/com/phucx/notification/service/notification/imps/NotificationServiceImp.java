@@ -1,8 +1,8 @@
 package com.phucx.notification.service.notification.imps;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -161,17 +161,21 @@ public class NotificationServiceImp implements NotificationService{
     public Boolean updateNotificationReadStatusOfBroadcast(String title, String message,
             NotificationBroadCast broadCast, Boolean status) throws NotFoundException {
         log.info("updateNotificationReadStatusOfBroadcast(title={}, message={}, broadCast={}, status={})", title, message, broadCast, status);
-        
-        Optional<NotificationDetail> optionalNotificationDetail = notificationDetailRepository
+        // fetch notifications
+        List<NotificationDetail> fetchedNotifications = notificationDetailRepository
             .findByTitleAndReceiverIDAndMessageLike(title, broadCast.name(), "%" + message + "%");
-
-        log.info("Notification: {}", optionalNotificationDetail.get());
-        
-        NotificationDetail fetchedNotification = notificationDetailRepository
-            .findByTitleAndReceiverIDAndMessageLike(title, broadCast.name(), "%" + message + "%")
-            .orElseThrow(()-> new NotFoundException("Notification with title " + title + " and message "+ message + " of " + broadCast.name() + " does not found"));
-                
-        return this.notificationUserRepository.updateNotificationReadStatusByNotificationID(
-            fetchedNotification.getNotificationID(), status);
+        // check notifications
+        if(fetchedNotifications==null || fetchedNotifications.isEmpty()) 
+            throw new NotFoundException("Notification with title " + title + " and message " + message + " of " + broadCast.name() + " does not found");
+        // extract notificationID
+        List<String> notificationIDs = fetchedNotifications.stream()
+            .map(NotificationDetail::getNotificationID)
+            .collect(Collectors.toList());
+        String notificationIDsStr = String.join(",", notificationIDs);
+        // update notification isRead status
+        Boolean result = notificationUserRepository.updateNotificationsReadByNotificationID(notificationIDsStr, status);
+        return result;
+        // return this.notificationUserRepository.updateNotificationReadStatusByNotificationID(
+        //     fetchedNotification.getNotificationID(), status);
     }
 }

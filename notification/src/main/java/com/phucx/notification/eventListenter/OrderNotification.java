@@ -14,6 +14,7 @@ import com.phucx.notification.config.MessageQueueConfig;
 import com.phucx.notification.constant.EventType;
 import com.phucx.notification.constant.NotificationBroadCast;
 import com.phucx.notification.constant.NotificationIsRead;
+import com.phucx.notification.constant.NotificationTitle;
 import com.phucx.notification.constant.WebConstant;
 import com.phucx.notification.constant.WebSocketConstant;
 import com.phucx.notification.model.EventMessage;
@@ -52,7 +53,17 @@ public class OrderNotification {
                 }else if(payload.getReceiverID().equalsIgnoreCase(NotificationBroadCast.ALL_CUSTOMERS.name())){
 
                 }else {
+                    // send message to user
                     messageQueueService.sendMessageToUser(notification.getReceiverID(), notification);
+                    // update notification based on its title and orderID
+                    String orderID = payload.getOrderID();
+                    if((notification.getTitle().equalsIgnoreCase(NotificationTitle.CONFIRM_ORDER.name())||
+                    notification.getTitle().equalsIgnoreCase(NotificationTitle.CANCEL_ORDER.name()))&& orderID!=null){
+                        Boolean result = notificationService.updateNotificationReadStatusOfBroadcast(
+                            NotificationTitle.PLACE_ORDER.name(), orderID, 
+                            NotificationBroadCast.ALL_EMPLOYEES, NotificationIsRead.YES.getValue());
+                        if(!result) throw new RuntimeException("Notification with title " + NotificationTitle.CONFIRM_ORDER + " and OrderID " + orderID +" can not be updated to " + NotificationIsRead.YES + " status");
+                    }  
                 }
             }else if(eventMessage.getEventType().equals(EventType.MarkOrderAsConfirmed)){
                 // mark pending order notification as read after confirming
