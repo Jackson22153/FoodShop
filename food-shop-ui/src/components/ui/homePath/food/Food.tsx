@@ -14,6 +14,9 @@ import { FOODS_PATH, NOT_FOUND_ERROR_PAGE } from '../../../../constant/FoodShopp
 import { numberOfProductsInCart } from '../../../../service/Cart';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import ScrollToTop from '../../../shared/functions/scroll-to-top/ScrollToTop';
+import { Modal } from '../../../../model/WebType';
+import ModalComponent from '../../../shared/functions/modal/Modal';
+import { LoginUrl } from '../../../../constant/FoodShoppingApiURL';
 
 export default function FoodComponent(){
     const navigate = useNavigate();
@@ -27,13 +30,27 @@ export default function FoodComponent(){
         quantity: 1,
         isSelected: true
     })
-    
+    const [modal, setModal] = useState<Modal>({
+        title: '',
+        message: '',
+        isShowed: false
+    })
+
     useEffect(()=>{
         initial();
     }, [productID]);
 
     function initial(){
         fetchProduct(productID);
+    }
+
+    // modal
+    const onClickConfirmModal = ()=>{
+        window.location.href=LoginUrl
+    }
+
+    const onClickCloseModal = ()=>{
+        navigate("/")
     }
 
     // handle product
@@ -55,10 +72,24 @@ export default function FoodComponent(){
     }
 
     async function onClickAddToCart(){
-        const res = await addProductToCart([cartProduct]);
-        if(res.status){
-            const numberProducts = numberOfProductsInCart();
-            setNumberOfCartProducts(numberProducts)
+        try {
+            const res = await addProductToCart([cartProduct]);
+            if(res.status){
+                const numberProducts = numberOfProductsInCart();
+                setNumberOfCartProducts(numberProducts)
+            }
+        } catch (error) {
+            const errorResponse  = error.response
+            if(errorResponse){
+                const status = errorResponse.status;
+                if(status===401){
+                    setModal({
+                        title: "Authentication required!",
+                        message: "You need authentication to add this product to your cart!",
+                        isShowed: true
+                    })
+                }
+            }
         }
     }
 
@@ -80,7 +111,6 @@ export default function FoodComponent(){
             const res = await getProductByID(productID)
             if(res.status){
                 const data = res.data;
-                // console.log(res.data);
                 setCartProduct({
                     ...cartProduct,
                     productID: data.productID,
@@ -193,7 +223,7 @@ export default function FoodComponent(){
                                         <div className="row mb-4">
                                             <p className="col-12"><b>Price: ${ceilRound(foodInfo.unitPrice*(1-foodInfo.discountPercent/100)*cartProduct.quantity)}</b></p>
                                         </div>
-                                        <a href="#" className="btn btn-warning shadow-0"> Buy now </a>
+                                        {/* <a href="#" className="btn btn-warning shadow-0"> Buy now </a> */}
                                         <button className="btn btn-primary shadow-0 mx-2" onClick={onClickAddToCart}> 
                                             <FontAwesomeIcon icon={faShoppingCart}/> Add to cart 
                                         </button>
@@ -280,6 +310,9 @@ export default function FoodComponent(){
                             </div>
                         </div>
                     </section>
+                    <ModalComponent modal={modal} confirmText='Login' closeText='Back to home'
+                        handleConfirmButton={onClickConfirmModal} 
+                        handleCloseButton={onClickCloseModal}/>
                 </>
             }
         </>

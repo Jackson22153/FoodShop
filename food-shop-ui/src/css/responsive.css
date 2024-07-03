@@ -1,6 +1,7 @@
 @media (max-width: 1120px) {
-    .hero_area {
-        height: auto;
+    .hero_area .slider_item-detail{
+        /* display: flex;
+        justify-content: center; */
     }
 
     .slider_section {

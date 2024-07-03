@@ -23,13 +23,13 @@ export default function UserOrdersComponent(){
         number: 0,
         totalPages: 0
     })
+    const pageNumber = getPageNumber();
 
     useEffect(()=>{
         initial();
-    }, [notificationMessage, orderParam])
+    }, [notificationMessage, orderParam, pageNumber])
 
     function initial(){
-        const pageNumber = getPageNumber();
         fetchOrdersBasedOnType(pageNumber);
     }
 

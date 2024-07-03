@@ -19,6 +19,7 @@ import { ALERT_TIMEOUT, ALERT_TYPE, DISCOUNT_TYPE } from '../../../../../constan
 import { Alert, Modal } from '../../../../../model/WebType';
 import AlertComponent from '../../../../shared/functions/alert/Alert';
 import ModalComponent from '../../../../shared/functions/modal/Modal';
+import ScrollToTop from '../../../../shared/functions/scroll-to-top/ScrollToTop';
 
 export default function AdminFoodComponent(){
     const location = useLocation();
@@ -97,9 +98,12 @@ export default function AdminFoodComponent(){
         const res = await getProductDetail(productID);
         if(res.status){
             const data = res.data;
+            // console.log(data)
             setFoodInfo(data);
             setFoodInfoChange(data);
-            fetchDiscount(data.discountID);
+            if(data.discountID){
+                fetchDiscount(data.discountID);
+            }
             setDescription(data.description);
         }
     }
@@ -398,7 +402,8 @@ export default function AdminFoodComponent(){
                 discountCode: currentDiscount.discountCode,
                 startDate: currentDiscount.startDate,
                 endDate: currentDiscount.endDate,
-                active: currentDiscount.active
+                active: currentDiscount.active,
+                productID: foodInfo.productID
             }
             try {
                 const res = await updateDiscount(data);
@@ -483,6 +488,7 @@ export default function AdminFoodComponent(){
 
     return(
         <div className="container-fluid container">
+            <ScrollToTop/>
             <AlertComponent alert={alert}/>
             {foodInfoChange &&
                 <div>

@@ -11,12 +11,30 @@ import ModalComponent from "../../../../shared/functions/modal/Modal";
 import { Alert, Modal } from "../../../../../model/WebType";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/WebConstant";
-import { UserImageChangeInput } from "../../../../shared/functions/user-image-change/UserImageChangeInput";
 import { EmployeeImageChangeInput } from "../../../../shared/functions/employee-image-change/EmployeeImageChangeInput";
 
 export default function AdminEmployeeComponent(){
     const {employeeID} = useParams();
-    const [employeeInfo, setEmployeeInfo] = useState<EmployeeDetail>();
+    const [employeeInfo, setEmployeeInfo] = useState<EmployeeDetail>({
+        employeeID: "",
+        lastName: "",
+        firstName: "",
+        birthDate: "",
+        hireDate: "",
+        address: "",
+        city: "",
+        homePhone: "",
+        photo: "",
+        notes: "",
+        userInfo: {
+            user: {
+                userID: "",
+                username: "",
+                email: "",
+            },
+            roles: []
+        }
+    });
     const [employeeRoles, setEmployeeRoles] = useState<Role[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
     const [isRolesDropdownShowed, setIsRolesDropdownShowed] = useState(false);
@@ -72,7 +90,6 @@ export default function AdminEmployeeComponent(){
                 address: data.address||'',
                 city: data.city||'',
                 homePhone: data.homePhone||'',
-                description: data.description||'',
                 photo: data.photo||'',
                 notes: data.notes||'',
                 userInfo: {
@@ -169,16 +186,8 @@ export default function AdminEmployeeComponent(){
     const onClickConfirmUpdateInfoModal = async ()=>{
         try {
             if(employeeInfo){
-                const data = {
-                    employeeID: employeeInfo.employeeID, 
-                    firstName: employeeInfo.firstName, 
-                    lastName: employeeInfo.lastName,
-                    hireDate: employeeInfo.hireDate,
-                    photo: employeeInfo.photo,
-                    notes: employeeInfo.notes
-                }
-
-                const res = await updateEmployee(data);
+                console.log(employeeInfo)
+                const res = await updateEmployee(employeeInfo);
                 if(res.status){
                     const data = res.data
                     const status = data.status

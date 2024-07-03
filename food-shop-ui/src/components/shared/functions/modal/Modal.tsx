@@ -5,6 +5,8 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 interface Props{
     modal: Modal,
+    confirmText?: string,
+    closeText?: string,
     handleCloseButton: any,
     handleConfirmButton: any
 }
@@ -41,9 +43,9 @@ export default function ModalComponent(prop: Props){
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-dismiss="modal"
-                                onClick={handleCloseButton}>Close</button>
+                                onClick={handleCloseButton}>{prop.closeText?prop.closeText:'Close'}</button>
                             <button type="button" className="btn btn-primary"
-                                onClick={handleConfirmButton}>Confirm</button>
+                                onClick={handleConfirmButton}>{prop.confirmText?prop.confirmText:'Confirm'}</button>
                         </div>
                     </div>
                 </div>

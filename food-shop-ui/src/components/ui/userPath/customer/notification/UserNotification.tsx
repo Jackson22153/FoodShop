@@ -22,6 +22,7 @@ export default function UserNotificationComponent(){
         number: 0,
         totalPages: 0
     })
+    const pageNumber = getPageNumber();
     const [alert, setAlert] = useState<Alert>({
         message: "",
         type: ALERT_TYPE.INFO,
@@ -29,11 +30,10 @@ export default function UserNotificationComponent(){
     })
     useEffect(()=>{
         initial();
-    }, [notificationMessage])
+    }, [notificationMessage, pageNumber])
 
     const initial = ()=>{
         if(notificationMessage) setNotifications([...notifications, notificationMessage])
-        const pageNumber = getPageNumber();
         fetchNotifications(pageNumber);
     }
     // fetch user's notifications

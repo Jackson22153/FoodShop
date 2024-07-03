@@ -10,14 +10,13 @@ import { LoginUrl } from "../../../../constant/FoodShoppingApiURL";
 import numberOfCartProductsContext from "../../../contexts/NumberOfCartProductsContext";
 import UserInfoNav from "../../functions/userinfo-nav/UserInfoNav";
 import userInfoContext from "../../../contexts/UserInfoContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
  
 interface Props{
     lstCategories: Category[]
 }
 const HeaderComponent = memo(function HeaderComponent(prop: Props){
     const logo = getLogo();
-    const navigate = useNavigate();
     const lstCategories = prop.lstCategories;
     const { numberOfCartProducts } = useContext(numberOfCartProductsContext);
     const [isNavExpanded, setIsNavExpanded] = useState(false); 
@@ -26,7 +25,7 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
 
     useEffect(()=>{
         document.addEventListener('click', onClickOutSideNavBar)
-    }, [])
+    }, [numberOfCartProducts, userInfo])
 
 
     // expanded click

@@ -49,7 +49,16 @@ export function updateProduct(productDetail){
         }
     });
 }
-
+// get products
+export function getProducts(page){
+    return axios.get(`${ProductAdminUrl}?page=${page}`, {
+        withCredentials: true,
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+} 
+// get product details
 export function getProductDetail(productID){
     return axios.get(`${ProductAdminUrl}/${productID}`, {
         withCredentials: true,

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
-import { Routes, Route, useLocation, Link } from 'react-router-dom';
+import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import { EMPLOYEE_INFO, EMPLOYEE_NOTIFICATION, EMPLOYEE_ORDER, FORBIDDEN_ERROR_PAGE 
 } from '../../../../constant/FoodShoppingURL';
 import { logout } from '../../../../api/AuthorizationApi';
@@ -18,22 +18,25 @@ import { isEmployee } from '../../../../api/EmployeeApi';
 export default function EmployeeComponent(){
     const [isShowedSideBar, setIsShowedSideBar] = useState(false)
     const location = useLocation()
+    const path = location.pathname.toLowerCase()
     const [selectedPath, setSelectedPath] = useState(0);
     const [modal, setModal] = useState<Modal>({
         title: 'Confirm action',
         message: 'Do you want to continute?',
         isShowed: false
     })
+    const navigate = useNavigate()
     const logoRef = useRef(null)
     const sidebarRef = useRef(null)
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [path])
 
     const initial = ()=>{
+        // check user
         checkAuthenticationEmployee();
-        const path = location.pathname;
+        // check selected path
         if(path==EMPLOYEE_INFO){
             setSelectedPath(0);
         }else if(path===EMPLOYEE_ORDER){
@@ -41,7 +44,7 @@ export default function EmployeeComponent(){
         }else if(path === EMPLOYEE_NOTIFICATION){
             setSelectedPath(2);
         }
-
+        
         document.addEventListener('click', onClickOutSideSideBar)
     }
 
@@ -52,14 +55,14 @@ export default function EmployeeComponent(){
             if(200<=res.status&&res.status<300){
                 const data = res.data;
                 const status = data.status;
-                if(!status) window.location.href="/"
+                if(!status) navigate("/")
             }
         } catch (error) {
             if(error.response){
                 const errorResponse = error.response;
                 const status = errorResponse.status;
                 if(status===403){
-                    window.location.href=FORBIDDEN_ERROR_PAGE
+                    navigate(FORBIDDEN_ERROR_PAGE)
                 }
             }
         }
@@ -83,7 +86,6 @@ export default function EmployeeComponent(){
             const logo = logoRef.current as HTMLElement;
             const sidebar = sidebarRef.current as HTMLElement;
             if(!sidebar.contains(event.target as Node) && !logo.contains(event.target as Node)){
-                console.log('outside')
                 closeShowedSidebar();
             }
         }

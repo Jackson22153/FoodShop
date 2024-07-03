@@ -18,13 +18,13 @@ export default function CategoryComponent(){
         number: 0,
         totalPages: 0
     });
+    const pageNumber = getPageNumber();
 
     useEffect(()=>{
         initial();
-    }, [categoryName, pageable]);
+    }, [categoryName, pageNumber]);
 
     function initial(){
-        const pageNumber = getPageNumber();
         fetchProductsByCategory(pageNumber);
     }
     // fetch products based on category

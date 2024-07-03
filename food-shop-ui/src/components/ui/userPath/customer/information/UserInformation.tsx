@@ -44,7 +44,8 @@ export default function UserInformationComponent(){
                     phone: data.phone || '',
                     picture: data.picture || '',
                     email: data.email || '',
-                    username: data.username || ''
+                    username: data.username,
+                    userID: data.userID
                 };
                 setCustomerInfo(customer)
             }
@@ -96,7 +97,8 @@ export default function UserInformationComponent(){
                     phone: customerInfo.phone || null,
                     picture: customerInfo.picture || null,
                     email: customerInfo.email || null,
-                    username: customerInfo.username || null
+                    username: customerInfo.username || null,
+                    userID: customerInfo.userID
                 };
                 const res = await updateUserInfo(customer);
                 if(res.status){

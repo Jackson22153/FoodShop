@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useRef, useState } from 'react';
@@ -25,9 +25,13 @@ export default function AdminComponent(){
     const sidebarRef = useRef(null)
     const [selectedPath, setSelectedPath] = useState(0);
     const location = useLocation()
+    const navigate = useNavigate()
+    const path = location.pathname.toLowerCase();
     const [userDropdown, setUserDropdown] = useState(false)
     const [categoryDropdown, setCategoryDropdown] = useState(false)
     const [productDropdown, setProductDropdown] = useState(false)
+    const [isShowedSideBar, setIsShowedSideBar] = useState(false)
+    const logoRef = useRef(null)
     const [modal, setModal] = useState<Modal>({
         title: 'Confirm action',
         message: 'Do you want to continute?',
@@ -37,11 +41,11 @@ export default function AdminComponent(){
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [path])
 
     const initial = ()=>{
         checkAuthenticationAdmin();
-        const path = location.pathname;
+
         if(path==ADMIN_CATEGORIES){
             setSelectedPath(0.1);
         }else if(path === ADMIN_ADD_CATEGORY){
@@ -55,6 +59,24 @@ export default function AdminComponent(){
         }else if(path===ADMIN_ADD_USER){
             setSelectedPath(2.2)
         }
+
+        // add event to close sidebar when clicking on outside
+        document.addEventListener("click", onClickOutSideSideBar)
+    }
+
+    // on click outside sidebar
+    const onClickOutSideSideBar = (event: any)=>{
+        if(logoRef!=null && sidebarRef!=null){
+            const logo = logoRef.current as HTMLElement;
+            const sidebar = sidebarRef.current as HTMLElement;
+            if(!sidebar.contains(event.target as Node) && !logo.contains(event.target as Node)){
+                closeShowedSidebar();
+            }
+        }
+    }
+    // close sidebar
+    const closeShowedSidebar = ()=>{
+        setIsShowedSideBar(false)
     }
 
     async function checkAuthenticationAdmin(){
@@ -63,14 +85,16 @@ export default function AdminComponent(){
             if(res.status){
                 const data = res.data;
                 const status = data.status;
-                if(!status) window.location.href="/"
+                if(!status) navigate("/")
             }
         } catch (error) {
             if(error.response){
                 const errorResponse = error.response;
                 const status = errorResponse.status;
                 if(status===403){
-                    window.location.href=FORBIDDEN_ERROR_PAGE
+                    navigate(FORBIDDEN_ERROR_PAGE)
+                }else if(status===401){
+                    navigate("/");
                 }
             }
         }
@@ -124,11 +148,11 @@ export default function AdminComponent(){
         <div className='my-4 customer-page p-4 position-relative'>
             <div className='container my-5'>
                 <nav className='z-3'>
-                    <div className="logo cursor-pointer" onClick={onClickShowSideBar}>
+                    <div className="logo cursor-pointer" onClick={onClickShowSideBar} ref={logoRef}>
                         <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
                         <span className="logo-name">Phucx</span>
                     </div>
-                    <div className="sidebar" ref={sidebarRef}>
+                    <div className={`sidebar ${isShowedSideBar?'show-side-bar':''}`} ref={sidebarRef}>
                         <div className="sidebar-content py-0">
                             <div className="logo cursor-pointer mx-0" onClick={onClickShowSideBar}>
                                 <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>

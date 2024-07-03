@@ -17,6 +17,7 @@ import { isCustomer } from '../../../../api/UserApi';
 export default function CustomerComponent(){
     const navigate = useNavigate()
     const location = useLocation()
+    const path = location.pathname.toLowerCase();
     const [isShowedSideBar, setIsShowedSideBar] = useState(false)
     const [selectedPath, setSelectedPath] = useState(0);
     const sidebarRef = useRef(null)
@@ -29,11 +30,12 @@ export default function CustomerComponent(){
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [path])
 
     const initial = ()=>{
+        // check user 
         checkAuthenticationCustomer();
-        const path = location.pathname;
+        // check selected path
         if(path==CUSTOMER_INFO){
             setSelectedPath(0);
         }else if(path===CUSTOMER_ORDER){
@@ -49,6 +51,9 @@ export default function CustomerComponent(){
         try {
             const res = await isCustomer();
             if(200<=res.status&&res.status<300){
+                const data = res.data;
+                const status = data.status;
+                if(!status) navigate("/")
             }
         } catch (error) {
             if(error.response){
@@ -79,7 +84,6 @@ export default function CustomerComponent(){
             const logo = logoRef.current as HTMLElement;
             const sidebar = sidebarRef.current as HTMLElement;
             if(!sidebar.contains(event.target as Node) && !logo.contains(event.target as Node)){
-                console.log('outside')
                 closeShowedSidebar();
             }
         }

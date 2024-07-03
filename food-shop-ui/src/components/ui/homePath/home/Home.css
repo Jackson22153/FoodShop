@@ -270,7 +270,6 @@ body {
   }
   
   .slider_section .custom_carousel-control .carousel-control-prev {
-    /* background-image: url(../images/prev.png); */
     background-color: #fc5d35;
   }
   
@@ -400,13 +399,13 @@ body {
     background-color: #fc5d35;
   }
   
-  .client_section .custom_carousel-control .carousel-control-prev {
+  /* .client_section .custom_carousel-control .carousel-control-prev {
     background-image: url(../images/prev.png);
   }
   
   .client_section .custom_carousel-control .carousel-control-next {
     background-image: url(../images/next.png);
-  }
+  } */
   
   /* end client section */
   

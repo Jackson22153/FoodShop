@@ -27,15 +27,16 @@ export default function EmployeeNotificationComponent(){
         type: ALERT_TYPE.INFO,
         isShowed: false
     })
+    const pageNumber = getPageNumber();
+
     useEffect(()=>{
         initial();
-    }, [notificationMessage])
+    }, [notificationMessage, pageNumber])
 
     const initial = ()=>{
         if(notificationMessage) {
             setNotifications([...notifications, notificationMessage])
         }
-        const pageNumber = getPageNumber();
         fetchNotifications(pageNumber);
     }
     // fetch user's notifications

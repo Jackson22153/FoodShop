@@ -16,6 +16,17 @@ export type CurrentProduct = {
     discountPercent: number,
     categoryName: string
 }
+export type ExistedProduct = {
+    productID: number,
+    productName: string, 
+    picture: string, 
+    unitPrice: number, 
+    unitsInStock: string,
+    discountID: string,
+    discountPercent: number,
+    categoryName: string,
+    discontinued: boolean
+}
 export type CurrentProductDetail = {
     productID: number,
     productName: string, 
@@ -118,7 +129,8 @@ export type Customer={
     phone: string,
     picture: string,
     email: string,
-    username: string
+    username: string,
+    userID: string
 }
 export type CustomerDetail={
     customerID: string,
@@ -155,7 +167,8 @@ export type Employee = {
     city: string,
     photo: string,
     email: string,
-    username: string
+    username: string,
+    userID: string
 }
 export type EmployeeDetail = {
     employeeID: string,
@@ -166,7 +179,6 @@ export type EmployeeDetail = {
     address: string,
     city: string,
     homePhone: string,
-    description: string,
     photo: string,
     notes: string,
     userInfo: UserInfo
