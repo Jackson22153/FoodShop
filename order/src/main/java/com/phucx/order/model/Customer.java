@@ -10,10 +10,14 @@ import lombok.ToString;
 @NoArgsConstructor
 public class Customer{
     private String customerID;
+    private String userID;
+    private String username;
+    private String email;
+    private String firstName;
+    private String lastName;
     private String contactName;
     private String address;
     private String city;
     private String phone;
     private String picture;
-    private String userID;
 }

@@ -14,20 +14,19 @@ import com.phucx.order.constant.NotificationTitle;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.exception.InvalidOrderException;
 import com.phucx.order.exception.NotFoundException;
+import com.phucx.order.model.Customer;
 import com.phucx.order.model.Employee;
 import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.model.ProductStockTableType;
-import com.phucx.order.model.User;
+import com.phucx.order.service.customer.CustomerService;
 import com.phucx.order.service.employee.EmployeeService;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.EmployeeOrderService;
 import com.phucx.order.service.order.OrderService;
 import com.phucx.order.service.product.ProductService;
-import com.phucx.order.service.user.UserService;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -44,7 +43,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
     @Autowired
     private EmployeeService employeeService;
     @Autowired
-    private UserService userService;
+    private CustomerService customerService;
 
     @Override
     public void confirmOrder(String orderID, String userID) throws InvalidOrderException, JsonProcessingException, NotFoundException {
@@ -101,7 +100,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
             notification.setOrderID(order.getOrderID());
         if(status){
             // send message to customer
-            User fetchedUser = userService.getUserByCustomerID(order.getCustomerID());
+            Customer fetchedUser = customerService.getCustomerByID(order.getCustomerID());
             notification.setReceiverID(fetchedUser.getUserID());
             notification.setMessage("Order #" + order.getOrderID() + " has been canceled");
             notification.setStatus(NotificationStatus.SUCCESSFUL);
@@ -127,7 +126,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         notification.setOrderID(order.getOrderID());
         if(status){
             // send message to customer
-            User fetchedUser = userService.getUserByCustomerID(order.getCustomerID());
+            Customer fetchedUser = customerService.getCustomerByID(order.getCustomerID());
             notification.setReceiverID(fetchedUser.getUserID());
             notification.setMessage("Order #" + order.getOrderID() + " has been fullfilled");
             notification.setStatus(NotificationStatus.SUCCESSFUL);

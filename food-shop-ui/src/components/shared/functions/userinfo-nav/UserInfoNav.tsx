@@ -57,8 +57,10 @@ function UserInfoNav(prop: Props) {
 
     // USER ROLES
     const roleNames = ()=>{
-        const arr = prop.userInfo.roles.map(role => role.roleName.toLowerCase());
-        return arr;
+        if(prop.userInfo.roles){
+            const arr = prop.userInfo.roles.map(role => role.toLowerCase());
+            return arr;
+        }else return []
     }
 
     return(

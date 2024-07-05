@@ -15,14 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.phucx.account.exception.EmployeeNotFoundException;
-import com.phucx.account.exception.UserNotFoundException;
+import com.phucx.account.exception.InvalidUserException;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.ImageFormat;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.employee.EmployeeService;
 import com.phucx.account.service.image.EmployeeImageService;
-import com.phucx.account.service.user.UserService;
-
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
@@ -30,8 +28,6 @@ import io.swagger.v3.oas.annotations.Operation;
 public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
-    @Autowired
-    private UserService userService;
     @Autowired
     private EmployeeImageService employeeImageService;
 
@@ -46,9 +42,10 @@ public class EmployeeController {
     @Operation(summary = "Get employee information", 
         tags = {"get", "tutorials", "employee"})
     @GetMapping("/info")
-    public ResponseEntity<EmployeeDetail> getUserInfo(Authentication authentication) throws UserNotFoundException{
-        String username = userService.getUsername(authentication);
-        EmployeeDetail employee = employeeService.getEmployeeDetail(username);
+    public ResponseEntity<EmployeeDetail> getUserInfo(Authentication authentication) 
+        throws InvalidUserException, EmployeeNotFoundException{
+        String userID = authentication.getName();
+        EmployeeDetail employee = employeeService.getEmployeeDetail(userID);
         return ResponseEntity.ok().body(employee);
     }
     // UPDATE EMPLOYEE'S INFORMATION

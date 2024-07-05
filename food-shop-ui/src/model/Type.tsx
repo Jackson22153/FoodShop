@@ -134,12 +134,16 @@ export type Customer={
 }
 export type CustomerDetail={
     customerID: string,
+    userID: string,
+    username: string,
+    email: string,
+    firstName: string,
+    lastName: string,
     contactName: string,
     address: string,
     city: string,
     phone: string,
-    picture: string,
-    user:User
+    picture: string
 }
 export type CustomerUserInfo={
     customerID: string,
@@ -162,26 +166,29 @@ export type Employee = {
     lastName: string,
     birthDate: string,
     hireDate: string,
-    homePhone: string,
+    phone: string,
     address: string,
     city: string,
-    photo: string,
+    picture: string,
     email: string,
     username: string,
     userID: string
 }
 export type EmployeeDetail = {
     employeeID: string,
-    lastName: string,
+    userID: string,
+    username: string,
+    email: string,
     firstName: string,
+    lastName: string,
     birthDate: string,
     hireDate: string,
     address: string,
     city: string,
-    homePhone: string,
-    photo: string,
+    phone: string,
+    picture: string,
+    title: string,
     notes: string,
-    userInfo: UserInfo
 }
 export type EmployeeAccount = {
     userID: string,
@@ -190,7 +197,7 @@ export type EmployeeAccount = {
     firstName: string,
     lastName: string,
     email: string,
-    photo: string
+    picture: string
 }
 // pageable
 export type Pageable = {
@@ -327,7 +334,7 @@ export type UserRole = {
 }
 export type UserInfo = {
     user: User,
-    roles: Role[]
+    roles: string[]
 }
 export type User = {
     userID: string,

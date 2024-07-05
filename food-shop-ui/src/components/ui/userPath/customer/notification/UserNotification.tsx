@@ -11,6 +11,7 @@ import AlertComponent from "../../../../shared/functions/alert/Alert";
 import notificationMessagesContext from "../../../../contexts/NotificationMessagesContext";
 import { getCustomerUrlFromNotification } from "../../../../../service/Notification";
 import modalContext from "../../../../contexts/ModalContext";
+import { Link } from "react-router-dom";
 
 export default function UserNotificationComponent(){
     const [notifications, setNotifications] = useState<Notification[]>([])
@@ -140,8 +141,8 @@ export default function UserNotificationComponent(){
                         <button onClick={onClickMarkAllAsRead}>Mark as read</button>
                     </div>
                     <div className="notify-body">
-                        {notifications.map((notification, index)=>(
-                            <a href={getCustomerUrlFromNotification(notification)} key={index}>
+                        {notifications.length>0 ? notifications.map((notification, index)=>(
+                            <Link to={getCustomerUrlFromNotification(notification)} key={index}>
                                 <div className={`notify-item cursor-pointer px-3 ${notification.isRead?'read':''}`} 
                                     onClick={(e)=> onClickNotification(e, notification)}>
                                     <div className="notify-img">
@@ -152,8 +153,12 @@ export default function UserNotificationComponent(){
                                         <span className="notify-time">{subtractTime(notification.time)} ago</span>
                                     </div>
                                 </div>
-                            </a>
-                        ))}
+                            </Link>
+                        )):
+                            <div style={{height: "50vh"}} className="d-flex justify-content-center align-items-center">
+                                <p className="h5">No notificaitons</p>
+                            </div>
+                        }
                     </div>
                     <div className="notification-footer mt-3">
                         <PaginationSection pageable={pageable}/>

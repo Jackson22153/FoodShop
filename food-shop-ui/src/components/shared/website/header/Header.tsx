@@ -1,7 +1,7 @@
 import { getLogo } from "../../../../service/Image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CART_PATH, CATEGORIES_PATH, FOODS_PATH } from "../../../../constant/FoodShoppingURL";
-import { Category } from "../../../../model/Type";
+import { Category, UserInfo } from "../../../../model/Type";
 import { convertNameForUrl, nonBreakingSpace } from "../../../../service/Convert";
 import Search from "../../functions/search/Search";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
@@ -20,11 +20,12 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
     const lstCategories = prop.lstCategories;
     const { numberOfCartProducts } = useContext(numberOfCartProductsContext);
     const [isNavExpanded, setIsNavExpanded] = useState(false); 
-    const userInfo = useContext(userInfoContext)
+    const userInfo = useContext<UserInfo>(userInfoContext)
     const navbarDropdownRef = useRef<HTMLDivElement>(null)
 
     useEffect(()=>{
         document.addEventListener('click', onClickOutSideNavBar)
+        console.log(userInfo)
     }, [numberOfCartProducts, userInfo])
 
 

@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.phucx.account.model.Customer;
-import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
 
 public interface CustomerImageService {
@@ -17,10 +15,6 @@ public interface CustomerImageService {
     public String getMimeType(String imageName) throws IOException;
 
     // set customer image
-    public Customer setCustomerImage(Customer customer);
-    public List<Customer> setCustomerImage(List<Customer> customers);
     public CustomerDetail setCustomerDetailImage(CustomerDetail customer);
     public List<CustomerDetail> setCustomerDetailImage(List<CustomerDetail> customers);
-    public CustomerAccount setCustomerAccountImage(CustomerAccount customer);
-    public List<CustomerAccount> setCustomerAccountImage(List<CustomerAccount> customers);
 }

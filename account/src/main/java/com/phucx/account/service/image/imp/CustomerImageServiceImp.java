@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.phucx.account.config.FileProperties;
-import com.phucx.account.model.Customer;
-import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.service.image.CustomerImageService;
 import com.phucx.account.service.image.ImageService;
@@ -30,28 +28,6 @@ public class CustomerImageServiceImp implements CustomerImageService{
     private final String imageUri = "/image/customer";
 
     @Override
-    public Customer setCustomerImage(Customer customer) {
-        // filtering customer 
-        if(!(customer.getPicture()!=null && customer.getPicture().length()>0)) return customer;
-        // customer has image
-        String imageUrl = "/" + serverName + imageUri;
-        customer.setPicture(imageUrl + "/" + customer.getPicture());
-        return customer;
-    }
-
-    @Override
-    public List<Customer> setCustomerImage(List<Customer> customers) {
-        customers.stream().forEach(customer ->{
-            if(customer.getPicture()!=null && customer.getPicture().length()>0){
-                // setting image with image uri
-                String uri = "/" + serverName + imageUri;
-                customer.setPicture(uri + "/" + customer.getPicture());
-            }
-        });
-        return customers;
-    }
-
-    @Override
     public CustomerDetail setCustomerDetailImage(CustomerDetail customer) {
         // filtering customer 
         if(!(customer.getPicture()!=null && customer.getPicture().length()>0)) return customer;
@@ -63,28 +39,6 @@ public class CustomerImageServiceImp implements CustomerImageService{
 
     @Override
     public List<CustomerDetail> setCustomerDetailImage(List<CustomerDetail> customers) {
-        customers.stream().forEach(customer ->{
-            if(customer.getPicture()!=null && customer.getPicture().length()>0){
-                // setting image with image uri
-                String uri = "/" + serverName + imageUri;
-                customer.setPicture(uri + "/" + customer.getPicture());
-            }
-        });
-        return customers;
-    }
-
-    @Override
-    public CustomerAccount setCustomerAccountImage(CustomerAccount customer) {
-        // filtering customer 
-        if(!(customer.getPicture()!=null && customer.getPicture().length()>0)) return customer;
-        // customer has image
-        String imageUrl = "/" + serverName + imageUri;
-        customer.setPicture(imageUrl + "/" + customer.getPicture());
-        return customer;
-    }
-
-    @Override
-    public List<CustomerAccount> setCustomerAccountImage(List<CustomerAccount> customers) {
         customers.stream().forEach(customer ->{
             if(customer.getPicture()!=null && customer.getPicture().length()>0){
                 // setting image with image uri

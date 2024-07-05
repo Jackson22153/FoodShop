@@ -8,41 +8,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
-import com.phucx.account.constant.EmailVerified;
-import com.phucx.account.constant.UserStatus;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
 import com.phucx.account.exception.UserNotFoundException;
-import com.phucx.account.model.CustomerAccount;
 import com.phucx.account.model.CustomerDetail;
-import com.phucx.account.model.CustomerDetails;
-import com.phucx.account.model.Customer;
-import com.phucx.account.model.User;
-import com.phucx.account.model.UserInfo;
-import com.phucx.account.repository.CustomerAccountRepository;
+import com.phucx.account.model.UserProfile;
 import com.phucx.account.repository.CustomerDetailRepository;
-import com.phucx.account.repository.CustomerRepository;
 import com.phucx.account.service.image.CustomerImageService;
 import com.phucx.account.service.image.ImageService;
-import com.phucx.account.service.user.UserService;
+import com.phucx.account.service.user.UserProfileService;
 
+import jakarta.persistence.EntityExistsException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class CustomerServiceImp implements CustomerService {
     @Autowired
-    private CustomerRepository customerRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private CustomerAccountRepository customerAccountRepository;
+    private UserProfileService userProfileService;
     @Autowired
     private CustomerDetailRepository customerDetailRepository;
     @Autowired
@@ -51,142 +40,139 @@ public class CustomerServiceImp implements CustomerService {
     private CustomerImageService customerImageService;
 
 	@Override
-	public boolean updateCustomerInfo(CustomerDetail customer) throws CustomerNotFoundException {
+	public CustomerDetail updateCustomerInfo(CustomerDetail customer) throws CustomerNotFoundException {
         log.info("updateCustomerInfo({})", customer.toString());
-        Customer fetchedCustomer = customerRepository.findById(customer.getCustomerID())
+        CustomerDetail fetchedCustomer = customerDetailRepository.findById(customer.getCustomerID())
             .orElseThrow(()->new CustomerNotFoundException("Customer " + customer.getCustomerID() + " does not found"));
         String picture = this.imageService.getImageName(customer.getPicture());
-        Boolean result = customerDetailRepository.updateCustomerInfo(fetchedCustomer.getCustomerID(), customer.getEmail(),
-            customer.getContactName(), customer.getAddress(), customer.getCity(), customer.getPhone(), picture);
-        return result;
+        Boolean result = customerDetailRepository.updateCustomerInfo(
+            fetchedCustomer.getCustomerID(), customer.getContactName(),
+            customer.getFirstName(), customer.getLastName(), customer.getAddress(), 
+            customer.getCity(), customer.getPhone(), picture);
+        if(!result) throw new RuntimeException("Error when update information of customer " + customer.getCustomerID());
+        
+        customer.setPicture(picture);
+        customerImageService.setCustomerDetailImage(customer);
+        return customer;
 	}
 	@Override
-	public CustomerDetail getCustomerDetail(String username) throws UserNotFoundException {
-        User user = userService.getUser(username);
-        Optional<CustomerAccount> customerAccOp = customerAccountRepository.findByUserID(user.getUserID());
-        if(customerAccOp.isPresent()){
-            CustomerAccount customerAcc = customerAccOp.get();
-            String customerID = customerAcc.getCustomerID();
-            CustomerDetail customer = customerDetailRepository.findById(customerID)
-                .orElseThrow(()-> new CustomerNotFoundException("CustomerID: " + customerID + " does not found"));
+	public CustomerDetail getCustomerDetail(String userID) throws UserNotFoundException, InvalidUserException {
+        UserProfile user = userProfileService.getUserProfile(userID);
+        Optional<CustomerDetail> customerDetailOp = customerDetailRepository.findByUserID(user.getUserID());
+        if(customerDetailOp.isPresent()){
+            CustomerDetail customer = customerDetailOp.get();
             customerImageService.setCustomerDetailImage(customer);
             return customer;
         }else{
-            String customerID = UUID.randomUUID().toString();
-            customerAccountRepository.createCustomerInfo(customerID, username, username);
-            CustomerDetail customer = customerDetailRepository.findById(customerID)
-                .orElseThrow(()-> new CustomerNotFoundException("CustomerID: " + customerID + " does not found"));
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if(authentication==null){
+                throw new RuntimeException("User is not autheticated");
+            }
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            // extract user's information
+            String firstname = jwt.getClaimAsString(WebConstant.FIRST_NAME);
+            String lastname = jwt.getClaimAsString(WebConstant.LAST_NAME);
+            String contactname = jwt.getClaimAsString(WebConstant.NAME);
+            String username = jwt.getClaimAsString(WebConstant.PREFERRED_USERNAME);
+            String email = jwt.getClaimAsString(WebConstant.EMAIL);
+            // create a new customer
+            Boolean result = this.addNewCustomer(
+                new CustomerDetail(userID, username, email, firstname, lastname, contactname));
+            if(!result) throw new RuntimeException("Customer with userID " + userID + " can not be created");
+            // fetch new customer
+            CustomerDetail customer = this.getCustomerByUserID(userID);
             customerImageService.setCustomerDetailImage(customer);
             return customer;
         }
     }
     
-    @Override
-    public boolean addNewCustomer(CustomerAccount customer) throws InvalidUserException{
+    private Boolean addNewCustomer(CustomerDetail customer) throws InvalidUserException, UserNotFoundException{
         log.info("addNewCustomer({})", customer);
-        if(customer.getUsername() == null || customer.getEmail()==null || customer.getContactName()==null)
-            throw new InvalidUserException("Missing username or email or contact name");
-        CustomerAccount fetchedCustomer= customerAccountRepository.findByUsername(customer.getUsername());
-        if(fetchedCustomer!=null) throw new InvalidUserException("User " + customer.getUsername() + " already exists");
-        var fetchedCustomerByEmail= customerAccountRepository.findByEmail(customer.getEmail());
-        if(fetchedCustomerByEmail.isPresent()) throw new InvalidUserException("User with email " + customer.getEmail() + " already exists");
-        // add new customer
-        String userID = UUID.randomUUID().toString();
-        String customerID = UUID.randomUUID().toString();
-        
-        String hashedPassword = passwordEncoder.encode(WebConstant.DEFUALT_PASSWORD);
+        if(customer.getUsername()==null) throw new InvalidUserException("Missing username");
+        if(customer.getEmail()==null) throw new InvalidUserException("Missing email");
+        if(customer.getContactName()==null) throw new InvalidUserException("Missing contact name");
+        if(customer.getFirstName()==null) throw new InvalidUserException("Missing first name");
+        if(customer.getLastName()==null) throw new InvalidUserException("Missing last name");
+        if(customer.getUserID()==null) throw new InvalidUserException("Missing userId");
 
-        return customerAccountRepository.addNewCustomer(
-            userID, customer.getUsername(), hashedPassword, customer.getEmail(), EmailVerified.YES.getValue(), 
-            UserStatus.ENABLED.getValue() ,customerID, customer.getContactName());
+        // check customer
+        Optional<CustomerDetail> fetchedCustomer = customerDetailRepository.findByUserID(customer.getUserID());
+        if(fetchedCustomer.isPresent()) 
+            throw new EntityExistsException("Customer with userId " + customer.getUserID() + " is existed");
+        // add new customer 
+        String profileID = UUID.randomUUID().toString();
+        String customerID = UUID.randomUUID().toString();
+
+        return customerDetailRepository.addNewCustomer(
+            profileID, customer.getUserID(), customer.getUsername(), 
+            customer.getEmail(), customerID, customer.getFirstName(), 
+            customer.getLastName(), customer.getContactName());
     }
 	
-    @Override
-	public Page<CustomerAccount> getAllCustomers(int pageNumber, int pageSize) {
-        Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<CustomerAccount> result = customerAccountRepository.findAll(page);
-        customerImageService.setCustomerAccountImage(result.getContent());
-		return result;
-	}
 	@Override
-	public Customer getCustomerByID(String customerID) throws CustomerNotFoundException {
-		Customer customer = customerRepository.findById(customerID)
+	public CustomerDetail getCustomerByID(String customerID) throws CustomerNotFoundException {
+        log.info("getCustomerByID(customerID={})", customerID);
+		CustomerDetail customer = customerDetailRepository.findById(customerID)
             .orElseThrow(()-> new CustomerNotFoundException("Customer " + customerID + " does not found"));
-        customerImageService.setCustomerImage(customer);
+        customerImageService.setCustomerDetailImage(customer);
         return customer;
 	}
     
     @Override
-    public Customer getCustomerByUsername(String username) throws CustomerNotFoundException {
-        CustomerAccount customerAccount = customerAccountRepository.findByUsername(username);
-        if(customerAccount==null){
-            throw new CustomerNotFoundException("Customer with username " + username + "does not found");
-        }
-        String customerID = customerAccount.getCustomerID();
-        Customer customer = customerRepository.findById(customerID)
-            .orElseThrow(()-> new CustomerNotFoundException("Customer: " + customerID + " does not found"));
-        customerImageService.setCustomerImage(customer);
-        return customer;
-    }
-    @Override
-    public Page<CustomerAccount> searchCustomersByCustomerID(String customerID, int pageNumber, int pageSize) {
+    public Page<CustomerDetail> searchCustomersByCustomerID(String customerID, int pageNumber, int pageSize) {
         String searchParam = "%" + customerID +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<CustomerAccount> customers = customerAccountRepository.findByCustomerIDLike(searchParam, page);
-        customerImageService.setCustomerAccountImage(customers.getContent());
+        Page<CustomerDetail> customers = customerDetailRepository.findByCustomerIDLike(searchParam, page);
+        customerImageService.setCustomerDetailImage(customers.getContent());
         return customers;
     }
     @Override
-    public Page<CustomerAccount> searchCustomersByContactName(String contactName, int pageNumber, int pageSize) {
+    public Page<CustomerDetail> searchCustomersByContactName(String contactName, int pageNumber, int pageSize) {
         String searchParam = "%" + contactName +"%";
         Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<CustomerAccount> customers = customerAccountRepository.findByContactNameLike(searchParam, page);
-        customerImageService.setCustomerAccountImage(customers.getContent());
+        Page<CustomerDetail> customers = customerDetailRepository.findByContactNameLike(searchParam, page);
+        customerImageService.setCustomerDetailImage(customers.getContent());
         return customers;
-    }
-    @Override
-    public Page<CustomerAccount> searchCustomersByUsername(String username, int pageNumber, int pageSize) {
-        String searchParam = "%" + username +"%";
-        Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<CustomerAccount> customers = customerAccountRepository.findByUsernameLike(searchParam, page);
-        customerImageService.setCustomerAccountImage(customers.getContent());
-        return customers;
-    }
-    @Override
-    public Page<CustomerAccount> searchCustomersByEmail(String email, int pageNumber, int pageSize) {
-        String searchParam = "%" + email +"%";
-        Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<CustomerAccount> customers = customerAccountRepository.findByEmailLike(searchParam, page);
-        customerImageService.setCustomerAccountImage(customers.getContent());
-        return customers;
-    }
-    @Override
-    public CustomerDetails getCustomerDetailByCustomerID(String customerID) throws UserNotFoundException {
-        Customer customer = customerRepository.findById(customerID)
-            .orElseThrow(()-> new CustomerNotFoundException("Customer " + customerID + " does not found"));
-        UserInfo user = userService.getUserInfo(customer.getUserID());
-        
-        customerImageService.setCustomerImage(customer);
-
-        CustomerDetails customerDetail = new CustomerDetails(
-            customer.getCustomerID(), customer.getContactName(), customer.getPicture(), user);
-        return customerDetail;
     }
 
     @Override
-    public Customer getCustomerByUserID(String userID) throws CustomerNotFoundException {
+    public CustomerDetail getCustomerByUserID(String userID) throws CustomerNotFoundException {
         log.info("getCustomerByUserID(userID={})", userID);
-        Customer customer = customerRepository.findByUserID(userID)
+        CustomerDetail customer = customerDetailRepository.findByUserID(userID)
             .orElseThrow(()-> new CustomerNotFoundException("Customer with userID " + userID + " does not found"));
-        customerImageService.setCustomerImage(customer);
+        customerImageService.setCustomerDetailImage(customer);
         return customer;
     }
 
     @Override
-    public List<Customer> getCustomersByIDs(List<String> customerIDs) {
+    public List<CustomerDetail> getCustomersByIDs(List<String> customerIDs) {
         log.info("getCustomersByIDs(customerIDs={})", customerIDs);
-        List<Customer> customers = customerRepository.findAllById(customerIDs);
-        customerImageService.setCustomerImage(customers);
+        List<CustomerDetail> customers = customerDetailRepository.findAllById(customerIDs);
+        customerImageService.setCustomerDetailImage(customers);
+        return customers;
+    }
+    @Override
+    public Page<CustomerDetail> getCustomers(Integer pageNumber, Integer pageSize) {
+        log.info("getCustomers(pageNumber={}, pageSize={})", pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<CustomerDetail> customers = customerDetailRepository.findAll(pageable);
+        customerImageService.setCustomerDetailImage(customers.getContent());
+        return customers;
+    }
+    @Override
+    public Page<CustomerDetail> searchCustomersByUsername(String username, int pageNumber, int pageSize) {
+        log.info("searchCustomersByUsername(username={}, pageNumber={}, pageSize={})", username, pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<CustomerDetail> customers = customerDetailRepository.findByUsernameLike(username, pageable);
+        customerImageService.setCustomerDetailImage(customers.getContent());
+        return customers;
+    }
+    @Override
+    public Page<CustomerDetail> searchCustomersByEmail(String email, int pageNumber, int pageSize) {
+        log.info("searchCustomersByEmail(email={}, pageNumber={}, pageSize={})", email, pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<CustomerDetail> customers = customerDetailRepository.findByEmailLike(email, pageable);
+        customerImageService.setCustomerDetailImage(customers.getContent());
         return customers;
     }
 }

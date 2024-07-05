@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.constant.EventType;
 import com.phucx.account.exception.EmployeeNotFoundException;
-import com.phucx.account.model.Employee;
 import com.phucx.account.model.EmployeeDTO;
+import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EventMessage;
-import com.phucx.account.model.User;
+import com.phucx.account.model.UserProfile;
 import com.phucx.account.service.employee.EmployeeService;
-import com.phucx.account.service.user.UserService;
+import com.phucx.account.service.user.UserProfileService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,7 +29,7 @@ public class EmployeeMessageListener {
     @Autowired
     private EmployeeService employeeService;
     @Autowired
-    private UserService userService;
+    private UserProfileService userProfileService;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -46,21 +46,21 @@ public class EmployeeMessageListener {
             if(employeeDTO.getEventType().equals(EventType.GetEmployeeByID)){
                 // get employee by id
                 String employeeID = payload.getEmployeeID();
-                Employee fetchedEmployee = employeeService.getEmployee(employeeID);
+                EmployeeDetail fetchedEmployee = employeeService.getEmployee(employeeID);
                 // set response message
                 responseMessage.setPayload(fetchedEmployee);
                 responseMessage.setEventType(EventType.ReturnEmployeeByID);
             }else if(employeeDTO.getEventType().equals(EventType.GetEmployeeByUserID)){
                 // get employee by id
                 String userID = payload.getUserID();
-                Employee fetchedEmployee = employeeService.getEmployeeByUserID(userID);
+                EmployeeDetail fetchedEmployee = employeeService.getEmployeeByUserID(userID);
                 // set response message
                 responseMessage.setPayload(fetchedEmployee);
                 responseMessage.setEventType(EventType.ReturnEmployeeByUserID);
             }else if(employeeDTO.getEventType().equals(EventType.GetUserByEmployeeID)){
                 // get user by employeeID
                 String employeeID = payload.getEmployeeID();
-                User fetchedUser = userService.getUserByEmployeeID(employeeID);
+                UserProfile fetchedUser = userProfileService.getUserProfileByEmployeeID(employeeID);
                 // set response message
                 responseMessage.setPayload(fetchedUser);
                 responseMessage.setEventType(EventType.ReturnUserByEmployeeID);

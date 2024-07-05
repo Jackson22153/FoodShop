@@ -1,5 +1,5 @@
 import { ChangeEventHandler, FormEvent, useContext, useEffect, useState } from "react";
-import { Customer } from "../../../../../model/Type";
+import { CustomerDetail, UserInfo } from "../../../../../model/Type";
 import { getCustomerInfo, updateUserInfo } from "../../../../../api/UserApi";
 import { Alert, Modal, ModalContextType } from "../../../../../model/WebType";
 import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/WebConstant";
@@ -7,10 +7,12 @@ import ModalComponent from "../../../../shared/functions/modal/Modal";
 import AlertComponent from "../../../../shared/functions/alert/Alert";
 import { UserImageChangeInput } from "../../../../shared/functions/user-image-change/UserImageChangeInput";
 import modalContext from "../../../../contexts/ModalContext";
+import userInfoContext from "../../../../contexts/UserInfoContext";
 
 export default function UserInformationComponent(){
     const {setModal: setErrorModal} = useContext<ModalContextType>(modalContext)
-    const [customerInfo, setCustomerInfo] = useState<Customer>();
+    const [customerInfo, setCustomerInfo] = useState<CustomerDetail>();
+    const userInfo = useContext<UserInfo>(userInfoContext)
     const [modal, setModal] = useState<Modal>({
         title: 'Confirm action',
         message: 'Do you want to continute?',
@@ -25,7 +27,7 @@ export default function UserInformationComponent(){
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [userInfo])
 
     const initial = ()=>{
         fetchCustomerInfo()
@@ -38,14 +40,16 @@ export default function UserInformationComponent(){
                 const data = res.data;
                 const customer = {
                     customerID: data.customerID,
+                    userID: data.userID,
+                    username: data.username,
+                    email: data.email,
+                    firstName: data.firstName,
+                    lastName: data.lastName,
                     contactName: data.contactName || '',
                     address: data.address || '',
                     city: data.city || '',
                     phone: data.phone || '',
                     picture: data.picture || '',
-                    email: data.email || '',
-                    username: data.username,
-                    userID: data.userID
                 };
                 setCustomerInfo(customer)
             }
@@ -91,13 +95,13 @@ export default function UserInformationComponent(){
             if(customerInfo){
                 const customer = {
                     customerID: customerInfo.customerID,
+                    firstName: customerInfo.firstName,
+                    lastName: customerInfo.lastName,
                     contactName: customerInfo.contactName || null,
                     address: customerInfo.address || null,
                     city: customerInfo.city || null,
                     phone: customerInfo.phone || null,
                     picture: customerInfo.picture || null,
-                    email: customerInfo.email || null,
-                    username: customerInfo.username || null,
                     userID: customerInfo.userID
                 };
                 const res = await updateUserInfo(customer);
@@ -137,7 +141,8 @@ export default function UserInformationComponent(){
                     </div>
                     <div className="col-md 6">
                         <div className="profile-head">
-                            <h5>Username: {customerInfo.username}</h5>
+                            <h5>Username: {userInfo.user.username}</h5>
+                            <h6>{userInfo.user.email}</h6>
                         </div>
                         <div className="profile-about">
                             <div className="row my-3 justify-content-end">
@@ -151,7 +156,7 @@ export default function UserInformationComponent(){
                             <div className="row ">
                                 <form action="post">
                                     <div className="form-row row">
-                                        <div className="col-md-4 mb-3">
+                                        <div className="col-md-3 mb-3">
                                             <label  htmlFor="contact-name-customer">Contact Name</label>
                                             <input type="text" className="form-control" id="contact-name-customer" 
                                                 placeholder="Contact Name" value={customerInfo.contactName} required
@@ -161,16 +166,35 @@ export default function UserInformationComponent(){
                                                 Looks good!
                                             </div>
                                         </div>
-                                        <div className="col-md-6 mb-3">
+                                        <div className="col-md-3 mb-3">
+                                            <label  htmlFor="first-name-employee">First Name</label>
+                                            <input type="text" className="form-control" id="first-name-employee" 
+                                                placeholder="First Name" value={customerInfo.firstName} required
+                                                onChange={onChangeCustomerInfo} disabled={editable}
+                                                name="firstName"/>
+                                            <div className="valid-feedback">
+                                                Looks good!
+                                            </div>
+                                        </div>
+                                        <div className="col-md-3 mb-3">
+                                            <label  htmlFor="last-name-employee">Last Name</label>
+                                            <input type="text" className="form-control" id="last-name-employee" 
+                                                placeholder="Last Name" required value={customerInfo.lastName} 
+                                                onChange={onChangeCustomerInfo} disabled={editable} name="lastName"/>
+                                            <div className="invalid-feedback">
+                                                Looks good!
+                                            </div>
+                                        </div>
+                                        {/* <div className="col-md-6 mb-3">
                                             <label  htmlFor="email-customer">Email</label>
                                             <input type="email" className="form-control" id="email-customer" 
                                                 placeholder="Email" required 
-                                                value={customerInfo.email} onChange={onChangeCustomerInfo} disabled={editable}
+                                                value={c} onChange={onChangeCustomerInfo} disabled={editable}
                                                 name="email"/>
                                             <div className="invalid-feedback">
                                                 Please choose a email.
                                             </div>
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <div className="form-row row">
                                         <div className="col-md-6 mb-3">

@@ -16,19 +16,18 @@ import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.exception.InvalidOrderException;
 import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.Customer;
+import com.phucx.order.model.Employee;
 import com.phucx.order.model.InvoiceDetails;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderItem;
 import com.phucx.order.model.OrderItemDiscount;
 import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderWithProducts;
-import com.phucx.order.model.User;
 import com.phucx.order.service.customer.CustomerService;
+import com.phucx.order.service.employee.EmployeeService;
 import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.CustomerOrderService;
 import com.phucx.order.service.order.OrderService;
-import com.phucx.order.service.user.UserService;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,7 +40,7 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
     @Autowired
     private CustomerService customerService;
     @Autowired
-    private UserService userService;
+    private EmployeeService employeeService;
     
     @Override
     public OrderDetails placeOrder(OrderWithProducts order, String userID) 
@@ -110,7 +109,7 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
         // get order
         OrderDetails orderDetails = orderService.getOrder(order.getOrderID(), OrderStatus.Shipping);
         // get user 
-        User employeeUser = userService.getUserByEmployeeID(orderDetails.getEmployeeID());
+        Employee employeeUser = employeeService.getEmployeeByID(orderDetails.getEmployeeID());
         // update order's status
         Boolean status = orderService.updateOrderStatus(orderDetails.getOrderID(), OrderStatus.Successful);
         // notification

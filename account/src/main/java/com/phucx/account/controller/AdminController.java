@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,21 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.EmployeeNotFoundException;
-import com.phucx.account.exception.InvalidUserException;
 import com.phucx.account.exception.UserNotFoundException;
-import com.phucx.account.model.CustomerAccount;
-import com.phucx.account.model.CustomerDetails;
-import com.phucx.account.model.EmployeeAccount;
-import com.phucx.account.model.EmployeeDetails;
+import com.phucx.account.model.CustomerDetail;
+import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.ResponseFormat;
-import com.phucx.account.model.Role;
-import com.phucx.account.model.UserInfo;
-import com.phucx.account.model.UserRole;
 import com.phucx.account.service.customer.CustomerService;
 import com.phucx.account.service.employee.EmployeeService;
-import com.phucx.account.service.role.RoleService;
-import com.phucx.account.service.user.UserService;
-
 import io.swagger.v3.oas.annotations.Operation;
 
 
@@ -40,10 +30,6 @@ public class AdminController {
     private CustomerService customerService;
     @Autowired
     private EmployeeService employeeService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private RoleService roleService;
 
     @Operation(summary = "Check user role", 
         tags = {"get", "tutorials", "admin"},
@@ -55,20 +41,20 @@ public class AdminController {
         return ResponseEntity.ok().body(format);
     }
     // customers
-    @Operation(summary = "Add new customer", 
-        tags = {"put", "tutorials", "admin"})
-    @PutMapping("/customers")
-    public ResponseEntity<ResponseFormat> addCustomer(
-        @RequestBody CustomerAccount customerAccount
-    ) throws InvalidUserException{
-        Boolean status = customerService.addNewCustomer(customerAccount);
-        return ResponseEntity.ok().body(new ResponseFormat(status));
-    }
+    // @Operation(summary = "Add new customer", 
+    //     tags = {"put", "tutorials", "admin"})
+    // @PutMapping("/customers")
+    // public ResponseEntity<ResponseFormat> addCustomer(
+    //     @RequestBody CustomerAccount customerAccount
+    // ) throws InvalidUserException{
+    //     Boolean status = customerService.addNewCustomer(customerAccount);
+    //     return ResponseEntity.ok().body(new ResponseFormat(status));
+    // }
 
     @Operation(summary = "Get customers", 
         tags = {"get", "tutorials", "admin"})
     @GetMapping("/customers")
-    public ResponseEntity<Page<CustomerAccount>> getCustomers(
+    public ResponseEntity<Page<CustomerDetail>> getCustomers(
         @RequestParam(name = "page", required = false) Integer pageNumber,
         @RequestParam(name = "customerID", required = false) String customerID,
         @RequestParam(name = "contactName", required = false) String contactName,
@@ -76,39 +62,39 @@ public class AdminController {
         @RequestParam(name = "email", required = false) String email
     ){        
         pageNumber = pageNumber!=null?pageNumber:0;
-        Page<CustomerAccount> customers = null;
+        Page<CustomerDetail> customers = null;
         if(customerID!=null) customers = customerService.searchCustomersByCustomerID(customerID, pageNumber, WebConstant.PAGE_SIZE);
         else if(contactName!=null) customers = customerService.searchCustomersByContactName(contactName, pageNumber, WebConstant.PAGE_SIZE);
         else if(username!=null) customers = customerService.searchCustomersByUsername(username, pageNumber, WebConstant.PAGE_SIZE);
         else if(email!=null) customers = customerService.searchCustomersByEmail(email, pageNumber, WebConstant.PAGE_SIZE);
-        else customers = customerService.getAllCustomers(pageNumber, WebConstant.PAGE_SIZE);
+        else customers = customerService.getCustomers(pageNumber, WebConstant.PAGE_SIZE);
         return ResponseEntity.ok().body(customers);
     }
 
     @Operation(summary = "Get user by CustomerID", 
         tags = {"get", "tutorials", "admin"})
     @GetMapping("/customers/{customerID}")
-    public ResponseEntity<CustomerDetails> getUserByCustomerID(
+    public ResponseEntity<CustomerDetail> getUserByCustomerID(
         @PathVariable(name = "customerID") String customerID
     ) throws UserNotFoundException{
-        CustomerDetails customer = customerService.getCustomerDetailByCustomerID(customerID);
+        CustomerDetail customer = customerService.getCustomerByID(customerID);
         return ResponseEntity.ok().body(customer);
     }
     // employees
-    @Operation(summary = "Add new employee", 
-        tags = {"put", "tutorials", "admin"})
-    @PutMapping("/employees")
-    public ResponseEntity<ResponseFormat> addEmployee(
-        @RequestBody EmployeeAccount employeeAccount
-    ) throws InvalidUserException{
-        Boolean status = employeeService.addNewEmployee(employeeAccount);
-        return ResponseEntity.ok().body(new ResponseFormat(status));
-    }
+    // @Operation(summary = "Add new employee", 
+    //     tags = {"put", "tutorials", "admin"})
+    // @PutMapping("/employees")
+    // public ResponseEntity<ResponseFormat> addEmployee(
+    //     @RequestBody EmployeeAccount employeeAccount
+    // ) throws InvalidUserException{
+    //     Boolean status = employeeService.addNewEmployee(employeeAccount);
+    //     return ResponseEntity.ok().body(new ResponseFormat(status));
+    // }
 
     @Operation(summary = "Get employees", 
         tags = {"get", "tutorials", "admin"})
     @GetMapping("/employees")
-    public ResponseEntity<Page<EmployeeAccount>> getEmployees(
+    public ResponseEntity<Page<EmployeeDetail>> getEmployees(
         @RequestParam(name = "page", required = false) Integer pageNumber,
         @RequestParam(name = "employeeID", required = false) String employeeID,
         @RequestParam(name = "firstName", required = false) String firstName,
@@ -117,23 +103,23 @@ public class AdminController {
         @RequestParam(name = "email", required = false) String email
     ){        
         pageNumber = pageNumber!=null?pageNumber:0;
-        Page<EmployeeAccount> employees = null;
+        Page<EmployeeDetail> employees = null;
         if(employeeID!=null) employees = employeeService.searchEmployeesByEmployeeID(employeeID, pageNumber, WebConstant.PAGE_SIZE);
         else if(firstName!=null) employees = employeeService.searchEmployeesByFirstName(firstName, pageNumber, WebConstant.PAGE_SIZE);
         else if(lastName!=null) employees = employeeService.searchEmployeesByLastName(lastName, pageNumber, WebConstant.PAGE_SIZE);
         else if(username!=null) employees = employeeService.searchEmployeesByUsername(username, pageNumber, WebConstant.PAGE_SIZE);
         else if(email!=null) employees = employeeService.searchEmployeesByEmail(email, pageNumber, WebConstant.PAGE_SIZE);
-        else employees = employeeService.getAllEmployees(pageNumber, WebConstant.PAGE_SIZE);
+        else employees = employeeService.getEmployees(pageNumber, WebConstant.PAGE_SIZE);
         return ResponseEntity.ok().body(employees);
     }
 
     @Operation(summary = "Get employee by EmployeeID", 
         tags = {"get", "tutorials", "admin"})
     @GetMapping("/employees/{employeeID}")
-    public ResponseEntity<EmployeeDetails> getEmployeeDetail(
+    public ResponseEntity<EmployeeDetail> getEmployeeDetail(
         @PathVariable(name = "employeeID") String employeeID
     ) throws UserNotFoundException{
-        EmployeeDetails employee = employeeService.getEmployeeByID(employeeID);
+        EmployeeDetail employee = employeeService.getEmployee(employeeID);
         return ResponseEntity.ok().body(employee);
     }
     
@@ -141,62 +127,31 @@ public class AdminController {
         tags = {"post", "tutorials", "admin"})
     @PostMapping("/employees")
     public ResponseEntity<ResponseFormat> updateEmployeeDetail(
-        @RequestBody EmployeeDetails employee
+        @RequestBody EmployeeDetail employee
     ) throws JsonProcessingException, EmployeeNotFoundException{
-        Boolean status = employeeService.updateAdminEmployeeInfo(employee);
+        EmployeeDetail updatedEmployee = employeeService.updateAdminEmployeeInfo(employee);
+        Boolean status = updatedEmployee!=null?true:false;
         return ResponseEntity.ok().body(new ResponseFormat(status));
     }
 
-    // users
-    @Operation(summary = "Get users", 
-        tags = {"get", "tutorials", "admin"})
-    @GetMapping("/users")
-    public ResponseEntity<Page<UserRole>> getUsers(
-        @RequestParam(name = "page", required = false) Integer pageNumber,
-        @RequestParam(name = "userID", required = false) String userID,
-        @RequestParam(name = "roleName", required = false) String roleName,
-        @RequestParam(name = "username", required = false) String username,
-        @RequestParam(name = "email", required = false) String email
-    ){  
-        pageNumber = pageNumber!=null?pageNumber:0;
-        Page<UserRole> users = null;
-        if(userID!=null) users = userService.searchUsersByUserID(userID, pageNumber, WebConstant.PAGE_SIZE);
-        else if(username!=null) users = userService.searchUsersByUsername(username, pageNumber, WebConstant.PAGE_SIZE);
-        else if(email!=null) users = userService.searchUsersByEmail(email, pageNumber, WebConstant.PAGE_SIZE);
-        else if(roleName!=null) users = userService.searchUsersByRoleName(roleName, pageNumber, WebConstant.PAGE_SIZE);
-        else users = userService.getAllUserRoles(pageNumber, WebConstant.PAGE_SIZE);
-        return ResponseEntity.ok().body(users);
-    }
+    // @Operation(summary = "Reset password for a user", 
+    //     tags = {"post", "tutorials", "admin"})
+    // @PostMapping("/users/{userID}/password")
+    // public ResponseEntity<ResponseFormat> resetPassword(
+    //     @PathVariable(name = "userID") String userID
+    // ) throws UserNotFoundException{
+    //     Boolean status = userProfileService.resetPassword(userID);
+    //     return ResponseEntity.ok().body(new ResponseFormat(status));
+    // }
 
-    @Operation(summary = "Reset password for a user", 
-        tags = {"post", "tutorials", "admin"})
-    @PostMapping("/users/{userID}/password")
-    public ResponseEntity<ResponseFormat> resetPassword(
-        @PathVariable(name = "userID") String userID
-    ) throws UserNotFoundException{
-        Boolean status = userService.resetPassword(userID);
-        return ResponseEntity.ok().body(new ResponseFormat(status));
-    }
-
-    @Operation(summary = "Get roles", 
-        tags = {"post", "tutorials", "admin"})
-    @PostMapping("/users/roles")
-    public ResponseEntity<ResponseFormat> assignRoles(
-        @RequestBody UserInfo user
-    ) throws UserNotFoundException{
-        Boolean status = userService.assignUserRoles(user);
-        return ResponseEntity.ok().body(new ResponseFormat(status));
-    }
+    // @Operation(summary = "Get roles", 
+    //     tags = {"post", "tutorials", "admin"})
+    // @PostMapping("/users/roles")
+    // public ResponseEntity<ResponseFormat> assignRoles(
+    //     @RequestBody UserInfo user
+    // ) throws UserNotFoundException{
+    //     Boolean status = userProfileService.assignUserRoles(user);
+    //     return ResponseEntity.ok().body(new ResponseFormat(status));
+    // }
     // roles
-    @Operation(summary = "Get employee valid roles", 
-        tags = {"get", "tutorials", "admin"},
-        description = "Get valid roles for an employee like admin or employee,...")
-    @GetMapping("/roles/employee")
-    public ResponseEntity<Page<Role>> getRolesEmployee(
-        @RequestParam(name = "page", required = false) Integer pageNumber
-    ){  
-        pageNumber = pageNumber!=null?pageNumber:0;
-        Page<Role> roles = roleService.getRolesWithoutCustomer(pageNumber, WebConstant.PAGE_SIZE);
-        return ResponseEntity.ok().body(roles);
-    }
 }

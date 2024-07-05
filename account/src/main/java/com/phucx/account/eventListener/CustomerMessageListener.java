@@ -16,12 +16,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.constant.EventType;
 import com.phucx.account.exception.CustomerNotFoundException;
-import com.phucx.account.model.Customer;
 import com.phucx.account.model.CustomerDTO;
+import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.EventMessage;
-import com.phucx.account.model.User;
+import com.phucx.account.model.UserProfile;
 import com.phucx.account.service.customer.CustomerService;
-import com.phucx.account.service.user.UserService;
+import com.phucx.account.service.user.UserProfileService;
 
 @Slf4j
 @Component
@@ -30,7 +30,7 @@ public class CustomerMessageListener {
     @Autowired
     private CustomerService customerService;
     @Autowired
-    private UserService userService;
+    private UserProfileService userProfileService;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -47,28 +47,28 @@ public class CustomerMessageListener {
             if(customerDTO.getEventType().equals(EventType.GetCustomerByID)){
                 // get customer by id
                 String customerID = payload.getCustomerID();
-                Customer fetchedCustomer = customerService.getCustomerByID(customerID);
+                CustomerDetail fetchedCustomer = customerService.getCustomerByID(customerID);
                 // set response message
                 responseMessage.setPayload(fetchedCustomer);
                 responseMessage.setEventType(EventType.ReturnCustomerByID);
             }else if(customerDTO.getEventType().equals(EventType.GetCustomersByIDs)){
                 // get customers by ids
                 List<String> customerIDs = payload.getCustomerIDs();
-                List<Customer> fetchedCustomers = customerService.getCustomersByIDs(customerIDs);
+                List<CustomerDetail> fetchedCustomers = customerService.getCustomersByIDs(customerIDs);
                 // set response message
                 responseMessage.setPayload(fetchedCustomers);
                 responseMessage.setEventType(EventType.ReturnCustomersByIDs);
             }else if(customerDTO.getEventType().equals(EventType.GetCustomerByUserID)){
                 // get customer by userID
                 String userID = payload.getUserID();
-                Customer fetchedCustomer = customerService.getCustomerByUserID(userID);
+                CustomerDetail fetchedCustomer = customerService.getCustomerByUserID(userID);
                 // set response message
                 responseMessage.setPayload(fetchedCustomer);
                 responseMessage.setEventType(EventType.ReturnCustomerByUserID);
             }else if(customerDTO.getEventType().equals(EventType.GetUserByCustomerID)){
                 // get user by customerID
                 String customerID = payload.getCustomerID();
-                User fetchedUser = userService.getUserByCustomerID(customerID);
+                UserProfile fetchedUser = userProfileService.getUserProfileByCustomerID(customerID);
                 // set response message
                 responseMessage.setPayload(fetchedUser);
                 responseMessage.setEventType(EventType.ReturnUserByCustomerID);

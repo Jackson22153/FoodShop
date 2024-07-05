@@ -35,13 +35,14 @@ export default function AdminUsersComponent(){
 
     const initial = ()=>{
         document.addEventListener('click', onClickOutside)
-        fetchUsers(pageNumber);
+        fetchCustomers(pageNumber);
     }
     // fetch data
     const fetchCustomers = async (pageNumber: number)=>{
         const res = await getCustomers(pageNumber);
         if(res.status){
             const data = res.data;
+            console.log(data)
             setCustomers(data.content);
             setPageable({
                 first: data.first,
@@ -64,20 +65,7 @@ export default function AdminUsersComponent(){
             });
         }
     }
-    const fetchUsers = async (pageNumber: number)=>{
-        const res = await getUsers(pageNumber);
-        if(res.status){
-            const data = res.data;
-            setUsers(data.content);
-            setPageable({
-                first: data.first,
-                last: data.last,
-                number: data.number,
-                totalPages: data.totalPages
-            });
-            console.log(res.data)
-        }
-    }
+
     const fetchSearchUsers = async (pageNumber: number, searchParam: string, searchValue: string)=>{
         const res = await getUsersBySearchParam(pageNumber, searchParam, searchValue);
         if(res.status){
@@ -132,18 +120,14 @@ export default function AdminUsersComponent(){
         setSelectedUserTab(tab)
         switch(tab){
             case 0: {
-                fetchUsers(pageNumber);
-                break;
-            }
-            case 1: {
                 fetchCustomers(pageNumber);
                 break;
             }
-            case 2: {
+            case 1: {
                 fetchEmployees(pageNumber);
                 break;
             }
-            case 3:{
+            case 2:{
 
                 break;
             }
@@ -186,16 +170,16 @@ export default function AdminUsersComponent(){
             <div className="container mb-5">
                 <nav className="navbar navbar-expand-lg navbar-light p-0">
                     <ul className="navbar-nav mb-2 mb-lg-0 h-100 w-100 nav-fill">
-                        <li onClick={(_e)=>onClickSelectUserTab(0)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===0?'bg-white':'bg-light'}`}>
+                        {/* <li onClick={(_e)=>onClickSelectUserTab(0)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===0?'bg-white':'bg-light'}`}>
                             <span className="nav-link active" aria-current="page">All Users</span>
-                        </li>
-                        <li onClick={(_e)=>onClickSelectUserTab(1)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===1?'bg-white':'bg-light'}`}>
+                        </li> */}
+                        <li onClick={(_e)=>onClickSelectUserTab(0)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===0?'bg-white':'bg-light'}`}>
                             <span className="nav-link" aria-current="page">Customers</span>
                         </li>
-                        <li onClick={(_e)=>onClickSelectUserTab(2)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===2?'bg-white':'bg-light'}`}>
+                        <li onClick={(_e)=>onClickSelectUserTab(1)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===1?'bg-white':'bg-light'}`}>
                             <span className="nav-link">Employees</span>
                         </li>
-                        <li onClick={(_e)=>onClickSelectUserTab(3)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===3?'bg-white':'bg-light'}`}>
+                        <li onClick={(_e)=>onClickSelectUserTab(2)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===2?'bg-white':'bg-light'}`}>
                             <div className="d-flex mx-auto">
                                 <div className="input-group">
                                     <div className="input-group-prepend dropdown" ref={filterRef}>
@@ -210,7 +194,7 @@ export default function AdminUsersComponent(){
                                             <span className="sr-only">Toggle Dropdown</span>
                                         </button>
                                         <ul className={`dropdown-menu ${searchDropDown?'show':''}`} aria-labelledby="search-filter-users">
-                                            <li>
+                                            {/* <li>
                                                 <div className="btn-group dropright w-100 user-dropdown">
                                                     <span className="dropdown-item">
                                                         User
@@ -226,7 +210,7 @@ export default function AdminUsersComponent(){
                                                             onClick={(_e)=>onClickSelectAttribute([USER, 'RoleName'])}>Role Name</button>
                                                     </div>
                                                 </div>
-                                            </li>
+                                            </li> */}
                                             <li>
                                                 <div className="btn-group dropright w-100 user-dropdown">
                                                     <span className="dropdown-item">
@@ -271,15 +255,11 @@ export default function AdminUsersComponent(){
                     </ul>
                 </nav>
 
-                {selectedUserTab===0 ?
-                    <UserTable users={users} pageable={pageable}/>:
-                selectedUserTab===1?
+                {selectedUserTab===0?
                     <CustomerTable path={ADMIN_CUSTOMER} customers={customers} pageable={pageable}/>:
-                selectedUserTab===2?                        
+                selectedUserTab===1?                        
                     <EmployeeTable path={ADMIN_EMPLOYEE} employees={employees} pageable={pageable}/>: 
-                selectedUserTab===3&&                       
-                    searchParamArgs[0]===USER?
-                    <UserTable users={users} pageable={pageable}/>:
+                selectedUserTab===2&&                       
                     searchParamArgs[0]===CUSTOMER?
                     <CustomerTable path={ADMIN_CUSTOMER} customers={customers} pageable={pageable}/>:
                     searchParamArgs[0]===EMPLOYEE?

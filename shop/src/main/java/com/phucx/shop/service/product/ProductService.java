@@ -46,9 +46,9 @@ public interface ProductService {
     public Page<CurrentProduct> getCurrentProduct(int pageNumber, int pageSize);
     @Cacheable(value = "currentproduct", key = "#categoryName + ':' + #pageNumber")
     public Page<CurrentProduct> getCurrentProductsByCategoryName(String categoryName, int pageNumber, int pageSize) throws NotFoundException;
-    @Cacheable(value = "currentproduct", key = "#productIDs")
-    public List<CurrentProduct> getCurrentProducts(List<Integer> productIDs);
 
+    public List<CurrentProduct> getCurrentProducts(List<Integer> productIDs);
+        
     public List<CurrentProduct> getRecommendedProducts(int pageNumber, int pageSize);
     @Cacheable(value = "currentproduct", key = "#productID + ':' + #categoryName + ':' + #pageNumber")
     public Page<CurrentProduct> getRecommendedProductsByCategory(int productID, String categoryName, int pageNumber, int pageSize);
@@ -61,11 +61,9 @@ public interface ProductService {
     // product
     @Cacheable(value = "product", key = "#productID")
     public Product getProduct(int productID) throws NotFoundException;
-    @Cacheable(value = "product", key = "#productID + ':' + #discontinued")
-    public Product getProduct(Integer productID, Boolean discontinued) throws NotFoundException;
     @Cacheable(value = "product")
     public List<Product> getProducts();
-    @Cacheable(value = "product", key = "#productIDs")
+
     public List<Product> getProducts(List<Integer> productIDs);
     @Cacheable(value = "product", key = "#pageNumber")
     public Page<Product> getProducts(int pageNumber, int pageSize);

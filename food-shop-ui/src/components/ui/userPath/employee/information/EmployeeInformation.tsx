@@ -1,5 +1,5 @@
 import { ChangeEventHandler, FormEvent, useContext, useEffect, useState } from "react";
-import { Employee } from "../../../../../model/Type";
+import { EmployeeDetail, UserInfo } from "../../../../../model/Type";
 import { getEmployeeInfo, updateEmployeeInfo } from "../../../../../api/EmployeeApi";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -11,11 +11,13 @@ import ModalComponent from "../../../../shared/functions/modal/Modal";
 import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/WebConstant";
 import { EmployeeImageChangeInput } from "../../../../shared/functions/employee-image-change/EmployeeImageChangeInput";
 import modalContext from "../../../../contexts/ModalContext";
+import userInfoContext from "../../../../contexts/UserInfoContext";
 
 
 export default function EmployeeInformationComponent(){
-    const [employeeInfo, setEmployeeInfo] = useState<Employee>();
-    const [employeeInfoAlter, setEmployeeInfoAlter] = useState<Employee>()
+    const [employeeInfo, setEmployeeInfo] = useState<EmployeeDetail>();
+    const userInfo = useContext<UserInfo>(userInfoContext)
+    const [employeeInfoAlter, setEmployeeInfoAlter] = useState<EmployeeDetail>()
     const {setModal: setErrorModal} = useContext<ModalContextType>(modalContext);
     const [editable, setEditable] = useState(true)
     const [alert, setAlert] = useState<Alert>({
@@ -31,7 +33,7 @@ export default function EmployeeInformationComponent(){
 
     useEffect(()=>{
         initial();
-    }, [])
+    }, [userInfo])
 
     const initial = ()=>{
         fetchEmployeeInfo();
@@ -45,19 +47,19 @@ export default function EmployeeInformationComponent(){
                 // console.log(data);
                 const employee = {
                     employeeID: data.employeeID,
+                    userID: data.userID,
+                    username: data.username,
+                    email: data.email,
                     firstName: data.firstName || '',
                     lastName: data.lastName || '',
                     birthDate: data.birthDate || '',
                     hireDate: data.hireDate || '',
-                    homePhone: data.homePhone || '',
                     address: data.address || '',
                     city: data.city || '',
-                    photo: data.photo || '',
-                    reportsTo: data.reportsTo || '',
+                    phone: data.phone || '',
+                    picture: data.picture || '',
                     title: data.title || '',
-                    email: data.email || '',
-                    username: data.username || '',
-                    userID: data.userID
+                    notes: data.notes || ''
                 }
                 // console.log(employee)
                 setEmployeeInfo(employee);
@@ -113,12 +115,10 @@ export default function EmployeeInformationComponent(){
                     firstName: employeeInfoAlter.firstName || employeeInfo.firstName,
                     lastName: employeeInfoAlter.lastName || employeeInfo.lastName,
                     birthDate: employeeInfoAlter.birthDate || null,
-                    homePhone: employeeInfoAlter.homePhone || null,
+                    phone: employeeInfoAlter.phone || null,
                     address: employeeInfoAlter.address || null,
                     city: employeeInfoAlter.city || null,
-                    photo: employeeInfoAlter.photo || null,
-                    email: employeeInfoAlter.email || employeeInfo.lastName,
-                    username: employeeInfoAlter.username || employeeInfo.lastName,
+                    picture: employeeInfoAlter.picture || null,
                     userID: employeeInfo.userID
                 };
                 // console.log(employee)
@@ -147,7 +147,7 @@ export default function EmployeeInformationComponent(){
         }
     }
     const onChangePicture = (imageSrc: string)=>{
-        setEmployeeInfoAlter({...employeeInfoAlter, ['photo']:imageSrc})
+        setEmployeeInfoAlter({...employeeInfoAlter, ['picture']:imageSrc})
     }
 
     return(
@@ -156,14 +156,13 @@ export default function EmployeeInformationComponent(){
             {employeeInfo && employeeInfoAlter &&
                 <div className="row">
                     <div className="col-md-4">
-                        <EmployeeImageChangeInput imageSrc={employeeInfoAlter.photo} disable={editable} 
+                        <EmployeeImageChangeInput imageSrc={employeeInfoAlter.picture} disable={editable} 
                             onChangePicture={onChangePicture}/>
                     </div>
                     <div className="col-md 6">
                         <div className="profile-head">
-                            <h5>
-                                Username: {employeeInfo.username}
-                            </h5>
+                            <h5>Username: {userInfo.user.username}</h5>
+                            <h6>{userInfo.user.email}</h6>
                         </div>
 
                         <div className="profile-about">
@@ -176,7 +175,7 @@ export default function EmployeeInformationComponent(){
                             </div>
 
                             <div className="row ">
-                                <form action="">
+                                <form action="POST">
                                     <div className="form-row row">
                                         <div className="col-md-3 mb-3">
                                             <label  htmlFor="first-name-employee">First Name</label>
@@ -242,39 +241,22 @@ export default function EmployeeInformationComponent(){
                                         <div className="col-md-6 mb-3">
                                             <label  htmlFor="home-phone-employee">Home Phone</label>
                                             <input type="text" className="form-control" id="home-phone-employee" placeholder="Phone" required
-                                                value={employeeInfoAlter.homePhone} onChange={onChangeEmployeeInfo} disabled={editable}
-                                                name="homePhone"/>
+                                                value={employeeInfoAlter.phone} onChange={onChangeEmployeeInfo} disabled={editable}
+                                                name="phone"/>
                                             <div className="invalid-feedback">
                                                 Please provide a valid phone.
                                             </div>
                                         </div>
-
-                                        <div className="col-md-3">
-                                            <label>Hire Date</label>
-                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                <DatePicker value={dayjs(employeeInfoAlter.hireDate)} 
-                                                    readOnly
-                                                    className="form-control"
-                                                    name="hireDate"
-                                                    slotProps={{
-                                                        textField: { size: 'small' },  // Set the size here
-                                                    }}
-                                                />
-                                            </LocalizationProvider>
-                                        </div>
                                     </div>
 
-                                    <div className="form-row row">
+                                    {/* <div className="form-row row">
                                         <div className="col-md-6 mb-3">
                                             <label  htmlFor="email-employee">Email</label>
                                             <input type="email" className="form-control" id="email-employee" placeholder="Email" required
                                                 value={employeeInfoAlter.email} onChange={onChangeEmployeeInfo} disabled={editable}
                                                 name="email"/>
-                                            <div className="invalid-feedback">
-                                                Please provide a valid email.
-                                            </div>
                                         </div>
-                                    </div>
+                                    </div> */}
                                     <div className="row">
                                         <div className="col-md-5 mt-2">
                                             <button className="btn btn-primary" type="submit" onClick={onClickUpdate}

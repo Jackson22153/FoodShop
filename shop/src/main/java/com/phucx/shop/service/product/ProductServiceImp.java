@@ -244,14 +244,6 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public Product getProduct(Integer productID, Boolean discontinued) throws NotFoundException {
-        log.info("getProduct(productID={}, discontinued={})", productID, discontinued);
-        Product product = productRepository.findByProductIDAndDiscontinued(productID, discontinued)
-            .orElseThrow(()-> new NotFoundException("Product " + productID + " with discontinued "+ discontinued +" does not found"));
-        return this.productImageService.setProductImage(product);
-    }
-
-    @Override
     public List<CurrentProduct> getCurrentProducts(List<Integer> productIDs) {
         log.info("getCurrentProducts(productIDs={})", productIDs);
         List<CurrentProduct> products = this.currentProductRepository.findAllById(productIDs);

@@ -41,7 +41,7 @@ public interface DiscountService {
     public Discount getDiscount(String discountID) throws NotFoundException;
     @Cacheable(value = "discountdetail", key = "#discountID")
     public DiscountDetail getDiscountDetail(String discountID) throws NotFoundException;
-    @Cacheable(value = "discountDetail", key = "#discountIDs")
+    
     public List<DiscountDetail> getDiscountDetails(List<String> discountIDs);
     // discount type
     @Cacheable(value = "discountType", key = "#pageNumber")

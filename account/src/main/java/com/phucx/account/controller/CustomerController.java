@@ -15,14 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.phucx.account.exception.CustomerNotFoundException;
+import com.phucx.account.exception.InvalidUserException;
 import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.ImageFormat;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.customer.CustomerService;
 import com.phucx.account.service.image.CustomerImageService;
-import com.phucx.account.service.user.UserService;
-
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
@@ -30,8 +29,6 @@ import io.swagger.v3.oas.annotations.Operation;
 public class CustomerController {
     @Autowired
     private CustomerService customerService;
-    @Autowired
-    private UserService userService;
     @Autowired
     private CustomerImageService customerImageService;
 
@@ -45,9 +42,10 @@ public class CustomerController {
     @Operation(summary = "Get customer information", 
         tags = {"get", "tutorials", "customer"})
     @GetMapping("/info")
-    public ResponseEntity<CustomerDetail> getUserInfo(Authentication authentication) throws UserNotFoundException{
-        String username = userService.getUsername(authentication);
-        CustomerDetail customer = customerService.getCustomerDetail(username);
+    public ResponseEntity<CustomerDetail> getUserInfo(Authentication authentication
+    ) throws UserNotFoundException, InvalidUserException{
+        String userID = authentication.getName();
+        CustomerDetail customer = customerService.getCustomerDetail(userID);
         return ResponseEntity.ok().body(customer);
     }
     // UPDATE CUSTOMER'S INFOMATION
@@ -58,8 +56,8 @@ public class CustomerController {
         Authentication authentication,
         @RequestBody CustomerDetail customer
     ) throws CustomerNotFoundException{
-        boolean check = customerService.updateCustomerInfo(customer);
-        return ResponseEntity.ok().body(new ResponseFormat(check));
+        CustomerDetail updatedCustomer = customerService.updateCustomerInfo(customer);
+        return ResponseEntity.ok().body(new ResponseFormat(updatedCustomer!=null?true: false));
     }
 
     // set image

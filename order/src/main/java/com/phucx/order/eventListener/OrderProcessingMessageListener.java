@@ -17,13 +17,13 @@ import com.phucx.order.exception.InSufficientInventoryException;
 import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.exception.InvalidOrderException;
 import com.phucx.order.exception.NotFoundException;
+import com.phucx.order.model.Customer;
 import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.model.ResponseFormat;
-import com.phucx.order.model.User;
+import com.phucx.order.service.customer.CustomerService;
 import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.OrderService;
-import com.phucx.order.service.user.UserService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,7 +34,7 @@ public class OrderProcessingMessageListener {
     @Autowired
     private OrderService  orderService;
     @Autowired
-    private UserService userService;
+    private CustomerService customerService;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -49,7 +49,7 @@ public class OrderProcessingMessageListener {
         notification.setTopic(NotificationTopic.Order);
         try {
             OrderWithProducts order = objectMapper.readValue(message, OrderWithProducts.class);
-            User user = userService.getUserByCustomerID(order.getCustomerID());
+            Customer user = customerService.getCustomerByID(order.getCustomerID());
             try {
                 notification.setOrderID(order.getOrderID());
                 notification = this.validateOrder(order, notification, user);
@@ -67,14 +67,14 @@ public class OrderProcessingMessageListener {
                 exceptionHandler(order, user.getUserID(), e.getMessage(), notification);
             }
             notificationService.sendNotification(notification);
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException | NotFoundException e) {
             log.error("Error: {}", e.getMessage());
         }
     }
 
     // validate order product's stocks
     @LoggerAspect
-    private OrderNotificationDTO validateOrder(OrderWithProducts order, OrderNotificationDTO notification, User user) 
+    private OrderNotificationDTO validateOrder(OrderWithProducts order, OrderNotificationDTO notification, Customer user) 
         throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException, InSufficientInventoryException{
 
         // Notification notification = new Notification();

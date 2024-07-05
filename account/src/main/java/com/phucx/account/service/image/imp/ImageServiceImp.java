@@ -5,12 +5,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.phucx.account.exception.NotFoundException;
+import com.phucx.account.model.UserProfile;
 import com.phucx.account.service.image.ImageService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -71,5 +73,30 @@ public class ImageServiceImp implements ImageService{
         int indexOfSlash = url.lastIndexOf("/");
         String filename = url.substring(indexOfSlash + 1);
         return filename;
+    }
+
+    @Override
+    public UserProfile setUserProfileImage(UserProfile userProfile, String serverName, String imageUri) {
+        log.info("setUserProfileImage({})", userProfile);
+        // filtering customer 
+        if(!(userProfile.getPicture()!=null && userProfile.getPicture().length()>0)) return userProfile;
+        // userProfile has image
+        String imageUrl = "/" + serverName + imageUri;
+        userProfile.setPicture(imageUrl + "/" + userProfile.getPicture());
+        return userProfile;
+
+    }
+
+    @Override
+    public List<UserProfile> setUserProfileImage(List<UserProfile> userProfiles, String serverName, String imageUri) {
+        log.info("setUserProfileImage({})", userProfiles);
+        userProfiles.stream().forEach(user ->{
+            if(user.getPicture()!=null && user.getPicture().length()>0){
+                // setting image with image uri
+                String uri = "/" + serverName + imageUri;
+                user.setPicture(uri + "/" + user.getPicture());
+            }
+        });
+        return userProfiles;
     }
 }

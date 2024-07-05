@@ -12,28 +12,52 @@ import jakarta.persistence.NamedStoredProcedureQuery;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
 @Entity
 @ToString
 @Immutable
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "EmployeeDetails")
 @NamedStoredProcedureQueries({
+    @NamedStoredProcedureQuery(name = "EmployeeDetail.updateAdminEmployeeInfo",
+    procedureName = "UpdateAdminEmployeeInfo", parameters = {
+        @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type = String.class),
+        @StoredProcedureParameter(name="firstName", mode = ParameterMode.IN, type = String.class),
+        @StoredProcedureParameter(name="lastName", mode = ParameterMode.IN, type = String.class),
+        @StoredProcedureParameter(name="hireDate", mode = ParameterMode.IN, type = LocalDate.class),
+        @StoredProcedureParameter(name="picture", mode = ParameterMode.IN, type = String.class),
+        @StoredProcedureParameter(name="title", mode = ParameterMode.IN, type = String.class),
+        @StoredProcedureParameter(name="notes", mode = ParameterMode.IN, type = String.class),
+        @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
+    }),
     @NamedStoredProcedureQuery(name = "EmployeeDetail.updateEmployeeInfo",
-        procedureName = "UpdateEmployeeInfo", 
-        parameters = {
+        procedureName = "UpdateEmployeeInfo", parameters = {
             @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type = String.class),
-            @StoredProcedureParameter(name="email", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="firstName", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="lastName", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="birthDate", mode = ParameterMode.IN, type = LocalDate.class),
             @StoredProcedureParameter(name="address", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="city", mode = ParameterMode.IN, type = String.class),
-            @StoredProcedureParameter(name="homePhone", mode = ParameterMode.IN, type = String.class),
-            @StoredProcedureParameter(name="photo", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="phone", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="picture", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
+        }),
+    @NamedStoredProcedureQuery(name = "EmployeeAccount.addNewEmployee",
+        procedureName = "AddNewEmployee", parameters = {
+            @StoredProcedureParameter(name="profileID", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="userID", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="username", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="email", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="firstName", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="lastName", mode = ParameterMode.IN, type=String.class),
+            @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type=Boolean.class)
         })
 })
 public class EmployeeDetail implements Serializable{
@@ -46,10 +70,16 @@ public class EmployeeDetail implements Serializable{
     private String lastName;
     private LocalDate birthDate;
     private LocalDate hireDate;
-    private String homePhone;
-    private String photo;
+    private String phone;
+    private String picture;
     private String title;
     private String address;
     private String city;
+    private String notes;
+    public EmployeeDetail(String userID, String firstName, String lastName) {
+        this.userID = userID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 
 }

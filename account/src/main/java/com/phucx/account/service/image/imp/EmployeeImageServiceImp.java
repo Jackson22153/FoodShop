@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.phucx.account.config.FileProperties;
-import com.phucx.account.model.Employee;
-import com.phucx.account.model.EmployeeAccount;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.service.image.EmployeeImageService;
 import com.phucx.account.service.image.ImageService;
@@ -31,66 +29,22 @@ public class EmployeeImageServiceImp implements EmployeeImageService{
     private final String imageUri = "/image/employee";
 
     @Override
-    public Employee setEmployeeImage(Employee employee) {
-        // filtering employee 
-        if(!(employee.getPhoto()!=null && employee.getPhoto().length()>0)) return employee;
-        // employee has image
-        String imageUrl = "/" + serverName + imageUri;
-        employee.setPhoto(imageUrl + "/" + employee.getPhoto());
-        return employee;
-    }
-
-    @Override
-    public List<Employee> setEmployeeImage(List<Employee> employees) {
-        employees.stream().forEach(employee ->{
-            if(employee.getPhoto()!=null && employee.getPhoto().length()>0){
-                // setting image with image uri
-                String uri = "/" + serverName + imageUri;
-                employee.setPhoto(uri + "/" + employee.getPhoto());
-            }
-        });
-        return employees;
-    }
-
-    @Override
     public EmployeeDetail setEmployeeDetailImage(EmployeeDetail employee) {
         // filtering employee 
-        if(!(employee.getPhoto()!=null && employee.getPhoto().length()>0)) return employee;
+        if(!(employee.getPicture()!=null && employee.getPicture().length()>0)) return employee;
         // employee has image
         String imageUrl = "/" + serverName + imageUri;
-        employee.setPhoto(imageUrl + "/" + employee.getPhoto());
+        employee.setPicture(imageUrl + "/" + employee.getPicture());
         return employee;
     }
 
     @Override
     public List<EmployeeDetail> setEmployeeDetailImage(List<EmployeeDetail> employees) {
         employees.stream().forEach(employee ->{
-            if(employee.getPhoto()!=null && employee.getPhoto().length()>0){
+            if(employee.getPicture()!=null && employee.getPicture().length()>0){
                 // setting image with image uri
                 String uri = "/" + serverName + imageUri;
-                employee.setPhoto(uri + "/" + employee.getPhoto());
-            }
-        });
-        return employees;
-    }
-
-    @Override
-    public EmployeeAccount setEmployeeAccountImage(EmployeeAccount employee) {
-        // filtering employee 
-        if(!(employee.getPhoto()!=null && employee.getPhoto().length()>0)) return employee;
-        // employee has image
-        String imageUrl = "/" + serverName + imageUri;
-        employee.setPhoto(imageUrl + "/" + employee.getPhoto());
-        return employee;
-    }
-
-    @Override
-    public List<EmployeeAccount> setEmployeeAccountImage(List<EmployeeAccount> employees) {
-        employees.stream().forEach(employee ->{
-            if(employee.getPhoto()!=null && employee.getPhoto().length()>0){
-                // setting image with image uri
-                String uri = "/" + serverName + imageUri;
-                employee.setPhoto(uri + "/" + employee.getPhoto());
+                employee.setPicture(uri + "/" + employee.getPicture());
             }
         });
         return employees;

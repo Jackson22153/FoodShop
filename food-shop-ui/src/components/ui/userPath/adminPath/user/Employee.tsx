@@ -17,23 +17,19 @@ export default function AdminEmployeeComponent(){
     const {employeeID} = useParams();
     const [employeeInfo, setEmployeeInfo] = useState<EmployeeDetail>({
         employeeID: "",
+        userID: "",
+        username: "",
+        email: "",
         lastName: "",
         firstName: "",
         birthDate: "",
         hireDate: "",
         address: "",
         city: "",
-        homePhone: "",
-        photo: "",
-        notes: "",
-        userInfo: {
-            user: {
-                userID: "",
-                username: "",
-                email: "",
-            },
-            roles: []
-        }
+        phone: "",
+        picture: "",
+        title: "",
+        notes: ""
     });
     const [employeeRoles, setEmployeeRoles] = useState<Role[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
@@ -83,23 +79,20 @@ export default function AdminEmployeeComponent(){
             // console.log(data)
             setEmployeeInfo({
                 employeeID: data.employeeID,
+                userID: data.userID,
+                username: data.username,
+                email: data.email,
                 lastName: data.lastName || '',
                 firstName: data.firstName || '',
                 birthDate: data.birthDate||'',
                 hireDate: data.hireDate||'',
                 address: data.address||'',
                 city: data.city||'',
-                homePhone: data.homePhone||'',
-                photo: data.photo||'',
+                phone: data.phone||'',
+                picture: data.picture||'',
                 notes: data.notes||'',
-                userInfo: {
-                    user:{
-                        userID: data.userInfo.user.userID||'',
-                        username: data.userInfo.user.username||'',
-                        email: data.userInfo.user.email||''
-                    },
-                    roles: data.userInfo.roles || []
-                }
+                title: data.title,
+
             });
             setEmployeeRoles(data.userInfo.roles || [])
         }
@@ -132,7 +125,7 @@ export default function AdminEmployeeComponent(){
 
     // change employee picture
     const onChangePicture = (imageSrc: string)=>{
-        setEmployeeInfo({...employeeInfo, ['photo']:imageSrc})
+        setEmployeeInfo({...employeeInfo, ['picture']:imageSrc})
     }
 
     const onClickSelectTab= (tab:number)=>{
@@ -147,7 +140,7 @@ export default function AdminEmployeeComponent(){
     }
     const onClickConfirmResetPassModal = async ()=>{
         try {
-            const userID = employeeInfo?.userInfo.user.userID;
+            const userID = employeeInfo?.userID;
             const res = await resetPassword(userID);
             if(res.status){
                 const data = res.data
@@ -260,38 +253,38 @@ export default function AdminEmployeeComponent(){
     const onClickCloseAssignRolesModal = ()=>{
         toggleAssignRolesModal();
     }
-    const onClickConfirmAssignRolesModal = async ()=>{
-        try {
-            if(employeeRoles && employeeInfo){
-                // console.log(employeeRoles)
-                const data = {
-                    user: employeeInfo.userInfo.user,
-                    roles: employeeRoles
-                }
-                const res = await assignRoles(data);
-                if(res.status){
-                    const data = res.data;
-                    const status = data.status;
-                    setAlert({
-                        message: status?"Roles have been assigned to employee": "Roles can not be assigned to employee",
-                        type: status?ALERT_TYPE.SUCCESS: ALERT_TYPE.DANGER,
-                        isShowed: true
-                    }) 
-                }
-            }
-        } 
-        catch (error) {
-            setAlert({
-                message: "Roles can not be assigned to employee",
-                type: ALERT_TYPE.DANGER,
-                isShowed: true
-            }) 
-        } finally{
-            setTimeout(()=>{
-                setAlert({...alert, isShowed: false});
-            }, ALERT_TIMEOUT)
-        }
-    }
+    // const onClickConfirmAssignRolesModal = async ()=>{
+    //     try {
+    //         if(employeeRoles && employeeInfo){
+    //             // console.log(employeeRoles)
+    //             const data = {
+    //                 user: employeeInfo.userInfo.user,
+    //                 roles: employeeRoles
+    //             }
+    //             const res = await assignRoles(data);
+    //             if(res.status){
+    //                 const data = res.data;
+    //                 const status = data.status;
+    //                 setAlert({
+    //                     message: status?"Roles have been assigned to employee": "Roles can not be assigned to employee",
+    //                     type: status?ALERT_TYPE.SUCCESS: ALERT_TYPE.DANGER,
+    //                     isShowed: true
+    //                 }) 
+    //             }
+    //         }
+    //     } 
+    //     catch (error) {
+    //         setAlert({
+    //             message: "Roles can not be assigned to employee",
+    //             type: ALERT_TYPE.DANGER,
+    //             isShowed: true
+    //         }) 
+    //     } finally{
+    //         setTimeout(()=>{
+    //             setAlert({...alert, isShowed: false});
+    //         }, ALERT_TIMEOUT)
+    //     }
+    // }
 
     return(
         <div className="container">
@@ -300,13 +293,13 @@ export default function AdminEmployeeComponent(){
                 <>
                     <div className="row emp-profile box-shadow-default mb-5">
                         <div className="col-md-4">
-                            <EmployeeImageChangeInput imageSrc={employeeInfo.photo} disable={!editable}
+                            <EmployeeImageChangeInput imageSrc={employeeInfo.picture} disable={!editable}
                                 onChangePicture={onChangePicture}/>
                         </div>
                         <div className="col-md 6">
                             <div className="profile-head">
                                 <h5>
-                                    Username: {employeeInfo.userInfo.user.username}
+                                    Username: {employeeInfo.username}
                                 </h5>
                             </div>
                             <div className="profile-about">
@@ -391,7 +384,7 @@ export default function AdminEmployeeComponent(){
                                                 <div className="col-md-4 mb-3">
                                                     <label  htmlFor="email-employee">Email</label>
                                                     <input type="email" className="form-control" id="email-employee" placeholder="Email" required
-                                                        value={employeeInfo.userInfo.user.email} readOnly
+                                                        value={employeeInfo.email} readOnly
                                                         name="email"/>
                                                     <div className="invalid-feedback">
                                                         Please provide a valid email.
@@ -400,8 +393,8 @@ export default function AdminEmployeeComponent(){
                                                 <div className="col-md-3 mb-3">
                                                     <label  htmlFor="home-phone-employee">Phone</label>
                                                     <input type="text" className="form-control" id="home-phone-employee" placeholder="Phone" required
-                                                        value={employeeInfo.homePhone} readOnly
-                                                        name="homePhone"/>
+                                                        value={employeeInfo.phone} readOnly
+                                                        name="phone"/>
                                                     <div className="invalid-feedback">
                                                         Please provide a valid phone.
                                                     </div>
@@ -448,7 +441,7 @@ export default function AdminEmployeeComponent(){
                                             <div className="col-md-6 mb-3">
                                                 <label  htmlFor="userID-employee">UserID</label>
                                                 <input type="text" className="form-control" id="userID-employee" 
-                                                    placeholder="UserID" value={employeeInfo.userInfo.user.userID} 
+                                                    placeholder="UserID" value={employeeInfo.userID} 
                                                     readOnly
                                                     name="firstName"/>
                                                 <div className="valid-feedback">
@@ -460,7 +453,7 @@ export default function AdminEmployeeComponent(){
                                             <div className="col-md-3 mb-3">
                                                 <label  htmlFor="username-employee">Username</label>
                                                 <input type="text" className="form-control" id="username-employee" 
-                                                    placeholder="Username" value={employeeInfo.userInfo.user.username} required
+                                                    placeholder="Username" value={employeeInfo.username} required
                                                     readOnly name="username"/>
                                                 <div className="valid-feedback">
                                                     Looks good!
@@ -469,7 +462,7 @@ export default function AdminEmployeeComponent(){
                                             <div className="col-md-5 mb-3">
                                                 <label  htmlFor="email-employee">Email</label>
                                                 <input type="email" className="form-control" id="email-employee" placeholder="Email" required
-                                                    value={employeeInfo.userInfo.user.email}  readOnly name="email"/>
+                                                    value={employeeInfo.email}  readOnly name="email"/>
                                                 <div className="invalid-feedback">
                                                     Please provide a valid email.
                                                 </div>
@@ -511,7 +504,7 @@ export default function AdminEmployeeComponent(){
                                                 </ul>
                                             </div>
                                         </div>
-                                        <div className="row btn-group">
+                                        {/* <div className="row btn-group">
                                             <div className="col-md-3 mt-2">
                                                 <button className="btn btn-primary" type="submit" onClick={onClickResetPassword}
                                                     disabled={!editable}>
@@ -530,7 +523,7 @@ export default function AdminEmployeeComponent(){
                                                     handleCloseButton={onClickCloseAssignRolesModal} 
                                                     handleConfirmButton={onClickConfirmAssignRolesModal}/>
                                             </div>
-                                        </div>
+                                        </div> */}
                                     </div>
                                 }
                             </div>

@@ -2,7 +2,6 @@ package com.phucx.account.model;
 
 import java.io.Serializable;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -11,16 +10,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Data @Entity @ToString
+@Entity
+@Data @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Customers")
-public class Customer implements Serializable{
+@Table(name = "UserProfile")
+public class UserProfile implements Serializable{
     @Id
-    @Column(name = "CustomerID", length = 36, nullable = false)
-    private String customerID;
-    @Column(name = "ContactName", length = 30)
-    private String contactName;
-    
     private String profileID;
+    private String firstName;
+    private String lastName;
+    private String address;
+    private String city;
+    private String phone;
+    private String picture;
+    private String userID;
 }

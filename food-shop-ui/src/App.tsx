@@ -56,7 +56,7 @@ function App() {
 
     // USER ROLES
     const roleNames = (userinfo: UserInfo)=>{
-      const arr = userinfo.roles.map(role => role.roleName.toLowerCase());
+      const arr = userinfo.roles.map(role => role.toLowerCase());
       return arr;
     }
   // receive notification from backend
