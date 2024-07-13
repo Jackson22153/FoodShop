@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.exception.EmployeeNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
 import com.phucx.account.model.EmployeeDetail;
+import com.phucx.account.model.EmployeeDetails;
 import com.phucx.account.model.ImageFormat;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.employee.EmployeeService;
@@ -42,10 +44,10 @@ public class EmployeeController {
     @Operation(summary = "Get employee information", 
         tags = {"get", "tutorials", "employee"})
     @GetMapping("/info")
-    public ResponseEntity<EmployeeDetail> getUserInfo(Authentication authentication) 
+    public ResponseEntity<EmployeeDetails> getUserInfo(Authentication authentication) 
         throws InvalidUserException, EmployeeNotFoundException{
         String userID = authentication.getName();
-        EmployeeDetail employee = employeeService.getEmployeeDetail(userID);
+        EmployeeDetails employee = employeeService.getEmployeeDetails(userID);
         return ResponseEntity.ok().body(employee);
     }
     // UPDATE EMPLOYEE'S INFORMATION
@@ -54,7 +56,7 @@ public class EmployeeController {
     @PostMapping("/info")
     public ResponseEntity<ResponseFormat> updateUserInfo(
         @RequestBody EmployeeDetail employee
-    ) throws EmployeeNotFoundException{
+    ) throws EmployeeNotFoundException, JsonProcessingException{
         EmployeeDetail updatedEmployeeDetail = employeeService.updateEmployeeInfo(employee);
         return ResponseEntity.ok().body(new ResponseFormat(updatedEmployeeDetail!=null?true:false));
     }

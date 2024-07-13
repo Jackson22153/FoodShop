@@ -95,8 +95,6 @@ export default function UserInformationComponent(){
             if(customerInfo){
                 const customer = {
                     customerID: customerInfo.customerID,
-                    firstName: customerInfo.firstName,
-                    lastName: customerInfo.lastName,
                     contactName: customerInfo.contactName || null,
                     address: customerInfo.address || null,
                     city: customerInfo.city || null,
@@ -157,44 +155,24 @@ export default function UserInformationComponent(){
                                 <form action="post">
                                     <div className="form-row row">
                                         <div className="col-md-3 mb-3">
+                                            <label  htmlFor="first-name-employee">First Name</label>
+                                            <input type="text" className="form-control" id="first-name-employee" 
+                                                placeholder="First Name" value={customerInfo.firstName} readOnly
+                                                name="firstName"/>
+                                        </div>
+                                        <div className="col-md-3 mb-3">
+                                            <label  htmlFor="last-name-employee">Last Name</label>
+                                            <input type="text" className="form-control" id="last-name-employee" 
+                                                placeholder="Last Name" value={customerInfo.lastName}  
+                                                readOnly name="lastName"/>
+                                        </div>
+                                        <div className="col-md-3 mb-3">
                                             <label  htmlFor="contact-name-customer">Contact Name</label>
                                             <input type="text" className="form-control" id="contact-name-customer" 
                                                 placeholder="Contact Name" value={customerInfo.contactName} required
                                                 onChange={onChangeCustomerInfo} disabled={editable}
                                                 name="contactName"/>
-                                            <div className="valid-feedback">
-                                                Looks good!
-                                            </div>
                                         </div>
-                                        <div className="col-md-3 mb-3">
-                                            <label  htmlFor="first-name-employee">First Name</label>
-                                            <input type="text" className="form-control" id="first-name-employee" 
-                                                placeholder="First Name" value={customerInfo.firstName} required
-                                                onChange={onChangeCustomerInfo} disabled={editable}
-                                                name="firstName"/>
-                                            <div className="valid-feedback">
-                                                Looks good!
-                                            </div>
-                                        </div>
-                                        <div className="col-md-3 mb-3">
-                                            <label  htmlFor="last-name-employee">Last Name</label>
-                                            <input type="text" className="form-control" id="last-name-employee" 
-                                                placeholder="Last Name" required value={customerInfo.lastName} 
-                                                onChange={onChangeCustomerInfo} disabled={editable} name="lastName"/>
-                                            <div className="invalid-feedback">
-                                                Looks good!
-                                            </div>
-                                        </div>
-                                        {/* <div className="col-md-6 mb-3">
-                                            <label  htmlFor="email-customer">Email</label>
-                                            <input type="email" className="form-control" id="email-customer" 
-                                                placeholder="Email" required 
-                                                value={c} onChange={onChangeCustomerInfo} disabled={editable}
-                                                name="email"/>
-                                            <div className="invalid-feedback">
-                                                Please choose a email.
-                                            </div>
-                                        </div> */}
                                     </div>
                                     <div className="form-row row">
                                         <div className="col-md-6 mb-3">
@@ -202,30 +180,21 @@ export default function UserInformationComponent(){
                                             <input type="text" className="form-control" id="address-customer" placeholder="Address" required
                                                 value={customerInfo.address} onChange={onChangeCustomerInfo} disabled={editable}
                                                 name="address"/>
-                                            <div className="invalid-feedback">
-                                                Please provide a valid address.
-                                            </div>
                                         </div>
                                         <div className="col-md-3 mb-3">
                                             <label  htmlFor="city-customer">City</label>
                                             <input type="text" className="form-control" id="city-customer" placeholder="City" required
                                                 value={customerInfo.city} onChange={onChangeCustomerInfo} disabled={editable}
                                                 name="city"/>
-                                            <div className="invalid-feedback">
-                                                Please provide a valid city.
-                                            </div>
                                         </div>
                                     </div>
                                     
                                     <div className="form-row row">
-                                        <div className="col-md-6 mb-3">
+                                        <div className="col-lg-3 col-md-4 mb-3">
                                             <label  htmlFor="phone-customer">Phone</label>
                                             <input type="text" className="form-control" id="phone-customer" placeholder="Phone" required
                                                 value={customerInfo.phone} onChange={onChangeCustomerInfo} disabled={editable}
                                                 name="phone"/>
-                                            <div className="invalid-feedback">
-                                                Please provide a valid phone.
-                                            </div>
                                         </div>
                                     </div>
                                     <div className="row">

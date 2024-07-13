@@ -1,5 +1,6 @@
 package com.phucx.account.service.employee;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.EmployeeNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
 import com.phucx.account.model.EmployeeDetail;
+import com.phucx.account.model.EmployeeDetails;
 import com.phucx.account.model.UserNotificationDTO;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.service.image.EmployeeImageService;
@@ -40,18 +42,16 @@ public class EmployeeServiceImp implements EmployeeService {
     @Autowired
     private EmployeeImageService employeeImageService;
 
-
 	@Override
-	public EmployeeDetail updateEmployeeInfo(EmployeeDetail employee) throws EmployeeNotFoundException {
+	public EmployeeDetail updateEmployeeInfo(EmployeeDetail employee) throws EmployeeNotFoundException, JsonProcessingException {
         log.info("updateEmployeeInfo({})", employee.toString());
         EmployeeDetail fetchedEmployee =employeeDetailRepostiory.findById(employee.getEmployeeID())
-            .orElseThrow(()-> new EmployeeNotFoundException("Employee " + employee.getEmployeeID() + " does not found"));  
+            .orElseThrow(()-> new EmployeeNotFoundException("Employee " + employee.getEmployeeID() + " does not found")); 
         String picture = imageService.getImageName(employee.getPicture());
 
         // update employee 
         Boolean result = employeeDetailRepostiory.updateEmployeeInfo(
-            fetchedEmployee.getEmployeeID(), employee.getFirstName(), employee.getLastName(), 
-            employee.getBirthDate(), employee.getAddress(), employee.getCity(), 
+            fetchedEmployee.getEmployeeID(), employee.getBirthDate(), employee.getAddress(), employee.getCity(), 
             employee.getPhone(), picture); 
         if(!result) throw new RuntimeException("Employee " + employee.getEmployeeID() + " can not be updated!");
 
@@ -59,33 +59,6 @@ public class EmployeeServiceImp implements EmployeeService {
         employeeImageService.setEmployeeDetailImage(employee);
         return employee;
 	}
-
-    @Override
-    public Page<EmployeeDetail> searchEmployeesByEmployeeID(String employeeID, int pageNumber, int pageSize) {
-        String searchParam = "%" + employeeID +"%";
-        Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<EmployeeDetail> employees = employeeDetailRepostiory.findByEmployeeIDLike(searchParam, page);
-        employeeImageService.setEmployeeDetailImage(employees.getContent());
-        return employees;
-    }
-
-    @Override
-    public Page<EmployeeDetail> searchEmployeesByFirstName(String firstName, int pageNumber, int pageSize) {
-        String searchParam = "%" + firstName +"%";
-        Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<EmployeeDetail> employees = employeeDetailRepostiory.findByFirstNameLike(searchParam, page);
-        employeeImageService.setEmployeeDetailImage(employees.getContent());
-        return employees;
-    }
-
-    @Override
-    public Page<EmployeeDetail> searchEmployeesByLastName(String lastName, int pageNumber, int pageSize) {
-        String searchParam = "%" + lastName +"%";
-        Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<EmployeeDetail> employees = employeeDetailRepostiory.findByLastNameLike(searchParam, page);
-        employeeImageService.setEmployeeDetailImage(employees.getContent());
-        return employees;
-    }
 
     @Override
     public EmployeeDetail updateAdminEmployeeInfo(EmployeeDetail employee) throws JsonProcessingException, EmployeeNotFoundException {
@@ -96,8 +69,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String picture = this.imageService.getImageName(employee.getPicture());
         // update employee's information
         Boolean status = employeeDetailRepostiory.updateAdminEmployeeInfo(
-            fetchedEmployee.getEmployeeID(), employee.getFirstName(), 
-            employee.getLastName(), employee.getHireDate(), picture, 
+            fetchedEmployee.getEmployeeID(), employee.getHireDate(), picture, 
             employee.getTitle(), employee.getNotes());
         // create a notification
         UserNotificationDTO notification = new UserNotificationDTO();
@@ -133,12 +105,6 @@ public class EmployeeServiceImp implements EmployeeService {
 
     private Boolean addNewEmployee(EmployeeDetail employeedDetail) throws InvalidUserException {
         log.info("addNewEmployee({})", employeedDetail);
-        if(employeedDetail.getUsername()==null) throw new InvalidUserException("Missing username");
-        if(employeedDetail.getEmail()==null) throw new InvalidUserException("Missing email");
-        if(employeedDetail.getFirstName()==null)
-            throw new InvalidUserException("Employee last name is missing");
-        if(employeedDetail.getLastName()==null)
-            throw new InvalidUserException("Employee last name is missing");
         if(employeedDetail.getUserID()==null)
             throw new InvalidUserException("UserId is missing");
 
@@ -148,10 +114,7 @@ public class EmployeeServiceImp implements EmployeeService {
         String profileID = UUID.randomUUID().toString();
         String employeeID = UUID.randomUUID().toString();
 
-       return employeeDetailRepostiory.addNewEmployee(
-            profileID, employeedDetail.getUserID(), employeedDetail.getUsername(), 
-            employeedDetail.getEmail(), employeeID, employeedDetail.getFirstName(), 
-            employeedDetail.getLastName());
+       return employeeDetailRepostiory.addNewEmployee(profileID, employeedDetail.getUserID(), employeeID);
     }
 
     @Override
@@ -181,29 +144,40 @@ public class EmployeeServiceImp implements EmployeeService {
         }else{
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if(authentication==null) throw new RuntimeException("User is not authenticated");
-            Jwt jwt = (Jwt) authentication.getPrincipal();
-            String firstname = jwt.getClaimAsString(WebConstant.FIRST_NAME);
-            String lastname = jwt.getClaimAsString(WebConstant.LAST_NAME);
-            Boolean result = this.addNewEmployee(new EmployeeDetail(userID, firstname, lastname));
+            EmployeeDetail newEmployeeDetail = new EmployeeDetail();
+            newEmployeeDetail.setUserID(userID);
+
+            Boolean result = this.addNewEmployee(newEmployeeDetail);
             if(!result) throw new RuntimeException("Can not add new employee with userID " + userID);
             return this.getEmployeeByUserID(userID);
         }
     }
+    
+    @Override
+    public EmployeeDetails getEmployeeDetails(String userID) throws InvalidUserException, EmployeeNotFoundException {
+        log.info("getEmployeeDetails(userID={})", userID);
+        EmployeeDetail employeeDetail = this.getEmployeeDetail(userID);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        String firstname = jwt.getClaimAsString(WebConstant.FIRST_NAME);
+        String lastname = jwt.getClaimAsString(WebConstant.LAST_NAME);
+        String username = jwt.getClaimAsString(WebConstant.PREFERRED_USERNAME);
+        String email = jwt.getClaimAsString(WebConstant.EMAIL);
+
+        return new EmployeeDetails(employeeDetail.getEmployeeID(), userID, 
+            employeeDetail.getBirthDate(), employeeDetail.getHireDate(), 
+            employeeDetail.getPhone(), employeeDetail.getPicture(), 
+            employeeDetail.getTitle(), employeeDetail.getAddress(), 
+            employeeDetail.getCity(), employeeDetail.getNotes(), 
+            username, firstname, lastname, email);
+    }
 
     @Override
-    public Page<EmployeeDetail> searchEmployeesByUsername(String username, int pageNumber, int pageSize) {
-        log.info("searchEmployeesByUsername(username={}, pageNumber={}, pageSize={})", username, pageNumber, pageSize);
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<EmployeeDetail> employees = employeeDetailRepostiory.findByUsernameLike(username, pageable);
-        employeeImageService.setEmployeeDetailImage(employees.getContent());
-        return employees;
-    }
-    @Override
-    public Page<EmployeeDetail> searchEmployeesByEmail(String email, int pageNumber, int pageSize) {
-        log.info("searchEmployeesByEmail(email={}, pageNumber={}, pageSize={})", email, pageNumber, pageSize);
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<EmployeeDetail> employees = employeeDetailRepostiory.findByEmailLike(email, pageable);
-        employeeImageService.setEmployeeDetailImage(employees.getContent());
+    public List<EmployeeDetail> getEmployees(List<String> userIds) {
+        log.info("getEmployees(userIds={})", userIds);
+        List<EmployeeDetail> employees = employeeDetailRepostiory.findAllByUserID(userIds);
+        employeeImageService.setEmployeeDetailImage(employees);
         return employees;
     }
 }

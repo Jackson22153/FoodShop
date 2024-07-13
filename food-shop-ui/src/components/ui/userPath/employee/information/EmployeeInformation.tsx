@@ -44,7 +44,6 @@ export default function EmployeeInformationComponent(){
             const res = await getEmployeeInfo();
             if(200<=res.status&&res.status<300){
                 const data = res.data;
-                // console.log(data);
                 const employee = {
                     employeeID: data.employeeID,
                     userID: data.userID,
@@ -61,7 +60,6 @@ export default function EmployeeInformationComponent(){
                     title: data.title || '',
                     notes: data.notes || ''
                 }
-                // console.log(employee)
                 setEmployeeInfo(employee);
                 setEmployeeInfoAlter(employee);
             }
@@ -76,7 +74,6 @@ export default function EmployeeInformationComponent(){
 
     const onChangeEmployeeInfoBirthDate = (birthDate:Dayjs|null)=>{
         if(birthDate && employeeInfoAlter){
-            // console.log(birthDate.format("YYYY-MM-DD"));
             const birthDateStr = birthDate.format("YYYY-MM-DD");
             setEmployeeInfoAlter({...employeeInfoAlter, birthDate: birthDateStr})
         }
@@ -85,7 +82,6 @@ export default function EmployeeInformationComponent(){
         if(employeeInfoAlter){
             const name = event.target.name;
             const value = event.target.value;
-            // console.log(`name: ${name}, value:${value}`)
             setEmployeeInfoAlter({...employeeInfoAlter, [name]:value})
         }
     }
@@ -112,8 +108,6 @@ export default function EmployeeInformationComponent(){
                 // console.log(employeeInfo)
                 const employee = {
                     employeeID: employeeInfoAlter.employeeID,
-                    firstName: employeeInfoAlter.firstName || employeeInfo.firstName,
-                    lastName: employeeInfoAlter.lastName || employeeInfo.lastName,
                     birthDate: employeeInfoAlter.birthDate || null,
                     phone: employeeInfoAlter.phone || null,
                     address: employeeInfoAlter.address || null,
@@ -180,9 +174,8 @@ export default function EmployeeInformationComponent(){
                                         <div className="col-md-3 mb-3">
                                             <label  htmlFor="first-name-employee">First Name</label>
                                             <input type="text" className="form-control" id="first-name-employee" 
-                                                placeholder="First Name" value={employeeInfoAlter.firstName} required
-                                                onChange={onChangeEmployeeInfo} disabled={editable}
-                                                name="firstName"/>
+                                                placeholder="First Name" value={employeeInfoAlter.firstName}
+                                                readOnly name="firstName"/>
                                             <div className="valid-feedback">
                                                 Looks good!
                                             </div>
@@ -190,8 +183,8 @@ export default function EmployeeInformationComponent(){
                                         <div className="col-md-3 mb-3">
                                             <label  htmlFor="last-name-employee">Last Name</label>
                                             <input type="text" className="form-control" id="last-name-employee" 
-                                                placeholder="Last Name" required value={employeeInfoAlter.lastName} 
-                                                onChange={onChangeEmployeeInfo} disabled={editable} name="lastName"/>
+                                                placeholder="Last Name" readOnly value={employeeInfoAlter.lastName} 
+                                                name="lastName"/>
                                             <div className="invalid-feedback">
                                                 Looks good!
                                             </div>

@@ -15,7 +15,7 @@ public interface UserProfileService {
     @Cacheable(value = "userinfo", key = "#profileID")
     public UserProfile getUserProfileByID(String profileID) throws UserNotFoundException;
 
-    public UserAuthentication getUserAuthentication(Authentication authentication);
+    public UserAuthentication getUserAuthentication(Authentication authentication) throws UserNotFoundException;
 
     public String getUsername(Authentication authentication);
     public String getUserID(Authentication authentication);

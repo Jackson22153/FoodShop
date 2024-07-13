@@ -5,6 +5,9 @@ public class MessageQueueConstant {
     public final static String ORDER_EXCHANGE = "orderservice";
     // shop exchange
     public final static String SHOP_EXCHANGE = "shopservice";
+    // keycloak api exchange
+    public final static String KEYCLOAK_API_EXCHANGE = "keycloakapiservice";
+    public final static String KEYCLOAK_API_ROUTING_KEY = "keycloakapiqueue";
     // notification exchange
     public final static String NOTIFICATION_EXCHANGE = "notificationservice";
     // order routing key

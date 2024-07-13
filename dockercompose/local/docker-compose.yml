@@ -8,6 +8,8 @@ services:
       - 1431:1433
     stdin_open: true 
     tty: true 
+    volumes:
+      - D:\thuchanh\sts\docker-storage\sqlserver:/var/opt/mssql/data
     networks:
       - phucx
 
@@ -107,14 +109,34 @@ services:
   #   networks:
   #     - phucx
 
+
+  keycloakrestapi:
+    image: phucxkeycloakrestapi:1.0.0
+    ports:
+      - 8085:8085
+    container_name: keycloakrestapi
+    depends_on:
+      - rabbitmq
+      - keycloak
+    restart: unless-stopped
+    environment:
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_PASSWORD=123
+      - KEYCLOAK_CLIENT_ID=803e434f-c3a8-436f-a200-8b959476efdc
+      - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
+      - RABBITMQ_HOST=rabbitmq
+    networks:
+      - phucx
+
   shop:
     image: shop:1.0.0
     ports:
       - 8081:8081
     container_name: shop
     volumes:
-      - D:\thuchanh\sts\image\product:/usr/src/app/image/product
-      - D:\thuchanh\sts\image\category:/usr/src/app/image/category
+      - D:\thuchanh\sts\docker-storage\image\product:/usr/src/app/image/product
+      - D:\thuchanh\sts\docker-storage\image\category:/usr/src/app/image/category
     depends_on:
       - sql
       - rabbitmq
@@ -142,8 +164,8 @@ services:
       - 8082:8082
     container_name: account
     volumes:
-      - D:\thuchanh\sts\image\customer:/usr/src/app/image/customer
-      - D:\thuchanh\sts\image\employee:/usr/src/app/image/employee
+      - D:\thuchanh\sts\docker-storage\image\customer:/usr/src/app/image/customer
+      - D:\thuchanh\sts\docker-storage\image\employee:/usr/src/app/image/employee
     depends_on:
       - sql
       - rabbitmq
@@ -240,8 +262,11 @@ services:
       - ACCOUNT_URL=http://account:8082 
       - ORDER_URL=http://order:8083
       - NOTIFICATION_URL=http://notification:8084
+      - AUTHORIZATION_URL=http://keycloakrestapi:8085
       - REDIRECT_UI=http://localhost:5173
       - ALLOWED_ORIGIN=http://localhost:5173
+      - KEYCLOAK_USER_URL=http://localhost:8080/realms/master/account/
+      - KEYCLOAK_ADMIN_URL=http://localhost:8080/admin/master/console/
     networks:
       - phucx
 

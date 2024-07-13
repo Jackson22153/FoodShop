@@ -24,7 +24,6 @@ export default function AdminFoodsComponent(){
         const response = await getProducts(pageNumber);
         if(200<=response.status && response.status<300){
             const data = response.data;
-            console.log(data)
             setFoodlist(data.content);
             setPageable({
                 first: data.first,
@@ -43,12 +42,11 @@ export default function AdminFoodsComponent(){
         fetchFoods(pageNumber)
     }
 
-
     return(
         <div className="container-fluid container">
             <div className="row">
 
-                <section className="foods-section layout_padding ">
+                <section className="foods-section">
                     <div className="container">
                         <h2 className="custom_heading">Foods</h2>
                         <p className="custom_heading-text">

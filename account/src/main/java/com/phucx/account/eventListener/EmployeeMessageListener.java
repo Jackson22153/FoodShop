@@ -1,5 +1,6 @@
 package com.phucx.account.eventListener;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
@@ -64,6 +65,13 @@ public class EmployeeMessageListener {
                 // set response message
                 responseMessage.setPayload(fetchedUser);
                 responseMessage.setEventType(EventType.ReturnUserByEmployeeID);
+            }else if(employeeDTO.getEventType().equals(EventType.GetEmployeesByUserIDs)){
+                // get user by employeeID
+                List<String> employeeIDs = payload.getUserIDs();
+                List<EmployeeDetail> fetchedEmployees = employeeService.getEmployees(employeeIDs);
+                // set response message
+                responseMessage.setPayload(fetchedEmployees);
+                responseMessage.setEventType(EventType.ReturnEmployeesByUserIDs);
             }
             String response = objectMapper.writeValueAsString(responseMessage);
             return response;

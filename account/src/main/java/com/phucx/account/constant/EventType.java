@@ -2,7 +2,20 @@ package com.phucx.account.constant;
 
 public enum EventType {
 
+    CreateCustomerDetail,
+    ReturnCreateCustomerDetail,
+
+    CreateEmployeeDetail,
+    ReturnCreateEmployeeDetail,
+
     NotFoundException,
+    // get users from authorization server by userID
+    GetUsersByUserID,
+    ReturnGetUsersByUserID,
+
+    // add new user
+    AddNewUser,
+    ReturnAddNewuser,
 
     // notification
     SendCustomerNotificationToUser,
@@ -11,9 +24,19 @@ public enum EventType {
     GetCustomerByUserID,
     GetCustomerByID,
     GetCustomersByIDs,
+
+
+    GetCustomersByUserIDs,
+    ReturnCustomersByUserIDs,
+
     // employee
     GetEmployeeByID,
     GetEmployeeByUserID,
+
+
+    GetEmployeesByUserIDs,
+    ReturnEmployeesByUserIDs,
+
     // shipper
     GetShipperByID,
     // user

@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { EmployeeAccount, Pageable } from "../../../../model/Type";
-import PaginationSection from "../../website/sections/paginationSection/PaginationSection";
+import { UserAccount, Pageable } from "../../../../model/Type";
+import { displayUserImage } from "../../../../service/Image";
 
 interface Props{
-    employees: EmployeeAccount[],
+    employees: UserAccount[],
     pageable: Pageable,
     path: string
 }
@@ -13,38 +13,61 @@ export default function EmployeeTable(prop: Props){
     const path = prop.path;
 
     return(
-        <table className="table table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col" className="text-align-center">#</th>
-                    <th scope="col">EmployeeID</th>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Last Name</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                {employees.map((employee, index)=>(
-                    <tr key={index}>
-                        <th scope="row" className="text-align-center">{index+1}</th>
-                        <td>
-                            <Link to={`${path}/${employee.employeeID}`}>{employee.employeeID}</Link>
-                        </td>
-                        <td>{employee.firstName}</td>
-                        <td>{employee.lastName}</td>
-                        <td>{employee.username}</td>
-                        <td>{employee.email}</td>
-                    </tr>
-                ))}
-                <tr>
-                    <td colSpan={6}>
-                        <div className='py-3'>
-                            <PaginationSection pageable={pageable}/>
+        <div className="container bootstrap snippets bootdey border">
+            <div className="row">
+                <div className="col-lg-12">
+                    <div className="main-box no-header clearfix">
+                        <div className="main-box-body clearfix">
+                            <div className="table-responsive">
+                                <table className="table user-list">
+                                    <thead>
+                                        <tr>
+                                        <th><span>User</span></th>
+                                        <th><span>Created</span></th>
+                                        <th className="text-center"><span>Status</span></th>
+                                        <th><span>Email</span></th>
+                                        <th><span>First Name</span></th>
+                                        <th><span>Last Name</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {employees.map((employee)=>(
+                                            <tr key={employee.userID}>
+                                                <td>
+                                                    <img src={displayUserImage(employee.picture)} alt=""/>
+                                                    <Link to={`${path}/${employee.userID}`} className="user-link">
+                                                        {employee.username}
+                                                    </Link>
+                                                    <span className="user-subhead">employee</span>
+                                                </td>
+                                                <td>2013/08/12</td>
+                                                <td className="text-center">
+                                                    <span className="label label-default">pending</span>
+                                                </td>
+                                                <td>
+                                                    <Link to={`${path}/${employee.userID}`}>
+                                                        {employee.email}
+                                                    </Link>
+                                                </td>
+                                                <td>
+                                                    <Link to={`${path}/${employee.userID}`}>
+                                                        {employee.firstName}
+                                                    </Link>
+                                                </td>
+                                                <td>
+                                                    <Link to={`${path}/${employee.userID}`}>
+                                                        {employee.lastName}
+                                                    </Link>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     )
 }

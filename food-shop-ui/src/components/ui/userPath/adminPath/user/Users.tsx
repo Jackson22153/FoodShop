@@ -1,21 +1,20 @@
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
 import { getCustomers, getCustomersBySearchParam, getEmployees, 
-    getEmployeesBySearchParam, getUsers, getUsersBySearchParam 
-} from '../../../../../api/AdminApi';
+    getEmployeesBySearchParam} from '../../../../../api/AdminApi';
 import { getPageNumber } from '../../../../../service/Pageable';
-import { CustomerAccount, EmployeeAccount, Pageable, UserRole } from '../../../../../model/Type';
-import UserTable from '../../../../shared/functions/table/UserTable';
+import { UserAccount, Pageable } from '../../../../../model/Type';
 import EmployeeTable from '../../../../shared/functions/table/EmployeeTable';
 import CustomerTable from '../../../../shared/functions/table/CustomerTable';
-import { ADMIN_CUSTOMER, ADMIN_EMPLOYEE } from '../../../../../constant/FoodShoppingURL';
+import { ADMIN_CUSTOMER, ADMIN_EMPLOYEE, ADMIN_USERS } from '../../../../../constant/FoodShoppingURL';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function AdminUsersComponent(){
-    const USER = "User";
     const CUSTOMER = "Customer";
     const EMPLOYEE = "Employee";
-    const [customers, setCustomers] = useState<CustomerAccount[]>([]);
-    const [employees, setEmployees] = useState<EmployeeAccount[]>([])
-    const [users, setUsers] = useState<UserRole[]>([])
+    const [searchParam] = useSearchParams();
+    const type = searchParam.get('type')!=null?searchParam.get('type'):CUSTOMER
+    const [users, setUsers] = useState<UserAccount[]>([])
+    const navigate = useNavigate()
     const [pageable, setPageable] = useState<Pageable>({
         first: true,
         last: true,
@@ -31,19 +30,29 @@ export default function AdminUsersComponent(){
 
     useEffect(()=>{
         initial();
-    }, [pageNumber])
+    }, [pageNumber, type, searchParamArgs[0]])
 
     const initial = ()=>{
+        switch (type.toLowerCase()) {
+            case CUSTOMER.toLocaleLowerCase():
+                fetchCustomers(pageNumber);
+                break;
+            case EMPLOYEE.toLowerCase():
+                fetchEmployees(pageNumber);
+                break;
+            default:
+                break;
+        }
+
         document.addEventListener('click', onClickOutside)
-        fetchCustomers(pageNumber);
+
     }
     // fetch data
     const fetchCustomers = async (pageNumber: number)=>{
         const res = await getCustomers(pageNumber);
         if(res.status){
             const data = res.data;
-            console.log(data)
-            setCustomers(data.content);
+            setUsers(data);
             setPageable({
                 first: data.first,
                 last: data.last,
@@ -56,7 +65,7 @@ export default function AdminUsersComponent(){
         const res = await getEmployees(pageNumber);
         if(res.status){
             const data = res.data;
-            setEmployees(data.content);
+            setUsers(data);
             setPageable({
                 first: data.first,
                 last: data.last,
@@ -66,24 +75,11 @@ export default function AdminUsersComponent(){
         }
     }
 
-    const fetchSearchUsers = async (pageNumber: number, searchParam: string, searchValue: string)=>{
-        const res = await getUsersBySearchParam(pageNumber, searchParam, searchValue);
-        if(res.status){
-            const data = res.data;
-            setUsers(data.content);
-            setPageable({
-                first: data.first,
-                last: data.last,
-                number: data.number,
-                totalPages: data.totalPages
-            });
-        }
-    }
     const fetchSearchCustomers = async (pageNumber: number, searchParam: string, searchValue: string)=>{
         const res = await getCustomersBySearchParam(pageNumber, searchParam, searchValue);
         if(res.status){
             const data = res.data;
-            setCustomers(data.content);
+            setUsers(data);
             setPageable({
                 first: data.first,
                 last: data.last,
@@ -96,7 +92,7 @@ export default function AdminUsersComponent(){
         const res = await getEmployeesBySearchParam(pageNumber, searchParam, searchValue);
         if(res.status){
             const data = res.data;
-            setEmployees(data.content);
+            setUsers(data);
             setPageable({
                 first: data.first,
                 last: data.last,
@@ -115,46 +111,35 @@ export default function AdminUsersComponent(){
     const onClickSearchDropown = ()=>{
         setSearchDropdown(searchDropDown => !searchDropDown);
     }
-    const onClickSelectUserTab = (tab: number)=>{
-        const pageNumber = getPageNumber();
-        setSelectedUserTab(tab)
-        switch(tab){
-            case 0: {
-                fetchCustomers(pageNumber);
-                break;
-            }
-            case 1: {
-                fetchEmployees(pageNumber);
-                break;
-            }
-            case 2:{
-
-                break;
-            }
-        }
-    }
 
     // search purpose
     // pass attribute arguments from left to right
     const onClickSelectAttribute = ([...args])=>{
-        // setSelectedUserGroup(args[0]);
         setSearchParamArgs(args)
         setSearchDropdown(false)
-    }
+        // navigate to appropriate tab
+        switch (args[0].toLowerCase()) {
+            case CUSTOMER.toLowerCase():
+                navigate(`${ADMIN_USERS}?type=${CUSTOMER.toLowerCase()}`)
+                break;
+            case EMPLOYEE.toLowerCase():
+                navigate(`${ADMIN_USERS}?type=${EMPLOYEE.toLowerCase()}`)
+                break;
+            default:
+                break;
+        }
 
+    }
+    
     const onKeyUpSearch = ()=>{
         const searchParam = searchParamArgs[1].charAt(0).toLowerCase() + searchParamArgs[1].slice(1);
         switch (searchParamArgs[0]){
-            case USER:{
-                fetchSearchUsers(pageable.number, searchParam, searchValue);
-                break;
-            }
             case CUSTOMER:{
-                fetchSearchCustomers(pageable.number, searchParam, searchValue);
+                fetchSearchCustomers(0, searchParam, searchValue);
                 break;
             }
             case EMPLOYEE:{
-                fetchSearchEmployees(pageable.number, searchParam, searchValue);
+                fetchSearchEmployees(0, searchParam, searchValue);
                 break;
             }
         }
@@ -166,109 +151,83 @@ export default function AdminUsersComponent(){
     }
 
     return(
-        <>
-            <div className="container mb-5">
-                <nav className="navbar navbar-expand-lg navbar-light p-0">
-                    <ul className="navbar-nav mb-2 mb-lg-0 h-100 w-100 nav-fill">
-                        {/* <li onClick={(_e)=>onClickSelectUserTab(0)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===0?'bg-white':'bg-light'}`}>
-                            <span className="nav-link active" aria-current="page">All Users</span>
-                        </li> */}
-                        <li onClick={(_e)=>onClickSelectUserTab(0)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===0?'bg-white':'bg-light'}`}>
+        <div className="container mb-5">
+            <nav className="navbar navbar-expand-lg navbar-light p-0">
+                <ul className="navbar-nav mb-2 mb-lg-0 h-100 w-100 nav-fill">
+                    <li className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${type.toLocaleLowerCase()===CUSTOMER.toLocaleLowerCase()?'bg-white':'bg-light'}`}>
+                        <Link to={`${ADMIN_USERS}?type=${CUSTOMER.toLocaleLowerCase()}`} className='w-100 h-100 d-flex align-items-center'>
                             <span className="nav-link" aria-current="page">Customers</span>
-                        </li>
-                        <li onClick={(_e)=>onClickSelectUserTab(1)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===1?'bg-white':'bg-light'}`}>
+                        </Link>
+                    </li>
+                    <li className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${type.toLocaleLowerCase()===EMPLOYEE.toLocaleLowerCase()?'bg-white':'bg-light'}`}>
+                        <Link to={`${ADMIN_USERS}?type=${EMPLOYEE.toLocaleLowerCase()}`} className='w-100 h-100 d-flex align-items-center'>
                             <span className="nav-link">Employees</span>
-                        </li>
-                        <li onClick={(_e)=>onClickSelectUserTab(2)} className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===2?'bg-white':'bg-light'}`}>
-                            <div className="d-flex mx-auto">
-                                <div className="input-group">
-                                    <div className="input-group-prepend dropdown" ref={filterRef}>
-                                        <button type="button" className="btn btn-outline-secondary rounded-end-0">
-                                            {searchParamArgs.length>0?
-                                                searchParamArgs[1]:
-                                                'Filter'
-                                            }
-                                        </button>
-                                        <button type="button" className="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split rounded-0" 
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded={searchDropDown} onClick={onClickSearchDropown}>
-                                            <span className="sr-only">Toggle Dropdown</span>
-                                        </button>
-                                        <ul className={`dropdown-menu ${searchDropDown?'show':''}`} aria-labelledby="search-filter-users">
-                                            {/* <li>
-                                                <div className="btn-group dropright w-100 user-dropdown">
-                                                    <span className="dropdown-item">
-                                                        User
-                                                    </span>
-                                                    <div className="dropdown-menu user-dropdown-menu">
-                                                        <button type="button" className='dropdown-item' 
-                                                            onClick={(_e)=>onClickSelectAttribute([USER, 'UserID'])}>UserID</button>
-                                                        <button type="button" className='dropdown-item'
-                                                            onClick={(_e)=>onClickSelectAttribute([USER, 'Username'])}>Username</button>
-                                                        <button type="button" className='dropdown-item'
-                                                            onClick={(_e)=>onClickSelectAttribute([USER, 'Email'])}>Email</button>
-                                                        <button type="button" className='dropdown-item'
-                                                            onClick={(_e)=>onClickSelectAttribute([USER, 'RoleName'])}>Role Name</button>
-                                                    </div>
+                        </Link>
+                    </li>
+                    <li className={`nav-item border border-bottom-0 d-flex align-items-center cursor-pointer ${selectedUserTab===2?'bg-white':'bg-light'}`}>
+                        <div className="d-flex mx-auto">
+                            <div className="input-group">
+                                <div className="input-group-prepend dropdown" ref={filterRef}>
+                                    <button type="button" className="btn btn-outline-secondary rounded-end-0">
+                                        {searchParamArgs.length>0?
+                                            searchParamArgs[1]:
+                                            'Filter'
+                                        }
+                                    </button>
+                                    <button type="button" className="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split rounded-0" 
+                                        data-toggle="dropdown" aria-haspopup={searchDropDown} aria-expanded={searchDropDown} onClick={onClickSearchDropown}>
+                                        <span className="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                    <ul className={`dropdown-menu ${searchDropDown?'show':''}`} aria-labelledby="search-filter-users">
+                                        <li>
+                                            <div className="btn-group dropright w-100 user-dropdown">
+                                                <Link to={`${ADMIN_USERS}?type=${CUSTOMER.toLowerCase()}`} className='dropdown-item'>
+                                                    Customer
+                                                </Link>
+                                                <div className="dropdown-menu user-dropdown-menu">
+                                                    <button type="button" className='dropdown-item'
+                                                        onClick={(_e)=>onClickSelectAttribute([CUSTOMER, 'Username'])}>Username</button>
+                                                    <button type="button" className='dropdown-item'
+                                                        onClick={(_e)=>onClickSelectAttribute([CUSTOMER, 'FirstName'])}>First Name</button>
+                                                    <button type="button" className='dropdown-item'
+                                                        onClick={(_e)=>onClickSelectAttribute([CUSTOMER, 'LastName'])}>Last Name</button>
+                                                    <button type="button" className='dropdown-item'
+                                                        onClick={(_e)=>onClickSelectAttribute([CUSTOMER, 'Email'])}>Email</button>
                                                 </div>
-                                            </li> */}
-                                            <li>
-                                                <div className="btn-group dropright w-100 user-dropdown">
-                                                    <span className="dropdown-item">
-                                                        Customer
-                                                    </span>
-                                                    <div className="dropdown-menu user-dropdown-menu">
-                                                        <button type="button" className='dropdown-item'
-                                                            onClick={(_e)=>onClickSelectAttribute([CUSTOMER, 'CustomerID'])}>CustomerID</button>
-                                                        <button type="button" className='dropdown-item'
-                                                            onClick={(_e)=>onClickSelectAttribute([CUSTOMER, 'ContactName'])}>Contact Name</button>
-                                                        <button type="button" className='dropdown-item'
-                                                            onClick={(_e)=>onClickSelectAttribute([CUSTOMER, 'Username'])}>Username</button>
-                                                        <button type="button" className='dropdown-item'
-                                                            onClick={(_e)=>onClickSelectAttribute([CUSTOMER, 'Email'])}>Email</button>
-                                                    </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div className="btn-group dropright w-100 user-dropdown">
+                                                <Link to={`${ADMIN_USERS}?type=${EMPLOYEE.toLowerCase()}`} className='dropdown-item'>
+                                                    Employee
+                                                </Link>
+                                                <div className="dropdown-menu user-dropdown-menu">
+                                                    <button type="button" className='dropdown-item'
+                                                        onClick={(_e)=>onClickSelectAttribute([EMPLOYEE, 'Username'])}>Username</button>
+                                                    <button type="button" className='dropdown-item'
+                                                        onClick={(_e)=>onClickSelectAttribute([EMPLOYEE, 'FirstName'])}>First Name</button>
+                                                    <button type="button" className='dropdown-item'
+                                                        onClick={(_e)=>onClickSelectAttribute([EMPLOYEE, 'LastName'])}>Last Name</button>
+                                                    <button type="button" className='dropdown-item'
+                                                        onClick={(_e)=>onClickSelectAttribute([EMPLOYEE, 'Email'])}>Email</button>
                                                 </div>
-                                            </li>
-                                            <li>
-                                                <div className="btn-group dropright w-100 user-dropdown">
-                                                    <span className="dropdown-item">
-                                                        Employee
-                                                    </span>
-                                                    <div className="dropdown-menu user-dropdown-menu">
-                                                        <button type="button" className='dropdown-item'
-                                                            onClick={(_e)=>onClickSelectAttribute([EMPLOYEE, 'EmployeeID'])}>EmployeeID</button>
-                                                        <button type="button" className='dropdown-item'
-                                                            onClick={(_e)=>onClickSelectAttribute([EMPLOYEE, 'FirstName'])}>First Name</button>
-                                                        <button type="button" className='dropdown-item'
-                                                            onClick={(_e)=>onClickSelectAttribute([EMPLOYEE, 'LastName'])}>Last Name</button>
-                                                        <button type="button" className='dropdown-item'
-                                                            onClick={(_e)=>onClickSelectAttribute([EMPLOYEE, 'Email'])}>Email</button>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <input type="text" className="form-control" onKeyUp={onKeyUpSearch} 
-                                        onChange={onChangeSearchValue} value={searchValue}/>
+                                            </div>
+                                        </li>
+                                    </ul>
                                 </div>
+                                <input type="text" className="form-control" onKeyUp={onKeyUpSearch} 
+                                    onChange={onChangeSearchValue} value={searchValue}/>
                             </div>
-                        </li>
-                    </ul>
-                </nav>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
 
-                {selectedUserTab===0?
-                    <CustomerTable path={ADMIN_CUSTOMER} customers={customers} pageable={pageable}/>:
-                selectedUserTab===1?                        
-                    <EmployeeTable path={ADMIN_EMPLOYEE} employees={employees} pageable={pageable}/>: 
-                selectedUserTab===2&&                       
-                    searchParamArgs[0]===CUSTOMER?
-                    <CustomerTable path={ADMIN_CUSTOMER} customers={customers} pageable={pageable}/>:
-                    searchParamArgs[0]===EMPLOYEE?
-                    <EmployeeTable path={ADMIN_EMPLOYEE} employees={employees} pageable={pageable}/>:
-                    <div className='border bg-white empty-table'>
-    
-                    </div>
-                }
-            </div>
-        </>
+            {type.toLocaleLowerCase()==CUSTOMER.toLocaleLowerCase() || searchParamArgs[0]===CUSTOMER?
+                <CustomerTable path={ADMIN_CUSTOMER} customers={users} pageable={pageable}/>:
+            (type.toLocaleLowerCase()==EMPLOYEE.toLocaleLowerCase() || searchParamArgs[0]===EMPLOYEE) &&             
+                <EmployeeTable path={ADMIN_EMPLOYEE} employees={users} pageable={pageable}/>
+            }   
+        </div>
     );
 }

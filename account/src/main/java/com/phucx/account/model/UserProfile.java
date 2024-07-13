@@ -18,8 +18,6 @@ import lombok.ToString;
 public class UserProfile implements Serializable{
     @Id
     private String profileID;
-    private String firstName;
-    private String lastName;
     private String address;
     private String city;
     private String phone;

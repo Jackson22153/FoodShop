@@ -6,6 +6,7 @@ import { Modal } from "../../../../model/WebType";
 import ModalComponent from "../modal/Modal";
 import { logout } from "../../../../api/AuthorizationApi";
 import NotificationDropdown from "../notification-dropdown/NotificationDropdown";
+import { Link } from "react-router-dom";
 
 interface Props{
     userInfo: UserInfo
@@ -71,20 +72,27 @@ function UserInfoNav(prop: Props) {
                         <NotificationDropdown roles={roleNames()}/>
                     </li>
                     <li className="nav-item dropdown" onMouseEnter={onClickShowUserDropdown} onMouseLeave={onClickCloseUserDropdown}>
-                        <span className="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" 
-                            data-toggle="dropdown" aria-haspopup='true' aria-expanded={isExpandedUserDropdown} >
+                        <div className="nav-link dropdown-toggle d-flex align-items-center" id="navbarDropdownMenuLink" role="button" 
+                            data-toggle="dropdown" aria-haspopup={isExpandedUserDropdown} 
+                            aria-expanded={isExpandedUserDropdown}>
                             {prop.userInfo.user.username}
-                        </span>
+                        </div>
                         <div id="appheader-user" className={`dropdown-menu ${isExpandedUserDropdown?'show':''}`} 
                             aria-labelledby="navbarDropdownMenuLink">
                             {roleNames().includes(ROLE.CUSTOMER.toLowerCase())&&
-                                <a className="dropdown-item cursor-pointer" href={CUSTOMER_PATH}>Profile</a>
+                                <Link to={CUSTOMER_PATH}>
+                                    <div className="dropdown-item cursor-pointer">Profile</div>
+                                </Link>
                             }
                             {roleNames().includes(ROLE.EMPLOYEE.toLowerCase())&&
-                                <a className="dropdown-item cursor-pointer" href={EMPLOYEE_PATH}>Profile</a>
+                                <Link to={EMPLOYEE_PATH}>
+                                    <div className="dropdown-item cursor-pointer">Profile</div>
+                                </Link>
                             }
                             {roleNames().includes(ROLE.ADMIN.toLowerCase())&&     
-                                <a className="dropdown-item cursor-pointer" href={ADMIN_PATH}>Admin Dashboard</a>
+                                <Link to={ADMIN_PATH}>
+                                    <div className="dropdown-item cursor-pointer">Admin Dashboard</div>
+                                </Link>
                             }
                             <div className="dropdown-divider"></div>
                             <span className="dropdown-item cursor-pointer" onClick={onClickLogout}>Logout</span>

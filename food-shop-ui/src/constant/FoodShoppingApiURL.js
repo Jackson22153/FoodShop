@@ -1,20 +1,21 @@
 
 export const ServerURL = "http://localhost:8060";
 
+
+// authorization url
+export const AuthorizationUserUrl = `${ServerURL}/auth/account`;
+export const AuthorizationAdminUrl = `${ServerURL}/admin/account`;
+
+export const AuthorizationUrl =  `${ServerURL}/auth/admin`;
+export const CustomersAdminUrl = `${AuthorizationUrl}/customers`;
+export const EmployeesAdminUrl = `${AuthorizationUrl}/employees`
 // account service
 const AccountService = `${ServerURL}/account`;
 // admin
 const AdminUrl = `${AccountService}/admin`;
 export const IsAdminUrl = `${AdminUrl}/isAdmin`;
-export const CustomersAdminUrl = `${AdminUrl}/customers`
-export const EmployeesAdminUrl = `${AdminUrl}/employees`
-export const RolesAdminUrl = `${AdminUrl}/roles`
-export const RolesEmployeeAdminUrl = `${RolesAdminUrl}/employee`
-export const UsersAdminUrl = `${AdminUrl}/users`
-export const UsersRolesAdminUrl = `${UsersAdminUrl}/roles`
-export const ResetPasswordAdminUrl = (userID)=>{
-    return `${UsersAdminUrl}/${userID}/password`
-};
+export const AccountAdminEmployee = `${AdminUrl}/employees`
+export const AccountAdminCustomer = `${AdminUrl}/customers`
 // customer
 export const CustomerUrl = `${AccountService}/customer`;
 export const IsCustomerUrl = `${CustomerUrl}/isCustomer`;

@@ -65,6 +65,13 @@ public class CustomerMessageListener {
                 // set response message
                 responseMessage.setPayload(fetchedCustomer);
                 responseMessage.setEventType(EventType.ReturnCustomerByUserID);
+            }else if(customerDTO.getEventType().equals(EventType.GetCustomersByUserIDs)){
+                // get customers by userIDs
+                List<String> userIDs = payload.getUserIDs();
+                List<CustomerDetail> fetchedCustomers = customerService.getCustomersByUserIDs(userIDs);
+                // set response message
+                responseMessage.setPayload(fetchedCustomers);
+                responseMessage.setEventType(EventType.ReturnCustomersByUserIDs);
             }else if(customerDTO.getEventType().equals(EventType.GetUserByCustomerID)){
                 // get user by customerID
                 String customerID = payload.getCustomerID();

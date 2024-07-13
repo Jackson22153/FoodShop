@@ -1,10 +1,10 @@
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useRef, useState } from 'react';
 import { logout } from '../../../../../api/AuthorizationApi';
 import { ADMIN_CATEGORIES, ADMIN_USERS, ADMIN_PRODUCTS, 
-    ADMIN_ADD_USER, ADMIN_ADD_CATEGORY, ADMIN_ADD_PRODUCT,
+    ADMIN_ADD_CATEGORY, ADMIN_ADD_PRODUCT,
     FORBIDDEN_ERROR_PAGE
  } from '../../../../../constant/FoodShoppingURL';
 import AdminCategoriesComponent from '../category/Categories';
@@ -16,10 +16,10 @@ import AdminEmployeeComponent from '../user/Employee';
 import AdminCustomerComponent from '../user/Customer';
 import { Modal } from '../../../../../model/WebType';
 import ModalComponent from '../../../../shared/functions/modal/Modal';
-import AdminAddUserComponent from '../user/AddUser';
 import { isAdmin } from '../../../../../api/AdminApi';
 import AdminAddCategoryComponent from '../category/AddNewCategory';
 import AdminAddFoodComponent from '../food/AddFood';
+import { AuthorizationAdminUrl } from '../../../../../constant/FoodShoppingApiURL';
 
 export default function AdminComponent(){
     const sidebarRef = useRef(null)
@@ -27,7 +27,7 @@ export default function AdminComponent(){
     const location = useLocation()
     const navigate = useNavigate()
     const path = location.pathname.toLowerCase();
-    const [userDropdown, setUserDropdown] = useState(false)
+
     const [categoryDropdown, setCategoryDropdown] = useState(false)
     const [productDropdown, setProductDropdown] = useState(false)
     const [isShowedSideBar, setIsShowedSideBar] = useState(false)
@@ -44,6 +44,7 @@ export default function AdminComponent(){
     }, [path])
 
     const initial = ()=>{
+        setDefaultDropdown();
         checkAuthenticationAdmin();
 
         if(path==ADMIN_CATEGORIES){
@@ -55,13 +56,16 @@ export default function AdminComponent(){
         }else if(path===ADMIN_ADD_PRODUCT){
             setSelectedPath(1.2);
         }else if(path===ADMIN_USERS){
-            setSelectedPath(2.1);
-        }else if(path===ADMIN_ADD_USER){
-            setSelectedPath(2.2)
+            setSelectedPath(2);
         }
 
         // add event to close sidebar when clicking on outside
         document.addEventListener("click", onClickOutSideSideBar)
+    }
+
+    const setDefaultDropdown = ()=>{
+        setCategoryDropdown(false);
+        setProductDropdown(false);
     }
 
     // on click outside sidebar
@@ -102,10 +106,7 @@ export default function AdminComponent(){
 
     
     const onClickShowSideBar = ()=>{
-        if(sidebarRef.current){
-            const sidebarEle = sidebarRef.current as HTMLDivElement;
-            sidebarEle.classList.toggle('show-side-bar')
-        }
+        setIsShowedSideBar(status => !status)
     }
     // logout modal
     async function onClickLogoutButton(){
@@ -131,10 +132,6 @@ export default function AdminComponent(){
         }
     }
 
-    // user
-    const onClickUserToggle = ()=>{
-        setUserDropdown(dropdown => !dropdown)
-    }
     // category
     const onClickCategoryToggle = ()=>{
         setCategoryDropdown(dropdown => !dropdown)
@@ -162,15 +159,18 @@ export default function AdminComponent(){
                                 <li className="list nav-item">
                                     <span className={`${categoryDropdown?'rounded-bottom-0':''} m-0 dropdown-toggle nav-link ${(selectedPath===0.1)||(selectedPath===0.2)?'active': ''}`}
                                         onClick={onClickCategoryToggle}>
-                                        <i className="bx bx-bar-chart-alt-2 icon"></i>
                                         <span className="link cursor-pointer">Categories</span>
                                     </span>
                                     <ul className={`rounded-top-0 p-0 dropdown-menu ${categoryDropdown?'show': ''} position-relative btn-toggle-nav list-unstyled fw-normal small`}>
                                         <li className={`p-0 dropdown-item ${selectedPath===0.1?'bg-body-secondary':''}`}>
-                                            <a className={`text-black-50 w-100 d-block px-3 py-2`} href={ADMIN_CATEGORIES}>Category</a>
+                                            <Link to={ADMIN_CATEGORIES}>
+                                                <div className={`text-black-50 w-100 d-block px-3 py-2`}>Category</div>
+                                            </Link>
                                         </li>
                                         <li className={`p-0 dropdown-item ${selectedPath===0.2?'bg-body-secondary':''}`}>
-                                            <a className='text-black-50 w-100 d-block px-3 py-2' href={ADMIN_ADD_CATEGORY}>Add New Category</a>
+                                            <Link to={ADMIN_ADD_CATEGORY}>
+                                                <div className={`text-black-50 w-100 d-block px-3 py-2`}>Add New Category</div>
+                                            </Link>
                                         </li>
                                     </ul>
                                 </li>
@@ -178,49 +178,52 @@ export default function AdminComponent(){
                                 <li className="list nav-item">
                                     <span className={`${productDropdown?'rounded-bottom-0':''} m-0 dropdown-toggle nav-link ${(selectedPath===1.1)||(selectedPath===1.2)?'active': ''}`}
                                         onClick={onClickProductToggle}>
-                                        <i className="bx bx-bar-chart-alt-2 icon"></i>
                                         <span className="link cursor-pointer">Products</span>
                                     </span>
                                     <ul className={`rounded-top-0 p-0 dropdown-menu ${productDropdown?'show': ''} position-relative btn-toggle-nav list-unstyled fw-normal small`}>
                                         <li className={`p-0 dropdown-item ${selectedPath===1.1?'bg-body-secondary':''}`}>
-                                            <a className={`text-black-50 w-100 d-block px-3 py-2`} href={ADMIN_PRODUCTS}>Product</a>
+                                            <Link to={ADMIN_PRODUCTS}>
+                                                <div className={`text-black-50 w-100 d-block px-3 py-2`}>Product</div>
+                                            </Link>
                                         </li>
                                         <li className={`p-0 dropdown-item ${selectedPath===1.2?'bg-body-secondary':''}`}>
-                                            <a className='text-black-50 w-100 d-block px-3 py-2' href={ADMIN_ADD_PRODUCT}>Add New Product</a>
+                                            <Link to={ADMIN_ADD_PRODUCT}>
+                                                <div className={`text-black-50 w-100 d-block px-3 py-2`}>Add New Product</div>
+                                            </Link>
                                         </li>
                                     </ul>
                                 </li>
-                                
+
                                 <li className="list nav-item">
-                                    <span className={`${userDropdown?'rounded-bottom-0':''} m-0 dropdown-toggle nav-link ${(selectedPath===2.1)||(selectedPath===2.2)?'active': ''}`}
-                                        onClick={onClickUserToggle}>
-                                        <i className="bx bx-bar-chart-alt-2 icon"></i>
-                                        <span className="link cursor-pointer">Users</span>
-                                    </span>
-                                    <ul className={`rounded-top-0 p-0 dropdown-menu ${userDropdown?'show': ''} position-relative btn-toggle-nav list-unstyled fw-normal small`}>
-                                        <li className={`p-0 dropdown-item ${selectedPath===2.1?'bg-body-secondary':''}`}>
-                                            <a className={`text-black-50 w-100 d-block px-3 py-2`} href={ADMIN_USERS}>User</a>
-                                        </li>
-                                        <li className={`p-0 dropdown-item ${selectedPath===2.2?'bg-body-secondary':''}`}>
-                                            <a className='text-black-50 w-100 d-block px-3 py-2' href={ADMIN_ADD_USER}>Add New User</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li className="list nav-item">
-                                    <a href="/" className={`nav-link ${selectedPath===3?'active': ''}`}>
-                                        <i className="bx bx-bell icon"></i>
-                                        <span className="link">Home</span>
-                                    </a>
+                                    <Link to={ADMIN_USERS}>
+                                        <div className={`nav-link ${selectedPath===2?'active': ''}`}>
+                                            <span className="link">Users</span>
+                                        </div>
+                                    </Link>
                                 </li>
                             </ul>
+
+                            <ul className='flex-column lists nav nav-pills'>
+                                <li className="list nav-item">
+                                    <a href={AuthorizationAdminUrl} className={`nav-link`}>
+                                        <span className="link">Setting</span>
+                                    </a>
+                                </li>
+                                <li className="list nav-item">
+                                    <Link to={"/"}>
+                                        <div className={`nav-link`}>
+                                            <span className="link">Home</span>
+                                        </div>
+                                    </Link>
+                                </li>
+                            </ul>
+
                             <hr />
                             <ul className="bottom-cotent flex-column lists nav nav-pills">
                                 <li className="list nav-item">
                                     <div className="nav-link" onClick={onClickLogoutButton}>
                                         <span className="link">Logout</span>
                                     </div>
-                                    <ModalComponent modal={modal} handleCloseButton={onClickCloseModal}
-                                        handleConfirmButton={onClickConfirmModal}/>
                                 </li>
                             </ul>
                         </div>
@@ -236,12 +239,13 @@ export default function AdminComponent(){
                         <Route path='*' element={<AdminCategoriesComponent/>}/>
                         <Route path='/categories/:categoryID' element={<AdminCategoryComponent/>}/>
                         <Route path='/users' element={<AdminUsersComponent/>}/> 
-                        <Route path='/users/adduser' element={<AdminAddUserComponent/>}/> 
                         <Route path='/employee/:employeeID' element={<AdminEmployeeComponent/>}/> 
                         <Route path='/customer/:customerID' element={<AdminCustomerComponent/>}/> 
                     </Routes>
                 </div>
             </div>
+            <ModalComponent modal={modal} handleCloseButton={onClickCloseModal}
+                handleConfirmButton={onClickConfirmModal}/>
         </div>
     );
 }

@@ -1,5 +1,7 @@
 package com.phucx.account.controller;
 
+import java.io.IOException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,6 +22,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ControllerAdvice
 public class ExceptionController extends ResponseEntityExceptionHandler{
+
+    @ExceptionHandler(IOException.class)
+    protected ResponseEntity<ResponseFormat> handleIOException(IOException exception){
+        log.error("Error: {}", exception.getMessage());
+        return ResponseEntity.notFound().build();
+    }
 
     @ExceptionHandler(value = InvalidUserException.class)
     protected ResponseEntity<ResponseFormat> handleInvalidUserException(InvalidUserException exception){

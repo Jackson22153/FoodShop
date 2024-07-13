@@ -1,6 +1,6 @@
 import { ChangeEventHandler, MouseEventHandler, useEffect, useRef, useState } from "react";
-import { EmployeeDetail, Role } from "../../../../../model/Type";
-import { assignRoles, getEmployee, getRolesEmployee, resetPassword, updateEmployee } from "../../../../../api/AdminApi";
+import { EmployeeDetail } from "../../../../../model/Type";
+import { getEmployee, updateEmployee } from "../../../../../api/AdminApi";
 import { useParams } from "react-router-dom";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -31,23 +31,10 @@ export default function AdminEmployeeComponent(){
         title: "",
         notes: ""
     });
-    const [employeeRoles, setEmployeeRoles] = useState<Role[]>([]);
-    const [roles, setRoles] = useState<Role[]>([]);
-    const [isRolesDropdownShowed, setIsRolesDropdownShowed] = useState(false);
     const [editable, setEditable] = useState(false);
     const navHeaderRef = useRef(null);
     const [selectedTab, setSelectedTab] = useState(0);
     const [updateInfoModal, setUpdateInfoModal] = useState<Modal>({
-        title: 'Confirm action',
-        message: 'Do you want to continute?',
-        isShowed: false
-    })
-    const [resetPasswordModal, setResetPasswordModal] = useState<Modal>({
-        title: 'Confirm action',
-        message: 'Do you want to continute?',
-        isShowed: false
-    })
-    const [assignRolesModal, setAssignRolesModal] = useState<Modal>({
         title: 'Confirm action',
         message: 'Do you want to continute?',
         isShowed: false
@@ -58,17 +45,13 @@ export default function AdminEmployeeComponent(){
         isShowed: false
     })
 
-    const roleDropDownRef = useRef<HTMLDivElement>(null);
-
     useEffect(()=>{
         initial();
     }, [])
 
     const initial = ()=>{
-        document.addEventListener('click', onClickCloseRoleDropdownOutsideRange)
         if(employeeID){
             fetchEmployee(employeeID);
-            fetchRoles(0);
         }
     }
 
@@ -76,7 +59,6 @@ export default function AdminEmployeeComponent(){
         const res = await getEmployee(employeeID);
         if(res.status){
             const data = res.data;
-            // console.log(data)
             setEmployeeInfo({
                 employeeID: data.employeeID,
                 userID: data.userID,
@@ -94,14 +76,6 @@ export default function AdminEmployeeComponent(){
                 title: data.title,
 
             });
-            setEmployeeRoles(data.userInfo.roles || [])
-        }
-    }
-    const fetchRoles = async (pageNumber:number)=>{
-        const res = await getRolesEmployee(pageNumber);
-        if(res.status){
-            const data = res.data;
-            setRoles(data.content);
         }
     }
 
@@ -131,40 +105,7 @@ export default function AdminEmployeeComponent(){
     const onClickSelectTab= (tab:number)=>{
         setSelectedTab(tab);
     }
-    // reset modal
-    const onClickResetPassword = ()=>{
-        setResetPasswordModal(modal =>({...modal, isShowed:!modal.isShowed}))
-    }
-    const onClickCloseModal = ()=>{
-        setResetPasswordModal({...resetPasswordModal, isShowed:false})
-    }
-    const onClickConfirmResetPassModal = async ()=>{
-        try {
-            const userID = employeeInfo?.userID;
-            const res = await resetPassword(userID);
-            if(res.status){
-                const data = res.data
-                const status = data.status
-                setAlert({
-                    message: status?"Password has been reset successfully":"Password can not be reset",
-                    type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
-                    isShowed: true
-                })   
-            }
-        } 
-        catch (error) {
-            setAlert({
-                message: "Password can not be reset",
-                type: ALERT_TYPE.DANGER,
-                isShowed: true
-            }) 
-        }
-        finally{
-            setTimeout(()=>{
-                setAlert({...alert, isShowed: false});
-            }, ALERT_TIMEOUT)
-        }
-    }
+
     // update info modal
     const toggleUpdateInfoModal = ()=>{
         setUpdateInfoModal(modal => ({...modal, isShowed:!modal.isShowed}))
@@ -179,8 +120,19 @@ export default function AdminEmployeeComponent(){
     const onClickConfirmUpdateInfoModal = async ()=>{
         try {
             if(employeeInfo){
-                console.log(employeeInfo)
-                const res = await updateEmployee(employeeInfo);
+                const updateEmployeeData = {
+                    employeeID: employeeInfo.employeeID,
+                    userID: employeeInfo.userID,
+                    birthDate: employeeInfo.birthDate,
+                    hireDate: employeeInfo.hireDate,
+                    phone: employeeInfo.phone,
+                    picture: employeeInfo.picture,
+                    title: employeeInfo.title,
+                    address: employeeInfo.address,
+                    city: employeeInfo.city,
+                    notes: employeeInfo.notes
+                }
+                const res = await updateEmployee(updateEmployeeData);
                 if(res.status){
                     const data = res.data
                     const status = data.status
@@ -203,88 +155,6 @@ export default function AdminEmployeeComponent(){
             }, ALERT_TIMEOUT)
         }
     }
-
-    // change role employee
-    const toggleRoleDropdown = ()=>{
-        setIsRolesDropdownShowed(isShowed => !isShowed);
-    }
-
-    const onClickRoleDropdown = ()=>{
-        toggleRoleDropdown();
-    }
-
-    const onClickCloseRoleDropdownOutsideRange = (event:any)=>{
-        if(roleDropDownRef.current && !roleDropDownRef.current.contains(event.target as Node)){
-            setIsRolesDropdownShowed(false);
-        }
-    }
-
-    const onChangeSelectCheckBox:ChangeEventHandler<HTMLInputElement> = (event)=>{
-        const roleID = +event.target.value;
-        const isChecked = event.target.checked;
-        const index = roles.findIndex((role)=> role.roleID===roleID);
-        if(index>=0){
-            const role = roles[index];
-            if(isChecked){
-                // add new role
-                setEmployeeRoles([...employeeRoles, role]);
-            }else{
-                if(employeeRoles.length>1){
-                    // remove role
-                    var newRoles = [] as Role[];
-                    for(var tempRole of employeeRoles){
-                        if(tempRole.roleID!==roleID){
-                            newRoles.push(tempRole);
-                        }
-                    }
-                    setEmployeeRoles(newRoles);
-                }
-            }
-        }
-    }
-    // assign modal
-    const toggleAssignRolesModal = ()=>{
-        setAssignRolesModal(modal => ({...modal, isShowed:!modal.isShowed}))
-    }
-    const onClickAssignRolesModal:MouseEventHandler<HTMLButtonElement> = (event)=>{
-        event.preventDefault();
-        toggleAssignRolesModal();
-    }
-    const onClickCloseAssignRolesModal = ()=>{
-        toggleAssignRolesModal();
-    }
-    // const onClickConfirmAssignRolesModal = async ()=>{
-    //     try {
-    //         if(employeeRoles && employeeInfo){
-    //             // console.log(employeeRoles)
-    //             const data = {
-    //                 user: employeeInfo.userInfo.user,
-    //                 roles: employeeRoles
-    //             }
-    //             const res = await assignRoles(data);
-    //             if(res.status){
-    //                 const data = res.data;
-    //                 const status = data.status;
-    //                 setAlert({
-    //                     message: status?"Roles have been assigned to employee": "Roles can not be assigned to employee",
-    //                     type: status?ALERT_TYPE.SUCCESS: ALERT_TYPE.DANGER,
-    //                     isShowed: true
-    //                 }) 
-    //             }
-    //         }
-    //     } 
-    //     catch (error) {
-    //         setAlert({
-    //             message: "Roles can not be assigned to employee",
-    //             type: ALERT_TYPE.DANGER,
-    //             isShowed: true
-    //         }) 
-    //     } finally{
-    //         setTimeout(()=>{
-    //             setAlert({...alert, isShowed: false});
-    //         }, ALERT_TIMEOUT)
-    //     }
-    // }
 
     return(
         <div className="container">
@@ -331,14 +201,14 @@ export default function AdminEmployeeComponent(){
                                                 <div className="col-md-3 mb-3">
                                                     <label  htmlFor="first-name-employee">First Name</label>
                                                     <input type="text" className="form-control" id="first-name-employee" 
-                                                        placeholder="First Name" value={employeeInfo.firstName} required
-                                                        disabled={!editable} name="firstName" onChange={onChangeEmployeeInfo}/>
+                                                        placeholder="First Name" value={employeeInfo.firstName}
+                                                        readOnly name="firstName"/>
                                                 </div>
                                                 <div className="col-md-3 mb-3">
                                                     <label  htmlFor="last-name-employee">Last Name</label>
                                                     <input type="text" className="form-control" id="last-name-employee" 
-                                                        placeholder="Last Name"required value={employeeInfo.lastName} 
-                                                        disabled={!editable} name="lastName" onChange={onChangeEmployeeInfo}/>
+                                                        placeholder="Last Name" value={employeeInfo.lastName} 
+                                                        readOnly name="lastName"/>
                                                 </div>
                                                 <div className="col-md-4 mb-3">
                                                     <label>Birth Date</label>
@@ -374,9 +244,6 @@ export default function AdminEmployeeComponent(){
                                                     <input type="text" className="form-control" id="city-employee" placeholder="City" required
                                                         value={employeeInfo.city} readOnly
                                                         name="city"/>
-                                                    <div className="invalid-feedback">
-                                                        Please provide a valid city.
-                                                    </div>
                                                 </div>
                                             </div>
                                             
@@ -386,18 +253,12 @@ export default function AdminEmployeeComponent(){
                                                     <input type="email" className="form-control" id="email-employee" placeholder="Email" required
                                                         value={employeeInfo.email} readOnly
                                                         name="email"/>
-                                                    <div className="invalid-feedback">
-                                                        Please provide a valid email.
-                                                    </div>
                                                 </div>
                                                 <div className="col-md-3 mb-3">
                                                     <label  htmlFor="home-phone-employee">Phone</label>
                                                     <input type="text" className="form-control" id="home-phone-employee" placeholder="Phone" required
                                                         value={employeeInfo.phone} readOnly
                                                         name="phone"/>
-                                                    <div className="invalid-feedback">
-                                                        Please provide a valid phone.
-                                                    </div>
                                                 </div>
 
                                                 <div className="col-md-3">
@@ -442,11 +303,7 @@ export default function AdminEmployeeComponent(){
                                                 <label  htmlFor="userID-employee">UserID</label>
                                                 <input type="text" className="form-control" id="userID-employee" 
                                                     placeholder="UserID" value={employeeInfo.userID} 
-                                                    readOnly
-                                                    name="firstName"/>
-                                                <div className="valid-feedback">
-                                                    Looks good!
-                                                </div>
+                                                    readOnly name="firstName"/>
                                             </div>
                                         </div>
                                         <div className="row">
@@ -455,75 +312,13 @@ export default function AdminEmployeeComponent(){
                                                 <input type="text" className="form-control" id="username-employee" 
                                                     placeholder="Username" value={employeeInfo.username} required
                                                     readOnly name="username"/>
-                                                <div className="valid-feedback">
-                                                    Looks good!
-                                                </div>
                                             </div>
                                             <div className="col-md-5 mb-3">
                                                 <label  htmlFor="email-employee">Email</label>
                                                 <input type="email" className="form-control" id="email-employee" placeholder="Email" required
                                                     value={employeeInfo.email}  readOnly name="email"/>
-                                                <div className="invalid-feedback">
-                                                    Please provide a valid email.
-                                                </div>
                                             </div>
                                         </div>
-                                        <div className="row">
-                                            <div className="col-3">
-                                                <div className="btn-group w-100" ref={roleDropDownRef}>
-                                                    <span className="btn btn-info text-white">Roles</span>
-                                                    <button type="button" className="btn btn-info dropdown-toggle dropdown-toggle-split" 
-                                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded={isRolesDropdownShowed} 
-                                                        onClick={onClickRoleDropdown} disabled={!editable}> 
-                                                        <span className="sr-only">Toggle Dropdown</span>
-                                                    </button>
-                                                    <div className={`dropdown-menu role-dropdown-menu-pos ${isRolesDropdownShowed?'show':''}`}>
-                                                        {roles.map((role)=>(
-                                                            <div key={role.roleID} className="dropdown-item">
-                                                                <div className="form-check">
-                                                                    <input className="form-check-input" type="checkbox" value={role.roleID} 
-                                                                        id={`${role.roleName}-checkbox-role-admin`} checked={
-                                                                            employeeRoles.findIndex((employeeRole)=> employeeRole.roleID===role.roleID)>=0
-                                                                        } onChange={onChangeSelectCheckBox}/>
-                                                                    <label className="form-check-label" htmlFor={`${role.roleName}-checkbox-role-admin`}>
-                                                                        {role.roleName}
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="col-9">
-                                                <ul className="list-group d-flex flex-row gap-2">
-                                                    {employeeRoles.map((role)=>(
-                                                        <li key={role.roleID} className="cursor-default border-0 rounded-2 list-group-item bg-light text-dark">
-                                                            {role.roleName}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        {/* <div className="row btn-group">
-                                            <div className="col-md-3 mt-2">
-                                                <button className="btn btn-primary" type="submit" onClick={onClickResetPassword}
-                                                    disabled={!editable}>
-                                                    Reset{`\u00A0`}Password
-                                                </button>
-                                                <ModalComponent modal={resetPasswordModal} 
-                                                    handleCloseButton={onClickCloseModal} 
-                                                    handleConfirmButton={onClickConfirmResetPassModal}/>
-                                            </div>
-                                            <div className="col-md-3 mt-2">
-                                                <button className="btn btn-primary" type="submit" onClick={onClickAssignRolesModal}
-                                                    disabled={!editable}>
-                                                    Assign{`\u00A0`}Roles
-                                                </button>
-                                                <ModalComponent modal={assignRolesModal} 
-                                                    handleCloseButton={onClickCloseAssignRolesModal} 
-                                                    handleConfirmButton={onClickConfirmAssignRolesModal}/>
-                                            </div>
-                                        </div> */}
                                     </div>
                                 }
                             </div>

@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
 import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.CustomerDetail;
+import com.phucx.account.model.CustomerDetails;
 import com.phucx.account.model.ImageFormat;
 import com.phucx.account.model.ResponseFormat;
 import com.phucx.account.service.customer.CustomerService;
@@ -42,10 +44,10 @@ public class CustomerController {
     @Operation(summary = "Get customer information", 
         tags = {"get", "tutorials", "customer"})
     @GetMapping("/info")
-    public ResponseEntity<CustomerDetail> getUserInfo(Authentication authentication
+    public ResponseEntity<CustomerDetails> getUserInfo(Authentication authentication
     ) throws UserNotFoundException, InvalidUserException{
         String userID = authentication.getName();
-        CustomerDetail customer = customerService.getCustomerDetail(userID);
+        CustomerDetails customer = customerService.getCustomerDetails(userID);
         return ResponseEntity.ok().body(customer);
     }
     // UPDATE CUSTOMER'S INFOMATION
@@ -55,7 +57,7 @@ public class CustomerController {
     public ResponseEntity<ResponseFormat> updateUserInfo(
         Authentication authentication,
         @RequestBody CustomerDetail customer
-    ) throws CustomerNotFoundException{
+    ) throws CustomerNotFoundException, JsonProcessingException{
         CustomerDetail updatedCustomer = customerService.updateCustomerInfo(customer);
         return ResponseEntity.ok().body(new ResponseFormat(updatedCustomer!=null?true: false));
     }

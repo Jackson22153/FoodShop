@@ -25,7 +25,6 @@ const HeaderComponent = memo(function HeaderComponent(prop: Props){
 
     useEffect(()=>{
         document.addEventListener('click', onClickOutSideNavBar)
-        console.log(userInfo)
     }, [numberOfCartProducts, userInfo])
 
 

@@ -18,6 +18,9 @@ public class MessageQueueConfig {
     //  shipper queue
     public final static String SHIPPER_QUEUE = "shipperqueue";
     public final static String SHIPPER_ROUTING_KEY = "shipperqueue";
+    // account processing queue
+    public final static String ACCOUNT_PROCESSING_QUEUE = "accountprocessingqueue";
+    public final static String ACCOUNT_PROCESSING_ROUTING_KEY = "shipperqueue";
 
     private final String ACCOUNT_EXCHANGE = "accountservice";
     // account direct exchange
@@ -51,5 +54,15 @@ public class MessageQueueConfig {
     @Bean
     public Binding bindingShipperQueue(Queue shipperQueue, DirectExchange accountExchange){
         return BindingBuilder.bind(shipperQueue).to(accountExchange).with(SHIPPER_ROUTING_KEY);
+    }
+
+    @Bean
+    public Queue accountProcessing(){
+        return new Queue(ACCOUNT_PROCESSING_QUEUE);
+    }
+
+    @Bean
+    public Binding bindingAccountProcessingQueue(Queue accountProcessing, DirectExchange accountExchange){
+        return BindingBuilder.bind(accountProcessing).to(accountExchange).with(ACCOUNT_PROCESSING_ROUTING_KEY);
     }
 }

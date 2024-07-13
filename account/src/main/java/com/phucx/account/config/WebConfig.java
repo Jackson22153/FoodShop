@@ -42,15 +42,17 @@ public class WebConfig {
 
     @Bean
     public SecurityFilterChain dFilterChain(HttpSecurity http) throws Exception{
+        // session
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new RoleConverter());
         http.sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        // http.addFilterBefore(new JwtFilter(), BearerTokenAuthenticationFilter.class);
+        // cors
         http.cors(Customizer.withDefaults());
         // http.csrf(csrf -> csrf.ignoringRequestMatchers("/chat/**"));
         http.csrf(csrf-> csrf.disable());
         http.headers(header -> header.frameOptions(frame -> frame.sameOrigin()));
+        // request
         http.authorizeHttpRequests(request -> request
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/customer/**").hasRole("CUSTOMER")
@@ -59,6 +61,7 @@ public class WebConfig {
             .requestMatchers("/swagger-ui/**", "v3/**", "/document/**").permitAll()
             .requestMatchers("/image/**").permitAll()
             .anyRequest().authenticated());
+        // oauth2 resource
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt
             .jwtAuthenticationConverter(jwtAuthenticationConverter)));
         return http.build();

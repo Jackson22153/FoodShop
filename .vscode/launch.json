@@ -73,6 +73,16 @@
             "projectName": "order",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-KeycloakmanagementApplication<keycloakmanagement>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.phucx.keycloakmanagement.KeycloakmanagementApplication",
+            "projectName": "keycloakmanagement",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

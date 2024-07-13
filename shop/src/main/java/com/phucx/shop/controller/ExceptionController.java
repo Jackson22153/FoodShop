@@ -77,11 +77,8 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(IOException.class)
-    protected ResponseEntity<ResponseFormat> handlerIOExceptionr(IOException exception){
+    protected ResponseEntity<Void> handlerIOExceptionr(IOException exception){
         log.error("Error: {}", exception.getMessage());
-        ResponseFormat response = new ResponseFormat();
-        response.setError("An Error has occurred");
-        response.setStatus(false);
-        return ResponseEntity.internalServerError().body(response);
+        return ResponseEntity.notFound().build();
     }
 }

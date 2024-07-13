@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import com.phucx.account.model.UserProfile;
 
 
-
 @Repository
 public interface UserProfileRepository extends JpaRepository<UserProfile, String>{
     @Query("""
@@ -24,5 +23,4 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, String
         WHERE e.employeeID=?1
             """)
     Optional<UserProfile> findByEmployeeID(String employeeID);
-    
 }

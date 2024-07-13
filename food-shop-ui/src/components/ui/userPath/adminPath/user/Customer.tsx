@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { CustomerDetail, CustomerUserInfo } from "../../../../../model/Type";
-import { Alert, Modal } from "../../../../../model/WebType";
-import { getCustomer, resetPassword } from "../../../../../api/AdminApi";
-import AlertComponent from "../../../../shared/functions/alert/Alert";
-import ModalComponent from "../../../../shared/functions/modal/Modal";
-import { ALERT_TIMEOUT, ALERT_TYPE } from "../../../../../constant/WebConstant";
+import { CustomerDetail } from "../../../../../model/Type";
+import { getCustomer } from "../../../../../api/AdminApi";
 import { useParams } from "react-router-dom";
 import { displayUserImage } from "../../../../../service/Image";
 
@@ -12,16 +8,6 @@ export default function AdminCustomerComponent(){
     const { customerID } = useParams();
     const [selectedTab, setSelectedTab] = useState(0);
     const [customerUserInfo, setCustomerUserInfo] = useState<CustomerDetail>();
-    const [resetPasswordModal, setResetPasswordModal] = useState<Modal>({
-        title: 'Confirm action',
-        message: 'Do you want to continute?',
-        isShowed: false
-    })
-    const [alert, setAlert] = useState<Alert>({
-        message: "",
-        type: "",
-        isShowed: false
-    })
     const navHeaderRef = useRef(null);
 
     useEffect(()=>{
@@ -49,48 +35,12 @@ export default function AdminCustomerComponent(){
             })
         }
     }
-    // reset password modal
-    const onClickResetPassword = ()=>{
-        setResetPasswordModal(modal =>({...modal, isShowed:!modal.isShowed}))
-    }
-    const onClickCloseResetModal = ()=>{
-        setResetPasswordModal({...resetPasswordModal, isShowed:false})
-    }
-    const onClickConfirmResetPassModal = async ()=>{
-        try {
-            const userID = customerUserInfo?.userID;
-            const res = await resetPassword(userID);
-            if(res.status){
-                const data = res.data
-                const status = data.status
-                setAlert({
-                    message: status?"Password has been reset successfully":"Password can not be reset",
-                    type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
-                    isShowed: true
-                })   
-            }
-        } 
-        catch (error) {
-            setAlert({
-                message: "Password can not be reset",
-                type: ALERT_TYPE.DANGER,
-                isShowed: true
-            }) 
-        }
-        finally{
-            setTimeout(()=>{
-                setAlert({...alert, isShowed: false});
-            }, ALERT_TIMEOUT)
-        }
-    }
-
     const onClickSelectTab= (tab:number)=>{
         setSelectedTab(tab);
     }
     
     return(
         <div className="container emp-profile box-shadow-default mb-5">
-            <AlertComponent alert={alert}/>
             {customerUserInfo &&
                 <div className="row">
                     <div className="col-md-4">
@@ -230,22 +180,12 @@ export default function AdminCustomerComponent(){
                                             </div>
                                         </div>
                                     </div>
-                                    {/* <div className="row">
-                                        <div className="col-md-5 mt-2">
-                                            <button className="btn btn-primary" type="submit" onClick={onClickResetPassword}>
-                                                Reset{`\u00A0`}Password
-                                            </button>
-                                        </div>
-                                    </div> */}
                                 </div>    
                             }
                         </div>
                     </div>
                 </div>
             }
-            <ModalComponent modal={resetPasswordModal} 
-                handleCloseButton={onClickCloseResetModal} 
-                handleConfirmButton={onClickConfirmResetPassModal}/>
         </div>
     );
 }

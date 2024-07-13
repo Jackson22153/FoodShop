@@ -13,6 +13,7 @@ import { logout } from '../../../../api/AuthorizationApi';
 import { Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
 import { isCustomer } from '../../../../api/UserApi';
+import { AuthorizationUserUrl } from '../../../../constant/FoodShoppingApiURL';
 
 export default function CustomerComponent(){
     const navigate = useNavigate()
@@ -127,15 +128,13 @@ export default function CustomerComponent(){
                                 <li className="list nav-item">
                                     <Link to={CUSTOMER_INFO}>
                                         <div className={`nav-link ${selectedPath===0?'active': ''}`}>
-                                            <i className="bx bx-home-alt icon"></i>
-                                            <span className="link">User{`\u00A0`}Information</span>
+                                            <span className="link">Informaiton</span>
                                         </div>
                                     </Link>
                                 </li>
                                 <li className="list nav-item">
                                     <Link to={CUSTOMER_ORDER}>
                                         <div className={`nav-link ${selectedPath===1?'active': ''}`}>
-                                            <i className="bx bx-bar-chart-alt-2 icon"></i>
                                             <span className="link">Orders</span>
                                         </div>
                                     </Link>
@@ -143,15 +142,24 @@ export default function CustomerComponent(){
                                 <li className="list nav-item">
                                     <Link to={CUSTOMER_NOTIFICATION}>
                                         <div className={`nav-link ${selectedPath===2?'active': ''}`}>
-                                            <i className="bx bx-bar-chart-alt-2 icon"></i>
                                             <span className="link">Notifications</span>
+                                        </div>
+                                    </Link>
+                                </li>
+
+                            </ul>
+
+                            <ul className='flex-column lists nav nav-pills'>
+                                <li className="list nav-item">
+                                    <Link to={AuthorizationUserUrl}>
+                                        <div className={`nav-link`}>
+                                            <span className="link">Setting</span>
                                         </div>
                                     </Link>
                                 </li>
                                 <li className="list nav-item">
                                     <Link to={"/"}>
-                                        <div className={`nav-link ${selectedPath===3?'active': ''}`}>
-                                            <i className="bx bx-bell icon"></i>
+                                        <div className={`nav-link`}>
                                             <span className="link">Home</span>
                                         </div>
                                     </Link>

@@ -67,7 +67,7 @@ public class UserProfileServiceImp implements UserProfileService {
             .orElseThrow(()-> new EmployeeNotFoundException("Employee "+ employeeID + " does not found"));
     }
     @Override
-    public UserAuthentication getUserAuthentication(Authentication authentication) {
+    public UserAuthentication getUserAuthentication(Authentication authentication) throws UserNotFoundException{
         log.info("getUserAuthentication({})", authentication);
 
         Jwt jwt = (Jwt) authentication.getPrincipal();

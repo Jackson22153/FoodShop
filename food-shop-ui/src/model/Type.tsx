@@ -151,14 +151,6 @@ export type CustomerUserInfo={
     picture: string,
     userInfo:UserInfo
 }
-export type CustomerAccount = {
-    userID: string,
-    customerID: string,
-    username: string,
-    contactName: string,
-    email: string,
-    picture: string
-}
 // employee
 export type Employee = {
     employeeID: string,
@@ -189,15 +181,6 @@ export type EmployeeDetail = {
     picture: string,
     title: string,
     notes: string,
-}
-export type EmployeeAccount = {
-    userID: string,
-    employeeID: string,
-    username: string,
-    firstName: string,
-    lastName: string,
-    email: string,
-    picture: string
 }
 // pageable
 export type Pageable = {
@@ -326,11 +309,13 @@ export type DiscountBriefInfo = {
 }
 
 // user
-export type UserRole = {
+export type UserAccount = {
     userID: string,
     username: string,
     email: string,
-    roleName: string
+    firstName: string,
+    lastName: string,
+    picture: string
 }
 export type UserInfo = {
     user: User,

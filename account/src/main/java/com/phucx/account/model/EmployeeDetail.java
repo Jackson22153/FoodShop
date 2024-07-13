@@ -28,8 +28,6 @@ import lombok.ToString;
     @NamedStoredProcedureQuery(name = "EmployeeDetail.updateAdminEmployeeInfo",
     procedureName = "UpdateAdminEmployeeInfo", parameters = {
         @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type = String.class),
-        @StoredProcedureParameter(name="firstName", mode = ParameterMode.IN, type = String.class),
-        @StoredProcedureParameter(name="lastName", mode = ParameterMode.IN, type = String.class),
         @StoredProcedureParameter(name="hireDate", mode = ParameterMode.IN, type = LocalDate.class),
         @StoredProcedureParameter(name="picture", mode = ParameterMode.IN, type = String.class),
         @StoredProcedureParameter(name="title", mode = ParameterMode.IN, type = String.class),
@@ -39,8 +37,6 @@ import lombok.ToString;
     @NamedStoredProcedureQuery(name = "EmployeeDetail.updateEmployeeInfo",
         procedureName = "UpdateEmployeeInfo", parameters = {
             @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type = String.class),
-            @StoredProcedureParameter(name="firstName", mode = ParameterMode.IN, type = String.class),
-            @StoredProcedureParameter(name="lastName", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="birthDate", mode = ParameterMode.IN, type = LocalDate.class),
             @StoredProcedureParameter(name="address", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="city", mode = ParameterMode.IN, type = String.class),
@@ -52,11 +48,7 @@ import lombok.ToString;
         procedureName = "AddNewEmployee", parameters = {
             @StoredProcedureParameter(name="profileID", mode = ParameterMode.IN, type=String.class),
             @StoredProcedureParameter(name="userID", mode = ParameterMode.IN, type=String.class),
-            @StoredProcedureParameter(name="username", mode = ParameterMode.IN, type=String.class),
-            @StoredProcedureParameter(name="email", mode = ParameterMode.IN, type=String.class),
             @StoredProcedureParameter(name="employeeID", mode = ParameterMode.IN, type=String.class),
-            @StoredProcedureParameter(name="firstName", mode = ParameterMode.IN, type=String.class),
-            @StoredProcedureParameter(name="lastName", mode = ParameterMode.IN, type=String.class),
             @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type=Boolean.class)
         })
 })
@@ -64,10 +56,6 @@ public class EmployeeDetail implements Serializable{
     @Id
     private String employeeID;
     private String userID;
-    private String username;
-    private String email;
-    private String firstName;
-    private String lastName;
     private LocalDate birthDate;
     private LocalDate hireDate;
     private String phone;
@@ -76,10 +64,4 @@ public class EmployeeDetail implements Serializable{
     private String address;
     private String city;
     private String notes;
-    public EmployeeDetail(String userID, String firstName, String lastName) {
-        this.userID = userID;
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
-
 }
