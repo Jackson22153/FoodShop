@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
-import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.CustomerDetails;
 import com.phucx.account.model.ImageFormat;
@@ -44,8 +43,8 @@ public class CustomerController {
     @Operation(summary = "Get customer information", 
         tags = {"get", "tutorials", "customer"})
     @GetMapping("/info")
-    public ResponseEntity<CustomerDetails> getUserInfo(Authentication authentication
-    ) throws UserNotFoundException, InvalidUserException{
+    public ResponseEntity<CustomerDetails> getUserInfo(Authentication authentication) 
+    throws JsonProcessingException, InvalidUserException {
         String userID = authentication.getName();
         CustomerDetails customer = customerService.getCustomerDetails(userID);
         return ResponseEntity.ok().body(customer);

@@ -52,6 +52,12 @@ public class CustomerDetail implements Serializable{
     private String phone;
     private String picture;
     
+    public CustomerDetail(String customerID, String userID, String contactName) {
+        this.customerID = customerID;
+        this.userID = userID;
+        this.contactName = contactName;
+    }
+
     public CustomerDetail(String userID, String contactName) {
         this.userID = userID;
         this.contactName = contactName;

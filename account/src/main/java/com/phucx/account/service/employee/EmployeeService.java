@@ -26,9 +26,11 @@ public interface EmployeeService {
     public List<EmployeeDetail> getEmployees(List<String> userIds);
 
     @Cacheable(value = "employeedetail", key = "#userID")
-    public EmployeeDetail getEmployeeDetail(String userID) throws InvalidUserException, EmployeeNotFoundException;
-    public EmployeeDetails getEmployeeDetails(String userID) throws InvalidUserException, EmployeeNotFoundException;
+    public EmployeeDetail getEmployeeDetail(String userID) throws JsonProcessingException, InvalidUserException;
+    public EmployeeDetails getEmployeeDetails(String userID) throws JsonProcessingException, InvalidUserException;
     // update / create employee
+    public EmployeeDetail addNewEmployee(EmployeeDetail employeeDetail) throws InvalidUserException;
+
     @Caching(
         put = {
             @CachePut(cacheNames = "employeedetail", key = "#employee.employeeID"),

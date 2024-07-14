@@ -45,7 +45,7 @@ public class EmployeeController {
         tags = {"get", "tutorials", "employee"})
     @GetMapping("/info")
     public ResponseEntity<EmployeeDetails> getUserInfo(Authentication authentication) 
-        throws InvalidUserException, EmployeeNotFoundException{
+    throws JsonProcessingException, InvalidUserException {
         String userID = authentication.getName();
         EmployeeDetails employee = employeeService.getEmployeeDetails(userID);
         return ResponseEntity.ok().body(employee);

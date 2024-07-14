@@ -8,6 +8,8 @@ public enum EventType {
     CreateEmployeeDetail,
     ReturnCreateEmployeeDetail,
 
+    InvalidUserException,
+
     NotFoundException,
     // get users from authorization server by userID
     GetUsersByUserID,

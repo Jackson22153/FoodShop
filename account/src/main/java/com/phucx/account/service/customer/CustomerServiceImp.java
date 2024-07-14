@@ -10,15 +10,21 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.phucx.account.config.MessageQueueConfig;
+import com.phucx.account.constant.EventType;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
-import com.phucx.account.exception.UserNotFoundException;
+import com.phucx.account.model.CustomerDTO;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.CustomerDetails;
+import com.phucx.account.model.DataDTO;
+import com.phucx.account.model.EventMessage;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.service.image.CustomerImageService;
 import com.phucx.account.service.image.ImageService;
+import com.phucx.account.service.messageQueue.MessageQueueService;
+
 import jakarta.persistence.EntityExistsException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomerServiceImp implements CustomerService {
     @Autowired
     private CustomerDetailRepository customerDetailRepository;
+    @Autowired
+    private MessageQueueService messageQueueService;
     @Autowired
     private ImageService imageService;
     @Autowired
@@ -50,7 +58,7 @@ public class CustomerServiceImp implements CustomerService {
         return customer;
 	}
 	@Override
-	public CustomerDetail getCustomerDetail(String userID) throws UserNotFoundException, InvalidUserException {
+	public CustomerDetail getCustomerDetail(String userID) throws JsonProcessingException, InvalidUserException {
         log.info("getCustomerDetail(userID={})", userID);
         Optional<CustomerDetail> customerDetailOp = customerDetailRepository.findByUserID(userID);
         if(customerDetailOp.isPresent()){
@@ -65,18 +73,31 @@ public class CustomerServiceImp implements CustomerService {
             Jwt jwt = (Jwt) authentication.getPrincipal();
             // extract user's information
             String contactname = jwt.getClaimAsString(WebConstant.NAME);
-            // create a new customer
-            Boolean result = this.addNewCustomer(
-                new CustomerDetail(userID, contactname));
-            if(!result) throw new RuntimeException("Customer with userID " + userID + " can not be created");
-            // fetch new customer
-            CustomerDetail customer = this.getCustomerByUserID(userID);
-            customerImageService.setCustomerDetailImage(customer);
-            return customer;
+            return this.requestCreatingCustomerDetail(userID, contactname);
         }
     }
+
+    private CustomerDetail requestCreatingCustomerDetail(String userID, String contactName) throws JsonProcessingException, InvalidUserException{
+        String eventID = UUID.randomUUID().toString();
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setUserID(userID);
+        customerDTO.setContactName(contactName);
+
+        EventMessage<DataDTO> eventMessage =  new EventMessage<DataDTO>(
+            eventID, EventType.CreateCustomerDetail, customerDTO);
+        EventMessage<CustomerDetail> response = messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConfig.ACCOUNT_EXCHANGE, 
+            MessageQueueConfig.CUSTOMER_ROUTING_KEY, 
+            CustomerDetail.class);
+        log.info("response: {}", response);
+        if(response.getEventType().equals(EventType.InvalidUserException)){
+            throw new InvalidUserException(response.getErrorMessage());
+        }
+        return response.getPayload();
+    }
     
-    private Boolean addNewCustomer(CustomerDetail customer) throws InvalidUserException, UserNotFoundException{
+    @Override
+    public CustomerDetail addNewCustomer(CustomerDetail customer) throws InvalidUserException{
         log.info("addNewCustomer({})", customer);
         if(customer.getContactName()==null) throw new InvalidUserException("Missing contact name");
         if(customer.getUserID()==null) throw new InvalidUserException("Missing userId");
@@ -89,8 +110,10 @@ public class CustomerServiceImp implements CustomerService {
         String profileID = UUID.randomUUID().toString();
         String customerID = UUID.randomUUID().toString();
 
-        return customerDetailRepository.addNewCustomer(
+        Boolean status = customerDetailRepository.addNewCustomer(
             profileID, customer.getUserID(), customerID, customer.getContactName());
+        if(!status) throw new RuntimeException("Customer can not be created!");
+        return new CustomerDetail(customerID, customer.getUserID(), customer.getContactName());
     }
 	
 	@Override
@@ -121,7 +144,7 @@ public class CustomerServiceImp implements CustomerService {
     }
     
     @Override
-    public CustomerDetails getCustomerDetails(String userID) throws UserNotFoundException, InvalidUserException {
+    public CustomerDetails getCustomerDetails(String userID) throws JsonProcessingException, InvalidUserException {
         log.info("getCustomerDetails(userID={})", userID);
         CustomerDetail customerDetail = this.getCustomerDetail(userID);
 
@@ -146,5 +169,4 @@ public class CustomerServiceImp implements CustomerService {
 
         return customerDetails;
     }
-
 }

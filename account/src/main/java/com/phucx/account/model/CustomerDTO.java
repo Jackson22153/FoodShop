@@ -15,4 +15,5 @@ import lombok.ToString;
 public class CustomerDTO extends UserDTO{
     private String customerID;
     private List<String> customerIDs;
+    private String contactName;
 }

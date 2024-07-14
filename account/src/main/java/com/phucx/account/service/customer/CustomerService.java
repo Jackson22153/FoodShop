@@ -11,7 +11,6 @@ import com.phucx.account.model.CustomerDetails;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
-import com.phucx.account.exception.UserNotFoundException;
 
 public interface CustomerService {
     // get customer
@@ -35,7 +34,9 @@ public interface CustomerService {
     )
     public CustomerDetail updateCustomerInfo(CustomerDetail customer) throws CustomerNotFoundException, JsonProcessingException;
 
+    public CustomerDetail addNewCustomer(CustomerDetail customer) throws InvalidUserException;
+
     @Cacheable(value = "customerdetail", key = "#userID")
-    public CustomerDetail getCustomerDetail(String userID) throws InvalidUserException, UserNotFoundException;
-    public CustomerDetails getCustomerDetails(String userID) throws InvalidUserException, UserNotFoundException;
+    public CustomerDetail getCustomerDetail(String userID) throws JsonProcessingException, InvalidUserException;
+    public CustomerDetails getCustomerDetails(String userID) throws JsonProcessingException, InvalidUserException;
 }

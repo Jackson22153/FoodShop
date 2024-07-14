@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.constant.EventType;
 import com.phucx.account.exception.EmployeeNotFoundException;
+import com.phucx.account.exception.InvalidUserException;
 import com.phucx.account.model.EmployeeDTO;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EventMessage;
@@ -41,54 +42,79 @@ public class EmployeeMessageListener {
         EventMessage<Object> responseMessage = this.createResponseMessage(Object.class);
         try {
             TypeReference<EventMessage<EmployeeDTO>> typeRef = new TypeReference<EventMessage<EmployeeDTO>>() {};
-            EventMessage<EmployeeDTO> employeeDTO = objectMapper.readValue(message, typeRef);
-            EmployeeDTO payload = employeeDTO.getPayload();
+            EventMessage<EmployeeDTO> eventMessage = objectMapper.readValue(message, typeRef);
+            EmployeeDTO employeeDTO = eventMessage.getPayload();
             // fetch data
-            if(employeeDTO.getEventType().equals(EventType.GetEmployeeByID)){
+            if(eventMessage.getEventType().equals(EventType.GetEmployeeByID)){
                 // get employee by id
-                String employeeID = payload.getEmployeeID();
+                String employeeID = employeeDTO.getEmployeeID();
                 EmployeeDetail fetchedEmployee = employeeService.getEmployee(employeeID);
                 // set response message
                 responseMessage.setPayload(fetchedEmployee);
                 responseMessage.setEventType(EventType.ReturnEmployeeByID);
-            }else if(employeeDTO.getEventType().equals(EventType.GetEmployeeByUserID)){
+            }else if(eventMessage.getEventType().equals(EventType.GetEmployeeByUserID)){
                 // get employee by id
-                String userID = payload.getUserID();
+                String userID = employeeDTO.getUserID();
                 EmployeeDetail fetchedEmployee = employeeService.getEmployeeByUserID(userID);
                 // set response message
                 responseMessage.setPayload(fetchedEmployee);
                 responseMessage.setEventType(EventType.ReturnEmployeeByUserID);
-            }else if(employeeDTO.getEventType().equals(EventType.GetUserByEmployeeID)){
+            }else if(eventMessage.getEventType().equals(EventType.GetUserByEmployeeID)){
                 // get user by employeeID
-                String employeeID = payload.getEmployeeID();
+                String employeeID = employeeDTO.getEmployeeID();
                 UserProfile fetchedUser = userProfileService.getUserProfileByEmployeeID(employeeID);
                 // set response message
                 responseMessage.setPayload(fetchedUser);
                 responseMessage.setEventType(EventType.ReturnUserByEmployeeID);
-            }else if(employeeDTO.getEventType().equals(EventType.GetEmployeesByUserIDs)){
+            }else if(eventMessage.getEventType().equals(EventType.GetEmployeesByUserIDs)){
                 // get user by employeeID
-                List<String> employeeIDs = payload.getUserIDs();
+                List<String> employeeIDs = employeeDTO.getUserIDs();
                 List<EmployeeDetail> fetchedEmployees = employeeService.getEmployees(employeeIDs);
                 // set response message
                 responseMessage.setPayload(fetchedEmployees);
                 responseMessage.setEventType(EventType.ReturnEmployeesByUserIDs);
+            }else if(eventMessage.getEventType().equals(EventType.CreateEmployeeDetail)){
+                // create new employee profile
+                String userID = employeeDTO.getUserID();
+                EmployeeDetail newEmployeeDetail = employeeService.addNewEmployee(new EmployeeDetail(userID));
+                responseMessage.setEventType(EventType.ReturnCreateEmployeeDetail);
+                responseMessage.setPayload(newEmployeeDetail);
             }
             String response = objectMapper.writeValueAsString(responseMessage);
             return response;
         } catch (EmployeeNotFoundException e){
             log.error("Error: {}", e.getMessage());
-            try {
-                responseMessage.setErrorMessage(e.getMessage());
-                responseMessage.setEventType(EventType.NotFoundException);
-                String responsemessage = objectMapper.writeValueAsString(responseMessage);
-                return responsemessage;
-            } catch (Exception exception) {
-                log.error("Error: {}", e.getMessage());
-                return null;
-            }
+            return handleNotFoundException(responseMessage, e.getMessage());
         } catch (JsonProcessingException e) {
-           log.error("Error: {}", e.getMessage());
-           return null;
+            log.error("Error: {}", e.getMessage());
+            return null;
+        } catch (InvalidUserException e){
+            log.error("Error: {}", e.getMessage());
+            return handleInvalidUser(responseMessage, e.getMessage());
+        }
+    }
+
+    private String handleInvalidUser(EventMessage<Object> responseMessage, String errorMessage){
+        try {
+            responseMessage.setErrorMessage(errorMessage);
+            responseMessage.setEventType(EventType.InvalidUserException);
+            String responsemessage = objectMapper.writeValueAsString(responseMessage);
+            return responsemessage;
+        } catch (Exception exception) {
+            log.error("Error: {}", exception.getMessage());
+            return null;
+        }
+    }
+
+    private String handleNotFoundException(EventMessage<Object> responseMessage, String errorMessage){
+        try {
+            responseMessage.setErrorMessage(errorMessage);
+            responseMessage.setEventType(EventType.NotFoundException);
+            String responsemessage = objectMapper.writeValueAsString(responseMessage);
+            return responsemessage;
+        } catch (Exception exception) {
+            log.error("Error: {}", exception.getMessage());
+            return null;
         }
     }
 

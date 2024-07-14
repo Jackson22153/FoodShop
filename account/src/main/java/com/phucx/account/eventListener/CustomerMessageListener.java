@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.account.config.MessageQueueConfig;
 import com.phucx.account.constant.EventType;
 import com.phucx.account.exception.CustomerNotFoundException;
+import com.phucx.account.exception.InvalidUserException;
 import com.phucx.account.model.CustomerDTO;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.EventMessage;
@@ -79,6 +80,13 @@ public class CustomerMessageListener {
                 // set response message
                 responseMessage.setPayload(fetchedUser);
                 responseMessage.setEventType(EventType.ReturnUserByCustomerID);
+            }else if(customerDTO.getEventType().equals(EventType.CreateCustomerDetail)){
+                // create customer detail
+                String contactName = payload.getContactName();
+                String userID = payload.getUserID();
+                CustomerDetail newCustomer = customerService.addNewCustomer(new CustomerDetail(userID, contactName));
+                responseMessage.setPayload(newCustomer);
+                responseMessage.setEventType(EventType.ReturnCreateCustomerDetail);
             }
             String response = objectMapper.writeValueAsString(responseMessage);
             return response;
@@ -87,15 +95,34 @@ public class CustomerMessageListener {
             return null;
         } catch (CustomerNotFoundException e) {
             log.error("Error: {}", e.getMessage());
-            try {
-                responseMessage.setErrorMessage(e.getMessage());
-                responseMessage.setEventType(EventType.NotFoundException);
-                String responsemessage = objectMapper.writeValueAsString(responseMessage);
-                return responsemessage;
-            } catch (Exception exception) {
-                log.error("Error: {}", e.getMessage());
-                return null;
-            }
+            return handleNotFoundException(responseMessage, e.getMessage());
+        } catch (InvalidUserException e){
+            log.error("Error: {}", e.getMessage());
+            return handleInvalidUserException(responseMessage, e.getMessage());
+        }
+    }
+
+    private String handleInvalidUserException(EventMessage<Object> responseMessage, String errorMessage){
+        try {
+            responseMessage.setErrorMessage(errorMessage);
+            responseMessage.setEventType(EventType.InvalidUserException);
+            String responsemessage = objectMapper.writeValueAsString(responseMessage);
+            return responsemessage;
+        } catch (Exception exception) {
+            log.error("Error: {}", exception.getMessage());
+            return null;
+        }
+    }
+
+    private String handleNotFoundException(EventMessage<Object> responseMessage, String errorMessage){
+        try {
+            responseMessage.setErrorMessage(errorMessage);
+            responseMessage.setEventType(EventType.NotFoundException);
+            String responsemessage = objectMapper.writeValueAsString(responseMessage);
+            return responsemessage;
+        } catch (Exception exception) {
+            log.error("Error: {}", exception.getMessage());
+            return null;
         }
     }
 

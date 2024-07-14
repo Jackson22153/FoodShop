@@ -14,18 +14,24 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.phucx.account.config.MessageQueueConfig;
+import com.phucx.account.constant.EventType;
 import com.phucx.account.constant.NotificationStatus;
 import com.phucx.account.constant.NotificationTitle;
 import com.phucx.account.constant.NotificationTopic;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.EmployeeNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
+import com.phucx.account.model.DataDTO;
+import com.phucx.account.model.EmployeeDTO;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EmployeeDetails;
+import com.phucx.account.model.EventMessage;
 import com.phucx.account.model.UserNotificationDTO;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.service.image.EmployeeImageService;
 import com.phucx.account.service.image.ImageService;
+import com.phucx.account.service.messageQueue.MessageQueueService;
 import com.phucx.account.service.notification.NotificationService;
 import jakarta.persistence.EntityExistsException;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +47,8 @@ public class EmployeeServiceImp implements EmployeeService {
     private ImageService imageService;
     @Autowired
     private EmployeeImageService employeeImageService;
+    @Autowired
+    private MessageQueueService messageQueueService;
 
 	@Override
 	public EmployeeDetail updateEmployeeInfo(EmployeeDetail employee) throws EmployeeNotFoundException, JsonProcessingException {
@@ -103,7 +111,8 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
 
-    private Boolean addNewEmployee(EmployeeDetail employeedDetail) throws InvalidUserException {
+    @Override
+    public EmployeeDetail addNewEmployee(EmployeeDetail employeedDetail) throws InvalidUserException {
         log.info("addNewEmployee({})", employeedDetail);
         if(employeedDetail.getUserID()==null)
             throw new InvalidUserException("UserId is missing");
@@ -114,7 +123,10 @@ public class EmployeeServiceImp implements EmployeeService {
         String profileID = UUID.randomUUID().toString();
         String employeeID = UUID.randomUUID().toString();
 
-       return employeeDetailRepostiory.addNewEmployee(profileID, employeedDetail.getUserID(), employeeID);
+       Boolean status = employeeDetailRepostiory.addNewEmployee(profileID, employeedDetail.getUserID(), employeeID);
+       if(!status) throw new RuntimeException("Error when creating new employee profile!");
+
+       return new EmployeeDetail(employeeID, employeedDetail.getUserID());
     }
 
     @Override
@@ -134,7 +146,7 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
     @Override
-    public EmployeeDetail getEmployeeDetail(String userID) throws InvalidUserException, EmployeeNotFoundException {
+    public EmployeeDetail getEmployeeDetail(String userID) throws JsonProcessingException, InvalidUserException{
         log.info("getEmployeeDetail(userID={})", userID);
         Optional<EmployeeDetail> fetchedEmployeeOptional = employeeDetailRepostiory.findByUserID(userID);
         if(fetchedEmployeeOptional.isPresent()){
@@ -142,19 +154,29 @@ public class EmployeeServiceImp implements EmployeeService {
             employeeImageService.setEmployeeDetailImage(fetchedEmployee);
             return fetchedEmployee;
         }else{
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if(authentication==null) throw new RuntimeException("User is not authenticated");
-            EmployeeDetail newEmployeeDetail = new EmployeeDetail();
-            newEmployeeDetail.setUserID(userID);
-
-            Boolean result = this.addNewEmployee(newEmployeeDetail);
-            if(!result) throw new RuntimeException("Can not add new employee with userID " + userID);
-            return this.getEmployeeByUserID(userID);
+            return this.requestCreatingEmployeeDetail(userID);
         }
+    }
+    // send a request for creating a new employeedetail 
+    private EmployeeDetail requestCreatingEmployeeDetail(String userID) throws JsonProcessingException, InvalidUserException{
+        String eventID = UUID.randomUUID().toString();
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        employeeDTO.setUserID(userID);
+        EventMessage<DataDTO> eventMessage= new EventMessage<DataDTO>(
+            eventID, EventType.CreateEmployeeDetail, employeeDTO);
+        EventMessage<EmployeeDetail> responseMessage = messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConfig.ACCOUNT_EXCHANGE, 
+            MessageQueueConfig.EMPLOYEE_ROUTING_KEY, 
+            EmployeeDetail.class);
+        log.info("response: {}", responseMessage);
+        if(responseMessage.getEventType().equals(EventType.InvalidUserException)){
+            throw new InvalidUserException(responseMessage.getErrorMessage());
+        }
+        return responseMessage.getPayload();
     }
     
     @Override
-    public EmployeeDetails getEmployeeDetails(String userID) throws InvalidUserException, EmployeeNotFoundException {
+    public EmployeeDetails getEmployeeDetails(String userID) throws JsonProcessingException, InvalidUserException {
         log.info("getEmployeeDetails(userID={})", userID);
         EmployeeDetail employeeDetail = this.getEmployeeDetail(userID);
 

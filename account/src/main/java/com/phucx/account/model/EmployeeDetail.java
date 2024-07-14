@@ -64,4 +64,11 @@ public class EmployeeDetail implements Serializable{
     private String address;
     private String city;
     private String notes;
+    public EmployeeDetail(String userID) {
+        this.userID = userID;
+    }
+    public EmployeeDetail(String employeeID, String userID) {
+        this.employeeID = employeeID;
+        this.userID = userID;
+    }
 }
