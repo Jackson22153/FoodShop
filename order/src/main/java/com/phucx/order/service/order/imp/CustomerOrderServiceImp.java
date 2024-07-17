@@ -1,6 +1,9 @@
 package com.phucx.order.service.order.imp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,11 +26,14 @@ import com.phucx.order.model.OrderItem;
 import com.phucx.order.model.OrderItemDiscount;
 import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderWithProducts;
+import com.phucx.order.model.Product;
 import com.phucx.order.service.customer.CustomerService;
 import com.phucx.order.service.employee.EmployeeService;
 import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.CustomerOrderService;
 import com.phucx.order.service.order.OrderService;
+import com.phucx.order.service.product.ProductService;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -38,13 +44,15 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
     @Autowired
     private NotificationService notificationService;
     @Autowired
+    private ProductService productService;
+    @Autowired
     private CustomerService customerService;
     @Autowired
     private EmployeeService employeeService;
     
     @Override
     public OrderDetails placeOrder(OrderWithProducts order, String userID) 
-        throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException {
+    throws JsonProcessingException, NotFoundException, InvalidDiscountException, InvalidOrderException {
         log.info("placeOrder(order={}, userID={})", order, userID);
         // fetch customer
         Customer customer = customerService.getCustomerByUserID(userID);
@@ -55,24 +63,26 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
         if(newOrder ==null){
             throw new RuntimeException("Error when placing an order");
         }
-
+        Integer productID = order.getProducts().get(0).getProductID();
+        Product fetchedProduct = productService.getProduct(productID);
         // customer
         // create and save notification back to user
         OrderNotificationDTO customerNotification = new OrderNotificationDTO(
             newOrder.getOrderID(), NotificationTitle.PLACE_ORDER, 
             userID, NotificationTopic.Order, NotificationStatus.SUCCESSFUL);
         customerNotification.setMessage("Your order #" + newOrder.getOrderID() + " has been placed successfully");
+        customerNotification.setPicture(fetchedProduct.getPicture());
         // send message back to user
-        notificationService.sendNotification(customerNotification);
-
+        notificationService.sendCustomerOrderNotification(customerNotification);
         // employee
         // send message to notification message queue
         OrderNotificationDTO employeeNotification = new OrderNotificationDTO(
             newOrder.getOrderID(), NotificationTitle.PLACE_ORDER, 
             userID, NotificationBroadCast.ALL_EMPLOYEES.name(), 
             NotificationTopic.Order, NotificationStatus.SUCCESSFUL);
+        employeeNotification.setPicture(fetchedProduct.getPicture());
         employeeNotification.setMessage("A new order #" + newOrder.getOrderID() + " has been placed");
-        notificationService.sendNotification(employeeNotification);
+        notificationService.sendEmployeeOrderNotification(employeeNotification);
 
         return orderService.getOrder(newOrder.getOrderID(), OrderStatus.Pending);
     }
@@ -82,18 +92,31 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
     private OrderWithProducts orderProcessing(OrderWithProducts order) 
     throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException {
         log.info("orderProcessing({})", order);
-        if(order.getCustomerID()==null){
-            throw new NotFoundException("Customer does not found");
-        }
+        if(order.getCustomerID()==null)
+            throw new InvalidOrderException("Customer does not found");
+        if(order.getProducts()==null || order.getProducts().isEmpty())
+            throw new InvalidOrderException("Your order does not have any products");
+
         LocalDateTime currenDateTime = LocalDateTime.now();
         order.setOrderDate(currenDateTime);
-        // set applieddate for discount;
+        // set applied date for discount;
+        List<Integer> productIDs = new ArrayList<>();
         for (OrderItem product : order.getProducts()) {
+            productIDs.add(product.getProductID());
             for(OrderItemDiscount discount : product.getDiscounts()){
                 discount.setAppliedDate(currenDateTime);
             }
         }
-        
+        // validate products
+        // fetch products
+        List<Product> fetchedProducts = productService.getProducts(productIDs);
+        // check product and set product's unitprice to customer's order
+        for (OrderItem item : order.getProducts()) {
+            Product product = this.findProduct(fetchedProducts, item.getProductID())
+                .orElseThrow(()-> new NotFoundException("Product " + item.getProductID() + " does not found"));
+            item.setUnitPrice(product.getUnitPrice());
+        }
+
         // validate order
         boolean isValidOrder = orderService.validateOrder(order);
         if(!isValidOrder) throw new InvalidOrderException("Order of customer "+order.getCustomerID()+" is not valid");
@@ -101,6 +124,10 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
         String pendingOrderID = orderService.saveFullOrder(order);
         order.setOrderID(pendingOrderID);
         return order;
+    }
+
+    private Optional<Product> findProduct(List<Product> products, Integer productID){
+        return products.stream().filter(product -> product.getProductID()==productID).findFirst();
     }
 
     @Override
@@ -118,15 +145,17 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
         notification.setTopic(NotificationTopic.Order);
         notification.setOrderID(orderDetails.getOrderID());
         if(status){
-            notification.setMessage("Order #" + orderDetails.getOrderID() + " is received successully by customer " + orderDetails.getCustomerID());
+            notification.setMessage("Order #" + orderDetails.getOrderID() + 
+                " is received successully by customer " + orderDetails.getCustomerID());
             notification.setStatus(NotificationStatus.SUCCESSFUL);
             notification.setReceiverID(employeeUser.getUserID());
         }else {
-            notification.setMessage("Order #" + orderDetails.getOrderID() + " can not received by customer " + orderDetails.getCustomerID());
+            notification.setMessage("Order #" + orderDetails.getOrderID() + 
+                " can not received by customer " + orderDetails.getCustomerID());
             notification.setStatus(NotificationStatus.ERROR);
             notification.setReceiverID(employeeUser.getUserID());
         }
-        notificationService.sendNotification(notification);
+        notificationService.sendEmployeeOrderNotification(notification);
     }
 
     @Override

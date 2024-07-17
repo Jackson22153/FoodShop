@@ -16,6 +16,7 @@ public class NotificationDTO extends DataDTO{
     private String message;
     private String senderID;
     private String receiverID;
+    private String picture;
 
     private NotificationTitle title;
     private NotificationTopic topic;

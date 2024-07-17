@@ -62,6 +62,12 @@ public class ProductMessageListener {
                 Boolean status = productService.updateProductInStock(productStocks);
                 responseMessage.setEventType(EventType.ReturnUpdateProductsUnitsInStock);
                 responseMessage.setPayload(new ResponseFormat(status));
+            }else if(eventMessage.getEventType().equals(EventType.ValidateAndProcessProducts)){
+                // validate and process products
+                List<ProductDiscountsDTO> products = payload.getProducts();
+                ResponseFormat responseFormat = productService.validateAndProcessProducts(products);
+                responseMessage.setEventType(EventType.ReturnValidateAndProcessProducts);
+                responseMessage.setPayload(responseFormat);
             }else if(eventMessage.getEventType().equals(EventType.ValidateProducts)){
                 // validate products
                 List<ProductDiscountsDTO> products = payload.getProducts();
@@ -75,15 +81,20 @@ public class ProductMessageListener {
             return null;
         } catch (NotFoundException e){
             log.error("Error: {}", e.getMessage());
-            try {
-                responseMessage.setErrorMessage(e.getMessage());
-                responseMessage.setEventType(EventType.NotFoundException);
-                String responsemessage = objectMapper.writeValueAsString(responseMessage);
-                return responsemessage;
-            } catch (JsonProcessingException exception) {
-                log.error("Error: {}", e.getMessage());
-                return null;
-            }
+            return handleNotFoundException(responseMessage, e.getMessage());
+        }
+    }
+
+    // handle not found exception
+    private String handleNotFoundException(EventMessage<Object> responseMessage, String errorMessage){
+        try {
+            responseMessage.setErrorMessage(errorMessage);
+            responseMessage.setEventType(EventType.NotFoundException);
+            String responsemessage = objectMapper.writeValueAsString(responseMessage);
+            return responsemessage;
+        } catch (Exception exception) {
+            log.error("Error: {}", exception.getMessage());
+            return null;
         }
     }
 

@@ -5,6 +5,9 @@ public enum EventType {
     ValidateProducts,
     ReturnValidateProducts,
 
+    ValidateAndProcessProducts,
+    ReturnValidateAndProcessProducts,
+
     // remove products in cart
     RemoveProductsInCart,
     ReturnRemoveProductsInCart,

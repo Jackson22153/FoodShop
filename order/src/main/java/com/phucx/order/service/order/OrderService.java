@@ -19,7 +19,8 @@ public interface OrderService {
     public Boolean updateOrderStatus(String orderID, OrderStatus status) throws NotFoundException;
     // save order of customer
     public String saveFullOrder(OrderWithProducts order) throws JsonProcessingException, NotFoundException;
-    // validate customer's order
+    // validate customer's order 
+    // validate order' products, discounts
     public Boolean validateOrder(OrderWithProducts order) throws InvalidDiscountException, JsonProcessingException;
     // validate order's products with product's in stocks and update it by message queue
     public ResponseFormat validateAndProcessOrder(OrderWithProducts order) throws JsonProcessingException;

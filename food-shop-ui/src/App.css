@@ -681,7 +681,11 @@ ins{
 	padding: 15px 10px;
 }
 .notification-panel .notify-item .notify-img img{
-  width: 100px;
+  position:absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
 }
 .notification-panel .notify-item .notify-img{
   margin-right: 15px;

@@ -15,8 +15,8 @@ public class MessageQueueConstant {
     public final static String EMPLOYEE_ROUTING_KEY = "employeequeue";
     //  shipper routing key
     public final static String SHIPPER_ROUTING_KEY = "shipperqueue";
-
     // notification exchange
     public final static String NOTIFICATION_EXCHANGE = "notificationservice";
-    public final static String NOTIFICATION_ORDER_ROUTING_KEY = "notificationorderqueue";
+    public final static String NOTIFICATION_CUSTOMER_ORDER_ROUTING_KEY = "notificationcustomerorderqueue";
+    public final static String NOTIFICATION_EMPLOYEE_ORDER_ROUTING_KEY = "notificationemployeeorderqueue";
 }

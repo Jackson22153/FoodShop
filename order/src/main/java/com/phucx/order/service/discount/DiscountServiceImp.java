@@ -31,14 +31,14 @@ public class DiscountServiceImp implements DiscountService{
     public DiscountDetail getDiscount(String discountID) throws JsonProcessingException, NotFoundException {
         log.info("getDiscount(discountID={})", discountID);
         // create a request for discount
-        DiscountDTO discountDDiscountDTO = new DiscountDTO();
-        discountDDiscountDTO.setDiscountID(discountID);
+        DiscountDTO discountDiscountDTO = new DiscountDTO();
+        discountDiscountDTO.setDiscountID(discountID);
         // create a request message
         String eventID = UUID.randomUUID().toString();
         EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
         eventMessage.setEventType(EventType.GetDiscountByID);
-        eventMessage.setPayload(discountDDiscountDTO);
+        eventMessage.setPayload(discountDiscountDTO);
         // receive data
         EventMessage<DiscountDetail> response = messageQueueService.sendAndReceiveData(
             eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
@@ -77,7 +77,7 @@ public class DiscountServiceImp implements DiscountService{
     }
 
     @Override
-    public Boolean validateDiscount(List<ProductDiscountsDTO> productsDiscounts) throws JsonProcessingException {
+    public ResponseFormat validateDiscount(List<ProductDiscountsDTO> productsDiscounts) throws JsonProcessingException {
         log.info("validateDiscount(productDiscounts={})", productsDiscounts);
         // create a request for discount
         DiscountDTO discountDDiscountDTO = new DiscountDTO();
@@ -94,6 +94,6 @@ public class DiscountServiceImp implements DiscountService{
             MessageQueueConstant.DISCOUNT_ROUTING_KEY, 
             ResponseFormat.class);
         log.info("response={}", response);
-        return  response.getPayload().getStatus();
+        return  response.getPayload();
     }
 }

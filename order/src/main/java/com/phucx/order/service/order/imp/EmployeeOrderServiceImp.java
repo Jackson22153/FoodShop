@@ -100,8 +100,8 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
             notification.setOrderID(order.getOrderID());
         if(status){
             // send message to customer
-            Customer fetchedUser = customerService.getCustomerByID(order.getCustomerID());
-            notification.setReceiverID(fetchedUser.getUserID());
+            Customer fetchedCustomer = customerService.getCustomerByID(order.getCustomerID());
+            notification.setReceiverID(fetchedCustomer.getUserID());
             notification.setMessage("Order #" + order.getOrderID() + " has been canceled");
             notification.setStatus(NotificationStatus.SUCCESSFUL);
         }else {
@@ -110,7 +110,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
             notification.setMessage("Error: Order #" + order.getOrderID() + " can not be canceled");
             notification.setStatus(NotificationStatus.ERROR);
         }
-        notificationService.sendNotification(notification);
+        notificationService.sendCustomerOrderNotification(notification);
     }
 
     @Override
@@ -126,8 +126,8 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         notification.setOrderID(order.getOrderID());
         if(status){
             // send message to customer
-            Customer fetchedUser = customerService.getCustomerByID(order.getCustomerID());
-            notification.setReceiverID(fetchedUser.getUserID());
+            Customer fetchedCustomer = customerService.getCustomerByID(order.getCustomerID());
+            notification.setReceiverID(fetchedCustomer.getUserID());
             notification.setMessage("Order #" + order.getOrderID() + " has been fullfilled");
             notification.setStatus(NotificationStatus.SUCCESSFUL);
         }else {
@@ -136,7 +136,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
             notification.setMessage("Error: Order #" + order.getOrderID() + " can not be fulfilled");
             notification.setStatus(NotificationStatus.ERROR);
         }
-        notificationService.sendNotification(notification);
+        notificationService.sendCustomerOrderNotification(notification);
     }
 
     @Override

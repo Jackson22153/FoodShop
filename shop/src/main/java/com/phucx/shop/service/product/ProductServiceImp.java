@@ -267,8 +267,8 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public ResponseFormat validateProducts(List<ProductDiscountsDTO> products) {
-        log.info("validateProducts({})", products);
+    public ResponseFormat validateAndProcessProducts(List<ProductDiscountsDTO> products) {
+        log.info("validateAndProcessProducts({})", products);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             List<ProductStockTableType> productStocks = new ArrayList<>();
@@ -280,8 +280,8 @@ public class ProductServiceImp implements ProductService{
             // get products
             List<Product> fetchedProducts = productRepository.findAllById(productIDs);    
             // validate discounts
-            Boolean isValidDiscounts = validateDiscountService.validateDiscountsOfProducts(products);
-            if(!isValidDiscounts) throw new InvalidDiscountException("Your product's discounts does not valid!");
+            ResponseFormat isValidDiscounts = validateDiscountService.validateDiscountsOfProducts(products);
+            if(!isValidDiscounts.getStatus()) throw new InvalidDiscountException(isValidDiscounts.getError());
             
             // validate and update product inStock with order product quantity
             for(ProductDiscountsDTO product : products){
@@ -348,6 +348,45 @@ public class ProductServiceImp implements ProductService{
         Page<ExistedProduct> products = existedProductRepository.findAll(pageable);
         productImageService.setExistedProductsImage(products.getContent());
         return products;
+    }
+
+    @Override
+    public ResponseFormat validateProducts(List<ProductDiscountsDTO> products) {
+        log.info("validateProducts({})", products);
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            // fetch products
+            // extract productID
+            List<Integer> productIDs = products.stream()
+                .map(ProductDiscountsDTO::getProductID)
+                .collect(Collectors.toList());
+            // get products
+            List<Product> fetchedProducts = productRepository.findAllById(productIDs);    
+            // validate discounts
+            List<String> discountIds = products.stream()
+                .flatMap(product -> product.getDiscountIDs().stream())
+                .collect(Collectors.toList());
+            if(discountIds!=null && !discountIds.isEmpty()){
+                ResponseFormat isValidDiscounts = validateDiscountService.validateDiscountsOfProducts(products);
+                if(!isValidDiscounts.getStatus()) throw new InvalidDiscountException(isValidDiscounts.getError());
+            }
+            // validate products
+            for(ProductDiscountsDTO product : products){
+                // get product
+                Product fetchedProduct = findProduct(fetchedProducts, product.getProductID())
+                    .orElseThrow(()-> new NotFoundException("Product "+product.getProductID()+" does not found"));
+                // check whether the product is discontinued or not?
+                if(fetchedProduct.getDiscontinued().equals(ProductStatus.Discontinued.getStatus()))
+                    throw new RuntimeException("Product " + fetchedProduct.getProductName() + " is discontinued");
+            }
+            responseFormat.setStatus(true);
+
+        } catch (RuntimeException | NotFoundException | InvalidDiscountException e) {
+            log.error("Error: {}", e.getMessage());
+            responseFormat.setStatus(false);
+            responseFormat.setError(e.getMessage());
+        }
+        return responseFormat;
     }
 
 }

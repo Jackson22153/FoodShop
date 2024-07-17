@@ -1,6 +1,7 @@
 package com.phucx.shop.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,13 @@ public interface DiscountDetailRepository extends JpaRepository<DiscountDetail, 
         WHERE pd.productID=?1
             """)
     Page<DiscountDetail> findByProductID(int productID, Pageable pageable);
+
+    @Query("""
+        SELECT d \
+        FROM DiscountDetail d JOIN ProductDiscount pd ON d.discountID=pd.discountID \
+        WHERE pd.productID=?2 AND d.discountID IN ?1
+        """)
+    List<DiscountDetail> findAllByDiscountIDAndProductID(List<String> discountIDs, Integer productID);
 
     @Modifying
     @Transactional

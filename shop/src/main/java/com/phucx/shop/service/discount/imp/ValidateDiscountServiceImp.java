@@ -2,18 +2,21 @@ package com.phucx.shop.service.discount.imp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.phucx.shop.constant.DiscountTypeConst;
+import com.phucx.shop.exceptions.ExceedMaxDiscountException;
 import com.phucx.shop.exceptions.InvalidDiscountException;
 import com.phucx.shop.exceptions.NotFoundException;
-import com.phucx.shop.model.Discount;
-import com.phucx.shop.model.DiscountType;
+import com.phucx.shop.model.DiscountDetail;
 import com.phucx.shop.model.ProductDiscountsDTO;
-import com.phucx.shop.repository.DiscountRepository;
-import com.phucx.shop.repository.DiscountTypeRepository;
+import com.phucx.shop.model.ResponseFormat;
+import com.phucx.shop.repository.DiscountDetailRepository;
 import com.phucx.shop.service.discount.ValidateDiscountService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,100 +24,93 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ValidateDiscountServiceImp implements ValidateDiscountService{
+    public final static int MAX_APPLIED_DISCOUNT_PRODUCT=2;
     @Autowired
-    private DiscountRepository discountRepository;
-    @Autowired
-    private DiscountTypeRepository discountTypeRepository;
+    private DiscountDetailRepository discountDetailRepository;
 
-    @Override
-    public Boolean validateDiscountsOfProduct(ProductDiscountsDTO productDiscounts) throws InvalidDiscountException {
+    private Boolean validateDiscountsOfProduct(ProductDiscountsDTO productDiscounts) throws NotFoundException, ExceedMaxDiscountException {
         log.info("validateDiscountsOfProduct({})", productDiscounts);
-        try {
-            Integer productID = productDiscounts.getProductID();
-            for(String discountID: productDiscounts.getDiscountIDs()){
-                // validate number of discount type of a product 
-                boolean isValid = false;
-                // validate discount according to discount type
-                isValid = this.validateDiscount(productID, discountID, productDiscounts.getAppliedDate());
-                if(!isValid) return false;
+        Integer productID = productDiscounts.getProductID();
+        List<DiscountDetail> discounts = discountDetailRepository.findAllByDiscountIDAndProductID(
+            productDiscounts.getDiscountIDs(), productID);
+        if(discounts==null || discounts.isEmpty()){
+            throw new NotFoundException("Discounts do not found!");
+        }
+        // check product's discounts
+        this.checkProductDiscounts(productID, discounts);
+        // validate each discount
+        for (DiscountDetail discount : discounts) {
+            this.findDiscountID(productDiscounts.getDiscountIDs(), discount.getDiscountID())
+                .orElseThrow(()-> new NotFoundException("Discount " + discount.getDiscountID() + " does not found!"));
+            // validate discount based on type
+            if(discount.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Percentage_based.getValue())){
+                return this.validatePercenageBasedDiscount(discount, productDiscounts.getAppliedDate());
+            }else if(discount.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Code.getValue())){
+                return this.validateCodeDiscount(discount, productDiscounts.getAppliedDate());
+            }else {
+                throw new NotFoundException("Discount type " + discount.getDiscountType() + " does not found");
             }
-            return true;
-        } catch (NotFoundException e) {
-            log.error("Error: {}", e.getMessage());
-            return false;
         }
+        return false;
+    }
+
+    private void checkProductDiscounts(Integer productID, List<DiscountDetail> discounts) throws ExceedMaxDiscountException{
+        if(discounts.size()>MAX_APPLIED_DISCOUNT_PRODUCT){
+            throw new ExceedMaxDiscountException("Product " + productID + "exceeds maximum number of discounts!");
+        }
+        Map<String, Long> groupDiscounts = discounts.stream()
+            .collect(Collectors.groupingBy(DiscountDetail::getDiscountType, Collectors.counting()));
+        groupDiscounts.entrySet().stream().filter(entry -> entry.getValue()>1)
+            .forEach(entry -> new ExceedMaxDiscountException("Exceed number of discount type " + entry.getKey()));
+    }
+
+    private Optional<String> findDiscountID(List<String> discountIDs, String discountID){
+        return discountIDs.stream().filter(id->id.equals(discountID)).findFirst();
     }
 
     @Override
-    public Boolean validateDiscount(Integer productID, String discountID, LocalDateTime appliedDate) throws NotFoundException {
-        log.info("validateDiscount(productID={}, discountID={})", productID, discountID);
-        // get discountType
-        Discount discount = this.getDiscount(discountID);
-        DiscountType fetchedDiscountType = this.getDiscountType(discount.getDiscountTypeID());
-        String discountType = fetchedDiscountType.getDiscountType();
-        // validate according to discount's type
-        if(DiscountTypeConst.Percentage_based.getValue().equalsIgnoreCase(discountType)){
-            return this.validatePercenageBasedDiscount(productID, discountID, appliedDate);
-        }else if(DiscountTypeConst.Code.getValue().equalsIgnoreCase(discountType)){
-            return this.validateCodeDiscount(productID, discountID, appliedDate);
-        }
-        throw new NotFoundException("Discount Type "+discountType+" does not found");
-    }
-
-    @Override
-    public Boolean validateDiscountsOfProducts(List<ProductDiscountsDTO> productsDiscounts) {
+    public ResponseFormat validateDiscountsOfProducts(List<ProductDiscountsDTO> productsDiscounts) {
         log.info("validateDiscountsOfProducts({})", productsDiscounts);
+        ResponseFormat responseFormat = new ResponseFormat();
         try {
             for(ProductDiscountsDTO product: productsDiscounts){
                 Boolean isValid = this.validateDiscountsOfProduct(product);
-                if(!isValid) return false;
-            }
-            return true;
-        } catch (InvalidDiscountException e) {
-            log.warn("Error: ", e.getMessage());
-            return false;
+                if(!isValid) throw new InvalidDiscountException("Discounts of product " + product.getProductID() + " are not valid!");
+            };
+            responseFormat.setStatus(true);
+        } catch (NotFoundException | ExceedMaxDiscountException | InvalidDiscountException e) {
+            responseFormat.setStatus(false);
+            responseFormat.setError(e.getMessage());
         }
+        return responseFormat;
     }
 
     // validate discount for code discount
-    private boolean validateCodeDiscount(Integer productID, String discountID, LocalDateTime appliedDate){
-        log.info("validateCodeDiscount(productID={}, discountID={}, appliedDate={})", productID, discountID, appliedDate);
+    private boolean validateCodeDiscount(DiscountDetail discount, LocalDateTime appliedDate){
+        log.info("validateCodeDiscount(discount={}, appliedDate={})", discount, appliedDate);
         return false;
     }
 
     // validate discount for percenage-based discount
-    private boolean validatePercenageBasedDiscount(Integer productID, String discountID, LocalDateTime appliedDate)
-        throws NotFoundException
-    {
-        log.info("validatePercenageBasedDiscount(productID={}, itemDiscount={}, appliedDate={})", 
-            productID, discountID, appliedDate);
-        return discountRepository.findByDiscountIDAndProductID(discountID, productID)
-            .map(discount -> {
-                boolean isValid = false;
-                Boolean isActive = discount.getActive();
-   
-                if((appliedDate.isEqual(discount.getStartDate()) || appliedDate.isAfter(discount.getStartDate()))&&
-                    (appliedDate.isEqual(discount.getEndDate()) || appliedDate.isBefore(discount.getEndDate()))){
-                        isValid = true;
-                }
-                if(!isValid)
-                    log.info("Discount {} is out of date", discount.getDiscountID());
-                if(!isActive)
-                    log.info("Discount {} is not available", discount.getDiscountID());
-                return isActive && isValid;
-            }).orElseThrow(() -> new NotFoundException("Discount " +discountID+" does not found"));
+    private Boolean validatePercenageBasedDiscount(DiscountDetail discount, LocalDateTime appliedDate){
+        log.info("validatePercenageBasedDiscount(discount={}, appliedDate={})", discount, appliedDate);
+        return this.validateDiscount(discount, appliedDate);
     }
 
+    // validate a discount
+    private Boolean validateDiscount(DiscountDetail discount, LocalDateTime appliedDate){
+        log.info("validateDiscount(discount={}, appliedDate={})", discount, appliedDate);
+        boolean isValid = false;
+        Boolean isActive = discount.getActive();
 
-    private Discount getDiscount(String discountID) throws NotFoundException {
-        log.info("getDiscount(discountID={})", discountID);
-        return discountRepository.findById(discountID)
-            .orElseThrow(()-> new NotFoundException("Discount "+ discountID+" does not found"));
-    }
-
-    private DiscountType getDiscountType(int discountTypeID) throws NotFoundException {
-        log.info("getDiscountType(discountTypeID={})", discountTypeID);
-        return discountTypeRepository.findById(discountTypeID)
-            .orElseThrow(() -> new NotFoundException("Discount type " + discountTypeID + " does not found"));
+        if((appliedDate.isEqual(discount.getStartDate()) || appliedDate.isAfter(discount.getStartDate()))&&
+            (appliedDate.isEqual(discount.getEndDate()) || appliedDate.isBefore(discount.getEndDate()))){
+                isValid = true;
+        }
+        if(!isValid)
+            log.info("Discount {} is out of date", discount.getDiscountID());
+        if(!isActive)
+            log.info("Discount {} is not available", discount.getDiscountID());
+        return isActive && isValid;
     }
 }

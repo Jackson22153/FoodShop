@@ -195,6 +195,7 @@ export type Notification = {
     notificationID: string,
     title: string,
     message: string,
+    picture: string,
     senderID: string,
     receiverID: string,
     topic: string,

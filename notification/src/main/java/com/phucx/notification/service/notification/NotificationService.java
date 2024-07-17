@@ -23,6 +23,7 @@ public interface NotificationService {
     public Boolean updateNotificationReadStatusOfBroadcast(String title, String message, NotificationBroadCast broadCast, Boolean status) throws NotFoundException;
     
     // get notification
+    public NotificationDetail getOrderNotificationDetail(String title, String orderID, String receiverID) throws NotFoundException;
 
     public NotificationDetail getNotificationByNotificationIDAndReceiverID(String notificationID, String receiverID) throws NotFoundException;
     public NotificationDetail getNotificationByUserIDAndNotificationID(String userID, String notificationID) throws NotFoundException;

@@ -15,6 +15,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Stri
     @Modifying
     @Transactional
     @Procedure("createNotification")
-    Boolean createNotification(String notificationID, String title, String message, String senderID, 
-        String receiverID, String topicName, String status, Boolean isRead, LocalDateTime time);
+    Boolean createNotification(String notificationID, String title, 
+        String message, String picture, String senderID, String receiverID, 
+        String topicName, String repliedTo, String status, Boolean isRead, 
+        LocalDateTime time);
 }

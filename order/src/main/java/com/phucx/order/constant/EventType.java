@@ -36,6 +36,9 @@ public enum EventType {
     ValidateProducts,
     ReturnValidateProducts,
 
+    ValidateAndProcessProducts,
+    ReturnValidateAndProcessProducts,
+
 
     // discount response 
     ReturnDiscountByID,

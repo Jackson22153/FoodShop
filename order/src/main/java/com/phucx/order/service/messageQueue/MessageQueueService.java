@@ -10,7 +10,7 @@ import com.phucx.order.model.OrderWithProducts;
 public interface MessageQueueService {
     // send notification
     public void sendNotification(EventMessage<NotificationDTO> notification, String exchange, String routingKey) throws JsonProcessingException;
-    // send order to message queue
+    // send order to order processing queue 
     public void sendOrder(OrderWithProducts order) throws JsonProcessingException;
     // send and receive data from other services
     public <T> EventMessage<T> sendAndReceiveData(EventMessage<DataDTO> eventMessage, String exchange, 

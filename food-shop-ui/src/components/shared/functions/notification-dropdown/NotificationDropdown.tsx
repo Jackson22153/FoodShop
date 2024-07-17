@@ -109,6 +109,7 @@ export default function NotificationDropdown(prop:Props){
         const res = await getEmployeeNotifications(pageNumber);
         if(200<=res.status&&res.status<300){
           const data = res.data;
+          console.log(data)
           setNotifications(data.content);
         }
     }
@@ -194,7 +195,7 @@ export default function NotificationDropdown(prop:Props){
                                 <div className={`notify-item cursor-pointer ${notification.isRead?'read':''}`} 
                                     onClick={(e)=> onClickNotification(e, notification)}>
                                     <div className="notify-img">
-                                        <img src={displayProductImage(null)} alt="profile-pic"/>
+                                        <img src={displayProductImage(notification.picture)} alt="profile-pic"/>
                                     </div>
                                     <div className="notify_info">
                                         <p className="text-black">{notification.message}</p>

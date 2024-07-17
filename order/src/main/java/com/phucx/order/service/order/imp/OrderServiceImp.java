@@ -3,7 +3,6 @@ package com.phucx.order.service.order.imp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.compositeKey.OrderDetailKey;
 import com.phucx.order.constant.OrderStatus;
-import com.phucx.order.constant.WebConstant;
-import com.phucx.order.exception.InSufficientInventoryException;
 import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.Customer;
-import com.phucx.order.model.DiscountDetail;
 import com.phucx.order.model.Invoice;
 import com.phucx.order.model.InvoiceDetails;
 import com.phucx.order.model.OrderItem;
@@ -34,7 +30,6 @@ import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderDetailExtended;
 import com.phucx.order.model.ProductDiscountsDTO;
 import com.phucx.order.model.ResponseFormat;
-import com.phucx.order.model.Product;
 import com.phucx.order.repository.InvoiceRepository;
 import com.phucx.order.repository.OrderDetailDiscountRepository;
 import com.phucx.order.repository.OrderDetailExtendedRepository;
@@ -42,7 +37,6 @@ import com.phucx.order.repository.OrderDetailRepository;
 import com.phucx.order.repository.OrderRepository;
 import com.phucx.order.service.bigdecimal.BigDecimalService;
 import com.phucx.order.service.customer.CustomerService;
-import com.phucx.order.service.discount.DiscountService;
 import com.phucx.order.service.order.ConvertOrderService;
 import com.phucx.order.service.order.OrderService;
 import com.phucx.order.service.product.ProductService;
@@ -59,8 +53,6 @@ public class OrderServiceImp implements OrderService{
     private OrderDetailRepository orderDetailRepository;
     @Autowired
     private OrderDetailExtendedRepository orderDetailExtendedRepository;
-    @Autowired
-    private DiscountService discountService;
     @Autowired
     private ProductService productService;
     @Autowired
@@ -85,7 +77,7 @@ public class OrderServiceImp implements OrderService{
     @Override
     @Transactional
     public String saveFullOrder(OrderWithProducts order) throws JsonProcessingException, NotFoundException {
-            log.info("saveFullOrder({})", order);
+        log.info("saveFullOrder({})", order);
         String orderID = this.saveOrder(order);
         // // save OrderDetail
         List<OrderItem> orderItems = order.getProducts();
@@ -136,7 +128,6 @@ public class OrderServiceImp implements OrderService{
     }
 
     @Override
-    @Transactional
     public ResponseFormat validateAndProcessOrder(OrderWithProducts order) throws JsonProcessingException{
         log.info("validateAndProcessOrder({})", order.toString());
         if(order==null || order.getProducts().size()==0) {
@@ -166,72 +157,33 @@ public class OrderServiceImp implements OrderService{
     
     @Override
     public Boolean updateOrderEmployee(String orderID, String employeeID) {
-        // orderRepository.findById(11071);
+        log.info("updateOrderEmployee(orderID={}, employeeID={})", orderID, employeeID);
         Integer check = orderRepository.updateOrderEmployeeID(orderID, employeeID);
         if(check>0) return true;
         return false;
     }
 
     @Override
-    public Boolean validateOrder(OrderWithProducts order) {
+    public Boolean validateOrder(OrderWithProducts order) throws JsonProcessingException, InvalidDiscountException {
         log.info("validateOrder({})", order);
-        try {
-            // get discounts
-            List<String> discountIDs =order.getProducts().stream()
-                .flatMap(product -> product.getDiscounts().stream())
+        // product discount DTOs
+        List<ProductDiscountsDTO> productDiscountsDTOs = new ArrayList<>();
+        // extract products and discounts from order
+        for (OrderItem item : order.getProducts()) {
+            List<String> discountIds = item.getDiscounts().stream()
+                .filter(discount -> discount.getDiscountID()!=null)
                 .map(OrderItemDiscount::getDiscountID)
                 .collect(Collectors.toList());
-            List<DiscountDetail> fetchedDiscounts = discountService.getDiscounts(discountIDs);
-            // get products
-            List<OrderItem> products = order.getProducts();
-            List<Integer> productIDs = products.stream().map(OrderItem::getProductID).collect(Collectors.toList());
-            List<Product> fetchedProducts = productService.getProducts(productIDs);
-            // product discount DTOs
-            List<ProductDiscountsDTO> productDiscountsDTOs = new ArrayList<>();
-            // validate products
-            for (OrderItem product : products) {
-                // check if the product exists or not
-                Product fetchedProduct = findProduct(fetchedProducts, product.getProductID())
-                    .orElseThrow(()-> new NotFoundException("Product "+ product.getProductID()+" does not found"));
-                // set default value for product
-                product.setUnitPrice(fetchedProduct.getUnitPrice());
-                product.setPicture(fetchedProduct.getPicture());
-                // check if product has any discount applied or not
-                List<OrderItemDiscount> productDiscounts = product.getDiscounts().stream()
-                    .filter(discount -> discount.getDiscountID()!=null)
-                    .collect(Collectors.toList());
-                product.setDiscounts(productDiscounts);
-                // set and get discounts 
-                if(product.getDiscounts().size()>0){
-                    // validate number of discounts that can apply to 1 product
-                    Integer numberOfDiscounts = product.getDiscounts().size();
-                    if(numberOfDiscounts>WebConstant.MAX_APPLIED_DISCOUNT_PRODUCT){
-                        throw new InSufficientInventoryException("Product " + product.getProductID() +" exceed the number of discount codes");
-                    }
-                    List<String> productDiscountIDs = new ArrayList<>();
-                    for (OrderItemDiscount orderItemDiscount : product.getDiscounts()) {
-                        DiscountDetail fetchedDiscount = this.findDiscount(fetchedDiscounts, orderItemDiscount.getDiscountID())
-                            .orElseThrow(()-> new NotFoundException("Discount "+ orderItemDiscount.getDiscountID()+" does not found"));
-                        orderItemDiscount.setDiscountPercent(fetchedDiscount.getDiscountPercent());
-                        orderItemDiscount.setDiscountType(fetchedDiscount.getDiscountType());
-            
-                        productDiscountIDs.add(orderItemDiscount.getDiscountID());
-                    }
-                    LocalDateTime currentTime = product.getDiscounts().get(0).getAppliedDate();
-                    ProductDiscountsDTO productDiscountsDTO = new ProductDiscountsDTO(product.getProductID(), product.getQuantity(), productDiscountIDs, currentTime);
-                    productDiscountsDTOs.add(productDiscountsDTO);
-                }
-            }
-            // validate discount status
-            Boolean isValidDiscount = discountService.validateDiscount(productDiscountsDTOs);
-            if(!isValidDiscount) throw new InvalidDiscountException("Invalid discount");
 
-            return true;
-        } catch (InvalidDiscountException | NotFoundException | InSufficientInventoryException | JsonProcessingException e) {
-            log.error("Error: " + e.getMessage());
-            return false;
+            LocalDateTime appliedDate = item.getDiscounts().get(0).getAppliedDate();
+            ProductDiscountsDTO productDiscountsDTO = new ProductDiscountsDTO(
+                item.getProductID(), item.getQuantity(), discountIds, appliedDate);
+            productDiscountsDTOs.add(productDiscountsDTO);
         }
-        
+        // validate products and discounts
+        ResponseFormat isValidDiscount = productService.validateProducts(productDiscountsDTOs);       
+        if(!isValidDiscount.getStatus()) throw new InvalidDiscountException(isValidDiscount.getError());
+        return isValidDiscount.getStatus();
     }
 
     @Override
@@ -312,15 +264,6 @@ public class OrderServiceImp implements OrderService{
         Order order = orderRepository.findByEmployeeIDAndOrderID(employeeID, orderID)
             .orElseThrow(()-> new NotFoundException("Order " + orderID + " of employee "+ employeeID + " does not found"));
         return convertOrderService.convertOrderWithProducts(order);
-    }
-
-    // find product
-    private Optional<Product> findProduct(List<Product> products, Integer productID){
-        return products.stream().filter(p -> p.getProductID().equals(productID)).findFirst();
-    }
-    // find discount
-    private Optional<DiscountDetail> findDiscount(List<DiscountDetail> discounts, String discountID){
-        return discounts.stream().filter(d -> d.getDiscountID().equalsIgnoreCase(discountID)).findFirst();
     }
 
     @Override

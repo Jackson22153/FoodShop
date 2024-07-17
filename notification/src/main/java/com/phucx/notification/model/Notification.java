@@ -27,9 +27,11 @@ import lombok.ToString;
             @StoredProcedureParameter(name="notificationID", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="title", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="message", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="picture", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="senderID", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="receiverID", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="topicName", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="repliedTo", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="status", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="isRead", mode = ParameterMode.IN, type = Boolean.class),
             @StoredProcedureParameter(name="time", mode = ParameterMode.IN, type = LocalDateTime.class),
@@ -43,6 +45,7 @@ public class Notification {
     private String message;
     private String senderID;
     private String receiverID;
+    private String picture;
 
     private Integer topicID;
 

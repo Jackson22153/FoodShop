@@ -55,18 +55,21 @@ public class OrderProcessingMessageListener {
                 notification = this.validateOrder(order, notification, user);
             } catch (RuntimeException | NotFoundException e) {
                 log.warn("Error: {}", e.getMessage());
-                exceptionHandler(order, user.getUserID(), "Order #"+order.getOrderID()+" has been canceled due to " + e.getMessage(), notification);
+                exceptionHandler(order, user.getUserID(), "Order #" + order.getOrderID() + 
+                    " has been canceled due to " + e.getMessage(), notification);
             } catch (InvalidDiscountException e){
                 log.warn("Error: Discount is invalid {}", e.getMessage());
-                exceptionHandler(order, user.getUserID(), "Order #"+order.getOrderID()+" has been canceled due to invalid discount", notification);
+                exceptionHandler(order, user.getUserID(), "Order #" + order.getOrderID() + 
+                    " has been canceled due to invalid discount", notification);
             } catch(InvalidOrderException e){
-                log.warn("Error: Order is invalid {}", e.getMessage());
-                exceptionHandler(order, user.getUserID(), "Order #"+order.getOrderID()+" has been canceled due to invalid order", notification);
+                log.warn("Error: Order is invalid {}", e.getMessage()); 
+                exceptionHandler(order, user.getUserID(), "Order #" + order.getOrderID() + 
+                    " has been canceled due to invalid order", notification);
             } catch (InSufficientInventoryException e){
                 log.warn("Error: Order is invalid due to {}", e.getMessage());
                 exceptionHandler(order, user.getUserID(), e.getMessage(), notification);
             }
-            notificationService.sendNotification(notification);
+            notificationService.sendCustomerOrderNotification(notification);
         } catch (JsonProcessingException | NotFoundException e) {
             log.error("Error: {}", e.getMessage());
         }
@@ -74,17 +77,19 @@ public class OrderProcessingMessageListener {
 
     // validate order product's stocks
     @LoggerAspect
-    private OrderNotificationDTO validateOrder(OrderWithProducts order, OrderNotificationDTO notification, Customer user) 
+    private OrderNotificationDTO validateOrder(OrderWithProducts order, OrderNotificationDTO notification, Customer customer) 
         throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException, InSufficientInventoryException{
 
         // Notification notification = new Notification();
         notification.setTitle(NotificationTitle.CONFIRM_ORDER);
         notification.setTopic(NotificationTopic.Order);
         if(!orderService.isPendingOrder(order.getOrderID())){
-            throw new InvalidOrderException("Order " + order.getOrderID() + " is not a pending order");
+            throw new InvalidOrderException("Order " + order.getOrderID() + 
+                " is not a pending order");
         }
         if(order.getEmployeeID()==null || order.getCustomerID()==null){
-            throw new InvalidOrderException("Order " + order.getOrderID() + " is invalid due to missing customer or employee");
+            throw new InvalidOrderException("Order " + order.getOrderID() + 
+                " is invalid due to missing customer or employee");
         }
         // update employeeID for order
         boolean employeeUpdateCheck = orderService.updateOrderEmployee(order.getOrderID(), order.getEmployeeID());
@@ -97,7 +102,7 @@ public class OrderProcessingMessageListener {
             // notification
             notification.setMessage("Order #"+ order.getOrderID() +" has been confirmed");
             notification.setStatus(NotificationStatus.SUCCESSFUL);
-            notification.setReceiverID(user.getUserID());
+            notification.setReceiverID(customer.getUserID());
             // update order status
             orderService.updateOrderStatus(order.getOrderID(), OrderStatus.Confirmed);
 

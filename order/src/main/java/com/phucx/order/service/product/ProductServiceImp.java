@@ -72,15 +72,15 @@ public class ProductServiceImp implements ProductService{
         return response.getPayload();
     }
     @Override
-    public ResponseFormat validateProducts(List<ProductDiscountsDTO> products) throws JsonProcessingException {
-        log.info("validateProducts({})", products);
+    public ResponseFormat validateAndProcessProducts(List<ProductDiscountsDTO> products) throws JsonProcessingException {
+        log.info("validateAndProcessProducts({})", products);
         ProductDTO productDTO = new ProductDTO();
         productDTO.setProducts(products);
         // create a request message
         String eventID = UUID.randomUUID().toString();
         EventMessage<DataDTO> eventMessage = new EventMessage<>();
         eventMessage.setEventId(eventID);
-        eventMessage.setEventType(EventType.ValidateProducts);
+        eventMessage.setEventType(EventType.ValidateAndProcessProducts);
         eventMessage.setPayload(productDTO);
         // receive data
         EventMessage<ResponseFormat> response = messageQueueService.sendAndReceiveData(
@@ -108,5 +108,24 @@ public class ProductServiceImp implements ProductService{
             ResponseFormat.class);
         log.info("response={}", response);
         return response.getPayload().getStatus();
+    }
+    @Override
+    public ResponseFormat validateProducts(List<ProductDiscountsDTO> products) throws JsonProcessingException {
+        log.info("validateProducts({})", products);
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setProducts(products);
+        // create a request message
+        String eventID = UUID.randomUUID().toString();
+        EventMessage<DataDTO> eventMessage = new EventMessage<>();
+        eventMessage.setEventId(eventID);
+        eventMessage.setEventType(EventType.ValidateProducts);
+        eventMessage.setPayload(productDTO);
+        // receive data
+        EventMessage<ResponseFormat> response = messageQueueService.sendAndReceiveData(
+            eventMessage, MessageQueueConstant.SHOP_EXCHANGE, 
+            MessageQueueConstant.PRODUCT_ROUTING_KEY,
+            ResponseFormat.class);
+        log.info("response={}", response);
+        return response.getPayload();
     }
 }

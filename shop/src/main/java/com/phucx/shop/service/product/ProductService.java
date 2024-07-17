@@ -21,6 +21,9 @@ import com.phucx.shop.model.ResponseFormat;
 public interface ProductService {
 
     // validate products
+    // validaate products and update product instock
+    public ResponseFormat validateAndProcessProducts(List<ProductDiscountsDTO> products);
+    // validate products and product's discounts
     public ResponseFormat validateProducts(List<ProductDiscountsDTO> products);
     // update product quantity
     public Boolean updateProductInStock(List<ProductStockTableType> products) throws NotFoundException;

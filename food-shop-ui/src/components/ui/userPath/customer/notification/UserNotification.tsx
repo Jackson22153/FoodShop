@@ -145,8 +145,8 @@ export default function UserNotificationComponent(){
                             <Link to={getCustomerUrlFromNotification(notification)} key={index}>
                                 <div className={`notify-item cursor-pointer px-3 ${notification.isRead?'read':''}`} 
                                     onClick={(e)=> onClickNotification(e, notification)}>
-                                    <div className="notify-img">
-                                        <img src={displayProductImage(null)} alt="profile-pic"/>
+                                    <div className="notify-img overflow-hidden position-relative rounded" style={{height:"100px", width: "100px"}}>
+                                        <img src={displayProductImage(notification.picture)} alt="profile-pic"/>
                                     </div>
                                     <div className={`notify_info`}>
                                         <p className={`text-black ${notification.isRead?'opacity-50':''}`}>{notification.message}</p>

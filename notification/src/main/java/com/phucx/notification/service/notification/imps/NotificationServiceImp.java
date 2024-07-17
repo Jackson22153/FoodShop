@@ -35,15 +35,16 @@ public class NotificationServiceImp implements NotificationService{
     public NotificationDetail createNotification(NotificationDetail notification) {
         log.info("createNotification({})", notification.toString());
         String notificationID = UUID.randomUUID().toString();
-    
+        // create new notification
         Boolean status = notificationRepository.createNotification(
             notificationID, notification.getTitle(), notification.getMessage(), 
-            notification.getSenderID(), notification.getReceiverID(), 
-            notification.getTopic(), notification.getStatus(), false, 
-            notification.getTime());
+            notification.getPicture(), notification.getSenderID(), 
+            notification.getReceiverID(), notification.getTopic(), 
+            notification.getRepliedTo(), notification.getStatus(), 
+            NotificationIsRead.NO.getValue(), notification.getTime());
 
-        if(!status) throw new RuntimeException("Error during saving the notification: " + notification.toString());
         notification.setNotificationID(notificationID);
+        if(!status) throw new RuntimeException("Error during saving the notification: " + notification.toString());
 
         return notification;
     }
@@ -147,8 +148,8 @@ public class NotificationServiceImp implements NotificationService{
     public NotificationDetail getNotificationByNotificationIDAndReceiverID(String notificationID, String receiverID)
             throws NotFoundException {
         return this.notificationDetailRepository
-        .findByNotificationIDAndReceiverID(notificationID, receiverID)
-        .orElseThrow(()-> new NotFoundException("Notification " + notificationID + " of " + receiverID + " does not found"));
+            .findByNotificationIDAndReceiverID(notificationID, receiverID)
+            .orElseThrow(()-> new NotFoundException("Notification " + notificationID + " of " + receiverID + " does not found"));
     }
 
     @Override
@@ -160,13 +161,15 @@ public class NotificationServiceImp implements NotificationService{
     @Override
     public Boolean updateNotificationReadStatusOfBroadcast(String title, String message,
             NotificationBroadCast broadCast, Boolean status) throws NotFoundException {
-        log.info("updateNotificationReadStatusOfBroadcast(title={}, message={}, broadCast={}, status={})", title, message, broadCast, status);
+        log.info("updateNotificationReadStatusOfBroadcast(title={}, message={}, broadCast={}, status={})", 
+            title, message, broadCast, status);
         // fetch notifications
         List<NotificationDetail> fetchedNotifications = notificationDetailRepository
             .findByTitleAndReceiverIDAndMessageLike(title, broadCast.name(), "%" + message + "%");
         // check notifications
         if(fetchedNotifications==null || fetchedNotifications.isEmpty()) 
-            throw new NotFoundException("Notification with title " + title + " and message " + message + " of " + broadCast.name() + " does not found");
+            throw new NotFoundException("Notification with title " + title + " and message " + 
+                message + " of " + broadCast.name() + " does not found");
         // extract notificationID
         List<String> notificationIDs = fetchedNotifications.stream()
             .map(NotificationDetail::getNotificationID)
@@ -175,7 +178,17 @@ public class NotificationServiceImp implements NotificationService{
         // update notification isRead status
         Boolean result = notificationUserRepository.updateNotificationsReadByNotificationID(notificationIDsStr, status);
         return result;
-        // return this.notificationUserRepository.updateNotificationReadStatusByNotificationID(
-        //     fetchedNotification.getNotificationID(), status);
+    }
+
+    @Override
+    public NotificationDetail getOrderNotificationDetail(String title, String orderID, String receiverID) throws NotFoundException {
+        log.info("getOrderNotificationDetail(title={}, orderID={}, receiverID={})", title, orderID, receiverID);
+        List<NotificationDetail> fetchedNotifications = notificationDetailRepository
+            .findByTitleAndReceiverIDAndMessageLike(title, receiverID, "%" + orderID + "%");
+        if(fetchedNotifications==null || fetchedNotifications.isEmpty())
+            throw new NotFoundException("Order notification with orderID " + orderID + " and title " + title +
+                " of receiver " + receiverID + " does not found!");
+        return fetchedNotifications.get(0);
+        
     }
 }

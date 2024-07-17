@@ -270,14 +270,5 @@ services:
     networks:
       - phucx
 
-  # phucxfoodui:
-  #   image: foodshopui:2.0.0
-  #   ports:
-  #     - 5173:5173
-  #   container_name: phucxfoodui
-  #   restart: unless-stopped
-  #   networks:
-  #     - phucx
-
 networks:
   phucx:

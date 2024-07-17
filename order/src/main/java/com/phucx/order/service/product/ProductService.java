@@ -15,6 +15,8 @@ public interface ProductService {
     // get product
     public List<Product> getProducts(List<Integer> productIDs) throws JsonProcessingException;
     public Product getProduct(int productID) throws JsonProcessingException, NotFoundException;
-    // validate products
+    // validate products, discounts
     public ResponseFormat validateProducts(List<ProductDiscountsDTO> products) throws JsonProcessingException;
+    // validate products, discounts and update products instock
+    public ResponseFormat validateAndProcessProducts(List<ProductDiscountsDTO> products) throws JsonProcessingException;
 }

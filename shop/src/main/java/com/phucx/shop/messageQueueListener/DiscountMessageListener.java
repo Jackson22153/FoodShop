@@ -60,24 +60,28 @@ public class DiscountMessageListener {
             }else if(eventMessage.getEventType().equals(EventType.ValidateDiscounts)){
                 // validate discount
                 List<ProductDiscountsDTO> productDiscounts = payload.getProductsDiscounts();
-                Boolean status = validateDiscountService.validateDiscountsOfProducts(productDiscounts);
-                responseMessage.setPayload(new ResponseFormat(status));
+                ResponseFormat responseFormat = validateDiscountService.validateDiscountsOfProducts(productDiscounts);
+                responseMessage.setPayload(responseFormat);
             }
             String response = objectMapper.writeValueAsString(responseMessage);
             return response;
         } catch (NotFoundException e){
             log.error("Error: {}", e.getMessage());
-            try {
-                responseMessage.setErrorMessage(e.getMessage());
-                responseMessage.setEventType(EventType.NotFoundException);
-                String responsemessage = objectMapper.writeValueAsString(responseMessage);
-                return responsemessage;
-            } catch (JsonProcessingException exception) {
-                log.error("Error: {}", e.getMessage());
-                return null;
-            }
+            return handleNotFoundException(responseMessage, e.getMessage());
         }catch (JsonProcessingException e) {
             log.error("Error: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String handleNotFoundException(EventMessage<Object> responseMessage, String errorMessage){
+        try {
+            responseMessage.setErrorMessage(errorMessage);
+            responseMessage.setEventType(EventType.NotFoundException);
+            String responsemessage = objectMapper.writeValueAsString(responseMessage);
+            return responsemessage;
+        } catch (Exception exception) {
+            log.error("Error: {}", exception.getMessage());
             return null;
         }
     }

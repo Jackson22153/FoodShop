@@ -5,7 +5,8 @@ import com.phucx.order.model.OrderNotificationDTO;
 
 public interface NotificationService {
     // send notification to notification service
-    public void sendNotification(OrderNotificationDTO notification) throws JsonProcessingException;
+    public void sendCustomerOrderNotification(OrderNotificationDTO notification) throws JsonProcessingException;
+    public void sendEmployeeOrderNotification(OrderNotificationDTO notification) throws JsonProcessingException;
     // mark pending order as confirmed for all employees
     public void markAsReadForConfirmedOrderNotification(OrderNotificationDTO notification) throws JsonProcessingException;
 }

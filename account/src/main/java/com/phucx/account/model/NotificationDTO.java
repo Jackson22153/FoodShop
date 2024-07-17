@@ -20,6 +20,8 @@ public class NotificationDTO extends DataDTO{
     private NotificationTitle title;
     private NotificationTopic topic;
     private NotificationStatus status;
+
+    private String picture;
     
     public NotificationDTO(String receiverID, NotificationTitle title, NotificationTopic topic,
             NotificationStatus status) {

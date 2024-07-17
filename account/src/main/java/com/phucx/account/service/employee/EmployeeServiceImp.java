@@ -79,11 +79,15 @@ public class EmployeeServiceImp implements EmployeeService {
         Boolean status = employeeDetailRepostiory.updateAdminEmployeeInfo(
             fetchedEmployee.getEmployeeID(), employee.getHireDate(), picture, 
             employee.getTitle(), employee.getNotes());
+        // set employee picture
+        employee.setPicture(picture);
+        employeeImageService.setEmployeeDetailImage(employee);
         // create a notification
         UserNotificationDTO notification = new UserNotificationDTO();
         notification.setTitle(NotificationTitle.USER_INFO_UPDATE);
         notification.setTopic(NotificationTopic.Account);
         notification.setUserID(fetchedEmployee.getUserID());
+        notification.setPicture(employee.getPicture());
         if(status){
             notification.setMessage("Your information has been updated by Admin");
             notification.setStatus(NotificationStatus.SUCCESSFUL);
@@ -97,8 +101,7 @@ public class EmployeeServiceImp implements EmployeeService {
         notificationService.sendEmployeeNotification(notification);
         if(!status) throw new RuntimeException("Employee " + employee.getEmployeeID() + " can not be updated!");
 
-        employee.setPicture(picture);
-        employeeImageService.setEmployeeDetailImage(employee);
+
         return employee;
     }
 

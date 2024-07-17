@@ -1,7 +1,6 @@
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
 import { getCustomers, getCustomersBySearchParam, getEmployees, 
     getEmployeesBySearchParam} from '../../../../../api/AdminApi';
-import { getPageNumber } from '../../../../../service/Pageable';
 import { UserAccount, Pageable } from '../../../../../model/Type';
 import EmployeeTable from '../../../../shared/functions/table/EmployeeTable';
 import CustomerTable from '../../../../shared/functions/table/CustomerTable';
@@ -21,7 +20,6 @@ export default function AdminUsersComponent(){
         number: 0,
         totalPages: 0
     });
-    const pageNumber = getPageNumber()
     const [searchDropDown, setSearchDropdown] = useState(false);
     const [selectedUserTab, setSelectedUserTab] = useState(0);
     const filterRef = useRef<HTMLDivElement|null>(null);
@@ -30,15 +28,15 @@ export default function AdminUsersComponent(){
 
     useEffect(()=>{
         initial();
-    }, [pageNumber, type, searchParamArgs[0]])
+    }, [type, searchParamArgs[0]])
 
     const initial = ()=>{
         switch (type.toLowerCase()) {
             case CUSTOMER.toLocaleLowerCase():
-                fetchCustomers(pageNumber);
+                fetchCustomers(pageable.number);
                 break;
             case EMPLOYEE.toLowerCase():
-                fetchEmployees(pageNumber);
+                fetchEmployees(pageable.number);
                 break;
             default:
                 break;
@@ -47,58 +45,36 @@ export default function AdminUsersComponent(){
         document.addEventListener('click', onClickOutside)
 
     }
-    // fetch data
+    // fetch customers
     const fetchCustomers = async (pageNumber: number)=>{
         const res = await getCustomers(pageNumber);
         if(res.status){
             const data = res.data;
             setUsers(data);
-            setPageable({
-                first: data.first,
-                last: data.last,
-                number: data.number,
-                totalPages: data.totalPages
-            });
         }
     }
+    // fetch employees
     const fetchEmployees = async (pageNumber: number)=>{
         const res = await getEmployees(pageNumber);
         if(res.status){
             const data = res.data;
             setUsers(data);
-            setPageable({
-                first: data.first,
-                last: data.last,
-                number: data.number,
-                totalPages: data.totalPages
-            });
         }
     }
-
+    // search for customers
     const fetchSearchCustomers = async (pageNumber: number, searchParam: string, searchValue: string)=>{
         const res = await getCustomersBySearchParam(pageNumber, searchParam, searchValue);
         if(res.status){
             const data = res.data;
             setUsers(data);
-            setPageable({
-                first: data.first,
-                last: data.last,
-                number: data.number,
-                totalPages: data.totalPages
-            });
         }
     }
+    // search for employees
     const fetchSearchEmployees = async (pageNumber: number, searchParam: string, searchValue: string)=>{
         const res = await getEmployeesBySearchParam(pageNumber, searchParam, searchValue);
         if(res.status){
             const data = res.data;
             setUsers(data);
-            setPageable({
-                first: data.first,
-                last: data.last,
-                number: data.number,
-                totalPages: data.totalPages
-            });
         }
     }
 
