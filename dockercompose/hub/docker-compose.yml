@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   sql:
     image: jackson22153/phucxsqlserver:1.0.0
@@ -120,6 +118,7 @@ services:
       - keycloak
     restart: unless-stopped
     environment:
+      - KEYCLOAK_RESTAPI_DEV_URL=http://localhost:8085
       - KEYCLOAK_URL=http://keycloak:8080
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_PASSWORD=123
@@ -144,6 +143,7 @@ services:
       - redis
     restart: unless-stopped
     environment:
+      - SHOP_DEV_URL=http://localhost:8081
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
       - KEYCLOAK_ISSUER _URI=http://keycloak:8080/realms/master
@@ -151,8 +151,6 @@ services:
       - SQL_USERNAME=sa
       - SQL_PASSWORD=10122003simp!simp
       - SQL_URL=jdbc:sqlserver://sql:1433;database=product;encrypt=true;trustServerCertificate=true
-      - PRODUCT_IMAGE_LOCATION=/usr/src/app/image/product
-      - CATEGORY_IMAGE_LOCATION=/usr/src/app/image/category
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     networks:
@@ -173,6 +171,7 @@ services:
       - redis
     restart: unless-stopped
     environment:
+      - ACCOUNT_DEV_URL=http://localhost:8082
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
       - RABBITMQ_HOST=rabbitmq
@@ -196,6 +195,7 @@ services:
       - rabbitmq
     restart: unless-stopped
     environment:
+      - NOTIFICATION_DEV_URL=http://localhost:8084
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
       - RABBITMQ_HOST=rabbitmq
@@ -217,6 +217,7 @@ services:
       - keycloak
     restart: unless-stopped
     environment:
+      - ORDER_DEV_URL=http://localhost:8083
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
       - RABBITMQ_HOST=rabbitmq
@@ -267,6 +268,14 @@ services:
       - ALLOWED_ORIGIN=http://localhost:5173
       - KEYCLOAK_USER_URL=http://localhost:8080/realms/master/account/
       - KEYCLOAK_ADMIN_URL=http://localhost:8080/admin/master/console/
+    networks:
+      - phucx
+
+  foodshopui:
+    image: jackson22153/phucxfoodshopui:1.0.0
+    container_name: foodshopui
+    ports:
+      - 5173:5173
     networks:
       - phucx
 

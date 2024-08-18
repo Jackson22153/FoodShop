@@ -3,6 +3,7 @@ package com.phucx.account.config;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.models.OpenAPI;
@@ -15,9 +16,11 @@ public class OpenApiConfig {
     @Value("${phucx.server-dev-url}")
     private String serverDevUrl;
 
+    @Bean
     public OpenAPI myOpenAPI(){
         Server serverUrl = new Server();
         serverUrl.setDescription("Server Url in Development environment");
+        serverUrl.setUrl(serverDevUrl);
 
         Contact contact = new Contact();
         contact.setName("phucx");

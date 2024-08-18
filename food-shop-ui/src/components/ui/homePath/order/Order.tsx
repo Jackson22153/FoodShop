@@ -7,16 +7,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CART_PATH } from "../../../../constant/FoodShoppingURL";
 import { Notification } from "../../../../model/Type";
 import { NOTIFICATION_TYPE } from "../../../../constant/WebConstant";
-import userInfoContext from "../../../contexts/UserInfoContext";
 import { placeOrder } from "../../../../api/OrderApi";
 import { Link } from "react-router-dom";
 import ScrollToTop from "../../../shared/functions/scroll-to-top/ScrollToTop";
 import numberOfCartProductsContext from "../../../contexts/NumberOfCartProductsContext";
-import { numberOfProductsInCart } from "../../../../service/Cart";
 
 export default function OrderComponent(){
     const [orderInfo, setOrderInfo] = useState<OrderInfo>();
-    const userInfo = useContext(userInfoContext);
     const {numberOfCartProducts: cartproducts, setNumberOfCartProducts: setNumberOfCartProducts}= useContext(numberOfCartProductsContext)
     const [notification, setNotification] = useState<Notification>({
         notificationID: '',
@@ -28,6 +25,7 @@ export default function OrderComponent(){
         status: '',
         isRead: false,
         time: '',
+        picture: '',
         isShowed: false,
     })
 
