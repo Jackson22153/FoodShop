@@ -90,7 +90,8 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
         // order processing
     // validating and saving customer's order 
     private OrderWithProducts orderProcessing(OrderWithProducts order) 
-    throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException {
+        throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException {
+            
         log.info("orderProcessing({})", order);
         if(order.getCustomerID()==null)
             throw new InvalidOrderException("Customer does not found");

@@ -7,8 +7,7 @@ import lombok.Data;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "phucx")
-public class ServerURLProperties {
-    private String serverDevUrl;
-    private String uiUrl;
+@ConfigurationProperties(prefix = "websocket")
+public class WebSocketProperties {
+    private Integer port;
 }

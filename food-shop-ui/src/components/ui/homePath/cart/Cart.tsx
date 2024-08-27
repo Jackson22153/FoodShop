@@ -1,6 +1,6 @@
 import './Cart.css';
 import CartCard from '../../../shared/functions/cartCard/CartCard';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { CartInfo, CartProduct, CartProductInfo } from '../../../../model/Type';
 import { deleteAllCartProducts, deleteCartProduct, getProductsFromCart, updateProductInCart } from '../../../../api/CartApi';
 import { ceilRound } from '../../../../service/Convert';
@@ -11,8 +11,8 @@ import { Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import ScrollToTop from '../../../shared/functions/scroll-to-top/ScrollToTop';
-import ErrorModal from '../../../shared/functions/error-modal/ErrorModal';
 import { LoginUrl } from '../../../../constant/FoodShoppingApiURL';
+import numberOfCartProductsContext from '../../../contexts/NumberOfCartProductsContext';
 
 export default function CartComponent(){
     const navigate = useNavigate()
@@ -20,6 +20,7 @@ export default function CartComponent(){
     const [totalItems, setTotalItems] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
     const [isSelectedAllItems, setIsSelectedAllItems] = useState(false);
+    const {numberOfCartProducts, setNumberOfCartProducts} = useContext(numberOfCartProductsContext)
     const [modal, setModal] = useState<Modal>({
         title: "",
         message: "",
@@ -119,6 +120,7 @@ export default function CartComponent(){
             calculateTotalPrice(updatedProducts)
             getTotalItems(updatedProducts)
             removeCartProduct(productID);
+            setNumberOfCartProducts(numberOfCartProducts-1)
         }
     }
     const removeCartProduct = async (productID: number)=>{
@@ -149,7 +151,6 @@ export default function CartComponent(){
     async function updateCart(cartProducts: CartProduct[]){
         const res = await updateProductInCart(cartProducts);
         if(200<=res.status && res.status<300){
-            console.log(res.data)
             const data = res.data;
             setCartOrder(data)
         }
@@ -264,6 +265,7 @@ export default function CartComponent(){
         if(cartOrder){
             removeAllCartProducts();
             setTotalPrice(0)
+            setNumberOfCartProducts(0)
         }
     }
 
@@ -290,16 +292,16 @@ export default function CartComponent(){
                                                     <div className="row d-flex justify-content-between align-items-center">
                                                         <input className="form-check-input cart-item-check-input" type="checkbox" 
                                                             checked={isSelectedAllItems} onChange={onChangeCheckedProducts}/>
-                                                        <div className="col-md-2 col-lg-2 col-xl-2">
+                                                        <div className="col-md-2 col-lg-2 col-xl-2 col-2">
                                                             <span>All</span>
                                                         </div>
-                                                        <div className="col-md-3 col-lg-3 col-xl-3">
+                                                        <div className="col-md-3 col-lg-3 col-xl-3 col-4">
                                                             <span>Product</span>
                                                         </div>
-                                                        <div className="col-md-3 col-lg-3 col-xl-2 d-flex p-0 justify-content-center">
+                                                        <div className="col-md-3 col-lg-2 col-xl-2 col-3 d-flex p-0 justify-content-center">
                                                             <span>Quantity</span>
                                                         </div>
-                                                        <div className="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                                                        <div className="col-md-2 col-lg-2 col-xl-2 col-2 offset-lg-1">
                                                             <span>Price</span>
                                                         </div>
                                                         <div className="col-md-1 col-lg-1 col-xl-1 text-end">

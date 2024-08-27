@@ -44,7 +44,6 @@ function HomeDashBoardComponent(){
                 <SlideSection/>
             </div>
 
-            {/* <!-- service section --> */}
             {recommendedProducts &&
                 <PathProvider value={FOODS_PATH}>
                     <FoodSection lstFoodProducts={recommendedProducts} sectionTitle="Recommended Foods"/>
@@ -60,7 +59,7 @@ function HomeDashBoardComponent(){
             <section className="tasty_section">
                 <div className="container_fluid">
                     <h2>
-                        Very tasty fruits
+                        Very tasty foods
                     </h2>
                 </div>
             </section>
@@ -96,14 +95,6 @@ function HomeDashBoardComponent(){
                             </form>
                         </div>
                     </div>
-                </div>
-            </section>
-            {/* <!-- end contact section --> */}
-
-
-            {/* <!-- map section --> */}
-            <section className="map_section">
-                <div id="map" className="h-100 w-100 ">
                 </div>
             </section>
         </>

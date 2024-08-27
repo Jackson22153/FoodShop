@@ -47,14 +47,14 @@ export default function CartCard(prop: Props){
     }
     return(
         <>
-            <div className="col-md-2 col-lg-2 col-xl-2">
+            <div className="col-md-2 col-lg-2 col-xl-2 col-2 cart-img">
                 <img src={displayProductImage(imgSrc)} className="img-fluid rounded-3" alt={name}/>
             </div>
-            <div className="col-md-3 col-lg-3 col-xl-3">
+            <div className="col-md-3 col-lg-3 col-xl-3 col-4">
                 <h6 className="text-muted">{category}</h6>
                 <h6 className="text-black mb-0">{name}</h6>
             </div>
-            <div className="col-md-3 col-lg-3 col-xl-2 d-flex p-0">
+            <div className="col-md-3 col-lg-2 col-xl-2 col-3 d-flex p-0">
                 <button className="btn btn-link px-2" onClick={onClickDecrement}>
                     <FontAwesomeIcon icon={faMinus}/>
                 </button>
@@ -66,10 +66,10 @@ export default function CartCard(prop: Props){
                     <FontAwesomeIcon icon={faPlus}/>
                 </button>
             </div>
-            <div className="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+            <div className="col-md-2 col-lg-2 col-xl-2 col-2 offset-lg-1">
                 <h6 className="mb-0">$ {extendedPrice(product)}</h6>
             </div>
-            <div className="col-md-1 col-lg-1 col-xl-1 text-end">
+            <div className="col-md-1 col-lg-1 col-xl-1 text-end margin-left-auto">
                 <button className="text-muted btn btn-light" onClick={onClickRemove}>
                     <FontAwesomeIcon icon={faTrash}/>
                 </button>

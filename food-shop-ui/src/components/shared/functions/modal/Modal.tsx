@@ -33,7 +33,7 @@ export default function ModalComponent(prop: Props){
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title text-black" id="confirm-modal-label">{modal.title}</h5>
-                            <button type="button" onClick={handleCloseButton} className="close ml-auto" 
+                            <button type="button" onClick={handleCloseButton} className="close ml-auto text-bg-light" 
                                 data-dismiss="modal" aria-label="Close">
                                 <FontAwesomeIcon icon={faXmark} />
                             </button>

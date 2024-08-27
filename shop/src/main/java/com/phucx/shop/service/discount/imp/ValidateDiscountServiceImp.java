@@ -74,6 +74,7 @@ public class ValidateDiscountServiceImp implements ValidateDiscountService{
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             for(ProductDiscountsDTO product: productsDiscounts){
+                if(product.getDiscountIDs()==null|| product.getDiscountIDs().isEmpty()) continue;
                 Boolean isValid = this.validateDiscountsOfProduct(product);
                 if(!isValid) throw new InvalidDiscountException("Discounts of product " + product.getProductID() + " are not valid!");
             };

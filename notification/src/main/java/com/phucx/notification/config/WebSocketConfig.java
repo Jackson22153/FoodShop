@@ -46,21 +46,24 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private String rabbitmqAdminPassword;
     @Value("${spring.rabbitmq.host}")
     private String rabbitmqHost;
-
+    @Value("${websocket.port}")
+    private Integer stompPort;
+    @Value("${phucx.ui-url}")
+    private String uiUrl;
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwtSetUri;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/chat").setAllowedOrigins("http://localhost:5173");
-        registry.addEndpoint("/chat").setAllowedOrigins("http://localhost:5173").withSockJS();
+        registry.addEndpoint("/chat").setAllowedOrigins(uiUrl);
+        registry.addEndpoint("/chat").setAllowedOrigins(uiUrl).withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
         registry.enableStompBrokerRelay("/queue/", "/topic", "/exchange")
-            .setRelayHost(rabbitmqHost).setRelayPort(61613)
+            .setRelayHost(rabbitmqHost).setRelayPort(stompPort)
             .setSystemLogin(rabbitmqAdminUsername).setSystemPasscode(rabbitmqAdminPassword)
             .setClientLogin(rabbitmqAdminUsername).setClientPasscode(rabbitmqAdminPassword);
         registry.setUserDestinationPrefix("/user");   

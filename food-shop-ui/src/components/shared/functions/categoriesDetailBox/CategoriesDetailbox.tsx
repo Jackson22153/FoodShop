@@ -23,19 +23,20 @@ export default function CategoriesDetailbox(prop:Props){
                     <p className="mt-4 mb-5">
                         {categoryDetail}
                     </p>
-                    <div>
-                        <Link to={CATEGORIES_PATH+"/"+ convertNameForUrl(categoryTitle)}>
-                            <div className="custom_dark-btn btn text-bg-dark">
-                                Show
-                            </div>
-                        </Link>
-                    </div>
                 </div>
             </div>
-            <div className="col-md-4 d-flex justify-content-center align-items-center">
-                <div className="fruit_img-box d-flex justify-content-center align-items-center img-medium">
-                    <img src={displayProductImage(categoryImageSrc)} alt={categoryTitle} className="rounded-4" width="100%" />
-                </div>
+            <div className="col-md-4 category-img img d-flex justify-content-center align-items-center">
+                <img src={displayProductImage(categoryImageSrc)} alt={categoryTitle} className="rounded-4" width="100%" />
+                {/* <div className="fruit_img-box d-flex justify-content-center align-items-center img-medium">
+                </div> */}
+            </div>
+
+            <div className="btn-category-showmore">
+                <Link to={CATEGORIES_PATH+"/"+ convertNameForUrl(categoryTitle)}>
+                    <div className="custom_dark-btn btn text-bg-dark">
+                        Show
+                    </div>
+                </Link>
             </div>
         </>
     );

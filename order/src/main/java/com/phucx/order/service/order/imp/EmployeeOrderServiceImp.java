@@ -92,11 +92,12 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         Boolean status = orderService.updateOrderStatus(orderDetail.getOrderID(), OrderStatus.Canceled);
         if(!status) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated to canceled status");
         // notification
-        // notification
+        // set notification details 
         OrderNotificationDTO notification = new OrderNotificationDTO();
         notification.setTitle(NotificationTitle.CANCEL_ORDER);
         notification.setTopic(NotificationTopic.Order);
-        if(OrderStatus.Pending.equals(orderStatus))
+        if(OrderStatus.Pending.equals(orderStatus) || 
+            OrderStatus.Confirmed.equals(orderStatus))
             notification.setOrderID(order.getOrderID());
         if(status){
             // send message to customer

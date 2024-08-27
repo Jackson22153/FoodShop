@@ -57,14 +57,11 @@ export default function SlideSection(){
                                                 <div className="slider_item-detail">
                                                     <h1>
                                                         Welcome to <br />
-                                                        Our Fruits Shop
+                                                        Our Food Shop
                                                     </h1>
                                                     <p>
-                                                        There are many variations of passages of Lorem
-                                                        Ipsum available, but the majority have suffered
-                                                        alteration in some form, by injected humour, or
-                                                        randomised words which don't look even slightly
-                                                        believable.
+                                                        Discover Delicious and Nutritious Choices: Our Selection of Fresh 
+                                                        Foods Will Inspire Your Culinary Creations
                                                     </p>
                                                     <div className="d-flex">
                                                         <Link to={FOODS_PATH}>

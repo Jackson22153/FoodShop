@@ -20,8 +20,12 @@ services:
     depends_on:
       - sql
     environment:
+      - WAIT_FOR_SQL=true
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=123
+      - KC_DB_USERNAME=sa
+      - KC_DB_PASSWORD=10122003simp!simp
+      - KC_DB_URL=jdbc:sqlserver://sql:1433;database=keycloak;encrypt=true;trustServerCertificate=true;
     networks:
       - phucx
 
@@ -118,6 +122,7 @@ services:
       - keycloak
     restart: unless-stopped
     environment:
+      - WAIT_FOR_SQL=true
       - KEYCLOAK_RESTAPI_DEV_URL=http://localhost:8085
       - KEYCLOAK_URL=http://keycloak:8080
       - KEYCLOAK_ADMIN=admin
@@ -125,6 +130,9 @@ services:
       - KEYCLOAK_CLIENT_ID=803e434f-c3a8-436f-a200-8b959476efdc
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
       - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=123
     networks:
       - phucx
 
@@ -143,11 +151,15 @@ services:
       - redis
     restart: unless-stopped
     environment:
-      - SHOP_DEV_URL=http://localhost:8084
+      - WAIT_FOR_SQL=true
+      - SHOP_DEV_URL=http://localhost:8081
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
       - KEYCLOAK_ISSUER _URI=http://keycloak:8080/realms/master
       - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=123
       - SQL_USERNAME=sa
       - SQL_PASSWORD=10122003simp!simp
       - SQL_URL=jdbc:sqlserver://sql:1433;database=product;encrypt=true;trustServerCertificate=true
@@ -171,10 +183,14 @@ services:
       - redis
     restart: unless-stopped
     environment:
+      - WAIT_FOR_SQL=true
       - ACCOUNT_DEV_URL=http://localhost:8082
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
       - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=123
       - SQL_USERNAME=sa
       - SQL_PASSWORD=10122003simp!simp
       - SQL_URL=jdbc:sqlserver://sql:1433;database=profile;encrypt=true;trustServerCertificate=true
@@ -193,10 +209,16 @@ services:
       - rabbitmq
     restart: unless-stopped
     environment:
+      - WAIT_FOR_SQL=true
       - NOTIFICATION_DEV_URL=http://localhost:8084
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
       - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=123
+      - RABBITMQ_STOMP_PORT=61613
+      - UI_URL=http://localhost:5173
       - SQL_USERNAME=sa
       - SQL_PASSWORD=10122003simp!simp
       - SQL_URL=jdbc:sqlserver://sql:1433;database=notification;encrypt=true;trustServerCertificate=true
@@ -215,10 +237,14 @@ services:
       - keycloak
     restart: unless-stopped
     environment:
+      - WAIT_FOR_SQL=true
       - ORDER_DEV_URL=http://localhost:8083
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
       - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=123
       - SQL_USERNAME=sa
       - SQL_PASSWORD=10122003simp!simp
       - SQL_URL=jdbc:sqlserver://sql:1433;database=order;encrypt=true;trustServerCertificate=true
@@ -273,7 +299,9 @@ services:
     image: foodshopui:1.0.0
     container_name: foodshopui
     ports:
-      - 5173:5173
+      - 5173:80
+    environment:
+      - PHUCX_API_URL=http://localhost:8060
     networks:
       - phucx
 

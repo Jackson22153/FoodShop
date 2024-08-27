@@ -84,7 +84,8 @@ public class OrderServiceImp implements OrderService{
         for(OrderItem orderItem : orderItems) {
             OrderDetailKey orderDetailID = this.saveOrderDetail(orderID, orderItem);
             for(OrderItemDiscount discount: orderItem.getDiscounts()){
-                this.saveOrderDetailDiscounts(orderDetailID, discount);
+                if(discount.getDiscountID()!=null)
+                    this.saveOrderDetailDiscounts(orderDetailID, discount);
             }
         }
         return orderID;

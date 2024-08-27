@@ -11,4 +11,4 @@ COPY /entrypoint.sh ./entrypoint.sh
 
 RUN /opt/keycloak/bin/kc.sh build 
 
-ENTRYPOINT ./entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]

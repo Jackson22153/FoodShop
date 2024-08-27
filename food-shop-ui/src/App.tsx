@@ -24,11 +24,10 @@ function App() {
     roles: []
   })
   const [notification, setNotification] = useState<Notification>(null)
-  useEffect(()=>{
+  useEffect(()=>{    
     initital();
-    console.log("testing")
   }, [])
-
+  
   const initital = ()=>{
     checkIsAuthenticated();
   }

@@ -1,5 +1,6 @@
 
-export const ServerURL = "http://localhost:8060";
+
+export const ServerURL = import.meta.env.VITE_API_URL;
 
 
 // authorization url
