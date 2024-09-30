@@ -41,6 +41,8 @@ public class OrderWithProducts {
     private BigDecimal totalPrice;
     private OrderStatus status;
 
+    private String method;
+
 
 
     public OrderWithProducts(String orderID, String customerID, String contactName, String employeeID,

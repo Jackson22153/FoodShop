@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ "$WAIT_FOR_SQL" = "true" ]; then
-  echo 'Waiting 20s for SQL server to initialize Keycloak database'
+if [ "$WAIT_FOR_DATABASE" = "true" ]; then
+  echo 'Waiting 20s for MYSQL server to initialize Keycloak database'
   sleep 20s
 fi
 

@@ -167,9 +167,11 @@ public class NotificationServiceImp implements NotificationService{
         List<NotificationDetail> fetchedNotifications = notificationDetailRepository
             .findByTitleAndReceiverIDAndMessageLike(title, broadCast.name(), "%" + message + "%");
         // check notifications
-        if(fetchedNotifications==null || fetchedNotifications.isEmpty()) 
+        if(fetchedNotifications==null || fetchedNotifications.isEmpty()) {
+            log.info("message={}", fetchedNotifications);
             throw new NotFoundException("Notification with title " + title + " and message " + 
                 message + " of " + broadCast.name() + " does not found");
+        }
         // extract notificationID
         List<String> notificationIDs = fetchedNotifications.stream()
             .map(NotificationDetail::getNotificationID)

@@ -26,6 +26,7 @@ import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.EmployeeOrderService;
 import com.phucx.order.service.order.OrderService;
+import com.phucx.order.service.payment.PaymentService;
 import com.phucx.order.service.product.ProductService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,6 +45,8 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
     private EmployeeService employeeService;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private PaymentService paymentService;
 
     @Override
     public void confirmOrder(String orderID, String userID) throws InvalidOrderException, JsonProcessingException, NotFoundException {
@@ -76,7 +79,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         productService.updateProductsInStocks(products);
     }
 
-
+    // cancel order
     private void cancelOrder(OrderWithProducts order, String userID, OrderStatus orderStatus) 
         throws JsonProcessingException, NotFoundException{
 
@@ -91,6 +94,10 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         // update order status as canceled
         Boolean status = orderService.updateOrderStatus(orderDetail.getOrderID(), OrderStatus.Canceled);
         if(!status) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated to canceled status");
+
+        // update payment as canceled
+        paymentService.updatePaymentByOrderIDAsCanceled(order.getOrderID());
+
         // notification
         // set notification details 
         OrderNotificationDTO notification = new OrderNotificationDTO();

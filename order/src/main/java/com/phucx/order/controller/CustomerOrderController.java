@@ -22,6 +22,7 @@ import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.InvoiceDetails;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderWithProducts;
+import com.phucx.order.model.PaymentResponse;
 import com.phucx.order.service.order.CustomerOrderService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,11 +37,11 @@ public class CustomerOrderController {
     @Operation(summary = "Place an order", tags = {"tutorials", "post", "customer"})
     @LoggerAspect
     @PostMapping("/order/place")
-    public ResponseEntity<OrderDetails> placeOrder(@RequestBody OrderWithProducts order, Authentication authentication) 
+    public ResponseEntity<PaymentResponse> placeOrder(@RequestBody OrderWithProducts order, Authentication authentication) 
         throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException{
-    
-        OrderDetails orderDetails = customerOrderService.placeOrder(order, authentication.getName());
-        return ResponseEntity.ok().body(orderDetails);
+
+        PaymentResponse paymentResponse = customerOrderService.placeOrder(order, authentication.getName());
+        return ResponseEntity.ok().body(paymentResponse);
     }
 
     @LoggerAspect

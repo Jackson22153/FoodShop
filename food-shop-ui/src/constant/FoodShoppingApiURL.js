@@ -30,6 +30,20 @@ export const UploadEmployeeImageUrl= `${EmployeeUrl}/image/upload`;
 // user
 export const UserUrl = `${AccountService}/user`;
 export const UserInfoUrl = `${UserUrl}/userInfo`;
+// phone
+const UserInfoPhoneUrl = `${UserUrl}/phone`;
+export const GenerateOTPPhoneUrl = `${UserInfoPhoneUrl}/generateOTP`;
+export const VerifyOTPPhoneUrl = `${UserInfoPhoneUrl}/verifyOTP`;
+
+// payment service
+const PaymentService = `${ServerURL}/payment`;
+export const PaymentMethodsUrl = `${PaymentService}/methods`;
+export const PaymentPayUrl = `${PaymentService}/pay`;
+// cod
+const PaymentCODUrl = `${PaymentService}/cod`;
+export const PaymentCODSuccessful = `${PaymentCODUrl}/pay/successful`;
+export const PaymentCODSCancel = `${PaymentCODUrl}/pay/cancel`;
+
 
 // shop service
 const ShopService = `${ServerURL}/shop`;

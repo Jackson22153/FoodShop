@@ -8,6 +8,7 @@ import com.phucx.account.exception.EmployeeNotFoundException;
 import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.UserAuthentication;
 import com.phucx.account.model.UserProfile;
+import com.phucx.account.model.UserVerification;
 
 public interface UserProfileService {
     @Cacheable(value = "userinfo", key = "#userID")
@@ -19,6 +20,11 @@ public interface UserProfileService {
 
     public String getUsername(Authentication authentication);
     public String getUserID(Authentication authentication);
+
+    public Boolean updateProfileVerification(String profileID, Boolean status);
+    public Boolean updatePhoneVerification(String profileID, Boolean status);
+
+    public UserVerification getUserVerification(String userID) throws UserNotFoundException;
 
     @Cacheable(value = "userinfo", key = "#customerID")
     public UserProfile getUserProfileByCustomerID(String customerID) throws CustomerNotFoundException;

@@ -7,10 +7,11 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import com.phucx.account.model.CustomerDetail;
-import com.phucx.account.model.CustomerDetails;
+import com.phucx.account.model.CustomerFullDetails;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
+import com.phucx.account.exception.UserNotFoundException;
 
 public interface CustomerService {
     // get customer
@@ -38,5 +39,5 @@ public interface CustomerService {
 
     @Cacheable(value = "customerdetail", key = "#userID")
     public CustomerDetail getCustomerDetail(String userID) throws JsonProcessingException, InvalidUserException;
-    public CustomerDetails getCustomerDetails(String userID) throws JsonProcessingException, InvalidUserException;
+    public CustomerFullDetails getCustomerDetails(String userID) throws JsonProcessingException, InvalidUserException, UserNotFoundException;
 }

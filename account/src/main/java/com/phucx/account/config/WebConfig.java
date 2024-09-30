@@ -60,6 +60,7 @@ public class WebConfig {
             .requestMatchers("/actuator/**").permitAll()
             .requestMatchers("/swagger-ui/**", "v3/**", "/document/**").permitAll()
             .requestMatchers("/image/**").permitAll()
+            .requestMatchers("/phoneNumber/**").permitAll()
             .anyRequest().authenticated());
         // oauth2 resource
         http.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt

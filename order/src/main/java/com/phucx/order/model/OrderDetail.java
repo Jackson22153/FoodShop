@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data @Entity @ToString
-@Table(name = "Order Details")
+@Table(name = "OrderDetails")
 @AllArgsConstructor
 @NoArgsConstructor
 @IdClass(OrderDetailKey.class)

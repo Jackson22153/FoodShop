@@ -10,4 +10,5 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "phucx")
 public class ServerProperties {
     private String serverDevUrl;
+    private String redirectPaymentUrl;
 }

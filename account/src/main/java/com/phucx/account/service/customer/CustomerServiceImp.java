@@ -15,15 +15,20 @@ import com.phucx.account.constant.EventType;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
+import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.CustomerDTO;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.CustomerDetails;
+import com.phucx.account.model.CustomerFullDetails;
 import com.phucx.account.model.DataDTO;
 import com.phucx.account.model.EventMessage;
+import com.phucx.account.model.UserVerification;
+import com.phucx.account.model.VerificationInfo;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.service.image.CustomerImageService;
 import com.phucx.account.service.image.ImageService;
 import com.phucx.account.service.messageQueue.MessageQueueService;
+import com.phucx.account.service.user.UserProfileService;
 
 import jakarta.persistence.EntityExistsException;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +44,8 @@ public class CustomerServiceImp implements CustomerService {
     private ImageService imageService;
     @Autowired
     private CustomerImageService customerImageService;
+    @Autowired
+    private UserProfileService userProfileService;
 
 	@Override
 	public CustomerDetail updateCustomerInfo(CustomerDetail customer) throws CustomerNotFoundException, JsonProcessingException {
@@ -144,9 +151,15 @@ public class CustomerServiceImp implements CustomerService {
     }
     
     @Override
-    public CustomerDetails getCustomerDetails(String userID) throws JsonProcessingException, InvalidUserException {
+    public CustomerFullDetails getCustomerDetails(String userID) throws JsonProcessingException, InvalidUserException, UserNotFoundException {
         log.info("getCustomerDetails(userID={})", userID);
+        // get customer details
         CustomerDetail customerDetail = this.getCustomerDetail(userID);
+        // get user verification
+        UserVerification userVerification = userProfileService.getUserVerification(userID);
+        VerificationInfo verificationInfo = new VerificationInfo(
+            userVerification.getPhoneVerification(), 
+            userVerification.getProfileVerification());
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
@@ -155,10 +168,13 @@ public class CustomerServiceImp implements CustomerService {
         String username = jwt.getClaimAsString(WebConstant.PREFERRED_USERNAME);
         String email = jwt.getClaimAsString(WebConstant.EMAIL);
 
-        return new CustomerDetails(customerDetail.getCustomerID(), userID, 
-            customerDetail.getContactName(), customerDetail.getAddress(), 
-            customerDetail.getCity(), customerDetail.getPhone(), 
+        // assemble customer details
+        CustomerDetails customerDetails = new CustomerDetails(
+            customerDetail.getCustomerID(), userID, customerDetail.getContactName(), 
+            customerDetail.getAddress(), customerDetail.getCity(), customerDetail.getPhone(), 
             customerDetail.getPicture(), username, firstname, lastname, email);
+        return new CustomerFullDetails(customerDetails, verificationInfo);
+        
     }
     @Override
     public List<CustomerDetail> getCustomersByUserIDs(List<String> userIDs) {

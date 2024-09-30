@@ -1,0 +1,42 @@
+{
+    "slider":{
+        "slideSetting": {
+            "duration": 5000,
+            "transitionEffect": "fade"
+        },
+        "slides":[
+            {
+                "image": "slide1-img.png",
+                "caption": "Discover Delicious and Nutritious Choices: Our Selection of Fresh Foods Will Inspire Your Culinary Creations"
+            },
+            {
+                "image": "slide2-img.png",
+                "caption": "Discover Delicious and Nutritious Choices: Our Selection of Fresh Foods Will Inspire Your Culinary Creations"
+            },
+            {
+                "image": "slide3-img.png",
+                "caption": "Discover Delicious and Nutritious Choices: Our Selection of Fresh Foods Will Inspire Your Culinary Creations"
+            }
+        ]
+    },
+    "image": {
+        "logo": "logo.png",
+        "media": {
+            "facebook": "fb.png",
+            "instagram": "instagram.png",
+            "twitter": "twitter.png",
+            "linkedin": "linkedin.png"
+        },
+        "error": "error.png",
+        "navigation":{
+            "prev": "prev.png",
+            "next": "next.png"
+        }
+    },
+    "colorScheme":{
+        "primaryColor": "",
+        "secondaryColor": "",
+        "backgroundColor": "#ffffff"
+    }
+
+}

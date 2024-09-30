@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.order.compositeKey.OrderDetailKey;
 import com.phucx.order.constant.OrderStatus;
+import com.phucx.order.constant.PaymentMethodConstant;
 import com.phucx.order.exception.InvalidDiscountException;
 import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.Customer;
@@ -98,15 +99,31 @@ public class OrderServiceImp implements OrderService{
         if(fetchedCustomer==null){
             throw new NotFoundException("Customer does not found when saving order");
         }
+        // get order status
+        String orderStatus = getStatus(order.getMethod());
+        // save order 
         Boolean status = orderRepository.insertOrder(
             orderID, order.getOrderDate(), order.getRequiredDate(), 
             order.getShippedDate(), order.getFreight(), order.getShipName(), 
             order.getShipAddress(), order.getShipCity(), order.getPhone(), 
-            OrderStatus.Pending.name(), order.getCustomerID(), 
-            order.getEmployeeID(), order.getShipVia());
+            orderStatus, order.getCustomerID(), order.getEmployeeID(), 
+            order.getShipVia());
         if(!status) throw new RuntimeException("Error while saving order for customer " + order.getCustomerID());
         return orderID;
     }
+
+    private String getStatus(String method){
+        // PaymentMethodConstant paymentMethod = PaymentMethodConstant.fromString(method);
+        // switch (paymentMethod) {
+        //     case COD:
+        //         return OrderStatus.Pending.name();
+        
+        //     default:
+        //         return OrderStatus.Confirmed.name();
+        // }
+        return OrderStatus.Pending.name();
+    }
+
     // save OrderDetail
     private OrderDetailKey saveOrderDetail(String orderID, OrderItem orderItem){
         log.info("saveOrderDetail(orderID={}, orderItem={})", orderID, orderItem.toString());

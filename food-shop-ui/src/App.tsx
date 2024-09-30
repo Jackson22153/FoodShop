@@ -13,6 +13,7 @@ import { ROLE } from './constant/WebConstant';
 import { employeeReceiveNotificationConnect } from './api/EmployeeReceiveNotificationWsApi';
 import { customerReceiveNotificationConnect } from './api/CustomerReceiveNotificationWsApi';
 import ErrorPageComponent from './components/ui/error/ErrorPage';
+import config from '../config.json';
 
 function App() {
   const [userInfo, setUserInfo] = useState<UserInfo>({

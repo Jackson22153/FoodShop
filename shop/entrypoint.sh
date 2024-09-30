@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$WAIT_FOR_SQL" = "true" ]; then
+if [ "$WAIT_FOR_DATABASE" = "true" ]; then
     echo 'Waiting for database'
     sleep 20s
 fi

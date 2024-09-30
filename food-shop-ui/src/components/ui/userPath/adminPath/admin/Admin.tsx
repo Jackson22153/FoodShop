@@ -20,6 +20,7 @@ import { isAdmin } from '../../../../../api/AdminApi';
 import AdminAddCategoryComponent from '../category/AddNewCategory';
 import AdminAddFoodComponent from '../food/AddFood';
 import { AuthorizationAdminUrl } from '../../../../../constant/FoodShoppingApiURL';
+import WebConfigComponent from '../website/WebConfig';
 
 export default function AdminComponent(){
     const sidebarRef = useRef(null)
@@ -231,6 +232,7 @@ export default function AdminComponent(){
                 </nav>
                 <div>
                     <Routes>
+                        <Route path='config/*' element={<WebConfigComponent/>}/>
                         <Route path='/products' element={<AdminFoodsComponent/>}/> 
                         <Route path='/products/addProduct' element={<AdminAddFoodComponent/>}/> 
                         <Route path='/products/:productName' element={<AdminFoodComponent/>}/> 

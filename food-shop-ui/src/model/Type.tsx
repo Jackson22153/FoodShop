@@ -93,6 +93,12 @@ export type DiscountDetail = {
     discountType: string,
     active: boolean
 }
+// payment method
+export type PaymentMethod = {
+    methodID: string,
+    methodName: string,
+    details: string
+}
 // cart
 export type CartInfo = {
     products: CartProductInfo[],
@@ -151,6 +157,7 @@ export type CustomerUserInfo={
     picture: string,
     userInfo:UserInfo
 }
+
 // employee
 export type Employee = {
     employeeID: string,
@@ -237,9 +244,11 @@ export type OrderInfo = {
     shipperName: String,
     phone: string,
     status: string,
-    totalPrice: number
+    totalPrice: number,
+    method: string,
     products: ProductWithDiscount[]
 }
+
 export type OrderWithProduct = {
     orderID: number,
     orderDate: string,
@@ -327,8 +336,18 @@ export type User = {
     username: string,
     email: string,
 }
+export type VerificationInfo = {
+    phoneVerified: Boolean,
+    profileVerified: Boolean
+}
 // role
 export type Role = {
     roleID: number,
     roleName: string
+}
+// response
+export type PaymentResponse = {
+    message: string,
+    status: boolean,
+    redirect_url: string
 }

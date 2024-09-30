@@ -25,7 +25,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(OrderDetailKey.class)
-@Table(name = "Order Details Extended")
+@Table(name = "OrderDetailsExtended")
 public class OrderDetailExtended {
     @Id
     private String orderID;

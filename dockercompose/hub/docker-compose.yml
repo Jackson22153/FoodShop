@@ -1,37 +1,40 @@
 services:
-  sql:
-    image: jackson22153/phucxsqlserver:1.0.0
-    container_name: sqlserver
+  mysql:
+    image: jackson22153/phucxmysql:1.0.0
+    container_name: mysql
     ports:
-      - 1431:1433
-    stdin_open: true 
-    tty: true 
+      - 3305:3306
     volumes:
-      - D:\thuchanh\sts\docker-storage\sqlserver:/var/opt/mssql/data
+      - D:\thuchanh\sts\docker-storage\mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=10122003simp!simp
     networks:
       - phucx
 
   keycloak:
-    image: jackson22153/phucxkeycloak:1.0.0
-    container_name: phucxkeycloak
+    image: jackson22153/phucxkeycloak:2.0.0
+    container_name: keycloak
     ports:
       - 8080:8080
     restart: unless-stopped
     depends_on:
-      - sql
+      - mysql
     environment:
-      - WAIT_FOR_SQL=true
+      - WAIT_FOR_DATABASE=true
+      - KC_DB=mysql
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=123
-      - KC_DB_USERNAME=sa
+      - KC_DB_USERNAME=root
       - KC_DB_PASSWORD=10122003simp!simp
-      - KC_DB_URL=jdbc:sqlserver://sql:1433;database=keycloak;encrypt=true;trustServerCertificate=true;
+      - KC_DB_URL=jdbc:mysql://mysql:3306/keycloak
     networks:
       - phucx
 
   redis:
     image: redis:7.2-alpine
     container_name: redis
+    stdin_open: true 
+    tty: true 
     ports:
       - 6379:6379
     networks:
@@ -52,14 +55,15 @@ services:
     environment:
       - OAUTH2_PROXY_PROVIDER=keycloak-oidc
       - OAUTH2_PROXY_PROVIDER_DISPLAY_NAME=Keycloak
-      - OAUTH2_PROXY_CLIENT_ID=803e434f-c3a8-436f-a200-8b959476efdc
-      - OAUTH2_PROXY_CLIENT_SECRET=mXIR4h0hsghL1DtwnmPY4jHpoKrnJ3gk
+      - OAUTH2_PROXY_CLIENT_ID=b7afe9b7-6c53-44a1-8e76-bff80f45bead
+      - OAUTH2_PROXY_CLIENT_SECRET=BFiwf7shEhqNNPcLLFaaBwB8oiVStDAi
+
       - OAUTH2_PROXY_LOGIN_URL=http://localhost:8080/realms/master/protocol/openid-connect/auth
       - OAUTH2_PROXY_REDEEM_URL=http://keycloak:8080/realms/master/protocol/openid-connect/token
       - OAUTH2_PROXY_OIDC_JWKS_URL=http://keycloak:8080/realms/master/protocol/openid-connect/certs
+
       - OAUTH2_PROXY_BACKEND_LOGOUT_URL=http://keycloak:8080/realms/master/protocol/openid-connect/logout?post_logout_redirect=http://localhost:5173&id_token_hint={id_token}
       - OAUTH2_PROXY_REDIRECT_URL=http://localhost:4180/oauth2/callback
-      - OAUTH2_PROXY_OIDC_ISSUER_URL=http://keycloak:8080/realms/master
       - OAUTH2_PROXY_OIDC_ISSUER_URL=http://localhost:8080/realms/master
       - OAUTH2_PROXY_GRANT_TYPE=authorization_code
       - OAUTH2_PROXY_SCOPE=openid
@@ -71,7 +75,8 @@ services:
       
       - OAUTH2_PROXY_COOKIE_SECRET=fLIblJsthbMhgELnmpqrCbWQD9P1vyDfI5SAs8BUG6c=
       - OAUTH2_PROXY_COOKIE_SECURE=false
-      - OAUTH2_PROXY_COOKIE_REFRESH=30m
+      - OAUTH2_PROXY_COOKIE_REFRESH=2m
+      - OAUTH2_PROXY_COOKIE_EXPIRE=10m
       - OAUTH2_PROXY_COOKIE_HTTPONLY=true
       - OAUTH2_PROXY_COOKIE_NAME=SESSION
 
@@ -81,7 +86,6 @@ services:
       - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
       - OAUTH2_PROXY_SET_XAUTHREQUEST=true
       - OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER=true
-
 
       - OAUTH2_PROXY_SESSION_STORE_TYPE=redis
       - OAUTH2_PROXY_REDIS_CONNECTION_URL=redis://redis:6379
@@ -101,19 +105,9 @@ services:
       - RABBITMQ_DEFAULT_PASS=123
     networks:
       - phucx
-
-  # configserver:
-  #   image: jackson22153/configserver:1.0.0
-  #   ports:
-  #     - 8071:8071
-  #   restart: unless-stopped
-  #   container_name: configserver
-  #   networks:
-  #     - phucx
-
-
+  
   keycloakrestapi:
-    image: jackson22153/phucxkeycloakrestapi:1.0.0
+    image: jackson22153/phucxkeycloakrestapi:2.0.0
     ports:
       - 8085:8085
     container_name: keycloakrestapi
@@ -122,12 +116,12 @@ services:
       - keycloak
     restart: unless-stopped
     environment:
-      - WAIT_FOR_SQL=true
+      - WAIT_FOR_DATABASE=true
       - KEYCLOAK_RESTAPI_DEV_URL=http://localhost:8085
       - KEYCLOAK_URL=http://keycloak:8080
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_PASSWORD=123
-      - KEYCLOAK_CLIENT_ID=803e434f-c3a8-436f-a200-8b959476efdc
+      - KEYCLOAK_CLIENT_ID=b7afe9b7-6c53-44a1-8e76-bff80f45bead
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
@@ -137,7 +131,7 @@ services:
       - phucx
 
   shop:
-    image: jackson22153/phucxshop:1.0.0
+    image: jackson22153/phucxshop:2.0.0
     ports:
       - 8081:8081
     container_name: shop
@@ -145,31 +139,31 @@ services:
       - D:\thuchanh\sts\docker-storage\image\product:/usr/src/app/image/product
       - D:\thuchanh\sts\docker-storage\image\category:/usr/src/app/image/category
     depends_on:
-      - sql
+      - mysql
       - rabbitmq
       - keycloak
       - redis
     restart: unless-stopped
     environment:
-      - WAIT_FOR_SQL=true
+      - WAIT_FOR_DATABASE=true
       - SHOP_DEV_URL=http://localhost:8081
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
-      - KEYCLOAK_ISSUER_URI=http://keycloak:8080/realms/master
+      - KEYCLOAK_ISSUER _URI=http://keycloak:8080/realms/master
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=admin
       - RABBITMQ_PASSWORD=123
-      - SQL_USERNAME=sa
-      - SQL_PASSWORD=10122003simp!simp
-      - SQL_URL=jdbc:sqlserver://sql:1433;database=product;encrypt=true;trustServerCertificate=true
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=10122003simp!simp
+      - MYSQL_URL=jdbc:mysql://mysql:3306/product
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     networks:
       - phucx
-  
+
   account:
-    image: jackson22153/phucxaccount:1.0.0
+    image: jackson22153/phucxaccount:2.0.0
     ports:
       - 8082:8082
     container_name: account
@@ -177,13 +171,13 @@ services:
       - D:\thuchanh\sts\docker-storage\image\customer:/usr/src/app/image/customer
       - D:\thuchanh\sts\docker-storage\image\employee:/usr/src/app/image/employee
     depends_on:
-      - sql
+      - mysql
       - rabbitmq
       - keycloak
       - redis
     restart: unless-stopped
     environment:
-      - WAIT_FOR_SQL=true
+      - WAIT_FOR_DATABASE=true
       - ACCOUNT_DEV_URL=http://localhost:8082
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
@@ -191,16 +185,19 @@ services:
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=admin
       - RABBITMQ_PASSWORD=123
-      - SQL_USERNAME=sa
-      - SQL_PASSWORD=10122003simp!simp
-      - SQL_URL=jdbc:sqlserver://sql:1433;database=profile;encrypt=true;trustServerCertificate=true
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=10122003simp!simp
+      - MYSQL_URL=jdbc:mysql://mysql:3306/profile
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - TWILIO_CLIENT_ID={TWILIO_CLIENT_ID}
+      - TWILIO_CLIENT_SECRET={TWILIO_CLIENT_SECRET}
+      - TWILIO_SERVICE_SID={TWILIO_SERVICE_SID}
     networks:
       - phucx
   
   notification:
-    image: jackson22153/phucxnotification:1.0.0
+    image: jackson22153/phucxnotification:2.0.0
     container_name: notification
     ports:
       - 8084:8084
@@ -209,7 +206,7 @@ services:
       - rabbitmq
     restart: unless-stopped
     environment:
-      - WAIT_FOR_SQL=true
+      - WAIT_FOR_DATABASE=true
       - NOTIFICATION_DEV_URL=http://localhost:8084
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
@@ -219,25 +216,25 @@ services:
       - RABBITMQ_PASSWORD=123
       - RABBITMQ_STOMP_PORT=61613
       - UI_URL=http://localhost:5173
-      - SQL_USERNAME=sa
-      - SQL_PASSWORD=10122003simp!simp
-      - SQL_URL=jdbc:sqlserver://sql:1433;database=notification;encrypt=true;trustServerCertificate=true
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=10122003simp!simp
+      - MYSQL_URL=jdbc:mysql://mysql:3306/notification
     networks:
       - phucx
 
   order:
-    image: jackson22153/phucxorder:1.0.0
+    image: jackson22153/phucxorder:2.0.0
     ports:
       - 8083:8083
     container_name: order
     depends_on:
       - redis
-      - sql
+      - mysql
       - rabbitmq
       - keycloak
     restart: unless-stopped
     environment:
-      - WAIT_FOR_SQL=true
+      - WAIT_FOR_DATABASE=true
       - ORDER_DEV_URL=http://localhost:8083
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
@@ -245,9 +242,37 @@ services:
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=admin
       - RABBITMQ_PASSWORD=123
-      - SQL_USERNAME=sa
-      - SQL_PASSWORD=10122003simp!simp
-      - SQL_URL=jdbc:sqlserver://sql:1433;database=order;encrypt=true;trustServerCertificate=true
+      - REDIRECT_PAYMENT_URL=http://localhost:8086
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=10122003simp!simp
+      - MYSQL_URL=jdbc:mysql://mysql:3306/order
+    networks:
+      - phucx
+
+  payment:
+    image: jackson22153/phucxpayment:1.0.0
+    container_name: payment
+    ports:
+      - 8086:8086
+    depends_on:
+      - keycloak
+      - mysql
+      - rabbitmq
+    environment:
+      - WAIT_FOR_DATABASE=true
+      - PAYPAL_CLIENT_ID={PAYPAL_CLIENT_ID}
+      - PAYPAL_CLIENT_SECRET={PAYPAL_CLIENT_SECRET}
+      - PAYPAL_MODE=sandbox
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=10122003simp!simp
+      - MYSQL_URL=jdbc:mysql://mysql:3306/payment
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=123
+      - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
+      - PAYMENT_SUCCESSFUL_URL=http://localhost:5173/order?status=successful
+      - PAYMENT_CANCELED_URL=http://localhost:5173/order?status=canceled
     networks:
       - phucx
     
@@ -272,19 +297,23 @@ services:
       - phucx
 
   gateway:
-    image: jackson22153/phucxnginx:1.0.0
+    image: jackson22153/phucxnginx:2.0.0
     ports:
       - 8060:8060
     container_name: nginx
     depends_on:
-      - keycloak
       - shop
       - account
+      - keycloakrestapi
+      - notification
+      - order
+      - oauth2-proxy
     restart: unless-stopped
     environment:
       - OAUTH2_PROXY=http://oauth2-proxy:4180
       - SHOP_URL=http://shop:8081
       - ACCOUNT_URL=http://account:8082 
+      - PAYMENT_URL=http://payment:8086
       - ORDER_URL=http://order:8083
       - NOTIFICATION_URL=http://notification:8084
       - AUTHORIZATION_URL=http://keycloakrestapi:8085

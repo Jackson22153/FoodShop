@@ -1,6 +1,7 @@
 import axios from "axios";
-import { CustomerInfoUrl, CustomerNotificationsUrl, IsCustomerUrl, 
-    UploadCustomerImageUrl, UploadEmployeeImageUrl 
+import { CustomerInfoUrl, CustomerNotificationsUrl, GenerateOTPPhoneUrl, IsCustomerUrl, 
+    UploadCustomerImageUrl, UploadEmployeeImageUrl, 
+    VerifyOTPPhoneUrl
 } from "../constant/FoodShoppingApiURL";
 
 export function isCustomer(){
@@ -69,6 +70,27 @@ export async function turnOffCustomerNotification(data){
     return axios.post(`${CustomerNotificationsUrl}`, JSON.stringify(data), {
         withCredentials: true,
         headers:{
+            "Content-Type": 'application/json',
+        }
+    })
+}
+
+
+// generate phone otp
+export function generateOTPPhoneForUser(phone){
+    return axios.post(`${GenerateOTPPhoneUrl}?phone=${phone}`, "", {
+        withCredentials: true,
+        headers: {
+            "Content-Type": 'application/json',
+        }
+    })
+}
+
+// verify phone otp
+export function verifyOTPPhoneForUser(otp, phone){
+    return axios.post(`${VerifyOTPPhoneUrl}?otp=${otp}&phone=${phone}`, "", {
+        withCredentials: true,
+        headers: {
             "Content-Type": 'application/json',
         }
     })

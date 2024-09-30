@@ -39,6 +39,22 @@ public enum EventType {
     ValidateAndProcessProducts,
     ReturnValidateAndProcessProducts,
 
+    // payment
+    CreatePayment,
+    ReturnStatusCreatePayment,
+
+    UpdatePaymentStatusAsSuccessfulByID,
+    ReturnStatusUpdatePaymentStatusAsSuccessfulByID, 
+
+    UpdatePaymentStatusAsCanceledByID,
+    ReturnStatusUpdatePaymentStatusAsCanceledByID, 
+
+    UpdatePaymentStatusAsSuccessfulByOrderID,
+    ReturnStatusUpdatePaymentStatusAsSuccessfulByOrderID, 
+
+    UpdatePaymentStatusAsCanceledByOrderID,
+    ReturnStatusUpdatePaymentStatusAsCanceledByOrderID, 
+
 
     // discount response 
     ReturnDiscountByID,

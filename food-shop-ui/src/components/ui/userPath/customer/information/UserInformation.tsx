@@ -1,5 +1,5 @@
 import { ChangeEventHandler, FormEvent, useContext, useEffect, useState } from "react";
-import { CustomerDetail, UserInfo } from "../../../../../model/Type";
+import { CustomerDetail, UserInfo, VerificationInfo } from "../../../../../model/Type";
 import { getCustomerInfo, updateUserInfo } from "../../../../../api/UserApi";
 import { Alert, Modal, ModalContextType } from "../../../../../model/WebType";
 import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/WebConstant";
@@ -8,11 +8,15 @@ import AlertComponent from "../../../../shared/functions/alert/Alert";
 import { UserImageChangeInput } from "../../../../shared/functions/user-image-change/UserImageChangeInput";
 import modalContext from "../../../../contexts/ModalContext";
 import userInfoContext from "../../../../contexts/UserInfoContext";
+import PhoneVerificationModal from "../../../../shared/functions/phone-verification-modal/PhoneVerifyModal";
 
 export default function UserInformationComponent(){
     const {setModal: setErrorModal} = useContext<ModalContextType>(modalContext)
     const [customerInfo, setCustomerInfo] = useState<CustomerDetail>();
-    const userInfo = useContext<UserInfo>(userInfoContext)
+    const userInfo = useContext<UserInfo>(userInfoContext);
+    const [verificationInfo, setVerificationInfo] = useState<VerificationInfo>();
+
+    const [isShowedPhoneVerification, setIsShowedPhoneVerification] = useState(false)
     const [modal, setModal] = useState<Modal>({
         title: 'Confirm action',
         message: 'Do you want to continute?',
@@ -32,6 +36,7 @@ export default function UserInformationComponent(){
     const initial = ()=>{
         fetchCustomerInfo()
     }
+
     // get customerinfo
     const fetchCustomerInfo = async ()=>{
         try {            
@@ -39,19 +44,25 @@ export default function UserInformationComponent(){
             if(200<=res.status&&res.status<300){
                 const data = res.data;
                 const customer = {
-                    customerID: data.customerID,
-                    userID: data.userID,
-                    username: data.username,
-                    email: data.email,
-                    firstName: data.firstName,
-                    lastName: data.lastName,
-                    contactName: data.contactName || '',
-                    address: data.address || '',
-                    city: data.city || '',
-                    phone: data.phone || '',
-                    picture: data.picture || '',
+                    customerID: data.customerDetails.customerID,
+                    userID: data.customerDetails.userID,
+                    username: data.customerDetails.username,
+                    email: data.customerDetails.email,
+                    firstName: data.customerDetails.firstName,
+                    lastName: data.customerDetails.lastName,
+                    contactName: data.customerDetails.contactName || '',
+                    address: data.customerDetails.address || '',
+                    city: data.customerDetails.city || '',
+                    phone: data.customerDetails.phone || '',
+                    picture: data.customerDetails.picture || '',
                 };
                 setCustomerInfo(customer)
+                const verification = {
+                    phoneVerified: data.verificationInfo.phoneVerified,
+                    profileVerified: data.verificationInfo.profileVerified
+                }
+                setVerificationInfo(verification)
+                // console.log(verification)
             }
         } catch (error) {
             setErrorModal({
@@ -72,6 +83,11 @@ export default function UserInformationComponent(){
     // change customer's picture
     const onChangePicture = (imageSrc: string)=>{
         setCustomerInfo({...customerInfo, ['picture']:imageSrc})
+    }
+
+    // change isShowed phone verification modal
+    const onChangeIsShowedPhoneVerification = ()=>{
+        setIsShowedPhoneVerification(value => !value)
     }
     // enable edit information
     const onClickEditInfo = ()=>{
@@ -126,6 +142,10 @@ export default function UserInformationComponent(){
                 setAlert({...alert, isShowed: false});
             }, ALERT_TIMEOUT)
         }
+    }
+
+    const onChangeVerifyingPhoneButton = ()=>{
+        setVerificationInfo({...verificationInfo, phoneVerified:true})
     }
 
     return(
@@ -191,7 +211,13 @@ export default function UserInformationComponent(){
                                     
                                     <div className="form-row row">
                                         <div className="col-lg-3 col-md-4 mb-3">
-                                            <label  htmlFor="phone-customer">Phone</label>
+                                            <div>
+                                                <label htmlFor="phone-customer">Phone</label>
+                                                {!verificationInfo.phoneVerified && customerInfo.phone &&
+                                                    <span className="badge bg-danger" id="phone-verify-badge" 
+                                                        onClick={onChangeIsShowedPhoneVerification}>Verify</span> 
+                                                }
+                                            </div>
                                             <input type="text" className="form-control" id="phone-customer" placeholder="Phone" required
                                                 value={customerInfo.phone} onChange={onChangeCustomerInfo} disabled={editable}
                                                 name="phone"/>
@@ -211,6 +237,10 @@ export default function UserInformationComponent(){
                             </div>       
                         </div>
                     </div>
+                    <PhoneVerificationModal phone={customerInfo.phone}
+                        isShowed={isShowedPhoneVerification} alert={alert} setAlert={setAlert}
+                        onChangeIsShowed={onChangeIsShowedPhoneVerification}
+                        onChangeVerifingButton={onChangeVerifyingPhoneButton}/>
                 </div>
             }
         </div>

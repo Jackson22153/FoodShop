@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +27,15 @@ import com.phucx.order.model.OrderItem;
 import com.phucx.order.model.OrderItemDiscount;
 import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderWithProducts;
+import com.phucx.order.model.PaymentDTO;
+import com.phucx.order.model.PaymentResponse;
 import com.phucx.order.model.Product;
 import com.phucx.order.service.customer.CustomerService;
 import com.phucx.order.service.employee.EmployeeService;
 import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.CustomerOrderService;
 import com.phucx.order.service.order.OrderService;
+import com.phucx.order.service.payment.PaymentService;
 import com.phucx.order.service.product.ProductService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,22 +53,31 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
     private CustomerService customerService;
     @Autowired
     private EmployeeService employeeService;
+    @Autowired
+    private PaymentService paymentService;
+    @Value("${phucx.redirect-payment-url}")
+    private String redirectPaymentUrl;
     
     @Override
-    public OrderDetails placeOrder(OrderWithProducts order, String userID) 
+    public PaymentResponse placeOrder(OrderWithProducts order, String userID) 
     throws JsonProcessingException, NotFoundException, InvalidDiscountException, InvalidOrderException {
         log.info("placeOrder(order={}, userID={})", order, userID);
         // fetch customer
         Customer customer = customerService.getCustomerByUserID(userID);
         order.setCustomerID(customer.getCustomerID());
         // process order
-        OrderWithProducts newOrder = this.orderProcessing(order);
+        OrderDetails newOrder = this.orderProcessing(order);
         // create a notification 
         if(newOrder ==null){
             throw new RuntimeException("Error when placing an order");
         }
         Integer productID = order.getProducts().get(0).getProductID();
         Product fetchedProduct = productService.getProduct(productID);
+
+        // payment
+        PaymentDTO payment = new PaymentDTO(newOrder.getTotalPrice().doubleValue(), 
+            newOrder.getOrderID(), order.getMethod(), order.getCustomerID(), redirectPaymentUrl);
+        PaymentResponse paymentResponse = paymentService.createPayment(payment);
         // customer
         // create and save notification back to user
         OrderNotificationDTO customerNotification = new OrderNotificationDTO(
@@ -84,12 +97,12 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
         employeeNotification.setMessage("A new order #" + newOrder.getOrderID() + " has been placed");
         notificationService.sendEmployeeOrderNotification(employeeNotification);
 
-        return orderService.getOrder(newOrder.getOrderID(), OrderStatus.Pending);
+        return paymentResponse;
     }
 
-        // order processing
+    // order processing
     // validating and saving customer's order 
-    private OrderWithProducts orderProcessing(OrderWithProducts order) 
+    private OrderDetails orderProcessing(OrderWithProducts order) 
         throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException {
             
         log.info("orderProcessing({})", order);
@@ -124,7 +137,9 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
         // save order
         String pendingOrderID = orderService.saveFullOrder(order);
         order.setOrderID(pendingOrderID);
-        return order;
+
+        OrderDetails orderDetails = orderService.getOrder(pendingOrderID);
+        return orderDetails;
     }
 
     private Optional<Product> findProduct(List<Product> products, Integer productID){
@@ -140,6 +155,9 @@ public class CustomerOrderServiceImp implements CustomerOrderService {
         Employee employeeUser = employeeService.getEmployeeByID(orderDetails.getEmployeeID());
         // update order's status
         Boolean status = orderService.updateOrderStatus(orderDetails.getOrderID(), OrderStatus.Successful);
+        // update payment as succcessful
+        paymentService.updatePaymentByOrderIDAsSuccesful(orderDetails.getOrderID());
+        
         // notification
         OrderNotificationDTO notification = new OrderNotificationDTO();
         notification.setTitle(NotificationTitle.RECEIVE_ORDER);

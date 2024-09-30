@@ -77,10 +77,12 @@ public class SendOrderNotificationServiceImp implements SendOrderNotificationSer
     @Override
     public void sendNotificationToCustomer(OrderNotificationDTO orderNotification) throws NotFoundException {
         log.info("sendNotificationToCustomer({})", orderNotification);
+        // extract notification details
         String orderID = orderNotification.getOrderID();
         if(orderID==null) throw new RuntimeException("Order notification does not contain any orderID");
         NotificationDetail notificationDetail = this.convertNotification(orderNotification);
-        // get the first notification
+
+        // get the first notification aka pending order notification
         if(!(orderNotification.getTitle().equals(NotificationTitle.PLACE_ORDER))){
             NotificationDetail fetchedNotification = notificationService.getOrderNotificationDetail(
                 NotificationTitle.PLACE_ORDER.name(), orderID, orderNotification.getReceiverID());
@@ -88,7 +90,8 @@ public class SendOrderNotificationServiceImp implements SendOrderNotificationSer
             notificationDetail.setRepliedTo(fetchedNotification.getNotificationID());
             notificationDetail.setPicture(fetchedNotification.getPicture());
         }
-        // mark as read for confirm order and cancel order to all employees
+        
+        // mark pending order as read when an employee confirm or cancel that order
         if((orderNotification.getTitle().equals(NotificationTitle.CONFIRM_ORDER) ||
             orderNotification.getTitle().equals(NotificationTitle.CANCEL_ORDER))){
             Boolean result = notificationService.updateNotificationReadStatusOfBroadcast(
@@ -99,7 +102,7 @@ public class SendOrderNotificationServiceImp implements SendOrderNotificationSer
                 " and OrderID " + orderID +" can not be updated to " + NotificationIsRead.YES + " status");
         }
 
-        // send notification message to a customer
+        // send notification message to customer
         messageQueueService.sendMessageToUser(orderNotification.getReceiverID(), notificationDetail);
     }
     

@@ -22,16 +22,16 @@ public interface CurrentProductRepository extends JpaRepository<CurrentProduct, 
 
     @Query(nativeQuery = true, value = """
         SELECT  * \
-        FROM [Current Product List] \
+        FROM `Current Product List` \
         where CategoryName LIKE ?2 AND ProductID<>?1 \
-        ORDER BY NEWID()
+        ORDER BY RAND()
         """)
     Page<CurrentProduct> findRandomLikeCategoryNameWithoutProductID(int productID, String categoryName, Pageable page);
 
     @Query(nativeQuery = true, value = """
         SELECT  * \
-        FROM [Current Product List] \
-        ORDER BY NEWID()
+        FROM `Current Product List` \
+        ORDER BY RAND()
         """)
     Page<CurrentProduct> findProductsRandom(Pageable page);
 

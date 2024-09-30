@@ -10,10 +10,11 @@ import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.InvoiceDetails;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderWithProducts;
+import com.phucx.order.model.PaymentResponse;
 
 public interface CustomerOrderService {
     // place an order by customer
-    public OrderDetails placeOrder(OrderWithProducts order, String userID) 
+    public PaymentResponse placeOrder(OrderWithProducts order, String userID) 
         throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException;
     // receive order
     public void receiveOrder(OrderWithProducts order) throws JsonProcessingException, NotFoundException;

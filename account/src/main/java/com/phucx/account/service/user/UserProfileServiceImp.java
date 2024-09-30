@@ -17,7 +17,10 @@ import com.phucx.account.exception.UserNotFoundException;
 import com.phucx.account.model.UserAuthentication;
 import com.phucx.account.model.UserInfo;
 import com.phucx.account.model.UserProfile;
+import com.phucx.account.model.UserVerification;
 import com.phucx.account.repository.UserProfileRepository;
+import com.phucx.account.repository.UserVerificationRepository;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -25,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 public class UserProfileServiceImp implements UserProfileService {
     @Autowired
     private  UserProfileRepository userProfileRepository;
+    @Autowired
+    private UserVerificationRepository userVerificationRepository;
 
     @Override
     public UserProfile getUserProfile(String userID) throws UserNotFoundException {
@@ -86,5 +91,24 @@ public class UserProfileServiceImp implements UserProfileService {
         UserInfo userInfo = new UserInfo(userID, username, email);
         UserAuthentication userAuthentication = new UserAuthentication(userInfo, roles);
         return userAuthentication;
+    }
+    @Override
+    public Boolean updateProfileVerification(String profileID, Boolean status) {
+        log.info("updateProfileVerification(profileID={}, status={})", profileID, status);
+        Boolean result = userVerificationRepository.updateProfileVerification(profileID, status);
+        return result;
+    }
+    @Override
+    public Boolean updatePhoneVerification(String profileID, Boolean status) {
+        log.info("updatePhoneVerification(profileID={}, status={})", profileID, status);
+        Boolean result = userVerificationRepository.updatePhoneVerification(profileID, status);
+        return result;
+    }
+    @Override
+    public UserVerification getUserVerification(String userID) throws UserNotFoundException {
+        log.info("getUserVerification(userID={})", userID);
+        UserVerification userVerification = userVerificationRepository.findByUserID(userID)
+            .orElseThrow(()-> new UserNotFoundException("User " + userID + " does not found!"));
+        return userVerification;
     }
 }
