@@ -22,6 +22,7 @@ import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.InvoiceDetails;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderWithProducts;
+import com.phucx.order.model.PaymentResponse;
 import com.phucx.order.service.order.CustomerOrderService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,14 +34,15 @@ public class CustomerOrderController {
     private CustomerOrderService customerOrderService;
 
     // ENDPOINT TO PLACE AN ORDER
-    @Operation(summary = "Place an order", tags = {"tutorials", "post", "customer"})
     @LoggerAspect
     @PostMapping("/order/place")
-    public ResponseEntity<OrderDetails> placeOrder(@RequestBody OrderWithProducts order, Authentication authentication) 
-        throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException{
-    
-        OrderDetails orderDetails = customerOrderService.placeOrder(order, authentication.getName());
-        return ResponseEntity.ok().body(orderDetails);
+    @Operation(summary = "Place an order", tags = {"tutorials", "post", "customer"})
+    public ResponseEntity<PaymentResponse> placeOrder(
+        @RequestBody OrderWithProducts order, 
+        Authentication authentication
+    ) throws JsonProcessingException, InvalidDiscountException, InvalidOrderException, NotFoundException{
+        PaymentResponse paymentResponse = customerOrderService.placeOrder(order, authentication.getName());
+        return ResponseEntity.ok().body(paymentResponse);
     }
 
     @LoggerAspect
@@ -65,18 +67,14 @@ public class CustomerOrderController {
     @GetMapping("/orders")
     public ResponseEntity<Page<OrderDetails>> getOrders(
         @RequestParam(name = "page", required = false) Integer pageNumber,
-        @RequestParam(name = "type", required = false) String orderStatus,
+        @RequestParam(name = "type", required = false) OrderStatus orderStatus,
         Authentication authentication
     ) throws JsonProcessingException, NotFoundException{    
         pageNumber = pageNumber!=null?pageNumber:0;
-        OrderStatus status = null;
-        if(orderStatus!=null){
-            status = OrderStatus.fromString(orderStatus.toUpperCase());
-        }else {
-            status=OrderStatus.All;
-        }
+        orderStatus = orderStatus!=null?orderStatus:OrderStatus.All;
         Page<OrderDetails> orders = customerOrderService.getOrders(
-            pageNumber, WebConstant.PAGE_SIZE, authentication.getName(), status);
+            pageNumber, WebConstant.PAGE_SIZE, 
+            authentication.getName(), orderStatus);
         return ResponseEntity.ok().body(orders);
     }
 }

@@ -5,12 +5,7 @@ WORKDIR /src
 ENV ACCEPT_EULA=Y
 ENV MSSQL_SA_PASSWORD=10122003simp!simp
 
-COPY user.sql ./
-COPY product.sql ./
-COPY order.sql ./
-COPY profile.sql ./
-COPY notification.sql ./
-COPY keycloak.sql ./
+COPY /sqlfile/ ./
 COPY setup-database.sh ./
 COPY entrypoint.sh ./
 

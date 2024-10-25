@@ -111,7 +111,7 @@ body {
   min-height: 100%;
   background: #e3f2fd;
 }
-nav {
+.user-profile > nav {
   position: fixed;
   top: 0;
   left: 0;
@@ -122,8 +122,14 @@ nav {
   background: #fff;
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
 }
-
-nav .logo {
+.user-profile .nav-link{
+  color: #69707a;
+}
+.user-profile .active{
+  color: #0061f2;
+  border-bottom: 1px solid #0061f2;
+}
+.user-profile > nav .logo {
   display: flex;
   align-items: center;
   margin: 0 24px;

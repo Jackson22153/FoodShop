@@ -118,7 +118,7 @@ export default function EmployeeComponent(){
 
     return(
         <div className='my-4 customer-page p-4 position-relative'>
-            <div className="container my-5">
+            <div className="container my-5 user-profile">
                 <nav className='z-3'>
                     <div className="logo cursor-pointer" onClick={onClickShowSideBar} ref={logoRef}>
                         <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
@@ -161,7 +161,7 @@ export default function EmployeeComponent(){
                                             <span className="link">Setting</span>
                                         </div>
                                     </Link>
-                                </li>
+                                </li> 
                                 <li className="list nav-item">
                                     <Link to={"/"}>
                                         <div className={`nav-link`}>

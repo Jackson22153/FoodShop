@@ -10,7 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.phucx.notification.constant.NotificationBroadCast;
+import com.phucx.constant.NotificationBroadCast;
 import com.phucx.notification.constant.NotificationIsRead;
 import com.phucx.notification.exception.NotFoundException;
 import com.phucx.notification.model.NotificationDetail;

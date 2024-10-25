@@ -13,6 +13,7 @@ export default function Search(){
     const [searchResult, setSearchResult] = useState<Product[]>([]);
     const [searchInputValue, setSearchInputValue] = useState('');
     const [isShowed, setIsShowed] = useState(false);
+    const [placeHolderMessage, setPlaceHolderMessage] = useState("Search")
   
     // setter for search result
     function handleSearchResult(searcResult: Product[]){
@@ -56,13 +57,20 @@ export default function Search(){
 
     const onFocus = ()=>{
         setIsShowed(true);
+        setPlaceHolderMessage("Type at least 3 characters")
+    }
+
+    const onBlur = ()=>{
+        setPlaceHolderMessage("Search")
     }
 
     return(
         <div className="input-group rounded search-container dropdown">
-            <input type="search" className="form-control rounded searchbar dropdown-toggle" placeholder="Search" 
-                aria-label="Search" aria-describedby="search-addon" value={searchInputValue}
-                onChange={handleInputChange} onKeyUp={onKeyUpSearch} onFocus={onFocus}/>
+            <input type="search" placeholder={placeHolderMessage} value={searchInputValue}
+                className="form-control rounded searchbar dropdown-toggle" 
+                aria-label="Search" aria-describedby="search-addon" 
+                onChange={handleInputChange} onKeyUp={onKeyUpSearch} 
+                onFocus={onFocus} onBlur={onBlur}/>
             <ul className={`dropdown-menu search-dropdown ${isShowed?'show': ''} ${searchResult.length===0?'p-0': ''}`}>
                 {searchResult.map((product) =>(
                     <li className="dropdown-item" key={product.productID}>

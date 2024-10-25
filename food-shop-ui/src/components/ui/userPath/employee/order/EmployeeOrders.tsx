@@ -11,6 +11,7 @@ import notificationMessagesContext from "../../../../contexts/NotificationMessag
 import { ModalContextType } from "../../../../../model/WebType";
 import modalContext from "../../../../contexts/ModalContext";
 import { Link, useSearchParams } from "react-router-dom";
+import { ceilRound } from "../../../../../service/Convert";
 
 export default function EmployeeOrdersComponent(){
 
@@ -268,8 +269,9 @@ export default function EmployeeOrdersComponent(){
                                     <hr />
                                     <div className="card-footer mt-2">
                                         <div className="row justify-content-between">
-                                            <div className="col-md-3 d-flex justify-content-center">
+                                            <div className="col-md-3 flex-column px-5 d-flex justify-content-center">
                                                 <p className="h6">Status: {order.status}</p>
+                                                <p className="h6">Freight: {order.freight}</p>
                                             </div>
                                             <div className="col-md-3 d-flex justify-content-center">
                                                 <p className="h6">Total Price: {order.totalPrice}</p>
@@ -333,14 +335,16 @@ export default function EmployeeOrdersComponent(){
                                     <hr />
                                     <div className="card-footer mt-2">
                                         <div className="row justify-content-between">
-                                            <div className="col-md-3 d-flex justify-content-center">
+                                            <div className="col-md-3 flex-column px-5 d-flex justify-content-center">
                                                 <p className="h6">Status: {order.status}</p>
+                                                <p className="h6">Freight: {order.freight}</p>
                                             </div>
                                             <div className="col-md-3 d-flex justify-content-center">
-                                                <p className="h6">Total Price: {order.totalPrice}</p>
+                                                <p className="h6">Total Price: {ceilRound(order.totalPrice + order.freight)}</p>
                                             </div>
                                         </div>
                                     </div>
+                                    <hr />
                                     <div className="d-flex justify-content-end">
                                         <Link to={`${EPMLOYEE_CONFIRMED_ORDER}/${order.orderID}`}>
                                             <div className="btn btn-info text-light mx-2">View Order</div>
@@ -396,11 +400,12 @@ export default function EmployeeOrdersComponent(){
                                     <hr />
                                     <div className="card-footer mt-2">
                                         <div className="row justify-content-between">
-                                            <div className="col-md-3 d-flex justify-content-center">
+                                            <div className="col-md-3 flex-column px-5 d-flex justify-content-center">
                                                 <p className="h6">Status: {order.status}</p>
+                                                <p className="h6">Freight: {order.freight}</p>
                                             </div>
                                             <div className="col-md-3 d-flex justify-content-center">
-                                                <p className="h6">Total Price: {order.totalPrice}</p>
+                                                <p className="h6">Total Price: {ceilRound(order.totalPrice + order.freight)}</p>
                                             </div>
                                         </div>
                                     </div>

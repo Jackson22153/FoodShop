@@ -15,24 +15,26 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.config.MessageQueueConfig;
-import com.phucx.account.constant.EventType;
-import com.phucx.account.constant.NotificationStatus;
-import com.phucx.account.constant.NotificationTitle;
-import com.phucx.account.constant.NotificationTopic;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.EmployeeNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
-import com.phucx.account.model.DataDTO;
-import com.phucx.account.model.EmployeeDTO;
 import com.phucx.account.model.EmployeeDetail;
 import com.phucx.account.model.EmployeeDetails;
-import com.phucx.account.model.EventMessage;
-import com.phucx.account.model.UserNotificationDTO;
+import com.phucx.account.model.EmployeeDetailsBuilder;
 import com.phucx.account.repository.EmployeeDetailRepostiory;
 import com.phucx.account.service.image.EmployeeImageService;
 import com.phucx.account.service.image.ImageService;
 import com.phucx.account.service.messageQueue.MessageQueueService;
 import com.phucx.account.service.notification.NotificationService;
+import com.phucx.constant.EventType;
+import com.phucx.constant.NotificationStatus;
+import com.phucx.constant.NotificationTitle;
+import com.phucx.constant.NotificationTopic;
+import com.phucx.model.DataDTO;
+import com.phucx.model.EmployeeDTO;
+import com.phucx.model.EventMessage;
+import com.phucx.model.UserNotificationDTO;
+
 import jakarta.persistence.EntityExistsException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,8 +61,14 @@ public class EmployeeServiceImp implements EmployeeService {
 
         // update employee 
         Boolean result = employeeDetailRepostiory.updateEmployeeInfo(
-            fetchedEmployee.getEmployeeID(), employee.getBirthDate(), employee.getAddress(), employee.getCity(), 
-            employee.getPhone(), picture); 
+            fetchedEmployee.getEmployeeID(), 
+            employee.getBirthDate(), 
+            employee.getAddress(), 
+            employee.getCity(),
+            employee.getDistrict(),
+            employee.getWard(), 
+            employee.getPhone(), 
+            picture); 
         if(!result) throw new RuntimeException("Employee " + employee.getEmployeeID() + " can not be updated!");
 
         employee.setPicture(picture);
@@ -190,12 +198,24 @@ public class EmployeeServiceImp implements EmployeeService {
         String username = jwt.getClaimAsString(WebConstant.PREFERRED_USERNAME);
         String email = jwt.getClaimAsString(WebConstant.EMAIL);
 
-        return new EmployeeDetails(employeeDetail.getEmployeeID(), userID, 
-            employeeDetail.getBirthDate(), employeeDetail.getHireDate(), 
-            employeeDetail.getPhone(), employeeDetail.getPicture(), 
-            employeeDetail.getTitle(), employeeDetail.getAddress(), 
-            employeeDetail.getCity(), employeeDetail.getNotes(), 
-            username, firstname, lastname, email);
+        return new EmployeeDetailsBuilder()
+            .withEmployeeID(employeeDetail.getEmployeeID())
+            .withUserID(userID)
+            .withBirthDate(employeeDetail.getBirthDate())
+            .withHireDate(employeeDetail.getHireDate())
+            .withPhone(employeeDetail.getPhone())
+            .withPicture(employeeDetail.getPicture())
+            .withTitle(employeeDetail.getTitle())
+            .withAddress(employeeDetail.getAddress())
+            .withCity(employeeDetail.getCity())
+            .withDistrict(employeeDetail.getDistrict())
+            .withWard(employeeDetail.getWard())
+            .withNotes(employeeDetail.getNotes())
+            .withUsername(username)
+            .withFirstName(firstname)
+            .withLastName(lastname)
+            .withEmail(email)
+            .build();
     }
 
     @Override

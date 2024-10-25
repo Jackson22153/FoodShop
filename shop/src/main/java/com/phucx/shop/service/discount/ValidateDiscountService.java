@@ -2,7 +2,7 @@ package com.phucx.shop.service.discount;
 
 import java.util.List;
 
-import com.phucx.shop.model.ProductDiscountsDTO;
+import com.phucx.model.ProductDiscountsDTO;
 import com.phucx.shop.model.ResponseFormat;
 
 public interface ValidateDiscountService {

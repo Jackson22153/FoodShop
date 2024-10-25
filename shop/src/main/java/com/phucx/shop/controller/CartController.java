@@ -5,6 +5,7 @@ import java.util.List;
 import javax.naming.InsufficientResourcesException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -31,7 +32,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping(value = "/cart", produces = MediaType.APPLICATION_JSON_VALUE)
 public class CartController {
     @Autowired
     private CartService cartService;

@@ -24,10 +24,11 @@ export default function EmployeeTable(prop: Props){
                                         <tr>
                                             <th><span>User</span></th>
                                             {/* <th><span>Created</span></th> */}
-                                            {/* <th className="text-center"><span>Status</span></th> */}
                                             <th><span>Email</span></th>
                                             <th><span>First Name</span></th>
                                             <th><span>Last Name</span></th>
+                                            <th className="text-center"><span>Email verified</span></th>
+                                            <th className="text-center"><span>Status</span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -38,7 +39,7 @@ export default function EmployeeTable(prop: Props){
                                                     <Link to={`${path}/${employee.userID}`} className="user-link">
                                                         {employee.username}
                                                     </Link>
-                                                    <span className="user-subhead">employee</span>
+                                                    <span className="user-subhead">Employee</span>
                                                 </td>
                                                 {/* <td>2013/08/12</td>
                                                 <td className="text-center">
@@ -57,6 +58,16 @@ export default function EmployeeTable(prop: Props){
                                                 <td>
                                                     <Link to={`${path}/${employee.userID}`}>
                                                         {employee.lastName}
+                                                    </Link>
+                                                </td>
+                                                <td className="text-align-center">
+                                                    <Link to={`${path}/${employee.userID}`}>
+                                                        {employee.emailVerified?"true": "false"}
+                                                    </Link>
+                                                </td>
+                                                <td className="text-align-center">
+                                                    <Link to={`${path}/${employee.userID}`}>
+                                                        {employee.enabled?"true": "false"}
                                                     </Link>
                                                 </td>
                                             </tr>

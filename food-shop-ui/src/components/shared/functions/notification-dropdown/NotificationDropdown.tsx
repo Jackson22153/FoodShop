@@ -3,11 +3,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { displayProductImage } from "../../../../service/Image";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Notification } from "../../../../model/Type";
-import { getCustomerNotifications, getCustomerSummaryNotifications, 
+import { 
+    getCustomerNotifications, getCustomerSummaryNotifications, 
     getEmployeeNotifications, getEmployeeSummaryNotifications, 
-    markAsReadCustomerNotification, markAsReadEmployeeNotification } 
-    from "../../../../api/NotificationApi";
-import { MARK_NOTIFICATION_TYPE, ROLE } from "../../../../constant/WebConstant";
+    markAsReadCustomerNotification, markAsReadEmployeeNotification 
+} from "../../../../api/NotificationApi";
+import { MARK_NOTIFICATION_TYPE, ORDER_NOTIFICATION, ROLE } from "../../../../constant/WebConstant";
 import { CUSTOMER_NOTIFICATION, EMPLOYEE_NOTIFICATION } from "../../../../constant/FoodShoppingURL";
 import { getPageNumber } from "../../../../service/Pageable";
 import notificationMessagesContext from "../../../contexts/NotificationMessagesContext";
@@ -62,8 +63,10 @@ export default function NotificationDropdown(prop:Props){
     // mark notification as read
     const onClickNotification = (_event: any, notification: Notification)=>{
         if(prop.roles.includes(ROLE.EMPLOYEE.toLowerCase()) && !notification.isRead){
-            // employee click 
-            readEmployeeNotification(notification.notificationID);
+            if(!(notification.title.toLowerCase()==ORDER_NOTIFICATION.PLACE_ORDER.toLowerCase())){
+                // employee click 
+                readEmployeeNotification(notification.notificationID);
+            }
         }else if(prop.roles.includes(ROLE.CUSTOMER.toLowerCase()) && !notification.isRead){
             // customer click
             readCustomerNotification(notification.notificationID);
@@ -109,7 +112,7 @@ export default function NotificationDropdown(prop:Props){
         const res = await getEmployeeNotifications(pageNumber);
         if(200<=res.status&&res.status<300){
           const data = res.data;
-          console.log(data)
+        //   console.log(data)
           setNotifications(data.content);
         }
     }
@@ -189,7 +192,7 @@ export default function NotificationDropdown(prop:Props){
                     </span>
                 </div>
                 <div className={`dropdown position-absolute z-3 ${IsNotificationDropdownEnabled?'active':''}`}>
-                    <div className="notify-body">
+                    <div className="notify-body overflow-auto" style={{maxHeight: "80vh"}}>
                         {notifications.map((notification, index)=>(
                             <Link to={getUrlFromNotification(notification, prop.roles)} key={index}>
                                 <div className={`notify-item cursor-pointer ${notification.isRead?'read':''}`} 

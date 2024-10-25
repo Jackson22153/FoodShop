@@ -11,19 +11,20 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phucx.account.config.MessageQueueConfig;
-import com.phucx.account.constant.EventType;
 import com.phucx.account.constant.WebConstant;
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
-import com.phucx.account.model.CustomerDTO;
 import com.phucx.account.model.CustomerDetail;
 import com.phucx.account.model.CustomerDetails;
-import com.phucx.account.model.DataDTO;
-import com.phucx.account.model.EventMessage;
+import com.phucx.account.model.CustomerDetailsBuilder;
 import com.phucx.account.repository.CustomerDetailRepository;
 import com.phucx.account.service.image.CustomerImageService;
 import com.phucx.account.service.image.ImageService;
 import com.phucx.account.service.messageQueue.MessageQueueService;
+import com.phucx.constant.EventType;
+import com.phucx.model.CustomerDTO;
+import com.phucx.model.DataDTO;
+import com.phucx.model.EventMessage;
 
 import jakarta.persistence.EntityExistsException;
 import lombok.extern.slf4j.Slf4j;
@@ -48,9 +49,14 @@ public class CustomerServiceImp implements CustomerService {
 
         String picture = this.imageService.getImageName(customer.getPicture());
         Boolean result = customerDetailRepository.updateCustomerInfo(
-            fetchedCustomer.getCustomerID(), customer.getContactName(), 
+            fetchedCustomer.getCustomerID(), 
+            customer.getContactName(), 
             customer.getAddress(), 
-            customer.getCity(), customer.getPhone(), picture);
+            customer.getCity(), 
+            customer.getDistrict(),
+            customer.getWard(),
+            customer.getPhone(), 
+            picture);
         if(!result) throw new RuntimeException("Error when update information of customer " + customer.getCustomerID());
         
         customer.setPicture(picture);
@@ -155,10 +161,21 @@ public class CustomerServiceImp implements CustomerService {
         String username = jwt.getClaimAsString(WebConstant.PREFERRED_USERNAME);
         String email = jwt.getClaimAsString(WebConstant.EMAIL);
 
-        return new CustomerDetails(customerDetail.getCustomerID(), userID, 
-            customerDetail.getContactName(), customerDetail.getAddress(), 
-            customerDetail.getCity(), customerDetail.getPhone(), 
-            customerDetail.getPicture(), username, firstname, lastname, email);
+        return new CustomerDetailsBuilder()
+            .withCustomerID(customerDetail.getCustomerID())
+            .withUserID(userID)
+            .withContactName(customerDetail.getContactName())
+            .withAddress(customerDetail.getAddress())
+            .withCity(customerDetail.getCity())
+            .withDistrict(customerDetail.getDistrict())
+            .withWard(customerDetail.getWard())
+            .withPhone(customerDetail.getPhone())
+            .withPicture(customerDetail.getPicture())
+            .withUsername(username)
+            .withFirstName(firstname)
+            .withLastName(lastname)
+            .withEmail(email)
+            .build();
     }
     @Override
     public List<CustomerDetail> getCustomersByUserIDs(List<String> userIDs) {

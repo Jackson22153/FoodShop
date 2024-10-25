@@ -8,24 +8,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.phucx.order.constant.NotificationStatus;
-import com.phucx.order.constant.NotificationTopic;
-import com.phucx.order.constant.NotificationTitle;
+import com.phucx.constant.NotificationStatus;
+import com.phucx.constant.NotificationTitle;
+import com.phucx.constant.NotificationTopic;
+import com.phucx.model.OrderNotificationDTO;
+import com.phucx.model.ProductStockTableType;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.exception.InvalidOrderException;
 import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.Customer;
 import com.phucx.order.model.Employee;
-import com.phucx.order.model.OrderNotificationDTO;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderWithProducts;
-import com.phucx.order.model.ProductStockTableType;
 import com.phucx.order.service.customer.CustomerService;
 import com.phucx.order.service.employee.EmployeeService;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import com.phucx.order.service.notification.NotificationService;
 import com.phucx.order.service.order.EmployeeOrderService;
 import com.phucx.order.service.order.OrderService;
+import com.phucx.order.service.payment.PaymentService;
 import com.phucx.order.service.product.ProductService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,6 +45,8 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
     private EmployeeService employeeService;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private PaymentService paymentService;
 
     @Override
     public void confirmOrder(String orderID, String userID) throws InvalidOrderException, JsonProcessingException, NotFoundException {
@@ -76,7 +79,7 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         productService.updateProductsInStocks(products);
     }
 
-
+    // cancel order
     private void cancelOrder(OrderWithProducts order, String userID, OrderStatus orderStatus) 
         throws JsonProcessingException, NotFoundException{
 
@@ -86,11 +89,20 @@ public class EmployeeOrderServiceImp implements EmployeeOrderService {
         // fetch employee
         Employee employee = employeeService.getEmployeeByUserID(userID);
         order.setEmployeeID(employee.getEmployeeID());
-        Boolean check = orderService.updateOrderEmployee(order.getOrderID(), employee.getEmployeeID());
-        if(!check) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated");
+        Boolean check = orderService.updateOrderEmployee(
+            order.getOrderID(), 
+            employee.getEmployeeID());
+        if(!check) throw new RuntimeException("Order #" + 
+            order.getOrderID() + " can not be updated");
         // update order status as canceled
-        Boolean status = orderService.updateOrderStatus(orderDetail.getOrderID(), OrderStatus.Canceled);
-        if(!status) throw new RuntimeException("Order #" + order.getOrderID() + " can not be updated to canceled status");
+        Boolean status = orderService.updateOrderStatus(
+            orderDetail.getOrderID(), 
+            OrderStatus.Canceled);
+        if(!status) throw new RuntimeException("Order #" + 
+            order.getOrderID() + " can not be updated to canceled status");
+        // update payment status
+        this.paymentService.updatePaymentByOrderIDAsCanceled(
+            order.getOrderID());
         // notification
         // set notification details 
         OrderNotificationDTO notification = new OrderNotificationDTO();

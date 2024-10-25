@@ -1,5 +1,6 @@
 package com.phucx.shop.messageQueueListener;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,13 +12,13 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phucx.constant.EventType;
+import com.phucx.converter.ProductDiscountsDTOConverter;
+import com.phucx.model.EventMessage;
+import com.phucx.model.ProductDiscountsDTO;
 import com.phucx.shop.config.MessageQueueConfig;
-import com.phucx.shop.constant.EventType;
 import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.DiscountDetail;
-import com.phucx.shop.model.DiscountDTO;
-import com.phucx.shop.model.EventMessage;
-import com.phucx.shop.model.ProductDiscountsDTO;
 import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.service.discount.DiscountService;
 import com.phucx.shop.service.discount.ValidateDiscountService;
@@ -40,27 +41,33 @@ public class DiscountMessageListener {
         log.info("fetchDiscount({})", message);
         EventMessage<Object> responseMessage = this.createResponseMessage(Object.class);
         try {
-            TypeReference<EventMessage<DiscountDTO>> typeRef = new TypeReference<EventMessage<DiscountDTO>>() {};
-            EventMessage<DiscountDTO> eventMessage = objectMapper.readValue(message, typeRef);
-            DiscountDTO payload = eventMessage.getPayload();
+            TypeReference<EventMessage<LinkedHashMap<String, Object>>> typeRef = 
+                new TypeReference<EventMessage<LinkedHashMap<String, Object>>>() {};
+            EventMessage<LinkedHashMap<String, Object>> eventMessage = 
+                objectMapper.readValue(message, typeRef);
+            LinkedHashMap<String, Object> payload = eventMessage.getPayload();
             if(eventMessage.getEventType().equals(EventType.GetDiscountByID)){
                 // get discount by id
-                String discountID = payload.getDiscountID();
+                String discountID = payload.get("discountID").toString();
                 DiscountDetail discount = discountService.getDiscountDetail(discountID);
                 // set response message
                 responseMessage.setEventType(EventType.ReturnDiscountByID);
                 responseMessage.setPayload(discount);
             }else if(eventMessage.getEventType().equals(EventType.GetDiscountsByIDs)){
                 // get products by ids
-                List<String> discountIDs = payload.getDiscountIDs();
+                List<String> discountIDs = (List<String>) payload.get("discountIDs");
                 List<DiscountDetail> discountDetails = discountService.getDiscountDetails(discountIDs);
                 // set response message
                 responseMessage.setEventType(EventType.ReturnProductByID);
                 responseMessage.setPayload(discountDetails);
             }else if(eventMessage.getEventType().equals(EventType.ValidateDiscounts)){
                 // validate discount
-                List<ProductDiscountsDTO> productDiscounts = payload.getProductsDiscounts();
-                ResponseFormat responseFormat = validateDiscountService.validateDiscountsOfProducts(productDiscounts);
+                List<LinkedHashMap<String, Object>> productDiscounts = 
+                    (List<LinkedHashMap<String, Object>>) payload.get("productsDiscounts");
+                List<ProductDiscountsDTO> products = ProductDiscountsDTOConverter
+                    .castProductDiscountDTOs(productDiscounts);
+                ResponseFormat responseFormat = validateDiscountService
+                    .validateDiscountsOfProducts(products);
                 responseMessage.setPayload(responseFormat);
             }
             String response = objectMapper.writeValueAsString(responseMessage);

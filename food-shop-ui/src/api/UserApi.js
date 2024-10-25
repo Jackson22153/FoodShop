@@ -1,6 +1,9 @@
 import axios from "axios";
-import { CustomerInfoUrl, CustomerNotificationsUrl, IsCustomerUrl, 
-    UploadCustomerImageUrl, UploadEmployeeImageUrl 
+import { 
+    CustomerCreditCardUrl, CustomerInfoUrl, CustomerNotificationsUrl, 
+    GenerateOTPPhoneUrl, GetShippingServicesUrl, IsCustomerUrl, 
+    SendCustomerEmailVerificationUrl, UpdateUserPasswordUrl, 
+    UploadCustomerImageUrl, UploadEmployeeImageUrl, VerifyOTPPhoneUrl
 } from "../constant/FoodShoppingApiURL";
 
 export function isCustomer(){
@@ -47,12 +50,40 @@ export function uploadEmployeeImage(file){
     });
 }
 
-
+// customer info
 export async function getCustomerInfo(){
     return axios.get(CustomerInfoUrl, {
         withCredentials: true,
         headers:{
             "Content-Type": 'application/json',
+        }
+    })
+}
+
+// shipping services
+export function getShippingServices(data){
+    return axios.post(GetShippingServicesUrl, JSON.stringify(data), {
+        withCredentials: true,
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+}
+// credit card
+// shipping services
+export function getCreditCard(){
+    return axios.get(CustomerCreditCardUrl, {
+        withCredentials: true,
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+}
+export function updateCreditCard(data){
+    return axios.post(CustomerCreditCardUrl, JSON.stringify(data), {
+        withCredentials: true,
+        headers: {
+            "Content-Type": "application/json",
         }
     })
 }
@@ -69,6 +100,44 @@ export async function turnOffCustomerNotification(data){
     return axios.post(`${CustomerNotificationsUrl}`, JSON.stringify(data), {
         withCredentials: true,
         headers:{
+            "Content-Type": 'application/json',
+        }
+    })
+}
+
+// change password
+export function UpdateUserPassword(data){
+    return axios.post(`${UpdateUserPasswordUrl}`, JSON.stringify(data), {
+        withCredentials: true,
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+}
+// generate phone otp
+export function generateOTPPhoneForUser(phone){
+    return axios.post(`${GenerateOTPPhoneUrl}?phone=${phone}`, "", {
+        withCredentials: true,
+        headers: {
+            "Content-Type": 'application/json',
+        }
+    })
+}
+
+// verify phone otp
+export function verifyOTPPhoneForUser(otp, phone){
+    return axios.post(`${VerifyOTPPhoneUrl}?otp=${otp}&phone=${phone}`, "", {
+        withCredentials: true,
+        headers: {
+            "Content-Type": 'application/json',
+        }
+    })
+}
+
+export function sendCustomerEmailVerification(){
+    return axios.post(`${SendCustomerEmailVerificationUrl}`, "", {
+        withCredentials: true,
+        headers: {
             "Content-Type": 'application/json',
         }
     })

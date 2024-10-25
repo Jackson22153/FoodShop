@@ -52,10 +52,7 @@ export default function CategoryComponent(){
         <section className="foods-section layout_padding-top">
             <div className="container">
                 <h2 className="custom_heading">Foods</h2>
-                <p className="custom_heading-text">
-                    There are many variations of passages of Lorem Ipsum available, but
-                    the majority have
-                </p>
+
                 <div className="py-4">
                     <PathProvider value={FOODS_PATH}>
                         <FoodCardDeck foods={products}/>

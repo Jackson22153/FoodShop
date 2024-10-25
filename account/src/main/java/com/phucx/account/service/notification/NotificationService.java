@@ -1,7 +1,7 @@
 package com.phucx.account.service.notification;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.phucx.account.model.UserNotificationDTO;
+import com.phucx.model.UserNotificationDTO;
 
 public interface NotificationService {
     public void sendCustomerNotification(UserNotificationDTO userNotification) throws JsonProcessingException;

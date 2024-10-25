@@ -1,0 +1,56 @@
+package com.phucx.payment.service.notification;
+
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.phucx.constant.EventType;
+import com.phucx.model.EventMessage;
+import com.phucx.model.NotificationDTO;
+import com.phucx.model.OrderNotificationDTO;
+import com.phucx.payment.constant.MessageQueueConstant;
+import com.phucx.payment.service.messageQueue.MessageQueueService;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class NotificationServiceImp implements NotificationService{
+    @Autowired
+    private MessageQueueService messageQueueService;
+
+    @Override
+    public void markAsReadForConfirmedOrderNotification(OrderNotificationDTO notification) throws JsonProcessingException {
+        log.info("markAsReadForConfirmedOrderNotification({})", notification); 
+        this.sendMessage(notification, EventType.MarkOrderAsConfirmed, 
+            MessageQueueConstant.NOTIFICATION_EMPLOYEE_ORDER_ROUTING_KEY);
+    }
+
+    private void sendMessage(OrderNotificationDTO notification, EventType eventType, String routingKey) throws JsonProcessingException{
+        // create an event message
+        String eventID = UUID.randomUUID().toString();
+        EventMessage<NotificationDTO> eventMessage = new EventMessage<NotificationDTO>(
+            eventID, eventType, notification);
+        // send message 
+        messageQueueService.sendNotification(eventMessage, MessageQueueConstant.NOTIFICATION_EXCHANGE, routingKey); 
+    }
+
+    @Override
+    public void sendCustomerOrderNotification(OrderNotificationDTO notification) throws JsonProcessingException {
+        log.info("sendCustomerOrderNotification(notification={})", notification);
+        this.sendMessage(
+            notification, 
+            EventType.SendOrderNotificationToUser, 
+            MessageQueueConstant.NOTIFICATION_CUSTOMER_ORDER_ROUTING_KEY);
+    }
+
+    @Override
+    public void sendEmployeeOrderNotification(OrderNotificationDTO notification) throws JsonProcessingException {
+        log.info("sendEmployeeOrderNotification({})", notification);
+        this.sendMessage(notification, EventType.SendOrderNotificationToUser, 
+            MessageQueueConstant.NOTIFICATION_EMPLOYEE_ORDER_ROUTING_KEY);
+    }
+
+}

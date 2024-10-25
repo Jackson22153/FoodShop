@@ -2,9 +2,9 @@ package com.phucx.order.service.messageQueue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.phucx.order.model.DataDTO;
-import com.phucx.order.model.EventMessage;
-import com.phucx.order.model.NotificationDTO;
+import com.phucx.model.DataDTO;
+import com.phucx.model.EventMessage;
+import com.phucx.model.NotificationDTO;
 import com.phucx.order.model.OrderWithProducts;
 
 public interface MessageQueueService {

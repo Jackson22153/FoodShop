@@ -3,6 +3,8 @@ package com.phucx.order.constant;
 public class MessageQueueConstant {
     // account exchange
     public final static String ACCOUNT_EXCHANGE = "accountservice";
+    // payment exchange
+    public final static String PAYMENT_EXCHANGE = "paymentservice";
     // shop exchange
     public final static String SHOP_EXCHANGE = "shopservice";
     // product routing key
@@ -15,6 +17,8 @@ public class MessageQueueConstant {
     public final static String EMPLOYEE_ROUTING_KEY = "employeequeue";
     //  shipper routing key
     public final static String SHIPPER_ROUTING_KEY = "shipperqueue";
+    // payment routing key
+    public final static String PAYMENT_ROUTING_KEY = "paymentqueue";
     // notification exchange
     public final static String NOTIFICATION_EXCHANGE = "notificationservice";
     public final static String NOTIFICATION_CUSTOMER_ORDER_ROUTING_KEY = "notificationcustomerorderqueue";

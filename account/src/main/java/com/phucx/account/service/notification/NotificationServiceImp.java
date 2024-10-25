@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.phucx.account.constant.EventType;
 import com.phucx.account.constant.MessageQueueConstant;
-import com.phucx.account.model.EventMessage;
-import com.phucx.account.model.NotificationDTO;
-import com.phucx.account.model.UserNotificationDTO;
 import com.phucx.account.service.messageQueue.MessageQueueService;
+import com.phucx.constant.EventType;
+import com.phucx.model.EventMessage;
+import com.phucx.model.NotificationDTO;
+import com.phucx.model.UserNotificationDTO;
 
 import lombok.extern.slf4j.Slf4j;
 

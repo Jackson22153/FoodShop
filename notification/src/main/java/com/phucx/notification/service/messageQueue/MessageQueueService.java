@@ -2,8 +2,8 @@ package com.phucx.notification.service.messageQueue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.phucx.notification.model.DataDTO;
-import com.phucx.notification.model.EventMessage;
+import com.phucx.model.DataDTO;
+import com.phucx.model.EventMessage;
 import com.phucx.notification.model.NotificationDetail;
 
 public interface MessageQueueService {

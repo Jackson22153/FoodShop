@@ -1,5 +1,6 @@
 package com.phucx.order.service.order.imp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.phucx.model.ProductDiscountsDTO;
 import com.phucx.order.compositeKey.OrderDetailKey;
 import com.phucx.order.constant.OrderStatus;
 import com.phucx.order.exception.InvalidDiscountException;
@@ -28,18 +30,22 @@ import com.phucx.order.model.OrderWithProducts;
 import com.phucx.order.model.Order;
 import com.phucx.order.model.OrderDetails;
 import com.phucx.order.model.OrderDetailExtended;
-import com.phucx.order.model.ProductDiscountsDTO;
 import com.phucx.order.model.ResponseFormat;
-import com.phucx.order.repository.InvoiceRepository;
 import com.phucx.order.repository.OrderDetailDiscountRepository;
 import com.phucx.order.repository.OrderDetailExtendedRepository;
 import com.phucx.order.repository.OrderDetailRepository;
 import com.phucx.order.repository.OrderRepository;
-import com.phucx.order.service.bigdecimal.BigDecimalService;
 import com.phucx.order.service.customer.CustomerService;
 import com.phucx.order.service.order.ConvertOrderService;
 import com.phucx.order.service.order.OrderService;
 import com.phucx.order.service.product.ProductService;
+import com.phucx.order.utils.BigDecimalUtils;
+import com.phucx.order.utils.LocalDateTimeUtils;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.StoredProcedureQuery;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -56,13 +62,11 @@ public class OrderServiceImp implements OrderService{
     @Autowired
     private ProductService productService;
     @Autowired
-    private BigDecimalService bigDecimalService;
-    @Autowired
     private CustomerService customerService;
     @Autowired
-    private InvoiceRepository invoiceRepository;
-    @Autowired
     private ConvertOrderService convertOrderService;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public Boolean updateOrderStatus(String orderID, OrderStatus status) throws NotFoundException {
@@ -98,10 +102,12 @@ public class OrderServiceImp implements OrderService{
         if(fetchedCustomer==null){
             throw new NotFoundException("Customer does not found when saving order");
         }
-        Boolean status = orderRepository.insertOrder(
-            orderID, order.getOrderDate(), order.getRequiredDate(), 
-            order.getShippedDate(), order.getFreight(), order.getShipName(), 
-            order.getShipAddress(), order.getShipCity(), order.getPhone(), 
+        Boolean status = orderRepository.insertOrder(orderID, 
+            order.getOrderDate(), order.getRequiredDate(), 
+            order.getShippedDate(), order.getFreight(), 
+            order.getShipName(), order.getShipAddress(), 
+            order.getShipCity(), order.getShipDistrict(), 
+            order.getShipWard(), order.getPhone(), 
             OrderStatus.Pending.name(), order.getCustomerID(), 
             order.getEmployeeID(), order.getShipVia());
         if(!status) throw new RuntimeException("Error while saving order for customer " + order.getCustomerID());
@@ -112,7 +118,7 @@ public class OrderServiceImp implements OrderService{
         log.info("saveOrderDetail(orderID={}, orderItem={})", orderID, orderItem.toString());
         Boolean status = orderDetailRepository.insertOrderDetail(
             orderItem.getProductID(), orderID, 
-            bigDecimalService.formatter(orderItem.getUnitPrice()), 
+            BigDecimalUtils.formatter(orderItem.getUnitPrice()), 
             orderItem.getQuantity());
         if(!status) throw new RuntimeException("Error while saving orderDetail for order " + orderID + " and product " + orderItem.getProductID());
         return new OrderDetailKey(orderItem.getProductID(), orderID);
@@ -141,17 +147,26 @@ public class OrderServiceImp implements OrderService{
         List<ProductDiscountsDTO> productDiscountsDTOs = order.getProducts().stream().map((product) -> {
             // get discountIDs
             List<String> discountIDs = product.getDiscounts().stream()
-                .map(OrderItemDiscount::getDiscountID).collect(Collectors.toList());
+                .map(OrderItemDiscount::getDiscountID)
+                .collect(Collectors.toList());
             // get applieddate
             LocalDateTime currenTime = null;
             if(!discountIDs.isEmpty()){
                 currenTime = product.getDiscounts().get(0).getAppliedDate();
             }
-            return new ProductDiscountsDTO(product.getProductID(), product.getQuantity(), discountIDs, currenTime);
+            String appliedTime = currenTime!=null?
+                LocalDateTimeUtils.formatter(currenTime):
+                null;
+            return new ProductDiscountsDTO(
+                product.getProductID(), 
+                product.getQuantity(), 
+                discountIDs, 
+                appliedTime);
         }).collect(Collectors.toList());
 
         // validate products
-        ResponseFormat responseFormat = productService.validateProducts(productDiscountsDTOs);
+        ResponseFormat responseFormat = productService
+            .validateAndProcessProducts(productDiscountsDTOs);
         return responseFormat;
     }
     
@@ -175,10 +190,17 @@ public class OrderServiceImp implements OrderService{
                 .filter(discount -> discount.getDiscountID()!=null)
                 .map(OrderItemDiscount::getDiscountID)
                 .collect(Collectors.toList());
-
+            // get applied date
             LocalDateTime appliedDate = item.getDiscounts().get(0).getAppliedDate();
+            String appliedDateStr = appliedDate!=null?
+                LocalDateTimeUtils.formatter(appliedDate): 
+                null;
+            // create productdiscounts dto
             ProductDiscountsDTO productDiscountsDTO = new ProductDiscountsDTO(
-                item.getProductID(), item.getQuantity(), discountIds, appliedDate);
+                item.getProductID(), 
+                item.getQuantity(), 
+                discountIds, 
+                appliedDateStr);
             productDiscountsDTOs.add(productDiscountsDTO);
         }
         // validate products and discounts
@@ -239,12 +261,60 @@ public class OrderServiceImp implements OrderService{
     @Override
     public InvoiceDetails getInvoiceByCustomerID(String customerID, String orderID) throws JsonProcessingException, NotFoundException {
         log.info("getInvoiceByCustomerID(customerID={}, orderID={})", customerID, orderID);
-        List<Invoice> invoices = invoiceRepository.findByOrderIDAndCustomerID(orderID, customerID);
+        List<Invoice> invoices = this.getCustomerInvoice(orderID, customerID);
         if(invoices==null || invoices.isEmpty()) 
             throw new NotFoundException("Invoice " + orderID + " of customer "+ customerID + " does not found");
         log.info("Invoices: {}", invoices);
         InvoiceDetails invoice = convertOrderService.convertInvoiceDetails(invoices);
         return invoice;
+    }
+
+    private List<Invoice> getCustomerInvoice(String orderID, String customerID){
+        StoredProcedureQuery procedure = entityManager.createStoredProcedureQuery("GetCustomerInvoice")
+            .registerStoredProcedureParameter(1, String.class, ParameterMode.IN)
+            .registerStoredProcedureParameter(2, String.class, ParameterMode.IN)
+            .setParameter(1, orderID)
+            .setParameter(2, customerID);
+        procedure.execute();
+        List<Object[]> results = procedure.getResultList();
+
+        log.info("result: {}", results);
+        return results.stream().map(result ->{
+            LocalDateTime orderDate = result[9]!=null?
+                LocalDateTimeUtils.converter(result[9].toString()):null;
+            LocalDateTime requiredDate = result[10]!=null?
+                LocalDateTimeUtils.converter(result[10].toString()):null;
+            LocalDateTime shippedDate = result[11]!=null?
+                LocalDateTimeUtils.converter(result[11].toString()):null;
+
+                Invoice invoice = new Invoice();
+                invoice.setShipName((String) result[0]);
+                invoice.setShipAddress((String) result[1]);
+                invoice.setShipCity((String) result[2]);
+                invoice.setShipDistrict((String) result[3]);
+                invoice.setShipWard((String) result[4]);
+                invoice.setPhone((String) result[5]);
+                invoice.setCustomerID((String) result[6]);
+                invoice.setEmployeeID((String) result[7]);
+                invoice.setOrderID((String) result[8]);
+                invoice.setOrderDate(orderDate);
+                invoice.setRequiredDate(requiredDate);
+                invoice.setShippedDate(shippedDate);
+                invoice.setShipperID((Integer) result[12]);
+                invoice.setProductID((Integer) result[13]);
+                invoice.setUnitPrice((BigDecimal)result[14]);
+                // Convert short to int for quantity
+                invoice.setQuantity(((Short)result[15]).intValue());
+                
+                invoice.setExtendedPrice((BigDecimal) result[16]);
+                invoice.setFreight((BigDecimal) result[17]);
+                invoice.setStatus(OrderStatus.valueOf((String) result[18]));
+                invoice.setDiscountID((String) result[19]);
+                
+                // Convert long to int for discountPercent
+                invoice.setDiscountPercent((Integer) result[20]);
+                return invoice;
+            }).collect(Collectors.toList());
     }
 
     @Override

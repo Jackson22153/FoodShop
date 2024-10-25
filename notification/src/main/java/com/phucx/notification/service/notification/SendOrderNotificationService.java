@@ -1,7 +1,7 @@
 package com.phucx.notification.service.notification;
 
+import com.phucx.model.OrderNotificationDTO;
 import com.phucx.notification.exception.NotFoundException;
-import com.phucx.notification.model.OrderNotificationDTO;
 
 public interface SendOrderNotificationService {
     // customer send notification message to employee

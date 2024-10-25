@@ -1,5 +1,6 @@
 package com.phucx.account.eventListener;
 
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
@@ -13,12 +14,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.account.config.MessageQueueConfig;
-import com.phucx.account.constant.EventType;
 import com.phucx.account.exception.ShipperNotFoundException;
-import com.phucx.account.model.EventMessage;
 import com.phucx.account.model.Shipper;
-import com.phucx.account.model.ShipperDTO;
 import com.phucx.account.service.shipper.ShipperService;
+import com.phucx.constant.EventType;
+import com.phucx.model.EventMessage;
 
 @Slf4j
 @Component
@@ -35,13 +35,14 @@ public class ShipperMessageListener {
         // create response message
         EventMessage<Object> responseMessage = this.createResponseMessage(Object.class);
         try {
-            TypeReference<EventMessage<ShipperDTO>> typeRef = new TypeReference<EventMessage<ShipperDTO>>() {};
-            EventMessage<ShipperDTO> shipperDTO = objectMapper.readValue(message, typeRef);
-            ShipperDTO payload = shipperDTO.getPayload();
+            TypeReference<EventMessage<LinkedHashMap<String, Object>>> typeRef = 
+                new TypeReference<EventMessage<LinkedHashMap<String, Object>>>() {};
+            EventMessage<LinkedHashMap<String, Object>> shipperDTO = objectMapper.readValue(message, typeRef);
+            LinkedHashMap<String, Object> payload = shipperDTO.getPayload();
             // fetch data
             if(shipperDTO.getEventType().equals(EventType.GetShipperByID)){
                 // get shipper by id
-                Integer shipperID = payload.getShipperID();
+                Integer shipperID = (Integer) payload.get("shipperID");
                 Shipper fetchedShipper = shipperService.getShipperByID(shipperID);
                 // set response message
                 responseMessage.setPayload(fetchedShipper);

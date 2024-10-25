@@ -6,14 +6,14 @@ import java.time.ZoneId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.phucx.notification.constant.NotificationBroadCast;
+import com.phucx.constant.NotificationBroadCast;
+import com.phucx.constant.NotificationTitle;
+import com.phucx.model.OrderNotificationDTO;
 import com.phucx.notification.constant.NotificationIsRead;
-import com.phucx.notification.constant.NotificationTitle;
 import com.phucx.notification.constant.WebConstant;
 import com.phucx.notification.constant.WebSocketConstant;
 import com.phucx.notification.exception.NotFoundException;
 import com.phucx.notification.model.NotificationDetail;
-import com.phucx.notification.model.OrderNotificationDTO;
 import com.phucx.notification.service.messageQueue.MessageQueueService;
 import com.phucx.notification.service.notification.NotificationService;
 import com.phucx.notification.service.notification.SendOrderNotificationService;
@@ -78,29 +78,44 @@ public class SendOrderNotificationServiceImp implements SendOrderNotificationSer
     public void sendNotificationToCustomer(OrderNotificationDTO orderNotification) throws NotFoundException {
         log.info("sendNotificationToCustomer({})", orderNotification);
         String orderID = orderNotification.getOrderID();
-        if(orderID==null) throw new RuntimeException("Order notification does not contain any orderID");
-        NotificationDetail notificationDetail = this.convertNotification(orderNotification);
-        // get the first notification
-        if(!(orderNotification.getTitle().equals(NotificationTitle.PLACE_ORDER))){
-            NotificationDetail fetchedNotification = notificationService.getOrderNotificationDetail(
-                NotificationTitle.PLACE_ORDER.name(), orderID, orderNotification.getReceiverID());
-            // set notification
-            notificationDetail.setRepliedTo(fetchedNotification.getNotificationID());
-            notificationDetail.setPicture(fetchedNotification.getPicture());
+        if(orderID==null) throw new RuntimeException(
+            "Order notification does not contain any orderID");
+        NotificationDetail notificationDetail = 
+            this.convertNotification(orderNotification);
+        Boolean first = orderNotification.getFirstNotification()!=null?
+            orderNotification.getFirstNotification():
+            false;
+        if(!first){
+            // get the first notification
+            if(!(orderNotification.getTitle().equals(NotificationTitle.PLACE_ORDER))){
+                NotificationDetail fetchedNotification = notificationService
+                    .getOrderNotificationDetail(
+                        NotificationTitle.PLACE_ORDER.name(), 
+                        orderID, 
+                        orderNotification.getReceiverID());
+                // set notification
+                notificationDetail.setRepliedTo(fetchedNotification.getNotificationID());
+                notificationDetail.setPicture(fetchedNotification.getPicture());
+            }
+            // mark as read for confirm order and cancel order to all employees
+            if((orderNotification.getTitle().equals(NotificationTitle.CONFIRM_ORDER) ||
+                orderNotification.getTitle().equals(NotificationTitle.CANCEL_ORDER))){
+                Boolean result = notificationService
+                    .updateNotificationReadStatusOfBroadcast(
+                        NotificationTitle.PLACE_ORDER.name(), 
+                        orderID, 
+                        NotificationBroadCast.ALL_EMPLOYEES, 
+                        NotificationIsRead.YES.getValue());
+                if(!result) throw new RuntimeException(
+                    "Notification with title " + orderNotification.getTitle() + 
+                    " and OrderID " + orderID +" can not be updated to " + 
+                    NotificationIsRead.YES + " status");
+            }            
         }
-        // mark as read for confirm order and cancel order to all employees
-        if((orderNotification.getTitle().equals(NotificationTitle.CONFIRM_ORDER) ||
-            orderNotification.getTitle().equals(NotificationTitle.CANCEL_ORDER))){
-            Boolean result = notificationService.updateNotificationReadStatusOfBroadcast(
-                NotificationTitle.PLACE_ORDER.name(), orderID, 
-                NotificationBroadCast.ALL_EMPLOYEES, 
-                NotificationIsRead.YES.getValue());
-            if(!result) throw new RuntimeException("Notification with title " + orderNotification.getTitle() + 
-                " and OrderID " + orderID +" can not be updated to " + NotificationIsRead.YES + " status");
-        }
-
         // send notification message to a customer
-        messageQueueService.sendMessageToUser(orderNotification.getReceiverID(), notificationDetail);
+        messageQueueService.sendMessageToUser(
+            orderNotification.getReceiverID(), 
+            notificationDetail);
     }
     
 }   

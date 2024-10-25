@@ -20,6 +20,8 @@ public class UserProfile implements Serializable{
     private String profileID;
     private String address;
     private String city;
+    private String district;
+    private String ward;
     private String phone;
     private String picture;
     private String userID;

@@ -8,15 +8,17 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 
+import com.phucx.model.ProductDiscountsDTO;
+import com.phucx.model.ProductStockTableType;
 import com.phucx.shop.exceptions.EntityExistsException;
 import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.CurrentProduct;
 import com.phucx.shop.model.ExistedProduct;
 import com.phucx.shop.model.Product;
 import com.phucx.shop.model.ProductDetail;
-import com.phucx.shop.model.ProductDiscountsDTO;
-import com.phucx.shop.model.ProductStockTableType;
+import com.phucx.shop.model.ProductDetails;
 import com.phucx.shop.model.ResponseFormat;
+import com.phucx.shop.model.SellingProduct;
 
 public interface ProductService {
 
@@ -33,7 +35,8 @@ public interface ProductService {
             @CachePut(cacheNames = {"productdetail"}, key = "#productDetail.productID")
         },
         evict = {
-            @CacheEvict(cacheNames = {"currentproduct", "product", "existedproduct"}, key = "#productDetail.productID")
+            @CacheEvict(cacheNames = {"currentproduct", "product", "existedproduct", "productdetails"}, 
+                key = "#productDetail.productID")
         }
     )
     public ProductDetail updateProductDetail(ProductDetail productDetail) throws NotFoundException;
@@ -61,6 +64,9 @@ public interface ProductService {
     // productdetail
     @Cacheable(value = "productdetail", key = "#productID")
     public ProductDetail getProductDetail(int productID) throws NotFoundException;
+    // productdetails
+    @Cacheable(value = "productdetails", key = "#productID")
+    public ProductDetails getProductDetails(int productID) throws NotFoundException;
     // product
     @Cacheable(value = "product", key = "#productID")
     public Product getProduct(int productID) throws NotFoundException;

@@ -22,18 +22,18 @@ export default function CustomerTable(prop: Props){
                                     <thead>
                                         <tr>
                                             <th><span>User</span></th>
-                                            {/* <th><span>Created</span></th>
-                                            <th className="text-center"><span>Status</span></th> */}
                                             <th><span>Email</span></th>
                                             <th><span>First Name</span></th>
                                             <th><span>Last Name</span></th>
+                                            <th className="text-center"><span>Email Verified</span></th>
+                                            <th className="text-center"><span>Status</span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {customers.map((customer)=>(
                                             <tr key={customer.userID}>
                                                 <td>
-                                                    <img src={displayUserImage(customer.picture)} alt=""/>
+                                                    <img src={displayUserImage(customer.picture)} alt="" className="rounded-2"/>
                                                     <Link to={`${path}/${customer.userID}`} className="user-link">
                                                         {customer.username}
                                                     </Link>
@@ -56,6 +56,16 @@ export default function CustomerTable(prop: Props){
                                                 <td>
                                                     <Link to={`${path}/${customer.userID}`}>
                                                         {customer.lastName}
+                                                    </Link>
+                                                </td>
+                                                <td className="text-align-center">
+                                                    <Link to={`${path}/${customer.userID}`}>
+                                                        {customer.emailVerified?"true": "false"}
+                                                    </Link>
+                                                </td>
+                                                <td className="text-align-center">
+                                                    <Link to={`${path}/${customer.userID}`}>
+                                                        {customer.enabled?"true": "false"}
                                                     </Link>
                                                 </td>
                                             </tr>

@@ -1,7 +1,7 @@
 services:
   sql:
     image: phucxsqlserver:1.0.0
-    container_name: sqlserver
+    container_name: sqlserver 
     ports:
       - 1431:1433
     stdin_open: true 
@@ -59,7 +59,6 @@ services:
       - OAUTH2_PROXY_OIDC_JWKS_URL=http://keycloak:8080/realms/master/protocol/openid-connect/certs
       - OAUTH2_PROXY_BACKEND_LOGOUT_URL=http://keycloak:8080/realms/master/protocol/openid-connect/logout?post_logout_redirect=http://localhost:5173&id_token_hint={id_token}
       - OAUTH2_PROXY_REDIRECT_URL=http://localhost:4180/oauth2/callback
-      - OAUTH2_PROXY_OIDC_ISSUER_URL=http://keycloak:8080/realms/master
       - OAUTH2_PROXY_OIDC_ISSUER_URL=http://localhost:8080/realms/master
       - OAUTH2_PROXY_GRANT_TYPE=authorization_code
       - OAUTH2_PROXY_SCOPE=openid
@@ -71,7 +70,8 @@ services:
       
       - OAUTH2_PROXY_COOKIE_SECRET=fLIblJsthbMhgELnmpqrCbWQD9P1vyDfI5SAs8BUG6c=
       - OAUTH2_PROXY_COOKIE_SECURE=false
-      - OAUTH2_PROXY_COOKIE_REFRESH=30m
+      - OAUTH2_PROXY_COOKIE_REFRESH=25m
+      - OAUTH2_PROXY_COOKIE_EXPIRE=10h
       - OAUTH2_PROXY_COOKIE_HTTPONLY=true
       - OAUTH2_PROXY_COOKIE_NAME=SESSION
 
@@ -155,7 +155,7 @@ services:
       - SHOP_DEV_URL=http://localhost:8081
       - CONFIG_URL=http://configserver:8071
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
-      - KEYCLOAK_ISSUER _URI=http://keycloak:8080/realms/master
+      - KEYCLOAK_ISSUER_URI=http://keycloak:8080/realms/master
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=admin
@@ -250,6 +250,37 @@ services:
       - SQL_URL=jdbc:sqlserver://sql:1433;database=order;encrypt=true;trustServerCertificate=true
     networks:
       - phucx
+
+  payment:
+    image: payment:1.0.0
+    ports:
+      - 8086:8086
+    container_name: payment
+    depends_on:
+      - redis
+      - sql
+      - rabbitmq
+      - keycloak
+    restart: unless-stopped
+    environment:
+      - WAIT_FOR_SQL=true
+      - CONFIG_URL=http://configserver:8071
+      - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=123
+      - PAYMENT_SUCCESSFUL_URL=http://localhost:5173/order?status=successful
+      - PAYMENT_CANCELED_URL=http://localhost:5173/order?status=canceled
+      - SQL_USERNAME=sa
+      - SQL_PASSWORD=10122003simp!simp
+      - SQL_URL=jdbc:sqlserver://sql:1433;database=payment;encrypt=true;trustServerCertificate=true
+      - GHN_SHIP_SHOP_ID=${GHN_SHIP_SHOP_ID}
+      - GHN_SHIP_TOKEN=${GHN_SHIP_TOKEN}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID}
+      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET}
+    networks:
+      - phucx
     
   prometheus:
     image: phucxprometheus:1.0.0
@@ -276,15 +307,12 @@ services:
     ports:
       - 8060:8060
     container_name: nginx
-    depends_on:
-      - keycloak
-      - shop
-      - account
     restart: unless-stopped
     environment:
       - OAUTH2_PROXY=http://oauth2-proxy:4180
       - SHOP_URL=http://shop:8081
       - ACCOUNT_URL=http://account:8082 
+      - PAYMENT_URL=http://payment:8086
       - ORDER_URL=http://order:8083
       - NOTIFICATION_URL=http://notification:8084
       - AUTHORIZATION_URL=http://keycloakrestapi:8085
@@ -296,7 +324,7 @@ services:
       - phucx
 
   foodshopui:
-    image: foodshopui:1.0.0
+    image: foodshopuim:1.0.0
     container_name: foodshopui
     ports:
       - 5173:80

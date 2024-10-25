@@ -18,7 +18,8 @@ public interface EmployeeDetailRepostiory extends JpaRepository<EmployeeDetail, 
     @Modifying
     @Transactional
     @Procedure(name = "UpdateEmployeeInfo")
-    Boolean updateEmployeeInfo(String employeeID, LocalDate birthDate, String address, String city, 
+    Boolean updateEmployeeInfo(String employeeID, LocalDate birthDate, 
+        String address, String city, String district, String ward, 
         String phone, String picture);
 
     @Modifying

@@ -1,9 +1,9 @@
 import axios from "axios";
-import { CancelOrderUrl, ConfirmOrderUrl, 
-    CustomerOrdersUrl, EmployeeOrderSummarysUrl, EmployeeOrdersUrl, FulfillOrderUrl, 
-    PlaceOrderUrl, ReceiveOrderUrl } 
-    from "../constant/FoodShoppingApiURL";
-
+import { 
+    CancelOrderUrl, ConfirmOrderUrl, CustomerOrdersUrl, 
+    EmployeeOrderSummarysUrl, EmployeeOrdersUrl, FulfillOrderUrl, 
+    PlaceOrderUrl, ReceiveOrderUrl 
+} from "../constant/FoodShoppingApiURL";
 
 // employee
 // confirm order

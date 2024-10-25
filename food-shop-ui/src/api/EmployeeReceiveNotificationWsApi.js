@@ -28,9 +28,9 @@ function onConnectNotification(getMessageCallback) {
 }
 async function onPrivateNotificationMessageReceived(payload, getMessageCallback) {
     const message = JSON.parse(payload.body);
-    console.log(message)
+    // console.log(message)
     getMessageCallback(message);
 }
 const onConnectFailure = function (error) {
-    console.error('STOMP: ' + error);
+    // console.error('STOMP: ' + error);
 };

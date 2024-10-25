@@ -7,6 +7,7 @@ import { getOrderDetail } from "../../../../../api/OrderApi";
 import { ModalContextType } from "../../../../../model/WebType";
 import modalContext from "../../../../contexts/ModalContext";
 import ScrollToTop from "../../../../shared/functions/scroll-to-top/ScrollToTop";
+import { ceilRound } from "../../../../../service/Convert";
 
 export default function EmployeeOrderComponent(){
     const { orderId } = useParams();
@@ -40,14 +41,14 @@ export default function EmployeeOrderComponent(){
             {orderInfo &&
                 <div className="box-shadow-default rounded-5 col-sm-12 col-md-10 mx-auto col-lg-7">
                     <div className="d-flex flex-column justify-content-center align-items-center position-relative pt-3 rounded-top-5" id="order-heading">
-                        <div className="text-uppercase">
-                            <p>Order detail</p>
+                        <div>
+                            <h3>Order detail</h3>
                         </div>
-                        <div className="h4">{dayjs(orderInfo.orderDate).toString()}</div>
+                        <div className="h5">{dayjs(orderInfo.orderDate).toString()}</div>
                         <div className="pt-1">
                             {orderInfo.shippedDate?
-                                <p>Order #{orderInfo.orderID} was delivered on <b className="text-dark"> {dayjs(orderInfo.shippedDate).toString()}</b></p>:
-                                <p>Order #{orderInfo.orderID} is <b className="text-dark"> {orderInfo.status}</b></p>
+                                <p>Order <b>#{orderInfo.orderID}</b> was delivered on <b className="text-dark"> {dayjs(orderInfo.shippedDate).toString()}</b></p>:
+                                <p>Order <b>#{orderInfo.orderID}</b> is <b className="text-dark"> {orderInfo.status}</b></p>
                             }
                         </div>
                         {/* <div className="btn close text-white">
@@ -96,7 +97,7 @@ export default function EmployeeOrderComponent(){
                         <div className="d-flex justify-content-start align-items-center pl-3">
                             <div className="text-muted">Payment Method</div>
                             <div className="ml-auto">
-                                <div>COD</div>
+                                <div>{orderInfo.method.toUpperCase()}</div>
                                 {/* <img src="https://www.freepnglogos.com/uploads/mastercard-png/mastercard-logo-logok-15.png" alt=""
                                     width="30" height="30"/>
                                 <label>Mastercard ******5342</label> */}
@@ -113,7 +114,7 @@ export default function EmployeeOrderComponent(){
                                 Today's Total
                             </div>
                             <div className="ml-auto h5 font-weight-bold">
-                                ${orderInfo.totalPrice + orderInfo.freight}
+                                ${ceilRound(orderInfo.totalPrice + orderInfo.freight)}
                             </div>
                         </div>
                         <div className="row border rounded p-1 my-3 d-flex">
@@ -135,20 +136,17 @@ export default function EmployeeOrderComponent(){
                                 <div className="d-flex flex-column align-items start">
                                     <b>Shipping Address</b>
                                     <p className="text-justify pt-2">{orderInfo.shipName}, {orderInfo.shipAddress}</p>
-                                    <p className="text-justify">{orderInfo.shipCity}</p>
+                                    <p className="text-justify">{`${orderInfo.shipWard}, ${orderInfo.shipDistrict}, ${orderInfo.shipCity}`}</p>
                                     <p className="text-justify"><b>Phone:</b> {orderInfo.phone}</p>
                                 </div>
                             </div>
                         </div>
                         {/* <div className="pl-3 font-weight-bold">Related Subsriptions</div> */}
                         <div className="d-sm-flex justify-content-between rounded my-3 subscriptions">
-                            <div>
-                                <b>#{orderInfo.orderID}</b>
-                            </div>
                             <div>{orderInfo.orderDate}</div>
                             <div>Status: <b>{orderInfo.status}</b></div>
                             <div>
-                                Total: <b> ${orderInfo.totalPrice + orderInfo.freight}</b>
+                                Total: <b> ${ceilRound(orderInfo.totalPrice + orderInfo.freight)}</b>
                             </div>
                         </div>
                     </div>

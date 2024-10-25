@@ -28,6 +28,8 @@ import lombok.NoArgsConstructor;
             @StoredProcedureParameter(name="contactName", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="address", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="city", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="district", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="ward", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="phone", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="picture", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="result", mode = ParameterMode.OUT, type = Boolean.class),
@@ -49,6 +51,8 @@ public class CustomerDetail implements Serializable{
     private String contactName;
     private String address;
     private String city;
+    private String district;
+    private String ward;
     private String phone;
     private String picture;
     

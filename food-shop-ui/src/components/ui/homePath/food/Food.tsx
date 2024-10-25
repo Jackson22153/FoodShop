@@ -10,13 +10,14 @@ import { addProductToCart } from '../../../../api/CartApi';
 import { displayProductImage } from '../../../../service/Image';
 import numberOfCartProductsContext from '../../../contexts/NumberOfCartProductsContext';
 import { ceilRound, convertNameForUrl } from '../../../../service/Convert';
-import { FOODS_PATH, NOT_FOUND_ERROR_PAGE } from '../../../../constant/FoodShoppingURL';
+import { FOODS_PATH, LOGIN_URL, NOT_FOUND_ERROR_PAGE } from '../../../../constant/FoodShoppingURL';
 import { numberOfProductsInCart } from '../../../../service/Cart';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import ScrollToTop from '../../../shared/functions/scroll-to-top/ScrollToTop';
-import { Modal } from '../../../../model/WebType';
+import { Alert, Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
-import { LoginUrl } from '../../../../constant/FoodShoppingApiURL';
+import AlertComponent from '../../../shared/functions/alert/Alert';
+import { ALERT_TIMEOUT, ALERT_TYPE } from '../../../../constant/WebConstant';
 
 export default function FoodComponent(){
     const navigate = useNavigate();
@@ -29,6 +30,11 @@ export default function FoodComponent(){
         productID: 0,
         quantity: 1,
         isSelected: true
+    })
+    const [alert, setAlert] = useState<Alert>({
+        message: "",
+        type: "",
+        isShowed: false
     })
     const [modal, setModal] = useState<Modal>({
         title: '',
@@ -46,7 +52,7 @@ export default function FoodComponent(){
 
     // modal
     const onClickConfirmModal = ()=>{
-        window.location.href=LoginUrl
+        navigate(LOGIN_URL)
     }
 
     const onClickCloseModal = ()=>{
@@ -76,10 +82,16 @@ export default function FoodComponent(){
             const res = await addProductToCart([cartProduct]);
             if(res.status){
                 const numberProducts = numberOfProductsInCart();
+
                 setNumberOfCartProducts(numberProducts)
+                setAlert({
+                    message: `${foodInfo.productName} has been added!`,
+                    type: ALERT_TYPE.SUCCESS,
+                    isShowed: true
+                })
             }
         } catch (error) {
-            const errorResponse  = error.response
+            const errorResponse  = error.response;
             if(errorResponse){
                 const status = errorResponse.status;
                 if(status===401){
@@ -88,8 +100,21 @@ export default function FoodComponent(){
                         message: "You need authentication to add this product to your cart!",
                         isShowed: true
                     })
+                }else if(status===400){
+                    setAlert({
+                        message: `${errorResponse.data.error}`,
+                        type: ALERT_TYPE.DANGER,
+                        isShowed: true
+                    })
                 }
             }
+        }finally{
+            setTimeout(()=>{
+                setAlert({
+                    ...alert,
+                    isShowed: false
+                })
+            }, ALERT_TIMEOUT)
         }
     }
 
@@ -116,6 +141,7 @@ export default function FoodComponent(){
                     productID: data.productID,
                     quantity: 1,
                 })
+                // console.log(data)
                 setFoodInfo(data);
                 fetchSimilarProducts(data.productID, data.categoryName, 0);
             }
@@ -130,6 +156,7 @@ export default function FoodComponent(){
             {foodInfo &&
                 <>
                     <ScrollToTop/>
+                    <AlertComponent alert={alert}/>
                     <section className="py-5">
                         <div className="container">
                             <div className="row gx-5">
@@ -144,6 +171,9 @@ export default function FoodComponent(){
                                         }
                                         <img style={{maxWidth: "100%", margin: "auto"}} className="rounded-4 fit h-100" 
                                             src={displayProductImage(foodInfo.picture)} />
+                                        {foodInfo.unitsInStock<=0&&
+                                            <div className='out-of-stock'>Out of Stock</div>
+                                        }
                                     </div>
                                     {/* <div className="d-flex justify-content-center mb-3">
                                         <a data-fslightbox="mygalley" className="border mx-1 item-thumb rounded-2" target="_blank" data-type="image" href="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big1.webp">
@@ -169,6 +199,15 @@ export default function FoodComponent(){
                                             {foodInfo.productName}
                                         </h4>
                                         <div className="d-flex flex-row my-3">
+                                            {foodInfo.unitsInStock>0&&
+                                                <span>
+                                                    <p>
+                                                        <b>Units In Stock: </b>
+                                                        {foodInfo.unitsInStock}
+                                                    </p>
+                                                </span>
+                                            }
+
                                             <span className={`${foodInfo.unitsInStock>0?"text-success": 'text-danger'} ms-2`}>
                                                 {foodInfo.unitsInStock>0? "In stock": "Out of stock"}
                                             </span>
@@ -206,15 +245,16 @@ export default function FoodComponent(){
                                                 <div className="input-group mb-3 z-0" style={{width: "170px"}}>
                                                     <button className="btn btn-white border border-secondary px-3" 
                                                         type="button" id="button-addon1" data-mdb-ripple-color="dark"
-                                                        onClick={handleClickMinusBtn}>
+                                                        onClick={handleClickMinusBtn} disabled={foodInfo.unitsInStock>0?false:true}>
                                                         <FontAwesomeIcon icon={faMinus}/>
                                                     </button>
                                                     <input type="text" className="form-control text-center border border-secondary" 
                                                         value={cartProduct.quantity} aria-label="Example text with button addon" 
-                                                        aria-describedby="button-addon1" onChange={handleInputChange} />
+                                                        aria-describedby="button-addon1" onChange={handleInputChange} 
+                                                        disabled={foodInfo.unitsInStock>0?false:true}/>
                                                     <button className="btn btn-white border border-secondary px-3" 
                                                         type="button" id="button-addon2" data-mdb-ripple-color="dark"
-                                                        onClick={handleClickAddOnBtn}>
+                                                        onClick={handleClickAddOnBtn} disabled={foodInfo.unitsInStock>0?false:true}>
                                                         <FontAwesomeIcon icon={faPlus}/>
                                                     </button>
                                                 </div>
@@ -224,7 +264,8 @@ export default function FoodComponent(){
                                             <p className="col-12"><b>Price: ${ceilRound(foodInfo.unitPrice*(1-foodInfo.discountPercent/100)*cartProduct.quantity)}</b></p>
                                         </div>
                                         {/* <a href="#" className="btn btn-warning shadow-0"> Buy now </a> */}
-                                        <button className="btn btn-primary shadow-0 mx-2" onClick={onClickAddToCart}> 
+                                        <button className="btn btn-primary shadow-0 mx-2" onClick={onClickAddToCart} 
+                                            disabled={foodInfo.unitsInStock>0?false:true}>
                                             <FontAwesomeIcon icon={faShoppingCart}/> Add to cart 
                                         </button>
                                         {/* <a href="#" className="btn btn-light border border-secondary py-2 icon-hover px-3"> <i className="me-1 fa fa-heart fa-lg"></i> Save </a> */}

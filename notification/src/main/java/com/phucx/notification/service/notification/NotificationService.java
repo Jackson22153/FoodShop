@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import com.phucx.notification.constant.NotificationBroadCast;
+import com.phucx.constant.NotificationBroadCast;
 import com.phucx.notification.exception.NotFoundException;
 import com.phucx.notification.model.NotificationDetail;
 

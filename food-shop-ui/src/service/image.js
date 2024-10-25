@@ -1,17 +1,14 @@
 import { ServerURL } from '../constant/FoodShoppingApiURL';
-import logo from '../assets/images/logo.png';
-import fb from '../assets/images/fb.png';
-import twitter from '../assets/images/twitter.png';
-import linkedin from '../assets/images/linkedin.png';
-import instagram from '../assets/images/instagram.png';
 
+import config from '../../config.json';
 
 import slide1Image from '../assets/images/slides/slide1-img.png';
 import slide2Image from '../assets/images/slides/slide2-img.jpg';
 import slide3Image from '../assets/images/slides/slide3-img.png';
 
-import prevIcon from '../assets/images/prev.png';
-import nextIcon from '../assets/images/next.png';
+import emailsent from '../assets/images/emailsent.png';
+
+import lockIcon from '../assets/images/Lock.png';
 
 import cardItem1 from '../assets/images/card-item-1.png';
 import cardItem2 from '../assets/images/card-item-2.png';
@@ -28,25 +25,62 @@ import client from '../assets/images/client.png';
 import defaultImage from '../assets/images/defaultImage.png';
 import defaultUserImage from '../assets/images/defaultUser.jpg'
 
-import errorImage from '../assets/images/error.png'
+import errorImage from '../assets/images/error.png';
 
+import paypalicon from '../assets/images/paypal.png';
+import codicon from '../assets/images/cod.png';
 
+import mobile from '../assets/images/mobile.webp';
+
+import verified from '../assets/images/verified.png';
+
+// export function getVerifiedIcon(){
+//     return verified;
+// }
+
+export function getMobileImage(){
+    return mobile;
+}
+export function getEmailSentIcon(){
+    return emailsent;
+}
+export function getLockIcon(){
+    return lockIcon;
+}
 export function getDefaulImage(){
     return defaultImage;
 }
+export function getPaypalIcon(){
+    return paypalicon;
+}
+export function getCodIcon(){
+    return codicon;
+}
+
+
+const imagePath = '/src/assets/images/'
+function image(name){
+    return getCurrentUrl() + imagePath + name;
+}
+function getCurrentUrl(){
+    const hostname = window.location.href;
+    const pathname = window.location.pathname;
+    return hostname.substring(0, hostname.length - pathname.length);
+}
+
 // logo
 export function getLogo(){
-    return logo;
+    return image(config.image.logo);
 }
 // icon
 export function getIcon(iconName){
     switch (iconName){
-        case 'facebook': return fb;
-        case 'twitter': return twitter;
-        case 'linkedin': return linkedin;
-        case 'instagram': return instagram;
-        case 'prev': return prevIcon;
-        case 'next': return nextIcon;
+        case 'facebook': return image(config.image.media.facebook);
+        case 'twitter': return image(config.image.media.twitter);
+        case 'linkedin': return image(config.image.media.linkedin);
+        case 'instagram': return image(config.image.media.instagram);
+        case 'prev': return image(config.image.navigation.prev);
+        case 'next': return image(config.image.navigation.next);
     }
 }
 // categories

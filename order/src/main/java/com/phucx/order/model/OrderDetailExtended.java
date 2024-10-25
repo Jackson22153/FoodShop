@@ -35,6 +35,7 @@ public class OrderDetailExtended {
     private Integer quantity;
     private Integer discount;
     private BigDecimal extendedPrice;
+    private BigDecimal freight;
     @Enumerated(EnumType.STRING)
     private OrderStatus status; 
     private String customerID;

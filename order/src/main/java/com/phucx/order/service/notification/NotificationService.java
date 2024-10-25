@@ -1,7 +1,7 @@
 package com.phucx.order.service.notification;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.phucx.order.model.OrderNotificationDTO;
+import com.phucx.model.OrderNotificationDTO;
 
 public interface NotificationService {
     // send notification to notification service

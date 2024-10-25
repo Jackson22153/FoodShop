@@ -14,7 +14,19 @@ function decodeCartCookie(encodedCartJson){
     const jsonStr = atob(encodedCartJson);
     return JSON.parse(jsonStr);
 }
-
+// get csrf token
+export function getCsrfTokenFromCookie() {
+    const name = 'XSRF-TOKEN=';
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i].trim();
+        if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return '';
+}
 
 export function getNumberOfCartProducts(encodedCartJson){
     if(encodedCartJson != undefined && encodedCartJson != null){

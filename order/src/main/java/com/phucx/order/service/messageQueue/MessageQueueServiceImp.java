@@ -7,10 +7,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phucx.model.DataDTO;
+import com.phucx.model.EventMessage;
+import com.phucx.model.NotificationDTO;
 import com.phucx.order.config.MessageQueueConfig;
-import com.phucx.order.model.DataDTO;
-import com.phucx.order.model.EventMessage;
-import com.phucx.order.model.NotificationDTO;
 import com.phucx.order.model.OrderWithProducts;
 import lombok.extern.slf4j.Slf4j;
 

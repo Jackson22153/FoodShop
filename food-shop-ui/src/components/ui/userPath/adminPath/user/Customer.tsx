@@ -1,189 +1,382 @@
 import { useEffect, useRef, useState } from "react";
-import { CustomerDetail } from "../../../../../model/Type";
-import { getCustomer } from "../../../../../api/AdminApi";
+import { CustomerAdminDetail, District, Province, Ward } from "../../../../../model/Type";
+import { getCustomer, resetUserPassword, updateCustomer } from "../../../../../api/AdminApi";
 import { useParams } from "react-router-dom";
 import { displayUserImage } from "../../../../../service/Image";
+import ModalComponent from "../../../../shared/functions/modal/Modal";
+import { Alert, Modal } from "../../../../../model/WebType";
+import { ALERT_TYPE, ALERT_TIMEOUT } from "../../../../../constant/WebConstant";
+import AlertComponent from "../../../../shared/functions/alert/Alert";
+import { getProvinces, getDistricts, getWards } from "../../../../../api/ShippingApi";
 
 export default function AdminCustomerComponent(){
-    const { customerID } = useParams();
-    const [selectedTab, setSelectedTab] = useState(0);
-    const [customerUserInfo, setCustomerUserInfo] = useState<CustomerDetail>();
-    const navHeaderRef = useRef(null);
+    const { userID } = useParams();
+    const [customerInfo, setCustomerInfo] = useState<CustomerAdminDetail>();
+    const [verificationInfo, setVerificationInfo] = useState();
+    const [editable, setEditable] = useState(false)
+
+    const [provinces, setProvinces] = useState<Province[]>([]);
+    const [districts, setDistricts] = useState<District[]>([]);
+    const [wards, setWards] = useState<Ward[]>([]);
+
+    const imageinputRef = useRef<HTMLInputElement>(null)
+    const [modal, setModal] = useState<Modal>({
+        title: 'Confirm action',
+        message: 'Do you want to continute?',
+        isShowed: false
+    })
+    const [alert, setAlert] = useState<Alert>({
+        message: "",
+        type: "",
+        isShowed: false
+    })
+    const [updateInfoModal, setUpdateInfoModal] = useState<Modal>({
+        title: 'Confirm action',
+        message: 'Do you want to continute?',
+        isShowed: false
+    });
+
 
     useEffect(()=>{
-        if(customerID){
-            fetUserCustomerInfo(customerID)
+        if(userID){
+            fetUserCustomerInfo(userID)
         }
     }, [])
     // get customer info
-    const fetUserCustomerInfo = async (customerID: string)=>{
-        const res = await getCustomer(customerID);
+    const fetUserCustomerInfo = async (userID: string)=>{
+        const res = await getCustomer(userID);
         if(res.status){
             const data = res.data;
-            setCustomerUserInfo({   
-                customerID: data.customerID,
-                userID: data.userID,
-                username: data.username,
-                email: data.email,
-                firstName: data.firstName,
-                lastName: data.lastName,
-                contactName: data.contactName || '',
-                picture: data.picture || '',
-                address: data.address,
-                city: data.city,
-                phone: data.phone
-            })
+            setVerificationInfo(verificationInfo);
+            setCustomerInfo(data);
+            fetchProvinces(data);
         }
     }
-    const onClickSelectTab= (tab:number)=>{
-        setSelectedTab(tab);
+
+    const onClickResetpassword = (e)=>{
+        e.preventDefault();
+        toggleModal();
     }
+
+    // confirm modal
+    const toggleModal = ()=>{
+        setModal(modal =>({...modal, isShowed:!modal.isShowed}))
+    }
+
+    const onClickCloseModal = ()=>{
+        toggleModal()
+    }
+    const onClickConfirmModal = async ()=>{
+        try {
+            const res = await resetUserPassword(userID);
+            if(res.status){
+                const data = res.data;
+                const status = data.status;
+                setAlert({
+                    message: status?"User's password has been sent to email":"User's password can not be reset",
+                    type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
+                    isShowed: true
+                })   
+            }
+        } 
+        catch (error) {
+            setAlert({
+                message: "Something wrong happened!",
+                type: ALERT_TYPE.DANGER,
+                isShowed: true
+            }) 
+        }
+        finally{
+            setTimeout(()=>{
+                setAlert({...alert, isShowed: false});
+            }, ALERT_TIMEOUT)
+        }
+    }
+
+    // togle edit
+    const onClickEditInfo = (event)=>{
+        event.preventDefault();
+        setEditable(editable => !editable);
+    }
+
+
+    // on change status
+    const onChangeStatus = (event: any)=>{
+        const name = event.target.name;
+        const value = event.target.value;
+        setCustomerInfo({...customerInfo, [name]:value})
+    }
+
+    // update customer profile
+    // update info modal
+    const toggleUpdateInfoModal = ()=>{
+        setUpdateInfoModal(modal => ({...modal, isShowed:!modal.isShowed}))
+    }
+    const onClickUpdate = (event)=>{
+        event.preventDefault();
+        toggleUpdateInfoModal();
+    }
+    const onClickCloseUpdateInfoModal = ()=>{
+        toggleUpdateInfoModal();
+    }
+    const onClickConfirmUpdateInfoModal = async ()=>{
+        try {
+            if(customerInfo){
+                const res = await updateCustomer(customerInfo)
+                if(res.status){
+                    const data = res.data
+                    const status = data.status
+                    setAlert({
+                        message: status?"Customer's information has been updated successfully":
+                                        "Customer's information can not be updated",
+                        type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
+                        isShowed: true
+                    })   
+                }
+            }
+        } catch (error) {
+            setAlert({
+                message: "Customer's information can not be updated",
+                type: ALERT_TYPE.DANGER,
+                isShowed: true
+            }) 
+        } finally{
+            setTimeout(()=>{
+                setAlert({...alert, isShowed: false});
+            }, ALERT_TIMEOUT)
+        }
+    }
+
+    const onChangeEmployeeInfo = (event)=>{
+        if(customerInfo){
+            const name = event.target.name;
+            const value = event.target.value;
+            setCustomerInfo({...customerInfo, [name]:value})
+        }
+    }
+
+    // get address
+    const fetchProvinces = async (customerInfo: CustomerAdminDetail)=>{
+        try {
+            const res = await getProvinces();
+            if(res.status){
+                const data = res.data as Province[];
+                setProvinces(data)
+                const provinceID = data.find(province => province.ProvinceName===customerInfo.city).ProvinceID;
+                fetchDistricts(provinceID, customerInfo);
+
+            }
+        } catch (error) {
+
+        }
+    }
+
+    const fetchDistricts = async (provinceID: string, customerInfo: CustomerAdminDetail)=>{
+        try {
+            const res = await getDistricts(provinceID);
+            if(res.status){
+                const data = res.data as District[];
+                setDistricts(data);
+                const districtID = data.find(district => district.DistrictName===customerInfo.district).DistrictID;
+                fetchWards(districtID);
+            }
+        } catch (error) {
+
+        }
+    }
+    const fetchWards = async (districtID: string)=>{
+        try {
+            const res = await getWards(districtID);
+            if(res.status){
+                const data = res.data;
+                setWards(data);
+            }
+        } catch (error) {
+
+        }
+    }
+
+    // on change select
+    const onChangeSelectProvince = (e)=>{
+        const value = e.target.value; 
+        setCustomerInfo({...customerInfo, city: value, district: null, ward: null})
+        const cityID = getCityID(value);
+        fetchDistricts(cityID, customerInfo)
+    }
+
+    const onChangeSelectDistrict = (e)=>{
+        const name = e.target.name;
+        const value = e.target.value;
+        setCustomerInfo({...customerInfo, [name]:value, ward: null})
+        fetchWards(getDistricID(value))
+    }
+
+    const onChangeSelectWard = (e)=>{
+        const name = e.target.name;
+        const value = e.target.value; 
+        setCustomerInfo({...customerInfo, [name]:value})
+    }
+
+    // get address id
+    const getCityID = (cityName: string)=>{
+        return provinces.find(province => province.ProvinceName === cityName)?.ProvinceID;
+    }
+    const getDistricID = (districtName: string)=>{
+        return districts.find(district => district.DistrictName === districtName)?.DistrictID;
+    }
+
+    
     
     return(
         <div className="container emp-profile box-shadow-default mb-5">
-            {customerUserInfo &&
-                <div className="row">
-                    <div className="col-md-4">
-                        <div className="profile-img">
-                            <img src={displayUserImage(customerUserInfo.picture)} alt=""/>
+            {customerInfo &&
+                <div className="container-xl px-4 mt-4">
+                    <AlertComponent alert={alert}/>
+                    <div className="row">
+                        <div className="col-xl-4">
+                            <div className="card mb-4 mb-xl-0">
+                                <div className="card-header">Profile Picture</div>
+                                <div className="card-body text-center">
+                                    <img className="img-account-profile rounded-circle mb-2" src={displayUserImage(customerInfo.picture)} alt=""/>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-xl-8">
+                            <div className="card mb-4">
+                                <div className="card-header">Account Details</div>
+                                <div className="card-body">
+                                    <form>
+                                        <div className="mb-3">
+                                            <label className="small mb-1" htmlFor="inputUsername">Username (how your name will appear to other users on the site)</label>
+                                            <input className="form-control" id="inputUsername" type="text" name="username" placeholder="Enter your username" value={customerInfo.username || ""} onChange={()=>{}}/>
+                                        </div>
+                                        <div className="row gx-3 mb-3">
+                                            <div className="col-md-6">
+                                                <label className="small mb-1" htmlFor="inputFirstName">First name</label>
+                                                <input className="form-control" id="inputFirstName" name="firstName" type="text" placeholder="Enter your first name" value={customerInfo.firstName || ""} onChange={()=>{}}/>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="small mb-1" htmlFor="inputLastName">Last name</label>
+                                                <input className="form-control" id="inputLastName" name="lastName" type="text" placeholder="Enter your last name" value={customerInfo.lastName || ""} onChange={()=>{}}/>
+                                            </div>
+                                        </div>
+                                        <div className="row gx-3 mb-3">
+                                            <div className="col-md-6">
+                                                <label className="small mb-1" htmlFor="inputAddress">Address</label>
+                                                {(!customerInfo.address || customerInfo.address.length==0) &&
+                                                <span className="badge bg-danger ms-1">!</span> 
+                                                }
+                                                <input className="form-control" id="inputAddress" name="address" type="text" placeholder="Enter your Address" value={customerInfo.address || ""} disabled={!editable} onChange={onChangeEmployeeInfo}/>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="small mb-1" htmlFor="inputCity">City / Province</label>
+                                                { (!customerInfo.city || !customerInfo.city.length) &&
+                                                <span className="badge bg-danger ms-1">!</span> 
+                                                }
+                                                {(!editable)?
+                                                    <input className="form-control" id="inputCity" name="city" type="text" placeholder="Enter your city" value={customerInfo.city || ""} onChange={()=>{}} disabled={!editable}/>:
+                                                    <select className="form-select" name="city" value={customerInfo.city || ""} onChange={onChangeSelectProvince}>
+                                                        <option>Select your city/province</option>
+                                                        {provinces.map((province, index)=>(
+                                                            <option key={index} value={`${province.ProvinceName}`}>
+                                                                {province.ProvinceName}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div className="row gx-3 mb-3">
+                                            <div className="col-md-6">
+                                                <label className="small mb-1" htmlFor="inputDistrict">District</label>
+                                                {(!customerInfo.district || !customerInfo.district.length) &&
+                                                <span className="badge bg-danger ms-1">!</span> 
+                                                }
+                                                {!editable ?
+                                                    <input className="form-control" id="inputDistrict" name="district" type="text" placeholder="Enter your district" value={customerInfo.district || ""} onChange={()=>{}} disabled={!editable}/>:
+                                                    <select className="form-select" name="district" onChange={onChangeSelectDistrict} value={customerInfo.district || ""}>
+                                                        {!districts.length ?
+                                                            <option>Select your province/city first</option>:
+                                                            <>
+                                                                <option>Select your district</option>
+                                                                {districts.map((district, index)=>(
+                                                                    <option key={index} value={`${district.DistrictName}`}>
+                                                                        {district.DistrictName}
+                                                                    </option>
+                                                                ))}
+                                                            </>
+                                                        }
+                                                    </select>
+                                                }
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="small mb-1" htmlFor="inputWard">Ward</label>
+                                                {(!customerInfo.ward || !customerInfo.ward.length) &&
+                                                <span className="badge bg-danger ms-1">!</span> 
+                                                }
+                                                {!editable ?
+                                                    <input className="form-control" id="inputWard" name="ward" type="text" placeholder="Enter your ward" value={customerInfo.ward || ""} onChange={()=>{}} disabled={!editable}/>:
+                                                    <select className="form-select" name="ward" onChange={onChangeSelectWard} value={customerInfo.ward || ""}>
+                                                        {!wards.length ?
+                                                            <option>Select your district first</option>:
+                                                            <>
+                                                                <option>Select your ward</option>
+                                                                {wards.map((ward, index)=>(
+                                                                    <option key={index} value={`${ward.WardName}`}>
+                                                                        {ward.WardName}
+                                                                    </option>
+                                                                ))}
+                                                            </>
+                                                        }
+                                                    </select>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <label className="small mb-1" htmlFor="inputEmailAddress">Email address</label>
+                                            <input className="form-control" id="inputEmailAddress" type="email" placeholder="Enter your email address" value={customerInfo.email || ""} disabled={!editable} onChange={onChangeEmployeeInfo}/>
+                                        </div>
+                                        <div className="row gx-3 mb-3">
+                                            <div className="col-md-6">
+                                                <label className="small mb-1" htmlFor="inputPhone">Phone number</label>
+                                                {(!customerInfo.phone || customerInfo.phone.length)==0 &&
+                                                <span className="badge bg-danger ms-1">!</span> 
+                                                }
+                                                <input className="form-control" id="inputPhone" name="phone" type="tel" placeholder="Enter your phone number" value={customerInfo.phone || ""} disabled={!editable} onChange={onChangeEmployeeInfo}/>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="small mb-1" htmlFor="inputContactName">Contact name</label>
+                                                {(!customerInfo.contactName || customerInfo.contactName.length==0) &&
+                                                <span className="badge bg-danger ms-1">!</span> 
+                                                }
+                                                <input className="form-control" id="inputContactName" type="text" name="contactName" placeholder="Enter your contact name" value={customerInfo.contactName || ""} disabled={!editable} onChange={onChangeEmployeeInfo}/>
+                                            </div>
+                                        </div>
+                                        <div className="mb-3">
+                                            <div className="col-md-6">
+                                                <label className="small mb-1" htmlFor="inputNotes">Account status</label>
+                                                <select className="form-select" value={`${customerInfo.enabled}`} disabled={!editable} name="enabled" onChange={onChangeStatus}>
+                                                    <option value={"true"}>Active</option>
+                                                    <option value={"false"}>Deactive</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button className="btn btn-primary me-2" type="button" onClick={onClickResetpassword}>Reset password</button>
+                                        <button className="btn btn-primary me-2" type="button" onClick={onClickEditInfo}>{!editable?"Change profile": "Cancel change"}</button>
+                                        {editable &&
+                                            <button className="btn btn-primary" type="button" onClick={onClickUpdate}>Save changes</button>
+                                        }
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="col-md 6">
-                        <div className="profile-head">
-                            <h5>
-                                Username: {customerUserInfo.username}
-                            </h5>
-                        </div>
-
-                        <ul className="nav nav-tabs emp-profile p-0 mb-3 cursor-pointer" 
-                            role="tablist" ref={navHeaderRef}>
-                            
-                            <li className="nav-item" role="presentation">
-                                <span className={`nav-link text-dark ${selectedTab===0?'active':''}`}
-                                    id="employee-info-tab" role="tab" aria-controls="employee-info-tab"
-                                    onClick={(_e)=>onClickSelectTab(0)}>Information</span>
-                            </li>
-
-                            <li className="nav-item" role="presentation">
-                                <span className={`nav-link text-dark ${selectedTab===1?'active':''}`}
-                                    id="pending-order-tab" role="tab" 
-                                    onClick={(_e)=>onClickSelectTab(1)}>Account</span>
-                            </li>
-                        </ul>
-
-
-                        <div className="profile-about">
-                            {selectedTab===0 ?
-                                <div className={`row fade active show`}>
-                                    <div className="row">
-                                        <div className="col-md-7 mb-3">
-                                            <label  htmlFor="customerID-customer">CustomerID</label>
-                                            <input type="text" className="form-control" id="customerID-customer" 
-                                                placeholder="customerID" value={customerUserInfo.customerID} 
-                                                readOnly name="customerID"/>
-                                            <div className="valid-feedback">
-                                                Looks good!
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="row"> 
-                                        <div className="col-md-3 mb-3">
-                                            <label  htmlFor="contactName-customer">Contact Name</label>
-                                            <input type="text" className="form-control" id="contactName-customer" 
-                                                placeholder="contactName" value={customerUserInfo.contactName} required
-                                                readOnly name="contactName"/>
-                                            <div className="valid-feedback">
-                                                Looks good!
-                                            </div>
-                                        </div>
-                                        <div className="col-md-3 mb-3">
-                                            <label  htmlFor="first-name-employee">First Name</label>
-                                            <input type="text" className="form-control" id="first-name-employee" 
-                                                placeholder="First Name" value={customerUserInfo.firstName} required
-                                                readOnly name="firstName"/>
-                                            <div className="valid-feedback">
-                                                Looks good!
-                                            </div>
-                                        </div>
-                                        <div className="col-md-3 mb-3">
-                                            <label  htmlFor="last-name-employee">Last Name</label>
-                                            <input type="text" className="form-control" id="last-name-employee" 
-                                                placeholder="Last Name" required value={customerUserInfo.lastName} 
-                                                readOnly name="lastName"/>
-                                            <div className="invalid-feedback">
-                                                Looks good!
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-md-6 mb-3">
-                                            <label  htmlFor="address-customer">Address</label>
-                                            <input type="text" className="form-control" id="address-customer" placeholder="Address" required
-                                                value={customerUserInfo.address} readOnly
-                                                name="address"/>
-                                            <div className="invalid-feedback">
-                                                Please provide a valid address.
-                                            </div>
-                                        </div>
-                                        <div className="col-md-3 mb-3">
-                                            <label  htmlFor="city-customer">City</label>
-                                            <input type="text" className="form-control" id="city-customer" placeholder="City" required
-                                                value={customerUserInfo.city} readOnly
-                                                name="city"/>
-                                            <div className="invalid-feedback">
-                                                Please provide a valid city.
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="row">
-                                        <div className="col-md-6 mb-3">
-                                            <label  htmlFor="phone-customer">Phone</label>
-                                            <input type="text" className="form-control" id="phone-customer" placeholder="Phone" required
-                                                value={customerUserInfo.phone} readOnly
-                                                name="phone"/>
-                                            <div className="invalid-feedback">
-                                                Please provide a valid phone.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> :
-                            selectedTab===1 &&
-                                <div className={`row fade active show`}>
-                                    <div className="row">
-                                        <div className="col-md-7 mb-3">
-                                            <label  htmlFor="userID-customer">UserID</label>
-                                            <input type="text" className="form-control" id="userID-customer" 
-                                                placeholder="UserID" value={customerUserInfo.userID} 
-                                                readOnly name="userID"/>
-                                            <div className="valid-feedback">
-                                                Looks good!
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-md-3 mb-3">
-                                            <label  htmlFor="username-customer">Username</label>
-                                            <input type="text" className="form-control" id="username-customer" 
-                                                placeholder="Username" value={customerUserInfo.username} required
-                                                readOnly name="username"/>
-                                            <div className="valid-feedback">
-                                                Looks good!
-                                            </div>
-                                        </div>
-                                        <div className="col-md-5 mb-3">
-                                            <label  htmlFor="email-customer">Email</label>
-                                            <input type="email" className="form-control" id="email-customer" placeholder="Email" required
-                                                value={customerUserInfo.email}  readOnly name="email"/>
-                                            <div className="invalid-feedback">
-                                                Please provide a valid email.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>    
-                            }
-                        </div>
-                    </div>
+                    <ModalComponent modal={modal} handleCloseButton={onClickCloseModal}
+                        handleConfirmButton={onClickConfirmModal}/>
+                    <ModalComponent modal={updateInfoModal} handleCloseButton={onClickCloseUpdateInfoModal}
+                        handleConfirmButton={onClickConfirmUpdateInfoModal}/>
                 </div>
             }
         </div>

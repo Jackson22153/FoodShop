@@ -28,9 +28,13 @@ import com.phucx.shop.model.Customer;
 import com.phucx.shop.model.OrderItem;
 import com.phucx.shop.model.OrderItemDiscount;
 import com.phucx.shop.model.OrderWithProducts;
+import com.phucx.shop.model.ProductSize;
+import com.phucx.shop.model.ShippingProduct;
 import com.phucx.shop.service.bigdecimal.BigDecimalService;
 import com.phucx.shop.service.customer.CustomerService;
 import com.phucx.shop.service.product.ProductService;
+import com.phucx.shop.service.product.ProductSizeService;
+import com.phucx.shop.utils.BigDecimalUtils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -47,6 +51,8 @@ public class CartServiceImp implements CartService{
     private BigDecimalService bigDecimalService;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private ProductSizeService productSizeService;
 
     @Override
     public CartOrderInfo updateCartCookie(String encodedCartJson, List<CartProduct> products, HttpServletResponse response) 
@@ -214,7 +220,10 @@ public class CartServiceImp implements CartService{
         order.setShipName(customer.getContactName());
         order.setShipAddress(customer.getAddress());
         order.setShipCity(customer.getCity());
+        order.setShipDistrict(customer.getDistrict());
+        order.setShipWard(customer.getWard());
         order.setPhone(customer.getPhone());
+        
         return order;
     }
 
@@ -312,26 +321,42 @@ public class CartServiceImp implements CartService{
 
     @Override
     public CartOrderInfo addProduct(String encodedCartJson, List<CartProduct> cartProducts,
-            HttpServletResponse response) throws JsonProcessingException, InsufficientResourcesException, NotFoundException {
-        log.info("addProduct(encodedCartJson={}, cartProducts={})", encodedCartJson, cartProducts);
-        if(cartProducts==null || cartProducts.isEmpty()){ throw new NotFoundException("Product does not found");}
+            HttpServletResponse response
+    ) throws JsonProcessingException, InsufficientResourcesException, NotFoundException {
+        log.info("addProduct(encodedCartJson={}, cartProducts={})", 
+            encodedCartJson, cartProducts);
+        if(cartProducts==null || cartProducts.isEmpty()){ 
+            throw new NotFoundException("Product does not found");
+        }
         // get existed cart from json format
-        TypeReference<List<CartProduct>> typeRef = new TypeReference<List<CartProduct>>() {};
+        TypeReference<List<CartProduct>> typeRef = 
+            new TypeReference<List<CartProduct>>() {};
         List<CartProduct> items = new ArrayList<>();
         if(encodedCartJson!=null){
             String cartJson = this.decodeCookie(encodedCartJson);
             items = objectMapper.readValue(cartJson, typeRef);
         }
         // fetch product 
-        List<Integer> productIDs = cartProducts.stream().map(CartProduct::getProductID).collect(Collectors.toList());
-        List<CurrentProduct> fetchedProducts = this.productService.getCurrentProducts(productIDs);
+        List<Integer> productIDs = cartProducts.stream()
+            .map(CartProduct::getProductID)
+            .collect(Collectors.toList());
+        List<CurrentProduct> fetchedProducts = this.productService
+            .getCurrentProducts(productIDs);
 
         for (CurrentProduct currentProduct : fetchedProducts) {
             CartProduct cartProduct = this.findProduct(cartProducts, currentProduct.getProductID())
-                .orElseThrow(()-> new NotFoundException("Product " + currentProduct.getProductID() + " name " + currentProduct.getProductName() + " does not found"));
+                .orElseThrow(()-> new NotFoundException("Product " + 
+                    currentProduct.getProductID() + " name " + 
+                    currentProduct.getProductName() + " does not found"));
+            Optional<CartProduct> itemInCart = this.findProduct(
+                items, currentProduct.getProductID());
+            Integer quantityInCart = itemInCart.isPresent()?
+                itemInCart.get().getQuantity():0;
             // check product's quantity with product's inStocks
-            if(currentProduct.getUnitsInStock()<cartProduct.getQuantity())
-                throw new InsufficientResourcesException("Product " + currentProduct.getProductName() + " exceeds available stock");
+            if(currentProduct.getUnitsInStock()<cartProduct.getQuantity()+ quantityInCart)
+                throw new InsufficientResourcesException("Product " + 
+                    currentProduct.getProductName() + 
+                    " exceeds available stock");
             
             // check whether the product exists in cart or not
             boolean isExisted = false;
@@ -380,5 +405,34 @@ public class CartServiceImp implements CartService{
         }
 
         return this.getCartOrder(encodedCartJson);
+    }
+
+    @Override
+    public ShippingProduct getShippingProduct(String encodedCartJson)
+            throws JsonProcessingException, EmptyCartException, InvalidOrderException, NotFoundException {
+        log.info("getShippingProduct(encodedCartJson={})", encodedCartJson);
+        OrderWithProducts order = this.getPurchaseOrder(encodedCartJson);
+        BigDecimal totalPrice = BigDecimalUtils.formatter(order.getFreight().add(order.getTotalPrice()));
+        // get product sizes
+        Integer totalWeight = 0;
+        Integer totalHeight = 0;
+        Integer totalLength = 0;
+        Integer totalWidth = 0;
+
+        for(OrderItem item : order.getProducts()) {
+            ProductSize productSizeInfo = productSizeService.getProductSize(item.getProductID());
+            totalWeight += item.getQuantity()*productSizeInfo.getWeight();
+            totalHeight += item.getQuantity()*productSizeInfo.getHeight();
+            totalLength += item.getQuantity()*productSizeInfo.getLength();
+            totalWidth += item.getQuantity()*productSizeInfo.getWidth();
+        }
+
+        ShippingProduct shippingProduct = new ShippingProduct(
+            totalHeight, totalLength, totalWeight, 
+            totalWidth, totalPrice
+        );
+
+        return shippingProduct;
+
     }
 }

@@ -51,14 +51,14 @@ public class EmployeeOrderController {
     @PostMapping("/order/cancel")
     public ResponseEntity<Void> cancelOrder(
         @RequestBody OrderWithProducts order, 
-        @RequestParam(name = "type") String ordertype,
+        @RequestParam(name = "type") OrderStatus ordertype,
         Authentication authentication
     ) throws JsonProcessingException, NotFoundException{
         // accept pending and confirmed for order type
-        if(OrderStatus.Pending.name().equalsIgnoreCase(ordertype)){
+        if(OrderStatus.Pending.equals(ordertype)){
             // cancel order
             employeeOrderService.cancelPendingOrder(order, authentication.getName());
-        }else if(OrderStatus.Confirmed.name().equalsIgnoreCase(ordertype)){
+        }else if(OrderStatus.Confirmed.equals(ordertype)){
             // cancel order
             employeeOrderService.cancelConfirmedOrder(order, authentication.getName());
         }
@@ -82,11 +82,11 @@ public class EmployeeOrderController {
     @GetMapping("/orders/{orderID}")
     public ResponseEntity<OrderWithProducts> getOrder(
         @PathVariable(name = "orderID") String orderID, 
-        @RequestParam(name = "type", required = false) String orderStatus,
+        @RequestParam(name = "type", required = false) OrderStatus orderStatus,
         Authentication authentication
     ) throws JsonProcessingException, NotFoundException{    
         // get order's status
-        OrderStatus status = orderStatus!=null?OrderStatus.fromString(orderStatus.toUpperCase()):OrderStatus.All;
+        OrderStatus status = orderStatus!=null?orderStatus:OrderStatus.All;
         OrderWithProducts order = employeeOrderService.getOrder(orderID, authentication.getName(), status);
         return ResponseEntity.ok().body(order);
     }
@@ -96,12 +96,12 @@ public class EmployeeOrderController {
     @GetMapping("/orders")
     public ResponseEntity<Page<OrderDetails>> getOrders(
         @RequestParam(name = "page", required = false) Integer pageNumber,
-        @RequestParam(name = "type", required = false) String orderStatus,
+        @RequestParam(name = "type", required = false) OrderStatus orderStatus,
         Authentication authentication
     ) throws JsonProcessingException, NotFoundException{    
         pageNumber = pageNumber!=null?pageNumber:0;
         // get order's status
-        OrderStatus status = orderStatus!=null?OrderStatus.fromString(orderStatus.toUpperCase()):OrderStatus.All;
+        OrderStatus status = orderStatus!=null?orderStatus:OrderStatus.All;
         // get orders
         Page<OrderDetails> orders = employeeOrderService.getOrders(
             authentication.getName(), status, pageNumber, WebConstant.PAGE_SIZE);

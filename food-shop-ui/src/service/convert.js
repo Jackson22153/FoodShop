@@ -10,5 +10,5 @@ export function nonBreakingSpace(name){
     return name;
 }
 export function ceilRound(value){
-    return Math.ceil(value * 10000)/10000;
+    return Number(value.toFixed(2));
 }

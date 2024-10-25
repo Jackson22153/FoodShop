@@ -5,5 +5,5 @@ if [ "$WAIT_FOR_SQL" = "true" ]; then
     sleep 20s
 fi
 
-echo 'Starting order service'
+echo 'Starting notification service'
 java -jar /notification-0.0.1-SNAPSHOT.jar

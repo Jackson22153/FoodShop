@@ -1,6 +1,7 @@
 package com.phucx.shop.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,21 +24,27 @@ import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.ExistedProduct;
 import com.phucx.shop.model.ImageFormat;
 import com.phucx.shop.model.ProductDetail;
+import com.phucx.shop.model.ProductDetails;
+import com.phucx.shop.model.ProductSize;
+import com.phucx.shop.model.ProductSizeInfo;
 import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.service.image.ProductImageService;
 import com.phucx.shop.service.product.ProductService;
+import com.phucx.shop.service.product.ProductSizeService;
 
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping(value = "/product", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
     @Autowired
     private ProductService productService;
     @Autowired
     private ProductImageService productImageService;
+    @Autowired
+    private ProductSizeService productSizeService;
 
-    @Operation(summary = "Update product", tags = {"tutorials", "post", "admin"})
+    @Operation(summary = "Update product", tags = {"shop", "post", "admin"})
     @PostMapping
     public ResponseEntity<ResponseFormat> updateProductDetail(
         @RequestBody ProductDetail productDetail
@@ -47,8 +54,8 @@ public class ProductController {
         return ResponseEntity.ok().body(data);
     }
 
-    @Operation(summary = "Add new product", tags = {"tutorials", "put", "admin"})
     @PutMapping
+    @Operation(summary = "Add new product", tags = {"shop", "put", "admin"})
     public ResponseEntity<ResponseFormat> insertProductDetail(
         @RequestBody ProductDetail productDetail
     ) throws EntityExistsException{        
@@ -58,7 +65,7 @@ public class ProductController {
         return ResponseEntity.ok().body(data);
     }
 
-    @Operation(summary = "Get all products", tags = {"tutorials", "get", "admin"},
+    @Operation(summary = "Get all products", tags = {"shop", "get", "admin"},
         description = "Get all existed products in inventory")
     @GetMapping
     public ResponseEntity<Page<ExistedProduct>> getProducts(
@@ -69,17 +76,17 @@ public class ProductController {
         return ResponseEntity.ok().body(products);
     }
 
-    @Operation(summary = "Get product by id", tags = {"tutorials", "get", "admin"})
+    @Operation(summary = "Get product by id", tags = {"shop", "get", "admin"})
     @GetMapping("/{productID}")
-    public ResponseEntity<ProductDetail> getProductDetail(
+    public ResponseEntity<ProductDetails> getProductDetails(
         @PathVariable Integer productID
     ) throws NotFoundException{        
-        ProductDetail product = productService.getProductDetail(productID);
+        ProductDetails product = productService.getProductDetails(productID);
         return ResponseEntity.ok().body(product);
     } 
 
     // set image
-    @Operation(summary = "Upload product image", tags = {"tutorials", "post", "admin"})
+    @Operation(summary = "Upload product image", tags = {"shop", "post", "admin"})
     @PostMapping(value = "/image/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImageFormat> uploadProductImage(
         @RequestBody MultipartFile file,
@@ -91,5 +98,25 @@ public class ProductController {
         String imageUrl = productImageService.getCurrentUrl(requestUri, serverPort) + "/" + filename;
         ImageFormat imageFormat = new ImageFormat(imageUrl);
         return ResponseEntity.ok().body(imageFormat);
+    }
+
+    @Operation(summary = "Update product size", tags = {"product", "post", "admin"})
+    @PostMapping("/size")
+    public ResponseEntity<ResponseFormat> updateProductSize(
+        @RequestBody ProductSize productSize
+    ) throws NotFoundException{        
+        Boolean status = productSizeService.updateProductSize(productSize);
+        ResponseFormat data = new ResponseFormat(status);
+        return ResponseEntity.ok().body(data);
+    }
+
+    @Operation(summary = "Update product size infos", tags = {"product", "post", "admin"})
+    @PostMapping("/sizes")
+    public ResponseEntity<ResponseFormat> getProductSize(
+        @RequestBody List<ProductSizeInfo> products
+    ) throws NotFoundException{        
+        productSizeService.updateProductSizeByProductName(products);
+        ResponseFormat data = new ResponseFormat(true);
+        return ResponseEntity.ok().body(data);
     }
 }

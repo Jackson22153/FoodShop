@@ -14,9 +14,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phucx.model.DataDTO;
+import com.phucx.model.EventMessage;
 import com.phucx.notification.config.WebSocketConfig;
-import com.phucx.notification.model.DataDTO;
-import com.phucx.notification.model.EventMessage;
 import com.phucx.notification.model.NotificationDetail;
 import com.phucx.notification.service.notification.NotificationService;
 

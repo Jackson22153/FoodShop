@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.phucx.notification.constant.NotificationBroadCast;
+import com.phucx.constant.NotificationBroadCast;
 import com.phucx.notification.constant.WebConstant;
 import com.phucx.notification.exception.NotFoundException;
 import com.phucx.notification.model.NotificationDetail;

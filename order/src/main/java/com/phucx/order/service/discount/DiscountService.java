@@ -3,9 +3,9 @@ package com.phucx.order.service.discount;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.phucx.model.ProductDiscountsDTO;
 import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.DiscountDetail;
-import com.phucx.order.model.ProductDiscountsDTO;
 import com.phucx.order.model.ResponseFormat;
 
 public interface DiscountService {

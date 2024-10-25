@@ -21,7 +21,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @ComponentScans({
     @ComponentScan("com.phucx.order.config"),
     @ComponentScan("com.phucx.order.aspects"),
-    @ComponentScan("com.phucx.order.eventListener")
+    @ComponentScan("com.phucx.order.eventListener"),
+    @ComponentScan("com.phucx.order.converter")
 })
 public class WebSecurityConfig {
     @Bean

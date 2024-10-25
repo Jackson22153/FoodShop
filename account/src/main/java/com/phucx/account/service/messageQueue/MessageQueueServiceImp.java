@@ -7,9 +7,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.phucx.account.model.DataDTO;
-import com.phucx.account.model.EventMessage;
-import com.phucx.account.model.NotificationDTO;
+import com.phucx.model.DataDTO;
+import com.phucx.model.EventMessage;
+import com.phucx.model.NotificationDTO;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

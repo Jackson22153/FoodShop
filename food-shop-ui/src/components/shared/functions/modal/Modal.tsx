@@ -28,7 +28,7 @@ export default function ModalComponent(prop: Props){
     if(isShowed){
         return(
             <div className={`modal ${isShowed?'d-block': 'fade'} screen-center`} id="confirm-modal" tabIndex={-1} role="dialog" 
-                aria-labelledby="confirm-modal-label" aria-hidden="true">
+                aria-labelledby="confirm-modal-label">
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">

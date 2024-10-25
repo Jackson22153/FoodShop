@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phucx.constant.NotificationBroadCast;
+import com.phucx.model.EventMessage;
+import com.phucx.model.OrderNotificationDTO;
 import com.phucx.notification.config.MessageQueueConfig;
-import com.phucx.notification.constant.NotificationBroadCast;
 import com.phucx.notification.constant.NotificationIsRead;
-import com.phucx.notification.model.EventMessage;
-import com.phucx.notification.model.OrderNotificationDTO;
 import com.phucx.notification.service.notification.NotificationService;
 import com.phucx.notification.service.notification.SendOrderNotificationService;
 

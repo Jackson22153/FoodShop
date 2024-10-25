@@ -24,7 +24,7 @@ import com.phucx.shop.service.image.CategoryImageService;
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping(value = "/category", produces = MediaType.APPLICATION_JSON_VALUE)
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;

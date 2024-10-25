@@ -1,5 +1,6 @@
 package com.phucx.account.eventListener;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,15 +13,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.account.config.MessageQueueConfig;
-import com.phucx.account.constant.EventType;
 import com.phucx.account.exception.EmployeeNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
-import com.phucx.account.model.EmployeeDTO;
 import com.phucx.account.model.EmployeeDetail;
-import com.phucx.account.model.EventMessage;
 import com.phucx.account.model.UserProfile;
 import com.phucx.account.service.employee.EmployeeService;
 import com.phucx.account.service.user.UserProfileService;
+import com.phucx.constant.EventType;
+import com.phucx.model.EventMessage;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,41 +41,42 @@ public class EmployeeMessageListener {
         // create response message
         EventMessage<Object> responseMessage = this.createResponseMessage(Object.class);
         try {
-            TypeReference<EventMessage<EmployeeDTO>> typeRef = new TypeReference<EventMessage<EmployeeDTO>>() {};
-            EventMessage<EmployeeDTO> eventMessage = objectMapper.readValue(message, typeRef);
-            EmployeeDTO employeeDTO = eventMessage.getPayload();
+            TypeReference<EventMessage<LinkedHashMap<String, Object>>> typeRef = 
+                new TypeReference<EventMessage<LinkedHashMap<String, Object>>>() {};
+            EventMessage<LinkedHashMap<String, Object>> eventMessage = objectMapper.readValue(message, typeRef);
+            LinkedHashMap<String, Object> employeeDTO = eventMessage.getPayload();
             // fetch data
             if(eventMessage.getEventType().equals(EventType.GetEmployeeByID)){
                 // get employee by id
-                String employeeID = employeeDTO.getEmployeeID();
+                String employeeID = employeeDTO.get("employeeID").toString();
                 EmployeeDetail fetchedEmployee = employeeService.getEmployee(employeeID);
                 // set response message
                 responseMessage.setPayload(fetchedEmployee);
                 responseMessage.setEventType(EventType.ReturnEmployeeByID);
             }else if(eventMessage.getEventType().equals(EventType.GetEmployeeByUserID)){
                 // get employee by id
-                String userID = employeeDTO.getUserID();
+                String userID = employeeDTO.get("userID").toString();
                 EmployeeDetail fetchedEmployee = employeeService.getEmployeeByUserID(userID);
                 // set response message
                 responseMessage.setPayload(fetchedEmployee);
                 responseMessage.setEventType(EventType.ReturnEmployeeByUserID);
             }else if(eventMessage.getEventType().equals(EventType.GetUserByEmployeeID)){
                 // get user by employeeID
-                String employeeID = employeeDTO.getEmployeeID();
+                String employeeID = employeeDTO.get("employeeID").toString();
                 UserProfile fetchedUser = userProfileService.getUserProfileByEmployeeID(employeeID);
                 // set response message
                 responseMessage.setPayload(fetchedUser);
                 responseMessage.setEventType(EventType.ReturnUserByEmployeeID);
             }else if(eventMessage.getEventType().equals(EventType.GetEmployeesByUserIDs)){
                 // get user by employeeID
-                List<String> employeeIDs = employeeDTO.getUserIDs();
+                List<String> employeeIDs = (List<String>) employeeDTO.get("userIDs");
                 List<EmployeeDetail> fetchedEmployees = employeeService.getEmployees(employeeIDs);
                 // set response message
                 responseMessage.setPayload(fetchedEmployees);
                 responseMessage.setEventType(EventType.ReturnEmployeesByUserIDs);
             }else if(eventMessage.getEventType().equals(EventType.CreateEmployeeDetail)){
                 // create new employee profile
-                String userID = employeeDTO.getUserID();
+                String userID = employeeDTO.get("userID").toString();
                 EmployeeDetail newEmployeeDetail = employeeService.addNewEmployee(new EmployeeDetail(userID));
                 responseMessage.setEventType(EventType.ReturnCreateEmployeeDetail);
                 responseMessage.setPayload(newEmployeeDetail);

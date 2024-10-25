@@ -27,6 +27,8 @@ public class OrderWithProducts {
     private String shipName;
     private String shipAddress;
     private String shipCity;
+    private String shipWard;
+    private String shipDistrict;
     private String phone;
     private BigDecimal totalPrice;
 

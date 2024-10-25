@@ -22,20 +22,30 @@
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
     "@mui/x-date-pickers": "^7.0.0",
     "@stomp/stompjs": "^7.0.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.7.2",
     "@types/stompjs": "^2.3.9",
     "axios": "^1.6.8",
+    "body-parser": "^1.20.3",
     "bootstrap": "^5.3.3",
+    "chart.js": "^4.4.5",
     "dayjs": "^1.11.10",
     "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "food-shop-ui": "file:",
+    "imask": "^7.6.1",
     "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
     "react-cookie": "^7.1.4",
     "react-dom": "^18.3.1",
+    "react-otp-input": "^3.1.1",
     "react-router-dom": "^6.22.3",
     "socket.io-client": "^4.7.5",
     "sockjs-client": "^1.6.1",
     "styled-components": "^6.1.8",
     "suneditor": "^2.46.2",
-    "suneditor-react": "^3.6.1"
+    "suneditor-react": "^3.6.1",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.1",
@@ -48,7 +58,7 @@
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "typescript": "^5.2.2",
+    "typescript": "^5.6.2",
     "vite": "^5.1.4"
   }
 }

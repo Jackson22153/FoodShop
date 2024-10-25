@@ -37,6 +37,8 @@ import lombok.ToString;
             @StoredProcedureParameter(name="shipName", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="shipAddress", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="shipCity", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="shipDistrict", mode = ParameterMode.IN, type = String.class),
+            @StoredProcedureParameter(name="shipWard", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="phone", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="status", mode = ParameterMode.IN, type = String.class),
             @StoredProcedureParameter(name="customerID", mode = ParameterMode.IN, type = String.class),
@@ -78,26 +80,32 @@ public class Order {
     @Column(name = "ShipCity", length = 50)
     private String shipCity;
 
+    @Column(name = "ShipDistrict", length = 50)
+    private String shipDistrict;
+
+    @Column(name = "ShipWard", length = 50)
+    private String shipWard;
+
     private String phone;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    public Order(String customerID, String employeeID, LocalDateTime orderDate, LocalDateTime requiredDate,
-            LocalDateTime shippedDate, Integer shipVia, BigDecimal freight, String shipName, String shipAddress,
-            String shipCity, String phone, OrderStatus status) {
-        this.customerID = customerID;
-        this.employeeID = employeeID;
-        this.orderDate = orderDate;
-        this.requiredDate = requiredDate;
-        this.shippedDate = shippedDate;
-        this.shipVia = shipVia;
-        this.freight = freight;
-        this.shipName = shipName;
-        this.shipAddress = shipAddress;
-        this.shipCity = shipCity;
-        this.phone = phone;
-        this.status = status;
-    }
+    // public Order(String customerID, String employeeID, LocalDateTime orderDate, LocalDateTime requiredDate,
+    //         LocalDateTime shippedDate, Integer shipVia, BigDecimal freight, String shipName, String shipAddress,
+    //         String shipCity, String phone, OrderStatus status) {
+    //     this.customerID = customerID;
+    //     this.employeeID = employeeID;
+    //     this.orderDate = orderDate;
+    //     this.requiredDate = requiredDate;
+    //     this.shippedDate = shippedDate;
+    //     this.shipVia = shipVia;
+    //     this.freight = freight;
+    //     this.shipName = shipName;
+    //     this.shipAddress = shipAddress;
+    //     this.shipCity = shipCity;
+    //     this.phone = phone;
+    //     this.status = status;
+    // }
 
 }

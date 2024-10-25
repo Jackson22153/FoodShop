@@ -12,6 +12,7 @@ import com.phucx.shop.model.CartOrderInfo;
 import com.phucx.shop.model.CartProduct;
 import com.phucx.shop.model.CartProductsCookie;
 import com.phucx.shop.model.OrderWithProducts;
+import com.phucx.shop.model.ShippingProduct;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -35,4 +36,6 @@ public interface CartService {
         public CartProductsCookie getNumberOfProducts(String encodedCartJson) throws JsonProcessingException;
     // get list of product in cart
     public List<CartProduct> getListProducts(String encodedCartJson) throws JsonProcessingException;
+
+    public ShippingProduct getShippingProduct(String encodedCartJson) throws JsonProcessingException, EmptyCartException, InvalidOrderException, NotFoundException;
 }

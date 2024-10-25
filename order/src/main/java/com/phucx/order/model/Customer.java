@@ -18,6 +18,8 @@ public class Customer{
     private String contactName;
     private String address;
     private String city;
+    private String district;
+    private String ward;
     private String phone;
     private String picture;
 }

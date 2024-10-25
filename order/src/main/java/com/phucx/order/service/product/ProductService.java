@@ -3,10 +3,10 @@ package com.phucx.order.service.product;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.phucx.model.ProductDiscountsDTO;
+import com.phucx.model.ProductStockTableType;
 import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.Product;
-import com.phucx.order.model.ProductDiscountsDTO;
-import com.phucx.order.model.ProductStockTableType;
 import com.phucx.order.model.ResponseFormat;
 
 public interface ProductService {

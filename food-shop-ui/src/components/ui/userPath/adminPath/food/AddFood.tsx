@@ -1,5 +1,5 @@
-import { ChangeEventHandler, FormEventHandler, useEffect, useState } from 'react';
-import { Category, ProductDetails } from '../../../../../model/Type';
+import { ChangeEventHandler, FormEventHandler, useEffect, useRef, useState } from 'react';
+import { Category, ProductDetails, ProductSize } from '../../../../../model/Type';
 import { addProduct } from '../../../../../api/AdminApi';
 import { getCategories } from '../../../../../api/SearchApi';
 import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
@@ -10,6 +10,8 @@ import { Alert, Modal } from '../../../../../model/WebType';
 import AlertComponent from '../../../../shared/functions/alert/Alert';
 import ModalComponent from '../../../../shared/functions/modal/Modal';
 import ScrollToTop from '../../../../shared/functions/scroll-to-top/ScrollToTop';
+import { displayProductImage } from '../../../../../service/Image';
+import { uploadProductImage } from '../../../../../api/ProductApi';
 
 export default function AdminAddFoodComponent(){
     const [foodInfo, setFoodInfo] = useState<ProductDetails>({
@@ -25,21 +27,29 @@ export default function AdminAddFoodComponent(){
         startDate: '',
         endDate: '',
 
-        categoryID: 1,
+        categoryID: 0,
         categoryName: ''
     });
+    const [foodSize, setFoodSize] = useState<ProductSize>({
+        id: "",
+        height: 0,
+        width: 0,
+        length: 0,
+        weight: 0,
+        productid: 0,
+    })
     const [description, setDescription] = useState("");
     const [alert, setAlert] = useState<Alert>({
         message: '',
         type: ALERT_TYPE.INFO,
         isShowed: false
     });
-    const [updateInfoModal, setUpdateInfoModal] = useState<Modal>({
+    const [createProductModal, setCreateProductModal] = useState<Modal>({
         title: "Confirm action",
         message: "Do you want to continue?",
         isShowed: false
     })
-
+    const uploadImageBtnRef = useRef<HTMLInputElement>();
     const [categories, setCategories] = useState<Category[]>([])
 
     useEffect(()=>{
@@ -65,8 +75,8 @@ export default function AdminAddFoodComponent(){
         setFoodInfo({...foodInfo, [name]: value})
     }
 
-    const onChangeDiscontinuedStatus: ChangeEventHandler<HTMLInputElement> = (event)=>{
-        const value = event.target.checked;
+    const onChangeDiscontinuedStatus = (event)=>{
+        const value = event.target.value;
         setFoodInfo({
             ...foodInfo,
             discontinued: value
@@ -82,7 +92,7 @@ export default function AdminAddFoodComponent(){
         }
     }
 
-    const handleCategoryChange = (event: SelectChangeEvent) => {
+    const handleCategoryChange = (event) => {
         if(foodInfo){
             const name = event.target.name;
             const value = event.target.value;
@@ -93,28 +103,33 @@ export default function AdminAddFoodComponent(){
         }
     };
 
-    const onClickUpdateProduct:FormEventHandler<HTMLButtonElement> = async (event)=>{
+    const onClickAddProduct = async (event)=>{
         event.preventDefault();
-        toggleUpdateInfoModal();
+        toggleCreateNewProductModal();
     }
 
+    const onChangeNumber = (event)=>{
+        setFoodInfo({
+            ...foodInfo,
+            [event.target.name]: +event.target.value
+        })
+    }
 
     // update info
-    const toggleUpdateInfoModal = ()=>{
-        setUpdateInfoModal(modal=>({
+    const toggleCreateNewProductModal = ()=>{
+        setCreateProductModal(modal=>({
             ...modal,
             isShowed:!modal.isShowed
         }))
     }
 
-    const handleClickCloseUpdateInfoModal = ()=>{
-        setUpdateInfoModal(modal=>({
+    const handleClickCloseCreateProductModal = ()=>{
+        setCreateProductModal(modal=>({
             ...modal,
             isShowed:!modal.isShowed
         }))
     }
-    const handleClickConfirmUpdateInfoModal = async ()=>{
-        console.log(foodInfo)
+    const handleClickConfirmCreateProductModal = async ()=>{
         if(foodInfo){
             const data = {
                 productName: foodInfo.productName,
@@ -125,6 +140,10 @@ export default function AdminAddFoodComponent(){
                 picture: foodInfo.picture,
                 description: description,
                 categoryID: foodInfo.categoryID,
+                height: foodSize.height,
+                length: foodSize.length,
+                weight: foodSize.weight,
+                width: foodSize.width
             }
             try {
                 const res = await addProduct(data);
@@ -132,7 +151,8 @@ export default function AdminAddFoodComponent(){
                     const data = res.data
                     const status = data.status
                     setAlert({
-                        message: status?`New Product ${foodInfo.productName} has been added successfully`: `New Product ${foodInfo.productName} can not be added`,
+                        message: status?`New Product ${foodInfo.productName} has been added successfully`: 
+                                        `New Product ${foodInfo.productName} can not be added`,
                         type: status?ALERT_TYPE.SUCCESS:ALERT_TYPE.DANGER,
                         isShowed: true
                     })  
@@ -153,11 +173,241 @@ export default function AdminAddFoodComponent(){
         }
     }
 
+    // image
+    const onClickImage = (e)=>{
+        e.preventDefault();
+        if(uploadImageBtnRef.current){
+            uploadImageBtnRef.current.click();
+        }
+    }
+
+    const onChangeImage: ChangeEventHandler<HTMLInputElement> = (event)=>{
+        const file = event.target.files[0];
+        uploadImage(file);
+        
+    }
+
+    const uploadImage = async (file: File)=>{
+        const res = await uploadProductImage(file);
+        if(200<=res.status&&res.status<300){
+            const data = res.data;
+            onChangePicture(data.imageUrl);
+        }
+    }
+
+    // food size
+    const onChangeFoodSize= (e)=>{
+        const name = e.target.name;
+        const value = e.target.value;
+        setFoodSize({...foodSize, [name]:value})
+    }
+
+    const onClickUpdateProductSize = (e)=>{
+
+    }
+
+
+
     return(
         <div className="container-fluid container">
             <ScrollToTop/>
             <AlertComponent alert={alert}/>
-            <section className="py-5">
+
+            {foodInfo &&
+            <>
+                <div className="row">
+                    <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 position-relative mx-auto">
+                        <div className="border rounded-2 bg-white p-5 tm-block tm-block-h-auto">
+                            <div className="row">
+                                <div className="col-12">
+                                    <h2 className="d-inline-block" style={{fontWeight: 700}}>
+                                        Add new Product
+                                    </h2>
+                                </div>
+                            </div>
+                            <form action="" method='post' onSubmit={onClickAddProduct}>
+                                <div className="row tm-edit-product-row">
+                                    <div className="col-xl-6 col-lg-6 col-md-12">
+                                        <div className="form-group mb-3">
+                                            <label htmlFor="inputProductName">Product Name</label>
+                                            <input
+                                                id="inputProductName"
+                                                name="productName"
+                                                type="text"
+                                                value={foodInfo.productName}
+                                                onChange={onChange} required
+                                                className="form-control validate"
+                                            />
+                                        </div>
+                                        <div className="form-group mb-3">
+                                            <label htmlFor="textareaDescription">Description</label>
+                                            <textarea className="form-control validate tm-small" 
+                                                rows={5}  name='description' value={foodInfo.description} 
+                                                onChange={onChange}/>
+                                        </div>
+
+                                        <hr />
+
+                                        <div className="form-group mb-3">
+                                            <label htmlFor="category">Category</label>
+                                            <select className="custom-select form-select tm-select-accounts w-100" 
+                                                id="category" name='categoryID' value={foodInfo.categoryID}
+                                                onChange={handleCategoryChange} required
+                                            >
+                                                <option>Select category</option>
+                                                {categories.map((category, index)=>(
+                                                    <option key={index} value={category.categoryID}>
+                                                        {category.categoryName}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <hr />
+
+                                        <div className="form-group mb-3">
+                                            <label htmlFor="selectDiscontinued">Discontinued</label>
+                                            <select className="custom-select form-select tm-select-accounts w-100" 
+                                                id="selectDiscontinued" name='discontinued' 
+                                                value={`${foodInfo.discontinued}`}
+                                                onChange={onChangeDiscontinuedStatus} required
+                                            >
+                                                <option value={"true"}>True</option>
+                                                <option value={"false"}>False</option>
+                                            </select>
+                                        </div>
+                                        <div className="row">
+                                            <div className="form-group mb-3 col-xs-12 col-sm-6">
+                                                <label htmlFor="inputQuantityPerUnit">Quantity per Unit</label>
+                                                <input id="inputQuantityPerUnit" name="quantityPerUnit"
+                                                    type="text" onChange={onChange}
+                                                    value={foodInfo.quantityPerUnit} required
+                                                    className="form-control validate"
+                                                />
+                                            </div>
+                                            <div className="form-group mb-3 col-xs-12 col-sm-6">
+                                                <label htmlFor="inputUnitInStock">Units In Stock</label>
+                                                <input id="inputUnitInStock" name="unitsInStock" 
+                                                    type="number"value={foodInfo.unitsInStock}
+                                                    onChange={onChangeNumber}
+                                                    className="form-control validate" required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="form-group mb-3 col-xs-12 col-sm-6">
+                                                <label htmlFor="inputUnitPrice">Unit Price</label>
+                                                <input id="inputUnitPrice" name="unitPrice"
+                                                    type="number" onChange={onChangeNumber}
+                                                    value={foodInfo.unitPrice}
+                                                    className="form-control validate" required
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col-xl-6 col-lg-6 col-md-12 mx-auto mb-4">
+                                        <div className="tm-product-img-edit mx-auto">
+                                            <img src={displayProductImage(foodInfo.picture)} alt="Product image" 
+                                                className="img-fluid d-block mx-auto"/>
+                                            <i className="fas fa-cloud-upload-alt tm-upload-icon"></i>
+                                        </div>
+                                        <div className="custom-file mt-3 mb-3">
+                                            <input id="fileInput" type="file" className='d-none' 
+                                                accept="image/x-png,image/gif,image/jpeg" 
+                                                ref={uploadImageBtnRef} onChange={onChangeImage}/>
+                                            <input
+                                                type="button"
+                                                className="btn btn-primary btn-block mx-auto w-100"
+                                                value="CHANGE IMAGE NOW"
+                                                onClick={onClickImage}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div className="row">
+                    <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 position-relative mx-auto">
+                        <div className="border rounded-2 bg-white p-5 tm-block tm-block-h-auto">
+                            <div className="row">
+                                <div className="col-12">
+                                    <h2 className="d-inline-block" style={{fontWeight: 700}}>
+                                        Product Size
+                                    </h2>
+                                </div>
+                            </div>
+                            <form action="" method='post' onSubmit={onClickUpdateProductSize}>
+                                <div className="row tm-edit-product-row">
+                                    <div className="form-group mb-3 col-xs-3 col-sm-3">
+                                        <label htmlFor="inputHeight">Height (cm)</label>
+                                        <input
+                                            id="inputHeight"
+                                            name="height"
+                                            type="number"
+                                            value={foodSize.height}
+                                            onChange={onChangeFoodSize} required
+                                            className="form-control validate"
+                                        />
+                                    </div>
+                                    <div className="form-group mb-3 col-xs-3 col-sm-3">
+                                        <label htmlFor="inputWidth">Width (cm)</label>
+                                        <input
+                                            id="inputWidth"
+                                            name="width"
+                                            type="number"
+                                            value={foodSize.width}
+                                            onChange={onChangeFoodSize} required
+                                            className="form-control validate"
+                                        />
+                                    </div>
+                                    <div className="form-group mb-3 col-xs-3 col-sm-3">
+                                        <label htmlFor="inputLength">Length (cm)</label>
+                                        <input
+                                            id="inputLength"
+                                            name="length"
+                                            type="number"
+                                            value={foodSize.length}
+                                            onChange={onChangeFoodSize} required
+                                            className="form-control validate"
+                                        />
+                                    </div>
+                                    <div className="form-group mb-3 col-xs-3 col-sm-3">
+                                        <label htmlFor="inputWeight">Weight (gram)</label>
+                                        <input
+                                            id="inputWeight"
+                                            name="weight"
+                                            type="number"
+                                            value={foodSize.weight}
+                                            onChange={onChangeFoodSize} required
+                                            className="form-control validate"
+                                        />
+                                    </div>
+
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-12">
+                        <button type="submit" onClick={onClickAddProduct}
+                            className="btn btn-primary btn-block text-uppercase w-100">
+                            Add New Product
+                        </button>
+                    </div>
+                </div>
+                <ModalComponent modal={createProductModal} 
+                    handleConfirmButton={handleClickConfirmCreateProductModal} 
+                    handleCloseButton={handleClickCloseCreateProductModal}/>
+            </>
+            }
+
+
+
+            {/* <section className="py-5">
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-4 py-2">
@@ -263,11 +513,7 @@ export default function AdminAddFoodComponent(){
                                             id="description-tab" role="tab">Description</span>
                                     </li>
                                 </ul>
-                                {/* <!-- Pills navs --> */}
-
-                                {/* <!-- Pills content --> */}
                                 <div className="tab-content" id="product-content">
-                                    {/* {foodInfo.description} */}
                                     <div id="editor">
                                         <TextEditor content={description} 
                                             onChangeContent={onChangeDescription} 
@@ -275,7 +521,6 @@ export default function AdminAddFoodComponent(){
                                     </div>   
 
                                 </div>
-                                {/* <!-- Pills content --> */}
                             </div>
                         </div>
                     </div>
@@ -288,9 +533,10 @@ export default function AdminAddFoodComponent(){
                         Add New Product
                     </button>
                 </div>
-            </div>
-            <ModalComponent modal={updateInfoModal} handleConfirmButton={handleClickConfirmUpdateInfoModal} 
-                handleCloseButton={handleClickCloseUpdateInfoModal}/>   
+            </div> */}
+            <ModalComponent modal={createProductModal} 
+                handleConfirmButton={handleClickConfirmCreateProductModal} 
+                handleCloseButton={handleClickCloseCreateProductModal}/>   
         </div>
     );
 }

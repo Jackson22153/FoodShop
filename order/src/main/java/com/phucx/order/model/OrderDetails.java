@@ -13,6 +13,7 @@ import lombok.ToString;
 public class OrderDetails {
     private String orderID;
     private List<OrderProduct> products;
+    private BigDecimal freight;
     private BigDecimal totalPrice;
     private OrderStatus status;
     private String employeeID;

@@ -1,5 +1,6 @@
 package com.phucx.account.eventListener;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,15 +15,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucx.account.config.MessageQueueConfig;
-import com.phucx.account.constant.EventType;
 import com.phucx.account.exception.CustomerNotFoundException;
 import com.phucx.account.exception.InvalidUserException;
-import com.phucx.account.model.CustomerDTO;
 import com.phucx.account.model.CustomerDetail;
-import com.phucx.account.model.EventMessage;
 import com.phucx.account.model.UserProfile;
 import com.phucx.account.service.customer.CustomerService;
 import com.phucx.account.service.user.UserProfileService;
+import com.phucx.constant.EventType;
+import com.phucx.model.EventMessage;
 
 @Slf4j
 @Component
@@ -41,49 +41,50 @@ public class CustomerMessageListener {
         // create response message
         EventMessage<Object> responseMessage = createResponseMessage(Object.class);
         try {
-            TypeReference<EventMessage<CustomerDTO>> typeRef = new TypeReference<EventMessage<CustomerDTO>>() {};
-            EventMessage<CustomerDTO> customerDTO = objectMapper.readValue(message, typeRef);
-            CustomerDTO payload = customerDTO.getPayload();
+            TypeReference<EventMessage<LinkedHashMap<String, Object>>> typeRef = 
+                new TypeReference<EventMessage<LinkedHashMap<String, Object>>>() {};
+            EventMessage<LinkedHashMap<String, Object>> customerDTO = objectMapper.readValue(message, typeRef);
+            LinkedHashMap<String, Object> payload = customerDTO.getPayload();
             // fetch data
             if(customerDTO.getEventType().equals(EventType.GetCustomerByID)){
                 // get customer by id
-                String customerID = payload.getCustomerID();
+                String customerID = payload.get("customerID").toString();
                 CustomerDetail fetchedCustomer = customerService.getCustomerByID(customerID);
                 // set response message
                 responseMessage.setPayload(fetchedCustomer);
                 responseMessage.setEventType(EventType.ReturnCustomerByID);
             }else if(customerDTO.getEventType().equals(EventType.GetCustomersByIDs)){
                 // get customers by ids
-                List<String> customerIDs = payload.getCustomerIDs();
+                List<String> customerIDs = (List<String>) payload.get("customerIDs");
                 List<CustomerDetail> fetchedCustomers = customerService.getCustomersByIDs(customerIDs);
                 // set response message
                 responseMessage.setPayload(fetchedCustomers);
                 responseMessage.setEventType(EventType.ReturnCustomersByIDs);
             }else if(customerDTO.getEventType().equals(EventType.GetCustomerByUserID)){
                 // get customer by userID
-                String userID = payload.getUserID();
+                String userID = payload.get("userID").toString();
                 CustomerDetail fetchedCustomer = customerService.getCustomerByUserID(userID);
                 // set response message
                 responseMessage.setPayload(fetchedCustomer);
                 responseMessage.setEventType(EventType.ReturnCustomerByUserID);
             }else if(customerDTO.getEventType().equals(EventType.GetCustomersByUserIDs)){
                 // get customers by userIDs
-                List<String> userIDs = payload.getUserIDs();
+                List<String> userIDs = (List<String>) payload.get("userIDs");
                 List<CustomerDetail> fetchedCustomers = customerService.getCustomersByUserIDs(userIDs);
                 // set response message
                 responseMessage.setPayload(fetchedCustomers);
                 responseMessage.setEventType(EventType.ReturnCustomersByUserIDs);
             }else if(customerDTO.getEventType().equals(EventType.GetUserByCustomerID)){
                 // get user by customerID
-                String customerID = payload.getCustomerID();
+                String customerID = payload.get("customerID").toString();
                 UserProfile fetchedUser = userProfileService.getUserProfileByCustomerID(customerID);
                 // set response message
                 responseMessage.setPayload(fetchedUser);
                 responseMessage.setEventType(EventType.ReturnUserByCustomerID);
             }else if(customerDTO.getEventType().equals(EventType.CreateCustomerDetail)){
                 // create customer detail
-                String contactName = payload.getContactName();
-                String userID = payload.getUserID();
+                String contactName = payload.get("contactName").toString();
+                String userID = payload.get("userID").toString();
                 CustomerDetail newCustomer = customerService.addNewCustomer(new CustomerDetail(userID, contactName));
                 responseMessage.setPayload(newCustomer);
                 responseMessage.setEventType(EventType.ReturnCreateCustomerDetail);

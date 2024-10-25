@@ -13,6 +13,7 @@ import { ROLE } from './constant/WebConstant';
 import { employeeReceiveNotificationConnect } from './api/EmployeeReceiveNotificationWsApi';
 import { customerReceiveNotificationConnect } from './api/CustomerReceiveNotificationWsApi';
 import ErrorPageComponent from './components/ui/error/ErrorPage';
+import AuthComponent from './components/ui/auth/auth/Auth';
 
 function App() {
   const [userInfo, setUserInfo] = useState<UserInfo>({
@@ -49,7 +50,7 @@ function App() {
         }
       }
     } catch (error) {
-
+      
     }
   }
 
@@ -72,6 +73,7 @@ function App() {
             <Route path='*' element={<HomeComponent/>}/>
             <Route path='user/*' element={<UserComponent/>}/>
             <Route path='error/*' element={<ErrorPageComponent/>}/>
+            <Route path='auth/*' element={<AuthComponent/>}/>
           </Routes>
         </Router>
       </NotificationMessagesProvider>

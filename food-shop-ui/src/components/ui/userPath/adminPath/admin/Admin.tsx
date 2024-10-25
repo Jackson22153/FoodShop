@@ -3,9 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useRef, useState } from 'react';
 import { logout } from '../../../../../api/AuthorizationApi';
-import { ADMIN_CATEGORIES, ADMIN_USERS, ADMIN_PRODUCTS, 
+import { 
+    ADMIN_CATEGORIES, ADMIN_USERS, ADMIN_PRODUCTS, 
     ADMIN_ADD_CATEGORY, ADMIN_ADD_PRODUCT,
-    FORBIDDEN_ERROR_PAGE
+    FORBIDDEN_ERROR_PAGE, ADMIN_CHARTS,
+    ADMIN_PATH, ADMIN_ADD_EMPLOYEE,
+    ADMIN_EMPLOYEE
  } from '../../../../../constant/FoodShoppingURL';
 import AdminCategoriesComponent from '../category/Categories';
 import AdminCategoryComponent from '../category/Category';
@@ -19,6 +22,9 @@ import ModalComponent from '../../../../shared/functions/modal/Modal';
 import { isAdmin } from '../../../../../api/AdminApi';
 import AdminAddCategoryComponent from '../category/AddNewCategory';
 import AdminAddFoodComponent from '../food/AddFood';
+import WebConfigComponent from '../website/WebConfig';
+import ChartComponent from '../chart/Chart';
+import AdminAddEmployeeComponent from '../user/AddEmployee';
 import { AuthorizationAdminUrl } from '../../../../../constant/FoodShoppingApiURL';
 
 export default function AdminComponent(){
@@ -30,6 +36,7 @@ export default function AdminComponent(){
 
     const [categoryDropdown, setCategoryDropdown] = useState(false)
     const [productDropdown, setProductDropdown] = useState(false)
+    const [userDropdown, setUserDropdown] = useState(false)
     const [isShowedSideBar, setIsShowedSideBar] = useState(false)
     const logoRef = useRef(null)
     const [modal, setModal] = useState<Modal>({
@@ -38,7 +45,6 @@ export default function AdminComponent(){
         isShowed: false
     })
 
-
     useEffect(()=>{
         initial();
     }, [path])
@@ -46,7 +52,7 @@ export default function AdminComponent(){
     const initial = ()=>{
         setDefaultDropdown();
         checkAuthenticationAdmin();
-
+        
         if(path==ADMIN_CATEGORIES){
             setSelectedPath(0.1);
         }else if(path === ADMIN_ADD_CATEGORY){
@@ -56,7 +62,11 @@ export default function AdminComponent(){
         }else if(path===ADMIN_ADD_PRODUCT){
             setSelectedPath(1.2);
         }else if(path===ADMIN_USERS){
-            setSelectedPath(2);
+            setSelectedPath(2.1);
+        }else if(path==ADMIN_ADD_EMPLOYEE){
+            setSelectedPath(2.2);
+        }else if(path==ADMIN_CHARTS || path == ADMIN_PATH){
+            setSelectedPath(3)
         }
 
         // add event to close sidebar when clicking on outside
@@ -140,10 +150,14 @@ export default function AdminComponent(){
     const onClickProductToggle = ()=>{
         setProductDropdown(dropdown => !dropdown)
     }
+    // user
+    const onClickUserToggle = ()=>{
+        setUserDropdown(dropdown => !dropdown)
+    }
 
     return(
         <div className='my-4 customer-page p-4 position-relative'>
-            <div className='container my-5'>
+            <div className='container my-5 user-profile'>
                 <nav className='z-3'>
                     <div className="logo cursor-pointer" onClick={onClickShowSideBar} ref={logoRef}>
                         <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
@@ -156,6 +170,14 @@ export default function AdminComponent(){
                                 <span className="logo-name">Phucx</span>
                             </div>
                             <ul className="flex-column lists nav nav-pills mb-auto">
+                                <li className="list nav-item">
+                                    <Link to={ADMIN_CHARTS}>
+                                        <div className={`nav-link ${(selectedPath===3)?'active': ''}`}>
+                                            <span className="link">Charts</span>
+                                        </div>
+                                    </Link>
+                                </li>
+
                                 <li className="list nav-item">
                                     <span className={`${categoryDropdown?'rounded-bottom-0':''} m-0 dropdown-toggle nav-link ${(selectedPath===0.1)||(selectedPath===0.2)?'active': ''}`}
                                         onClick={onClickCategoryToggle}>
@@ -194,13 +216,32 @@ export default function AdminComponent(){
                                     </ul>
                                 </li>
 
-                                <li className="list nav-item">
+                                {/* <li className="list nav-item">
                                     <Link to={ADMIN_USERS}>
                                         <div className={`nav-link ${selectedPath===2?'active': ''}`}>
                                             <span className="link">Users</span>
                                         </div>
                                     </Link>
-                                </li>
+                                </li> */}
+
+                                {/* <li className="list nav-item">
+                                    <span className={`${userDropdown?'rounded-bottom-0':''} m-0 dropdown-toggle nav-link ${(selectedPath===2.1)||(selectedPath===2.2)?'active': ''}`}
+                                        onClick={onClickUserToggle}>
+                                        <span className="link cursor-pointer">Users</span>
+                                    </span>
+                                    <ul className={`rounded-top-0 p-0 dropdown-menu ${userDropdown?'show': ''} position-relative btn-toggle-nav list-unstyled fw-normal small`}>
+                                        <li className={`p-0 dropdown-item ${selectedPath===2.1?'bg-body-secondary':''}`}>
+                                            <Link to={ADMIN_USERS}>
+                                                <div className={`text-black-50 w-100 d-block px-3 py-2`}>Users</div>
+                                            </Link>
+                                        </li>
+                                        <li className={`p-0 dropdown-item ${selectedPath===2.2?'bg-body-secondary':''}`}>
+                                            <Link to={ADMIN_ADD_EMPLOYEE}>
+                                                <div className={`text-black-50 w-100 d-block px-3 py-2`}>Add New Employee</div>
+                                            </Link>
+                                        </li>
+                                    </ul>
+                                </li> */}
                             </ul>
 
                             <ul className='flex-column lists nav nav-pills'>
@@ -208,7 +249,7 @@ export default function AdminComponent(){
                                     <a href={AuthorizationAdminUrl} className={`nav-link`}>
                                         <span className="link">Setting</span>
                                     </a>
-                                </li>
+                                </li> 
                                 <li className="list nav-item">
                                     <Link to={"/"}>
                                         <div className={`nav-link`}>
@@ -231,16 +272,19 @@ export default function AdminComponent(){
                 </nav>
                 <div>
                     <Routes>
+                        <Route path='config/*' element={<WebConfigComponent/>}/>
                         <Route path='/products' element={<AdminFoodsComponent/>}/> 
                         <Route path='/products/addProduct' element={<AdminAddFoodComponent/>}/> 
                         <Route path='/products/:productName' element={<AdminFoodComponent/>}/> 
                         <Route path='/categories' element={<AdminCategoriesComponent/>}/>
                         <Route path='/categories/addCategory' element={<AdminAddCategoryComponent/>}/>
-                        <Route path='*' element={<AdminCategoriesComponent/>}/>
                         <Route path='/categories/:categoryID' element={<AdminCategoryComponent/>}/>
                         <Route path='/users' element={<AdminUsersComponent/>}/> 
-                        <Route path='/employee/:employeeID' element={<AdminEmployeeComponent/>}/> 
-                        <Route path='/customer/:customerID' element={<AdminCustomerComponent/>}/> 
+                        <Route path='/addemployee' element={<AdminAddEmployeeComponent/>}/> 
+                        <Route path='/employee/:userID' element={<AdminEmployeeComponent/>}/> 
+                        <Route path='/customer/:userID' element={<AdminCustomerComponent/>}/> 
+                        <Route path='/chart' element={<ChartComponent/>}/> 
+                        <Route path='*' element={<ChartComponent/>}/> 
                     </Routes>
                 </div>
             </div>

@@ -27,6 +27,8 @@ public class InvoiceDetails {
     private String shipName;
     private String shipAddress;
     private String shipCity;
+    private String shipDistrict;
+    private String shipWard;
     private String phone;
     
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -40,6 +42,7 @@ public class InvoiceDetails {
     private BigDecimal totalPrice;
     private BigDecimal freight;
     private OrderStatus status;
+    private String paymentMethod;
 
     public InvoiceDetails(String orderID, String customerID, String employeeID, String salesPerson, String shipName,
             String shipAddress, String shipCity, String phone, LocalDateTime orderDate, LocalDateTime requiredDate,

@@ -7,7 +7,8 @@ import FoodsComponent from "../foods/Foods";
 import ContactUsComponent from "../contact/ContactUs";
 import FoodComponent from "../food/Food";
 import CartComponent from "../cart/Cart";
-import { CART_PATH, CATEGORIES_PATH, CONTACT_PATH, FOODS_PATH, ORDER_PATH 
+import { 
+    CART_PATH, CATEGORIES_PATH, CONTACT_PATH, FOODS_PATH, ORDER_PATH 
 } from "../../../../constant/FoodShoppingURL";
 import { useEffect, useState } from "react";
 import { getCategories } from "../../../../api/SearchApi";

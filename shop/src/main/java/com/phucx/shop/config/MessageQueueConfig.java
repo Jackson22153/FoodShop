@@ -42,11 +42,6 @@ public class MessageQueueConfig {
         return BindingBuilder.bind(discountQueue).to(shopExchange).with(DISCOUNT_ROUTING_KEY);
     }
 
-    // message queue configuration 
-    // @Bean
-    // public MessageConverter jsonMessageConverter(){
-    //     return new Jackson2JsonMessageConverter();
-    // }
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);

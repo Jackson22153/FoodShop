@@ -2,26 +2,32 @@
 
 export const ServerURL = import.meta.env.VITE_API_URL;
 
-
 // authorization url
 export const AuthorizationUserUrl = `${ServerURL}/auth/account`;
 export const AuthorizationAdminUrl = `${ServerURL}/admin/account`;
 
 export const AuthorizationUrl =  `${ServerURL}/auth/admin`;
-export const CustomersAdminUrl = `${AuthorizationUrl}/customers`;
-export const EmployeesAdminUrl = `${AuthorizationUrl}/employees`
 // account service
 const AccountService = `${ServerURL}/account`;
 // admin
 const AdminUrl = `${AccountService}/admin`;
 export const IsAdminUrl = `${AdminUrl}/isAdmin`;
-export const AccountAdminEmployee = `${AdminUrl}/employees`
-export const AccountAdminCustomer = `${AdminUrl}/customers`
+export const AccountAdminEmployee = `${AdminUrl}/employees`;
+export const AccountAdminCustomer = `${AdminUrl}/customers`;
+export const AccountAdminUserEmployee = `${AccountAdminEmployee}/user`;
+export const AccountAdminUserCustomer = `${AccountAdminCustomer}/user`;
+export const CustomersAdminUrl = `${AccountAdminCustomer}/users`;
+export const EmployeesAdminUrl = `${AccountAdminEmployee}/users`
+export const RegisterEmployeeUrl = `${AdminUrl}/registerEmployee`;
+// reset password
+export const AdminResetUserPassword = `${AdminUrl}/user`;
 // customer
 export const CustomerUrl = `${AccountService}/customer`;
+export const CustomerCreditCardUrl = `${CustomerUrl}/credit`;
 export const IsCustomerUrl = `${CustomerUrl}/isCustomer`;
 export const CustomerInfoUrl = `${CustomerUrl}/info`;
 export const UploadCustomerImageUrl= `${CustomerUrl}/image/upload`;
+export const SendCustomerEmailVerificationUrl = `${CustomerUrl}/sendEmailVerification`;
 // employee
 export const EmployeeUrl = `${AccountService}/employee`;
 export const IsEmployeeUrl = `${EmployeeUrl}/isEmployee`;
@@ -30,7 +36,38 @@ export const UploadEmployeeImageUrl= `${EmployeeUrl}/image/upload`;
 // user
 export const UserUrl = `${AccountService}/user`;
 export const UserInfoUrl = `${UserUrl}/userInfo`;
+export const UpdateUserPasswordUrl = `${UserUrl}/changePassword`;
+// phone
+const UserInfoPhoneUrl = `${UserUrl}/phone`;
+export const GenerateOTPPhoneUrl = `${UserInfoPhoneUrl}/generateOTP`;
+export const VerifyOTPPhoneUrl = `${UserInfoPhoneUrl}/verifyOTP`;
 
+// address
+const PaymentUrl = `${ServerURL}/payment`
+const AddressUrl = `${PaymentUrl}/address`;
+export const GetWardsUrl = `${AddressUrl}/wards`;
+export const GetProvincesUrl = `${AddressUrl}/provinces`;
+export const GetDistrictsUrl = `${AddressUrl}/districts`;
+export const StoreLocationUrl = `${AddressUrl}/store`;
+// shipping
+const ShippingUrl = `${PaymentUrl}/shipping`;
+export const GetShippingServicesUrl = `${ShippingUrl}/services`;
+export const ShippingCostUrl = `${ShippingUrl}/cost`;
+
+// payment service
+const PaymentService = `${ServerURL}/payment`;
+export const PaymentMethodsUrl = `${PaymentService}/methods`;
+export const PaymentPayUrl = `${PaymentService}/pay`;
+// cod
+const PaymentCODUrl = `${PaymentService}/cod`;
+export const PaymentCODSuccessful = `${PaymentCODUrl}/pay/successful`;
+export const PaymentCODSCancel = `${PaymentCODUrl}/pay/cancel`;
+// admin
+const PaymentAdminUrl = `${PaymentService}/admin`;
+export const GetRevenuePerMonth = `${PaymentAdminUrl}/revenue`;
+export const GetTopSellingProductByYear = `${PaymentAdminUrl}/sellingProduct`;
+export const GetPaymentStatusPercentageByYear = `${PaymentAdminUrl}/percentage`;
+export const GetPaymentYears = `${PaymentAdminUrl}/years`;
 // shop service
 const ShopService = `${ServerURL}/shop`;
 // home
@@ -55,6 +92,8 @@ export const RecommendedProductsByCategoryUrl = `${SearchUrl}/recommended`;
 // product admin
 const ProductUrl = `${ShopService}/product`;
 export const ProductAdminUrl = `${ProductUrl}`;
+export const ProductSizeAdminUrl = `${ProductAdminUrl}/size`;
+export const ProductSizesAdminUrl = `${ProductAdminUrl}/sizes`;
 export const UploadProductImageUrl = `${ProductUrl}/image/upload`;
 // category admin
 const CategoryUrl = `${ShopService}/category`;
@@ -107,7 +146,6 @@ export const FulfillOrderUrl = `${EmployeeOrderUrl}/fulfill`;
 export const EmployeeOrdersUrl = `${EmployeeOrderPathUrl}/orders`;
 export const EmployeeOrderSummarysUrl = `${EmployeeOrderPathUrl}/summary`;
 
-
 // ws 
 // topic ws
 const TopicWsPrefix = '/topic';
@@ -124,3 +162,7 @@ export const QUEUE_MESSAGES = `${UserDestinationPrefix}/queue/messages`
 // gateway service
 export const LoginUrl = `${ServerURL}/login`;
 export const LogoutUrl = `${ServerURL}/logout`;
+export const RegisterCustomerUrl = `${ServerURL}/register`;
+export const ForgotUrl = `${ServerURL}/forgot`;
+export const VerifyResetPasswordUrl = `${ServerURL}/verifyReset`;
+export const ResetPasswordUrl = `${ServerURL}/reset`;

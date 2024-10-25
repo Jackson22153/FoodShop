@@ -18,8 +18,6 @@ public class Employee{
     private String userID;
     private String username;
     private String email;
-    private String firstName;
-    private String lastName;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
@@ -31,5 +29,7 @@ public class Employee{
     private String title;
     private String address;
     private String city;
+    private String district;
+    private String ward;
     private String notes;
 }

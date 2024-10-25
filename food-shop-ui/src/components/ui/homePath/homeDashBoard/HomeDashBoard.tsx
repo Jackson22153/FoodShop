@@ -85,7 +85,7 @@ function HomeDashBoardComponent(){
                                 </div>
                                 <div className="mt-5"></div>
                                 <div className="form-group">
-                                    <input type="email" className="form-control" id="message-contact" placeholder="Message"/>
+                                    <input type="text" className="form-control" id="message-contact" placeholder="Message"/>
                                 </div>
                                 <div className="mt-5"></div>
 

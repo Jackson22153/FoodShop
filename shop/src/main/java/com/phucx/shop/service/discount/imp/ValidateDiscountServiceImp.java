@@ -9,15 +9,16 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.phucx.model.ProductDiscountsDTO;
 import com.phucx.shop.constant.DiscountTypeConst;
 import com.phucx.shop.exceptions.ExceedMaxDiscountException;
 import com.phucx.shop.exceptions.InvalidDiscountException;
 import com.phucx.shop.exceptions.NotFoundException;
 import com.phucx.shop.model.DiscountDetail;
-import com.phucx.shop.model.ProductDiscountsDTO;
 import com.phucx.shop.model.ResponseFormat;
 import com.phucx.shop.repository.DiscountDetailRepository;
 import com.phucx.shop.service.discount.ValidateDiscountService;
+import com.phucx.shop.utils.LocalDateTimeUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +29,8 @@ public class ValidateDiscountServiceImp implements ValidateDiscountService{
     @Autowired
     private DiscountDetailRepository discountDetailRepository;
 
-    private Boolean validateDiscountsOfProduct(ProductDiscountsDTO productDiscounts) throws NotFoundException, ExceedMaxDiscountException {
+    private Boolean validateDiscountsOfProduct(ProductDiscountsDTO productDiscounts
+    ) throws NotFoundException, ExceedMaxDiscountException {
         log.info("validateDiscountsOfProduct({})", productDiscounts);
         Integer productID = productDiscounts.getProductID();
         List<DiscountDetail> discounts = discountDetailRepository.findAllByDiscountIDAndProductID(
@@ -44,9 +46,13 @@ public class ValidateDiscountServiceImp implements ValidateDiscountService{
                 .orElseThrow(()-> new NotFoundException("Discount " + discount.getDiscountID() + " does not found!"));
             // validate discount based on type
             if(discount.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Percentage_based.getValue())){
-                return this.validatePercenageBasedDiscount(discount, productDiscounts.getAppliedDate());
+                LocalDateTime appliedDateTime = LocalDateTimeUtils
+                    .converter(productDiscounts.getAppliedDate());
+                return this.validatePercenageBasedDiscount(discount, appliedDateTime);
             }else if(discount.getDiscountType().equalsIgnoreCase(DiscountTypeConst.Code.getValue())){
-                return this.validateCodeDiscount(discount, productDiscounts.getAppliedDate());
+                LocalDateTime appliedDateTime = LocalDateTimeUtils
+                    .converter(productDiscounts.getAppliedDate());
+                return this.validateCodeDiscount(discount, appliedDateTime);
             }else {
                 throw new NotFoundException("Discount type " + discount.getDiscountType() + " does not found");
             }

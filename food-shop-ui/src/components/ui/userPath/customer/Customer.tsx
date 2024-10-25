@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import UserInformationComponent from './information/UserInformation';
-import { CUSTOMER_INFO, CUSTOMER_NOTIFICATION, CUSTOMER_ORDER, FORBIDDEN_ERROR_PAGE 
+import { CUSTOMER_INFO, CUSTOMER_NOTIFICATION, CUSTOMER_ORDER, FORBIDDEN_ERROR_PAGE, SETTING_PATH 
 } from '../../../../constant/FoodShoppingURL';
 import UserOrdersComponent from './order/UserOrders';
 import UserOrderComponent from './order/UserOrder';
@@ -13,6 +13,7 @@ import { logout } from '../../../../api/AuthorizationApi';
 import { Modal } from '../../../../model/WebType';
 import ModalComponent from '../../../shared/functions/modal/Modal';
 import { isCustomer } from '../../../../api/UserApi';
+import SettingComponent from './setting/Setting';
 import { AuthorizationUserUrl } from '../../../../constant/FoodShoppingApiURL';
 
 export default function CustomerComponent(){
@@ -112,7 +113,7 @@ export default function CustomerComponent(){
 
     return(
         <div className='my-4 customer-page p-4 position-relative'>
-            <div className="container my-5">
+            <div className="container my-5 user-profile">
                 <nav className='z-3'>
                     <div className="logo cursor-pointer" onClick={onClickShowSideBar} ref={logoRef}>
                         <span className='mx-3'><i><FontAwesomeIcon icon={faBars}/></i></span>
@@ -128,7 +129,7 @@ export default function CustomerComponent(){
                                 <li className="list nav-item">
                                     <Link to={CUSTOMER_INFO}>
                                         <div className={`nav-link ${selectedPath===0?'active': ''}`}>
-                                            <span className="link">Informaiton</span>
+                                            <span className="link">Information</span>
                                         </div>
                                     </Link>
                                 </li>
@@ -156,7 +157,7 @@ export default function CustomerComponent(){
                                             <span className="link">Setting</span>
                                         </div>
                                     </Link>
-                                </li>
+                                </li> 
                                 <li className="list nav-item">
                                     <Link to={"/"}>
                                         <div className={`nav-link`}>
@@ -185,6 +186,7 @@ export default function CustomerComponent(){
                         <Route path='order' element={<UserOrdersComponent/>}></Route>
                         <Route path='order/:orderId' element={<UserOrderComponent/>}></Route>
                         <Route path='notification' element={<UserNotificationComponent/>}></Route>
+                        <Route path='setting' element={<SettingComponent/>}></Route>
                     </Routes>
                 </div>
             </div>

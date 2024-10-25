@@ -19,6 +19,7 @@ import com.phucx.order.model.DiscountDetail;
 import com.phucx.order.model.Employee;
 import com.phucx.order.model.Invoice;
 import com.phucx.order.model.InvoiceDetails;
+import com.phucx.order.model.InvoiceDetailsBuilder;
 import com.phucx.order.model.Order;
 import com.phucx.order.model.OrderDetail;
 import com.phucx.order.model.OrderDetailDiscount;
@@ -28,6 +29,8 @@ import com.phucx.order.model.OrderItem;
 import com.phucx.order.model.OrderItemDiscount;
 import com.phucx.order.model.OrderProduct;
 import com.phucx.order.model.OrderWithProducts;
+import com.phucx.order.model.OrderWithProductsBuilder;
+import com.phucx.order.model.PaymentDetails;
 import com.phucx.order.model.Product;
 import com.phucx.order.model.ProductWithBriefDiscount;
 import com.phucx.order.model.Shipper;
@@ -37,8 +40,10 @@ import com.phucx.order.service.customer.CustomerService;
 import com.phucx.order.service.discount.DiscountService;
 import com.phucx.order.service.employee.EmployeeService;
 import com.phucx.order.service.order.ConvertOrderService;
+import com.phucx.order.service.payment.PaymentService;
 import com.phucx.order.service.product.ProductService;
 import com.phucx.order.service.shipper.ShipperService;
+import com.phucx.order.utils.BigDecimalUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,6 +64,8 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
     private OrderDetailRepository orderDetailRepository;
     @Autowired
     private OrderDetailDiscountRepository orderDetailDiscountRepository;
+    @Autowired
+    private PaymentService paymentService;
 
     @Override
     public InvoiceDetails convertInvoiceDetails(List<Invoice> invoices) throws JsonProcessingException, NotFoundException {
@@ -66,27 +73,49 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
         if(invoices.isEmpty()) return null;
         // fetch invoice
         Invoice invoice = invoices.get(0);
-        // fetch employee
-        Employee fetchedEmployee = null;
-        if(invoice.getEmployeeID()!=null){
-            fetchedEmployee = this.employeeService.getEmployeeByID(invoice.getEmployeeID());
-        }
-        String salesperson = fetchedEmployee!=null?fetchedEmployee.getLastName() + " " + fetchedEmployee.getFirstName():null;
+        // // fetch employee
+        // Employee fetchedEmployee = null;
+        // if(invoice.getEmployeeID()!=null){
+        //     fetchedEmployee = this.employeeService.getEmployeeByID(invoice.getEmployeeID());
+        // }
+        // String salesperson = fetchedEmployee!=null?fetchedEmployee.getLastName() + " " + fetchedEmployee.getFirstName():null;
         // fetch shipper
-        Shipper fetchedShipper = this.shipperService.getShipper(invoice.getShipperID());
+        Shipper fetchedShipper = this.shipperService
+            .getShipper(invoice.getShipperID());
         // fetch products
-        List<Integer> productIds = invoices.stream().map(Invoice::getProductID).collect(Collectors.toList());
-        List<Product> fetchedProducts = this.productService.getProducts(productIds);
+        List<Integer> productIds = invoices.stream()
+            .map(Invoice::getProductID)
+            .collect(Collectors.toList());
+        List<Product> fetchedProducts = this.productService
+            .getProducts(productIds);
         // fetch discounts
-        List<String> discountIds = invoices.stream().map(Invoice::getDiscountID).collect(Collectors.toList());
-        List<DiscountDetail> fetchedDiscounts = this.discountService.getDiscounts(discountIds);
+        List<String> discountIds = invoices.stream()
+            .map(Invoice::getDiscountID)
+            .collect(Collectors.toList());
+        List<DiscountDetail> fetchedDiscounts = this.discountService
+            .getDiscounts(discountIds);
+        // fetch payment
+        PaymentDetails paymentDetails = paymentService
+            .getPayment(invoice.getOrderID());
         // create an invoice
-        InvoiceDetails invoiceDetails = new InvoiceDetails(
-            invoice.getOrderID(), invoice.getCustomerID(), invoice.getEmployeeID(), 
-            salesperson, invoice.getShipName(), invoice.getShipAddress(), 
-            invoice.getShipCity(), invoice.getPhone(), invoice.getOrderDate(), 
-            invoice.getRequiredDate(), invoice.getShippedDate(), fetchedShipper.getCompanyName(), 
-            invoice.getFreight(), invoice.getStatus()); 
+        InvoiceDetails invoiceDetails = new InvoiceDetailsBuilder()
+            .withOrderID(invoice.getOrderID())
+            .withCustomerID(invoice.getCustomerID())
+            .withEmployeeID(invoice.getEmployeeID())
+            .withShipName(invoice.getShipName())
+            .withShipAddress(invoice.getShipAddress())
+            .withShipCity(invoice.getShipCity())
+            .withShipDistrict(invoice.getShipDistrict())
+            .withShipWard(invoice.getShipWard())
+            .withPhone(invoice.getPhone())
+            .withOrderDate(invoice.getOrderDate())
+            .withRequiredDate(invoice.getRequiredDate())
+            .withShippedDate(invoice.getShippedDate())
+            .withShipperName(fetchedShipper.getCompanyName())
+            .withFreight(invoice.getFreight())
+            .withStatus(invoice.getStatus())
+            .withPaymentMethod(paymentDetails.getMethodName())
+            .build();
         // convert invoice of customer
         List<ProductWithBriefDiscount> products = invoiceDetails.getProducts();
 
@@ -100,7 +129,10 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
                     tempInvoice.getProductID(), product.getProductName(), tempInvoice.getUnitPrice(), 
                     tempInvoice.getQuantity(), product.getPicture(), tempInvoice.getExtendedPrice());
                 // set totalprice for invoice
-                invoiceDetails.setTotalPrice(tempInvoice.getExtendedPrice().add(invoiceDetails.getTotalPrice()));
+                BigDecimal totalPrice = BigDecimalUtils.formatter(
+                    tempInvoice.getExtendedPrice()
+                        .add(invoiceDetails.getTotalPrice()));
+                invoiceDetails.setTotalPrice(totalPrice);
                 products.add(productWithBriefDiscount);
             }
             // add new discount for product
@@ -113,7 +145,8 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
                     tempInvoice.getDiscountPercent(), 
                     discount.getDiscountType());
                 products.get(products.size()-1).getDiscounts().add(discountBreifInfo);
-                products.get(products.size()-1).setTotalDiscount(products.get(products.size()-1).getTotalDiscount() + tempInvoice.getDiscountPercent());
+                Integer totalDiscount = products.get(products.size()-1).getTotalDiscount() + tempInvoice.getDiscountPercent();
+                products.get(products.size()-1).setTotalDiscount(totalDiscount);
             }
         }
         return invoiceDetails;
@@ -139,25 +172,32 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
                 Customer customer = this.findCustomer(fetchedCustomers, order.getCustomerID())
                     .orElseThrow(()-> new NotFoundException("Customer " + order.getCustomerID() + " does not found"));
                 // create an order
-                OrderDetails orderDTO = new OrderDetails();
-                orderDTO.setOrderID(order.getOrderID());
-                orderDTO.setStatus(order.getStatus());
+                OrderDetails newOrder = new OrderDetails();
+                newOrder.setOrderID(order.getOrderID());
+                newOrder.setStatus(order.getStatus());
+                newOrder.setFreight(order.getFreight());
                 // set customer
-                orderDTO.setCustomerID(customer.getCustomerID());
-                orderDTO.setContactName(customer.getContactName());
-                orderDTO.setPicture(customer.getPicture());
+                newOrder.setCustomerID(customer.getCustomerID());
+                newOrder.setContactName(customer.getContactName());
+                newOrder.setPicture(customer.getPicture());
                 // add order to a list of order
-                orderDetails.add(orderDTO);
+                orderDetails.add(newOrder);
             }
             Product product = findProduct(fetchedProducts, order.getProductID())
                 .orElseThrow(()-> new NotFoundException("Product " + order.getProductID() + " does not found"));
             // add new product to the newest OrderDetail
-            OrderProduct OrderProduct = new OrderProduct(order.getProductID(), product.getProductName(), 
-                order.getUnitPrice(), order.getQuantity(), order.getDiscount(), order.getExtendedPrice(),
+            OrderProduct OrderProduct = new OrderProduct(
+                order.getProductID(), 
+                product.getProductName(), 
+                order.getUnitPrice(), 
+                order.getQuantity(), 
+                order.getDiscount(), 
+                order.getExtendedPrice(),
                 product.getPicture());
+            // set price
             orderDetails.get(orderDetails.size()-1).getProducts().add(OrderProduct);
-            orderDetails.get(orderDetails.size()-1).setTotalPrice(
-                orderDetails.get(orderDetails.size()-1).getTotalPrice().add(order.getExtendedPrice()));
+            BigDecimal totalPrice = orderDetails.get(orderDetails.size()-1).getTotalPrice().add(order.getExtendedPrice());
+            orderDetails.get(orderDetails.size()-1).setTotalPrice(BigDecimalUtils.formatter(totalPrice));
             
         }
         return orderDetails;
@@ -172,15 +212,19 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
         OrderDetailExtended firstElement = orderDetailExtendeds.get(0);
         // get customer
         String customerID = firstElement.getCustomerID();
-        Customer fetchedCustomer = customerService.getCustomerByID(customerID);
+        Customer fetchedCustomer = customerService
+            .getCustomerByID(customerID);
         // get products
-        List<Integer> productIds = orderDetailExtendeds.stream().map(OrderDetailExtended::getProductID).collect(Collectors.toList());
-        List<Product> fetchedProducts = productService.getProducts(productIds);
-        
+        List<Integer> productIds = orderDetailExtendeds.stream()
+            .map(OrderDetailExtended::getProductID)
+            .collect(Collectors.toList());
+        List<Product> fetchedProducts = productService
+            .getProducts(productIds);
         // create an orderdetails instance
         OrderDetails order = new OrderDetails();
         order.setOrderID(firstElement.getOrderID());
         order.setStatus(firstElement.getStatus());
+        order.setFreight(firstElement.getFreight());
         // set employee of order
         order.setEmployeeID(firstElement.getEmployeeID());
         // set customer of order
@@ -190,17 +234,23 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
         // set product for order
         for(OrderDetailExtended orderDetailExtended: orderDetailExtendeds){
             Product product = this.findProduct(fetchedProducts, orderDetailExtended.getProductID())
-                .orElseThrow(()-> new NotFoundException("Product " + orderDetailExtended.getProductID() + " does not found"));
+                .orElseThrow(()-> new NotFoundException(
+                    "Product " + orderDetailExtended.getProductID() + 
+                    " does not found"));
             // add new product to the newest OrderDetail
             OrderProduct orderProduct = new OrderProduct(
-                orderDetailExtended.getProductID(), product.getProductName(), 
-                orderDetailExtended.getUnitPrice(), orderDetailExtended.getQuantity(), 
-                orderDetailExtended.getDiscount(), orderDetailExtended.getExtendedPrice(),
+                orderDetailExtended.getProductID(), 
+                product.getProductName(), 
+                orderDetailExtended.getUnitPrice(), 
+                orderDetailExtended.getQuantity(), 
+                orderDetailExtended.getDiscount(), 
+                orderDetailExtended.getExtendedPrice(),
                 product.getPicture());
             // add products to order
             order.getProducts().add(orderProduct);
             // set order totalPrice
-            order.setTotalPrice(order.getTotalPrice().add(orderDetailExtended.getExtendedPrice()));
+            order.setTotalPrice(order.getTotalPrice()
+                .add(orderDetailExtended.getExtendedPrice()));
         }
         return order;
     }
@@ -211,7 +261,8 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
         // fetch infomation
         // get customer
         String customerID = order.getCustomerID();
-        Customer fetchedCustomer = customerService.getCustomerByID(customerID);
+        Customer fetchedCustomer = customerService
+            .getCustomerByID(customerID);
         // get employee
         Employee fetchedEmployee = null;
         if(order.getEmployeeID()!=null){
@@ -219,22 +270,41 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
         }
         // get shipper
         Integer shipperID = order.getShipVia();
-        Shipper fetchedShipper = shipperService.getShipper(shipperID);
+        Shipper fetchedShipper = shipperService
+            .getShipper(shipperID);
         // get products
-        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderID(order.getOrderID());
-        List<Integer> productIds = orderDetails.stream().map(OrderDetail::getProductID).collect(Collectors.toList());
-        List<Product> products = productService.getProducts(productIds);
-
+        List<OrderDetail> orderDetails = orderDetailRepository
+            .findByOrderID(order.getOrderID());
+        List<Integer> productIds = orderDetails.stream()
+            .map(OrderDetail::getProductID)
+            .collect(Collectors.toList());
+        List<Product> products = productService
+            .getProducts(productIds);
+        // fetch payment
+        PaymentDetails paymentDetails = paymentService
+            .getPayment(order.getOrderID());
         // create and order
-        OrderWithProducts orderWithProducts = new OrderWithProducts(
-            order.getOrderID(), customerID, fetchedCustomer.getContactName(), 
-            fetchedEmployee!=null?fetchedEmployee.getEmployeeID():null, fetchedEmployee!=null?
-            fetchedEmployee.getFirstName() + " " + fetchedEmployee.getLastName():null, order.getOrderDate(), 
-            order.getRequiredDate(), order.getShippedDate(), shipperID, 
-            fetchedShipper.getCompanyName(), fetchedShipper.getPhone(), order.getFreight(), 
-            order.getShipName(), order.getShipAddress(), order.getShipCity(), order.getPhone(), 
-            order.getStatus());
-
+        OrderWithProducts orderWithProducts = new OrderWithProductsBuilder()
+            .withOrderID(order.getOrderID())
+            .withCustomerID(customerID)
+            .withContactName(fetchedCustomer.getContactName())
+            .withEmployeeID(fetchedEmployee!=null?fetchedEmployee.getEmployeeID():null)
+            // .withSalesPerson()
+            .withMethod(paymentDetails.getMethodName())
+            .withOrderDate(order.getOrderDate())
+            .withRequiredDate(order.getRequiredDate())
+            .withShippedDate(order.getShippedDate())
+            .withShipVia(shipperID)
+            .withShipperName(fetchedShipper.getCompanyName())
+            .withShipperPhone(fetchedShipper.getPhone())
+            .withFreight(order.getFreight())
+            .withShipName(order.getShipName())
+            .withShipAddress(order.getShipAddress())
+            .withShipCity(order.getShipCity())
+            .withShipWard(order.getShipWard())
+            .withPhone(order.getPhone())
+            .withStatus(order.getStatus())
+            .build();
         
         for(OrderDetail orderDetail: orderDetails){
             // find product
@@ -250,14 +320,19 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
             List<OrderDetailDiscount> orderDetailDiscounts = orderDetailDiscountRepository
                 .findByOrderIDAndProductID(orderID, productID);
             // get discounts of product
-            List<String> discountIds = orderDetailDiscounts.stream().map(OrderDetailDiscount::getDiscountID).collect(Collectors.toList());
-            List<DiscountDetail> fetchedDiscounts = discountService.getDiscounts(discountIds);
+            List<String> discountIds = orderDetailDiscounts.stream()
+                .map(OrderDetailDiscount::getDiscountID)
+                .collect(Collectors.toList());
+            List<DiscountDetail> fetchedDiscounts = discountService
+                .getDiscounts(discountIds);
             // add discount
             List<OrderItemDiscount> discounts = new ArrayList<>();
             for(OrderDetailDiscount orderDetailDiscount: orderDetailDiscounts){
                 // find discount
                 DiscountDetail fetchedDiscount = this.findDiscount(fetchedDiscounts, orderDetailDiscount.getDiscountID())
-                    .orElseThrow(()-> new NotFoundException("Discount "+orderDetailDiscount.getDiscountID() + " does not found"));
+                    .orElseThrow(()-> new NotFoundException(
+                        "Discount "+ orderDetailDiscount.getDiscountID() + 
+                        " does not found"));
                 OrderItemDiscount discount = new OrderItemDiscount(
                     orderDetailDiscount.getDiscountID(), 
                     orderDetailDiscount.getAppliedDate(), 
@@ -275,6 +350,7 @@ public class ConvertOrderServiceImp implements ConvertOrderService{
             BigDecimal extendedPrice = BigDecimal.valueOf(orderDetail.getQuantity())
                 .multiply(orderDetail.getUnitPrice())
                 .multiply(productDiscount);
+            extendedPrice = BigDecimalUtils.formatter(extendedPrice);
 
             orderWithProducts.setTotalPrice(orderWithProducts.getTotalPrice().add(extendedPrice));
             // log.info("totalPrice {}", totalPrice);

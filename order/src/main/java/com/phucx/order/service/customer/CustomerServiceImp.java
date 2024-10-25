@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.phucx.order.constant.EventType;
+import com.phucx.constant.EventType;
+import com.phucx.model.CustomerDTO;
+import com.phucx.model.DataDTO;
+import com.phucx.model.EventMessage;
 import com.phucx.order.constant.MessageQueueConstant;
 import com.phucx.order.exception.NotFoundException;
 import com.phucx.order.model.Customer;
-import com.phucx.order.model.CustomerDTO;
-import com.phucx.order.model.DataDTO;
-import com.phucx.order.model.EventMessage;
 import com.phucx.order.service.messageQueue.MessageQueueService;
 import lombok.extern.slf4j.Slf4j;
 

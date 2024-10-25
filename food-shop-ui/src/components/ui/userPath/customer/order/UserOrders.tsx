@@ -10,6 +10,7 @@ import notificationMessagesContext from "../../../../contexts/NotificationMessag
 import { ModalContextType } from "../../../../../model/WebType";
 import modalContext from "../../../../contexts/ModalContext";
 import { Link, useSearchParams } from "react-router-dom";
+import { ceilRound } from "../../../../../service/Convert";
 
 export default function UserOrdersComponent(){
     const [listOrders, setListOrders] = useState<OrderDetail[]>([])
@@ -184,13 +185,15 @@ export default function UserOrdersComponent(){
                                     </ul>
                                     <div className="card-footer mt-2">
                                         <div className="row justify-content-between">
-                                            <div className="col-md-3 d-flex justify-content-center">
+                                            <div className="col-md-3 px-5 flex-column d-flex justify-content-center">
                                                 <p className="h6">Status: {order.status}</p>
+                                                <p className="h6">Freight: {order.freight}</p>
                                             </div>
                                             <div className="col-md-3 d-flex justify-content-center">
-                                                <p className="h6">Total Price: {order.totalPrice}</p>
+                                                <p className="h6">Total Price: {ceilRound(order.totalPrice + order.freight)}</p>
                                             </div>
                                         </div>
+                                        <hr />
                                         <div className="d-flex justify-content-end">
                                             <a href={`${CUSTOMER_ORDER}/${order.orderID}`} className="btn btn-info text-white">View order</a>
                                             <button className="btn btn-primary mx-2" onClick={(_e)=>onClickReceive(order)}>Receive Order</button>
@@ -231,13 +234,15 @@ export default function UserOrdersComponent(){
                                     </ul>
                                     <div className="card-footer mt-2">
                                         <div className="row justify-content-between">
-                                            <div className="col-md-3 d-flex justify-content-center">
+                                            <div className="col-md-3 px-5 flex-column d-flex justify-content-center">
                                                 <p className="h6">Status: {order.status}</p>
+                                                <p className="h6">Freight: {order.freight}</p>
                                             </div>
                                             <div className="col-md-3 d-flex justify-content-center">
-                                                <p className="h6">Total Price: {order.totalPrice}</p>
+                                                <p className="h6">Total Price: {ceilRound(order.totalPrice + order.freight)}</p>
                                             </div>
                                         </div>
+                                        <hr />
                                         <div className="row d-flex justify-content-end">
                                             <div className="col-md-3 d-flex justify-content-center">
                                                 <a href={`${CUSTOMER_ORDER}/${order.orderID}`} className="btn btn-primary">View order</a>

@@ -12,6 +12,11 @@ export const NOTIFICATION_TYPE={
     ERROR: 'error',
     CANCEL: 'cancel'
 }
+// ORDER PAYMENT STATUS
+export const ORDER_PAYMENT_STATUS = {
+    SUCCESSFUL: 'successful',
+    CANCELED: 'canceled'
+}
 // ORDER NOTIFICATION
 export const ORDER_NOTIFICATION = {
     PLACE_ORDER: 'place_order', 
@@ -34,7 +39,6 @@ export const DISCOUNT_TYPE = {
     CODE: 'Code',
     PERCENTAGE_BASED: "Percentage-based"
 }
-
 // CART COOKIE
 export const CART_COOKIE = 'cart';
 // ALERT TIMEOUT
@@ -56,4 +60,12 @@ export const MARK_NOTIFICATION_TYPE = {
     ALL: 'All',
     NOTIFICATION: 'Notification',
     BROADCAST: 'Broadcast'
+}
+
+// USER SEARCH
+export const USER_SEARCH = {
+    EMAIL: 'EMAIL',
+    FIRSTNAME: 'FIRSTNAME',
+    LASTNAME: 'LASTNAME',
+    USERNAME: 'USERNAME',
 }

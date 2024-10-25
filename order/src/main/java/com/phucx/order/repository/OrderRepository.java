@@ -27,10 +27,22 @@ public interface OrderRepository extends JpaRepository<Order, String>{
     @Modifying
     @Transactional
     @Procedure("insertOrder")
-    public Boolean insertOrder(String orderID, 
-        LocalDateTime orderDate, LocalDateTime requiredDate, LocalDateTime shippedDate, 
-        BigDecimal freight, String shipName, String shipAddress, String shipCity, 
-        String phone, String status, String customerID, String employeeID, Integer shipperID);
+    public Boolean insertOrder(
+        String orderID, 
+        LocalDateTime orderDate, 
+        LocalDateTime requiredDate, 
+        LocalDateTime shippedDate, 
+        BigDecimal freight, 
+        String shipName, 
+        String shipAddress, 
+        String shipCity, 
+        String shipDistrict, 
+        String shipWard, 
+        String phone, 
+        String status, 
+        String customerID, 
+        String employeeID, 
+        Integer shipperID);
 
     @Modifying
     @Transactional

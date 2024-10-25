@@ -20,7 +20,8 @@ public interface CustomerDetailRepository extends JpaRepository<CustomerDetail, 
     @Transactional
     @Procedure(name = "UpdateCustomerInfo")
     Boolean updateCustomerInfo(String customerID, String contactName, 
-        String address, String city, String phone, String picture);
+        String address, String city, String district, String ward, 
+        String phone, String picture);
 
     @Modifying
     @Transactional
